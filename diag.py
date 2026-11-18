@@ -66,7 +66,8 @@ def resume(url):
                 return
             if isinstance(o, list) and o and isinstance(o[0], dict) and any(re.search("price", kk, re.I) for kk in json.dumps(o[0])[:4000].split('"')):
                 print("--- liste avec prix : %s (%d éléments) ---" % (chemin, len(o)))
-                print(json.dumps(o[0], ensure_ascii=False)[:1800])
+                o0 = dict(o[0]); o0.pop("offerImages", None); o0.pop("categoryPaths", None)
+                print(json.dumps(o0, ensure_ascii=False)[:2500])
                 return
             if isinstance(o, dict):
                 for k, v in o.items():
@@ -79,6 +80,10 @@ def resume(url):
         print("--- __NEXT_DATA__ : clés prix / offres ---")
         for c in chemins[:60]:
             print("  ", c)
+    print("--- tous les liens (échantillon) ---")
+    tous = sorted(set(re.findall(r'href="(https://www\.bonial\.fr/[^"]+)"', page)))
+    for l in [x for x in tous if re.search(r"\d{6,}|/b/|Promos/|Apercu|Catalogue", x)][:50]:
+        print("  ", l)
     print("--- liens catalogues ---")
     for l in sorted(set(re.findall(r'href="([^"]*(?:brochure|catalogue|/b-|/Magasins/)[^"]*)"', page)))[:30]:
         print("  ", l)
