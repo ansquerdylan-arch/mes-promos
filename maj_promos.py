@@ -672,6 +672,13 @@ def mettre_a_jour(debug=False, log=print):
                 "ancien": False, "sources": sources}
         if magasin:
             info["magasin"] = magasin
+            fiche = telecharger(magasin, log)
+            st = ((((donnees_next(fiche) or {}).get("props") or {}).get("pageProps") or {}).get("pageInformation") or {}).get("store") or {}
+            if st:
+                info["adresse"] = " ".join(x for x in [str(st.get("houseNumber") or ""), st.get("street") or ""] if x).strip() + \
+                    (", %s %s" % (st.get("zipCode") or "", st.get("cityName") or "")).rstrip()
+                if st.get("lat") and st.get("lng"):
+                    info["lat"], info["lng"] = st["lat"], st["lng"]
         if promos:
             resultat["enseignes"][ens["id"]] = info
             resultat["promos"] += promos

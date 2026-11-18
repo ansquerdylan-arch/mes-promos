@@ -6,15 +6,9 @@
   "villes_voisines": [
     "Les-Sables-Dolonne",
     "Chateau-Dolonne",
-    "Talmont-Saint-Hilaire",
-    "La-Mothe-Achard",
-    "Bretignolles-sur-Mer",
-    "Saint-Gilles-Croix-de-Vie",
     "La-Roche-sur-Yon",
     "Challans",
-    "Lucon",
-    "Aizenay",
-    "Nantes"
+    "Saint-Gilles-Croix-de-Vie"
   ],
   "ollama": {
     "url": "http://localhost:11434",
@@ -82,7 +76,7 @@
     {
       "id": "grandfrais",
       "nom": "Grand Frais",
-      "actif": true,
+      "actif": false,
       "bonial": {
         "ville": "Olonne-sur-Mer",
         "page": "Grand-Frais/p-r57"
@@ -91,7 +85,7 @@
     {
       "id": "picard",
       "nom": "Picard",
-      "actif": true,
+      "actif": false,
       "bonial": {
         "ville": "Olonne-sur-Mer",
         "page": "Picard/p-r143"

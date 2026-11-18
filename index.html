@@ -95,6 +95,12 @@ h3 { font-size: 15.5px; margin: 0; line-height: 1.25; text-wrap: balance; }
 .pct { background: var(--bad); color: #fff; font-weight: 700; font-size: 12px; border-radius: 6px; padding: 2px 6px; }
 .unit { font-size: 12px; color: var(--muted); }
 .plan { font-size: 13px; color: var(--good); font-weight: 600; }
+.cond { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.det { font-size: 12px; color: var(--muted); }
+.hist { font-size: 12px; color: var(--warn); font-weight: 600; }
+.b.low { background: var(--good); color: #fff; }
+.stale { background: var(--card); border: 1.5px solid var(--warn); border-left: 5px solid var(--warn); border-radius: 14px; padding: 12px 14px; display: grid; gap: 6px; }
+.store a { color: var(--accent); font-size: 12px; font-weight: 600; text-decoration: none; }
 .acts { display: flex; gap: 6px; margin-top: 3px; }
 .icon { border: 1.5px solid var(--line); background: transparent; border-radius: 10px; padding: 7px 10px; font-size: 13px; font-weight: 600; }
 .icon.on { background: var(--good); border-color: var(--good); color: #fff; }
@@ -237,6 +243,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
       </div>
     </div>
 
+    <div class="stale" id="staleBox" hidden></div>
     <div class="card" id="installBox" hidden></div>
     <div id="todayBox" hidden></div>
     <div class="card" id="agendaCard">
@@ -403,7 +410,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     envie: [], menu: null,
     fav: lire("fav", []), liste: lire("liste", []), watch: lire("watch", []),
     hidden: lire("hiddenStores", []), theme: lire("theme", "auto"),
-    vusAvant: lire("vus", []), nouveaux: {}, rdv: lire("rdv", []), agAll: false
+    vusAvant: lire("vus2", []), nouveaux: {}, rdv: lire("rdv", []), agAll: false
   };
 
   // ---------- utilitaires
@@ -411,7 +418,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   function ecrire(k, v) { try { localStorage.setItem("mespromos-" + k, JSON.stringify(v)); } catch (e) {} }
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-  function norm(t) { return String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim(); }
+  function norm(t) { return String(t || "").toLowerCase().replace(/œ/g, "oe").replace(/æ/g, "ae").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim(); }
   function euro(x) { return x == null ? "" : x.toFixed(2).replace(".", ",") + " €"; }
   function nomEns(id) { var e = S.data && S.data.enseignes[id]; return (e && e.nom) || id; }
   function coul(id) { return COULEURS[id] || "#8a93a6"; }
@@ -428,7 +435,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     if (mo < now.getMonth() - 6) y++;
     return new Date(y, mo, +m[1], 23, 59);
   }
-  function joursRestants(p) { var f = finValidite(p.validite); return f ? Math.floor((f - new Date()) / 86400000) : null; }
+  function joursRestants(p) { var f = p.fin ? new Date(p.fin + "T23:59:00") : finValidite(p.validite); return f ? Math.floor((f - new Date()) / 86400000) : null; }
   function finitBientot(p) { var j = joursRestants(p); return j != null && j >= 0 && j <= 2; }
   function surveille(p) {
     if (!S.watch.length) return false;
@@ -475,7 +482,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
       var ids = d.promos.map(function (p) { return p.id; });
       S.nouveaux = {};
       if (S.vusAvant.length) ids.forEach(function (id) { if (S.vusAvant.indexOf(id) < 0) S.nouveaux[id] = 1; });
-      ecrire("vus", ids);
+      ecrire("vus2", ids);
       tout();
     }).catch(function () { $("sub").innerHTML = '<span class="err">Promos introuvables, vérifie ta connexion</span>'; });
   }
@@ -493,8 +500,18 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   });
   fetch("recettes.json").then(function (r) { return r.json(); }).then(function (r) { S.recettes = r; if (S.data) { afficherPlats(); afficherAccueil(); } }).catch(function () {});
 
+  function afficherFraicheur() {
+    var d = S.data, dt = d && d.maj ? new Date(d.maj) : null, box = $("staleBox");
+    var h = dt ? (new Date() - dt) / 3600000 : 0;
+    if (!dt || h < 36) { box.hidden = true; return; }
+    var j = Math.floor(h / 24);
+    box.innerHTML = "<b>Promos pas mises à jour depuis " + (j >= 1 ? j + " jour" + (j > 1 ? "s" : "") : Math.round(h) + " h") + "</b><span class=\"muted\">" +
+      (S.mode === "pc" ? "Touche « Mettre à jour » en haut." : "La mise à jour automatique a peut-être un souci. Touche MAJ en haut pour la relancer, ou dis-le à Claude.") + "</span>";
+    box.hidden = false;
+  }
   function tout() {
     var d = S.data, dt = d.maj ? new Date(d.maj) : null;
+    afficherFraicheur();
     $("sub").textContent = (d.ville || "") + (dt ? " · à jour le " + dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " " + dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "");
     afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); afficherReglages(); afficherRdv(); afficherAgenda(); afficherInstall();
   }
@@ -508,14 +525,25 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     if (S.nouveaux[p.id]) badges += '<span class="b new">Nouveau</span>';
     if (finitBientot(p)) badges += '<span class="b end">' + (j === 0 ? "Dernier jour" : "Finit dans " + j + " j") + '</span>';
     if (surveille(p)) badges += '<span class="b watch">Surveillé</span>';
+    var h = p.histo, bas = h && p.prix != null && p.prix <= h.min - 0.005, deja = h && p.prix != null && p.prix > h.min + 0.005;
+    if (bas) badges += '<span class="b low">Plus bas prix vu</span>';
+    var deux = p.condition === "le 2e" && p.prix != null && p.avant;
+    var bloc = "";
+    if (p.prix != null) {
+      bloc = deux
+        ? '<div class="price"><span class="cond">Le 2e à</span><b>' + euro(p.prix) + '</b>' + (p.remise_2e ? '<span class="pct">-' + p.remise_2e + '% le 2e</span>' : '') + '</div><div class="unit">1er à ' + euro(p.avant) + ' · les 2 : ' + euro(p.avant + p.prix) + ' (-' + p.remise + '% au total)</div>'
+        : '<div class="price"><b>' + euro(p.prix) + '</b>' + (p.avant ? '<s>' + euro(p.avant) + '</s>' : '') + (p.remise ? '<span class="pct">-' + p.remise + '%</span>' : '') + '</div>';
+    }
     return '<article class="p" style="--sc:' + coul(p.enseigne) + '">' +
       '<div class="top"><span>' + esc(nomEns(p.enseigne)) + '</span>' + (opts.compact ? '' : '<span>' + esc(p.rayon) + '</span>') + '</div>' +
       (badges ? '<div class="badges">' + badges + '</div>' : '') +
       (p.marque ? '<div class="brand">' + esc(p.marque) + '</div>' : '') +
       '<h3>' + esc(p.nom) + '</h3>' +
-      (p.prix != null ? '<div class="price"><b>' + euro(p.prix) + '</b>' + (p.avant ? '<s>' + euro(p.avant) + '</s>' : '') + (p.remise ? '<span class="pct">-' + p.remise + '%</span>' : '') + '</div>' : '') +
+      bloc +
+      (!opts.compact && p.detail ? '<div class="det">' + esc(p.detail) + '</div>' : '') +
       (p.unite ? '<div class="unit">' + esc(p.unite) + '</div>' : '') +
-      (p.bon_plan ? '<div class="plan">' + esc(p.bon_plan) + '</div>' : '') +
+      (p.bon_plan && norm(p.bon_plan) !== norm(p.nom) ? '<div class="plan">' + esc(p.bon_plan) + '</div>' : (p.bon_plan && p.prix == null ? '<div class="plan">Bon plan</div>' : '')) +
+      (!opts.compact && deja ? '<div class="hist">Déjà vu à ' + euro(h.min) + ' le ' + h.min_date.slice(8, 10) + '/' + h.min_date.slice(5, 7) + '</div>' : '') +
       (!opts.compact && p.validite ? '<div class="unit">Valable ' + esc(p.validite) + '</div>' : '') +
       '<div class="acts"><button class="icon star' + (fav ? ' on' : '') + '" data-fav="' + esc(p.id) + '" aria-label="Favori" type="button">★</button>' +
       '<button class="icon' + (dans ? ' on' : '') + '" data-add="' + esc(p.id) + '" type="button">' + (dans ? '✓ Liste' : '+ Liste') + '</button></div>' +
@@ -549,15 +577,27 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     var plats = platsDuMoment(null);
     $("homeDish").innerHTML = plats.length ? carteRecette(plats[0].r, plats[0].promos) : '<div class="empty">Les idées de plats arrivent.</div>';
 
-    $("homeStores").innerHTML = Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0; }).map(function (k) {
+    $("homeStores").innerHTML = Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0 && S.data.enseignes[k].nb > 0; }).map(function (k) {
       var e = S.data.enseignes[k];
-      return '<button class="store" type="button" data-gostore="' + esc(k) + '" style="--sc:' + coul(k) + '"><b>' + esc(e.nom) + '</b><span>' + e.nb + ' promos</span>' + (e.validite ? '<span>' + esc(e.validite) + '</span>' : '') + (e.ancien ? '<span class="old">pas de nouveau catalogue</span>' : '') + '</button>';
+      return '<button class="store" type="button" data-gostore="' + esc(k) + '" style="--sc:' + coul(k) + '"><b>' + esc(e.nom) + '</b><span>' + e.nb + ' promos</span>' + (e.validite ? '<span>' + esc(e.validite) + '</span>' : '') + (e.ancien ? '<span class="old">pas de nouveau catalogue</span>' : '') + '</button>' + '';
     }).join("");
+    // itinéraires sous les cartes magasin
+    Object.keys(S.data.enseignes).forEach(function (k) {
+      var e = S.data.enseignes[k]; if (!e.lat || S.hidden.indexOf(k) >= 0) return;
+      var btn = document.querySelector('#homeStores [data-gostore="' + k + '"]'); if (!btn) return;
+      var url = IOS ? "https://maps.apple.com/?daddr=" + e.lat + "," + e.lng + "&q=" + encodeURIComponent(e.nom) : "https://www.google.com/maps/dir/?api=1&destination=" + e.lat + "," + e.lng;
+      btn.insertAdjacentHTML("beforeend", '<span>' + esc(e.adresse || "") + '</span>');
+      btn.insertAdjacentHTML("afterend", "");
+      var a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener"; a.textContent = "Itinéraire →";
+      a.style.cssText = "font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;margin-top:-4px";
+      var wrap = document.createElement("div"); wrap.style.cssText = "display:grid;gap:4px";
+      btn.parentNode.insertBefore(wrap, btn); wrap.appendChild(btn); wrap.appendChild(a);
+    });
   }
 
   // ---------- promos
   function afficherFiltres() {
-    var ens = Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0; });
+    var ens = Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0 && S.data.enseignes[k].nb > 0; });
     if (S.store !== "all" && ens.indexOf(S.store) < 0) S.store = "all";
     $("storeChips").innerHTML = '<button class="chip" type="button" data-store="all" aria-pressed="' + (S.store === "all") + '">Tous</button>' + ens.map(function (k) {
       return '<button class="chip" type="button" data-store="' + esc(k) + '" aria-pressed="' + (S.store === k) + '">' + dot(k) + esc(nomEns(k)) + '</button>';
@@ -605,24 +645,35 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     // comparateur : quand on cherche un produit présent dans plusieurs magasins, on marque le moins cher
     var cheapId = null;
     if (S.q.trim() && l.length > 1) {
-      var avecPrix = l.filter(function (p) { return p.prix != null; });
-      var mags = {}; avecPrix.forEach(function (p) { mags[p.enseigne] = 1; });
-      if (Object.keys(mags).length > 1) cheapId = avecPrix.reduce(function (m, p) { return !m || p.prix < m.prix ? p : m; }, null).id;
+      var parRayon = {};
+      l.forEach(function (p) { if (p.prix != null && p.condition !== "le 2e") (parRayon[p.rayon] = parRayon[p.rayon] || []).push(p); });
+      var grp = Object.keys(parRayon).map(function (k) { return parRayon[k]; }).sort(function (a, b) { return b.length - a.length; })[0] || [];
+      var mags = {}; grp.forEach(function (p) { mags[p.enseigne] = 1; });
+      if (grp.length > 1 && Object.keys(mags).length > 1) cheapId = grp.reduce(function (m, p) { return !m || p.prix < m.prix ? p : m; }, null).id;
     }
     $("count").textContent = l.length + (l.length > 1 ? " promos" : " promo") + (cheapId ? " · le moins cher est marqué en vert" : "");
     $("grid").innerHTML = l.length ? l.slice(0, 400).map(function (p) { return carte(p, { cheap: p.id === cheapId }); }).join("") : '<div class="empty">Aucune promo ne correspond. Essaie un autre mot ou enlève un filtre.</div>';
   }
 
   // ---------- plats
+  var SUCRE = / (dessert|desserts|glace|glacee|glaces|chocolat|vanille|caramel|tartiner|bonbon|biscuit|biscuits|gateau|gateaux|yaourt|yaourts|visage|mains|corps|liegeois) /;
+  function motPresent(t, alt) {
+    var a = norm(alt);
+    return t.indexOf(" " + a + " ") >= 0 || t.indexOf(" " + a + "s ") >= 0 || t.indexOf(" " + a + "x ") >= 0;
+  }
   function trouverPromo(alternatives, ens, exclure) {
     var best = null;
     visibles().forEach(function (p) {
-      if (ALIM.indexOf(p.rayon) < 0 || p.prix == null) return;
+      if (ALIM.indexOf(p.rayon) < 0 || p.rayon === "Épicerie sucrée" || p.prix == null) return;
       if (ens && ens !== "all" && p.enseigne !== ens) return;
       if (exclure && exclure[p.id]) return;
       var t = " " + norm(p.nom + " " + p.marque) + " ";
+      if (SUCRE.test(t)) return;
       for (var i = 0; i < alternatives.length; i++) {
-        if (t.indexOf(" " + norm(alternatives[i])) >= 0) { if (!best || (p.remise || 0) > (best.remise || 0)) best = p; return; }
+        var alt = norm(alternatives[i]);
+        if ((alt === "pomme" || alt === "pommes") && / (terre|noisette|noisettes|frites|dauphine|dauphines) /.test(t)) continue;
+        if (/pommes? de terre/.test(alt) && / (surgele|surgeles|surgelee|surgelees|noisette|noisettes|frites|dauphines) /.test(t)) continue;
+        if (motPresent(t, alt)) { if (!best || (p.remise || 0) > (best.remise || 0)) best = p; return; }
       }
     });
     return best;
@@ -636,8 +687,10 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
       return (b.promos.length / b.r.cles.length) - (a.promos.length / a.r.cles.length) || b.promos.length - a.promos.length;
     });
   }
+  var RECS = [];
   function carteRecette(r, promos, jour) {
     var ids = promos.map(function (p) { return p.id; }).join(",");
+    var rk = RECS.push({ r: r, promos: promos }) - 1;
     var toutes = promos.length && promos.every(function (p) { return dansListe(p.id); });
     return '<article class="r' + (jour ? ' day' : '') + '">' + (jour ? '<div class="dayname">' + esc(jour) + '</div>' : '') +
       '<div class="head"><h3>' + esc(r.nom) + '</h3>' + (r.temps ? '<span class="time">' + esc(r.temps) + ' min</span>' : '') + '</div>' +
@@ -646,11 +699,13 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
       ((r.tags || []).length ? '<div class="tags">' + r.tags.map(function (t) { return '<span class="t">' + esc(t) + '</span>'; }).join("") + '</div>' : '') +
       '<details><summary>Voir la recette</summary><b style="font-size:14px">Ingrédients</b><ul>' + (r.ingredients || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>' +
       '<b style="font-size:14px;display:block;margin-top:8px">Étapes</b><ol>' + (r.etapes || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ol></details>' +
-      (promos.length ? '<div><button class="icon' + (toutes ? ' on' : '') + '" type="button" data-addmany="' + esc(ids) + '">' + (toutes ? '✓ Promos dans la liste' : '+ Mettre les promos dans ma liste') + '</button></div>' : '') +
+      '<div class="row">' + (promos.length ? '<button class="icon' + (toutes ? ' on' : '') + '" type="button" data-addmany="' + esc(ids) + '">' + (toutes ? '✓ Promos dans la liste' : '+ Les promos') + '</button>' : '') +
+      '<button class="icon" type="button" data-addall="' + rk + '">+ Tous les ingrédients</button></div>' +
     '</article>';
   }
   function afficherPlats() {
     if (!S.data || !S.recettes.length) return;
+    RECS = [];
     var l = platsDuMoment(null);
     var tags = {}; l.forEach(function (x) { (x.r.tags || []).forEach(function (t) { tags[t] = 1; }); });
     $("platTags").innerHTML = ["Tous"].concat(Object.keys(tags).sort()).map(function (t) { return '<button class="chip" type="button" data-ptag="' + esc(t) + '" aria-pressed="' + (S.platTag === t) + '">' + esc(t) + '</button>'; }).join("");
@@ -662,7 +717,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   function afficherEnvie() {
     if (S.menu) {
       $("envieOut").innerHTML = S.menu.map(function (x, i) { return carteRecette(x.r, x.promos, JOURS[i]); }).join("") +
-        '<div class="card"><b>Tout le menu</b><span class="muted">' + S.menu.reduce(function (n, x) { return n + x.promos.length; }, 0) + ' produits en promo pour 5 soirs.</span><div><button class="btn primary" type="button" id="menuAll">Mettre tout le menu dans ma liste</button> <button class="btn" type="button" id="menuNew">Un autre menu</button></div></div>';
+        '<div class="card"><b>Tout le menu</b><span class="muted">' + S.menu.reduce(function (n, x) { return n + x.promos.length; }, 0) + ' produits en promo pour 5 soirs.</span><div><button class="btn primary" type="button" id="menuAll">Mettre tout le menu dans ma liste (promos + ingrédients)</button> <button class="btn" type="button" id="menuNew">Un autre menu</button></div></div>';
     } else {
       $("envieOut").innerHTML = S.envie.map(function (x) { return carteRecette(x.r, x.promos); }).join("");
     }
@@ -758,8 +813,28 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   function ajouter(p, force) {
     var dans = dansListe(p.id);
     if (dans && force !== true) S.liste = S.liste.filter(function (x) { return x.id !== p.id; });
-    else if (!dans) S.liste.push({ id: p.id, nom: p.nom, enseigne: p.enseigne, prix: p.prix, avant: p.avant || null, rayon: p.rayon, fait: false });
+    else if (!dans) {
+      var deux = p.condition === "le 2e" && p.prix != null && p.avant;
+      S.liste.push({ id: p.id, nom: p.nom + (deux ? " ×2 (le 2e à -" + (p.remise_2e || "") + "%)" : ""), enseigne: p.enseigne,
+        prix: deux ? Math.round((p.avant + p.prix) * 100) / 100 : p.prix, avant: deux ? p.avant * 2 : (p.avant || null), rayon: p.rayon, fait: false });
+    }
     ecrire("liste", S.liste);
+  }
+  // une recette entière : ses promos + les autres ingrédients (sans doublon avec les promos)
+  function ajouterRecette(x) {
+    var n = 0;
+    x.promos.forEach(function (p) { if (!dansListe(p.id)) { ajouter(p, true); n++; } });
+    var motsPromos = {};
+    x.promos.forEach(function (p) { norm(p.nom).split(" ").forEach(function (w) { if (w.length > 3) motsPromos[w.replace(/s$/, "")] = 1; }); });
+    (x.r.ingredients || []).forEach(function (ing) {
+      var mots = norm(ing).split(" ").filter(function (w) { return w.length > 3; });
+      if (mots.some(function (w) { return motsPromos[w.replace(/s$/, "")]; })) return;
+      if (S.liste.some(function (y) { return !y.enseigne && norm(y.nom) === norm(ing); })) return;
+      S.liste.push({ id: "m-" + Date.now() + "-" + n, nom: ing, enseigne: "", prix: null, rayon: "", fait: false, recette: x.r.nom });
+      n++;
+    });
+    ecrire("liste", S.liste);
+    return n;
   }
   function afficherListe() {
     var restant = S.liste.filter(function (x) { return !x.fait; });
@@ -1060,7 +1135,8 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
       ps.forEach(function (x) { if (toutes) ajouter(x); else ajouter(x, true); });
       toast(toutes ? "Retiré de la liste" : ps.length + " promos ajoutées à la liste"); rafraichir(); return;
     }
-    if (b.id === "menuAll") { var n = 0; S.menu.forEach(function (x) { x.promos.forEach(function (p) { if (!dansListe(p.id)) { ajouter(p, true); n++; } }); }); toast(n + " promos ajoutées à la liste"); rafraichir(); return; }
+    if (b.id === "menuAll") { var n = 0; S.menu.forEach(function (x) { n += ajouterRecette(x); }); toast(n + " articles ajoutés pour la semaine"); rafraichir(); return; }
+    if (ds.addall != null) { var rx = RECS[+ds.addall]; if (rx) { var k2 = ajouterRecette(rx); toast(k2 ? k2 + " articles ajoutés à la liste" : "Tout est déjà dans ta liste"); rafraichir(); } return; }
     if (b.id === "menuNew") { faireMenu(true); return; }
     if (ds.remind != null) { var ev2 = EVTS[+ds.remind]; if (ev2) rappeler(ev2); return; }
     if (ds.rdvcal != null) { calendrierRdv(S.rdv[+ds.rdvcal]); return; }
