@@ -64,6 +64,14 @@ def resume(url):
         marche(data, "")
         pi = data.get("props", {}).get("pageProps", {}).get("pageInformation", {})
         br = pi.get("brochures", {})
+        for cle_b in ("viewer", "publisher"):
+            for b0 in (br.get(cle_b) or [])[:3]:
+                pgs = b0.get("pages") or []
+                print("--- catalogue %s « %s » : %d pages dans les données (sur %s)" % (b0.get("id"), b0.get("title"), len(pgs), b0.get("pageCount") or "?"))
+                for pg0 in pgs[:3]:
+                    print("     page :", json.dumps(pg0, ensure_ascii=False)[:600])
+                autres = {k: v for k, v in b0.items() if k not in ("pages",)}
+                print("     autres champs :", json.dumps(autres, ensure_ascii=False)[:900])
         if br:
             print("--- brochures : clés", {k: len(v) if isinstance(v, list) else type(v).__name__ for k, v in br.items()})
             for k, v in br.items():
