@@ -124,6 +124,26 @@ h3 { font-size: 15.5px; margin: 0; line-height: 1.25; text-wrap: balance; }
 .wchip { display: inline-flex; align-items: center; gap: 6px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 4px 6px 4px 11px; font-size: 13px; font-weight: 600; }
 .wchip button { border: 0; background: var(--line); border-radius: 50%; width: 20px; height: 20px; line-height: 18px; font-size: 13px; padding: 0; }
 
+/* agenda */
+.today { background: var(--tag); color: var(--tag-ink); border-radius: 14px; padding: 12px 14px; font-weight: 600; display: grid; gap: 4px; }
+.today b { font: 700 18px var(--font-display); }
+.ag { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 10px 0 10px 12px; border-top: 1px solid var(--line); border-left: 4px solid var(--sc, var(--line)); }
+.ag:first-of-type { border-top: 0; }
+.ag .tt { font-weight: 600; font-size: 15px; }
+.ag .dd { font-size: 13px; color: var(--muted); }
+.ag .st { font-size: 11.5px; font-weight: 700; border-radius: 6px; padding: 2px 7px; white-space: nowrap; justify-self: end; }
+.st.now { background: var(--good); color: #fff; }
+.st.soon { background: var(--accent); color: #fff; }
+.st.last { background: var(--bad); color: #fff; }
+.st.later { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.ag .bell { grid-column: 2; justify-self: end; border: 1.5px solid var(--line); background: transparent; border-radius: 9px; padding: 4px 8px; font-size: 12px; font-weight: 600; }
+.daysel { display: flex; gap: 4px; flex-wrap: wrap; }
+.daysel label { display: inline-flex; }
+.daysel input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.daysel span { border: 1.5px solid var(--line); border-radius: 8px; padding: 5px 8px; font-size: 13px; font-weight: 600; }
+.daysel input:checked + span { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.daysel input:focus-visible + span { outline: 3px solid var(--accent); }
+
 /* plats */
 .recipes { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 10px; }
 .r { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 13px; display: grid; gap: 8px; align-content: start; }
@@ -215,6 +235,13 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
         <button class="stat" type="button" data-goto="promos" data-preset="new"><b id="stNew">–</b><span>nouvelles depuis ta visite</span></button>
         <button class="stat" type="button" data-goto="liste"><b id="stList">–</b><span>dans ta liste</span></button>
       </div>
+    </div>
+
+    <div id="todayBox" hidden></div>
+    <div class="card" id="agendaCard">
+      <div class="sec-head"><h2>Agenda des promos</h2><button class="link" type="button" id="agToggle">Tout voir</button></div>
+      <div id="agenda"></div>
+      <div class="row"><a class="btn primary" id="btnSubscribe" href="#" style="text-decoration:none">Recevoir les rappels dans mon calendrier</a></div>
     </div>
 
     <div id="homeWatch" class="card"></div>
@@ -337,6 +364,17 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
       <div class="row" id="watchList2"></div>
     </div>
     <div style="display:grid;gap:8px">
+      <b>Mes rendez-vous promo</b>
+      <span class="muted">Les offres qui reviennent : « 10 % sur la carte U le vendredi et samedi », « les mardis -10 % produits U »… Elles s'affichent dans l'agenda et tu peux les mettre dans ton calendrier.</span>
+      <form id="rdvForm" style="display:grid;gap:8px">
+        <input class="field" id="rdvTxt" placeholder="Ex. : 10 % sur la carte U" aria-label="Offre">
+        <div class="row"><select class="field" id="rdvStore" style="width:auto" aria-label="Magasin"></select></div>
+        <div class="daysel" id="rdvDays" role="group" aria-label="Jours"></div>
+        <div class="row"><label for="rdvWeeks" class="muted" style="font-weight:500">Répéter</label><select class="field" id="rdvWeeks" style="width:auto"><option value="1">cette semaine seulement</option><option value="0">toutes les semaines</option></select><button class="btn" type="submit">Ajouter</button></div>
+      </form>
+      <div id="rdvList" style="display:grid;gap:6px"></div>
+    </div>
+    <div style="display:grid;gap:8px">
       <b>Thème</b>
       <div class="seg" id="themeSeg"><button type="button" data-theme-set="auto">Auto</button><button type="button" data-theme-set="light">Clair</button><button type="button" data-theme-set="dark">Sombre</button></div>
     </div>
@@ -364,7 +402,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     envie: [], menu: null,
     fav: lire("fav", []), liste: lire("liste", []), watch: lire("watch", []),
     hidden: lire("hiddenStores", []), theme: lire("theme", "auto"),
-    vusAvant: lire("vus", []), nouveaux: {}
+    vusAvant: lire("vus", []), nouveaux: {}, rdv: lire("rdv", []), agAll: false
   };
 
   // ---------- utilitaires
@@ -436,7 +474,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   function tout() {
     var d = S.data, dt = d.maj ? new Date(d.maj) : null;
     $("sub").textContent = (d.ville || "") + (dt ? " · à jour le " + dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " " + dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "");
-    afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); afficherReglages();
+    afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); afficherReglages(); afficherRdv(); afficherAgenda();
   }
 
   // ---------- fiche produit
@@ -740,6 +778,133 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   }
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && document.body.classList.contains("shop") && navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wake = w; }).catch(function () {}); });
 
+  // ---------- agenda des promos
+  var JSEM = ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
+  var JLONG = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+  var BYDAY = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+  function jour0(d) { var x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+  function dIso(iso) { var p = iso.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function fmtJ(d) { return JSEM[d.getDay()] + " " + ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2); }
+  function joliTitre(t) { return t === t.toUpperCase() ? (t.charAt(0) + t.slice(1).toLowerCase()).replace(/\b(u|e)\b/g, function (x) { return x.toUpperCase(); }) : t; }
+
+  // les rendez-vous perso deviennent des événements de la semaine en cours et de la suivante
+  function evtsRdv() {
+    var out = [], auj = jour0(new Date());
+    S.rdv.forEach(function (r, ri) {
+      if (r.jusqua && dIso(r.jusqua) < auj) return;
+      var jours = r.jours.slice().sort();
+      for (var k = 0; k < 14; k++) {
+        var d = new Date(auj); d.setDate(auj.getDate() + k);
+        if (jours.indexOf(d.getDay()) < 0) continue;
+        if (r.jusqua && d > dIso(r.jusqua)) continue;
+        // regrouper les jours consécutifs (ven + sam = un seul créneau)
+        var fin = new Date(d), n = 0;
+        while (n < 6) { var s2 = new Date(fin); s2.setDate(fin.getDate() + 1); if (jours.indexOf(s2.getDay()) < 0 || (r.jusqua && s2 > dIso(r.jusqua))) break; fin = s2; n++; }
+        out.push({ perso: ri, enseigne: r.enseigne, nom: r.enseigne ? nomEns(r.enseigne) : "Mes magasins", titre: r.texte, d1: d, d2: fin, operation: true });
+        k += n;
+      }
+    });
+    return out;
+  }
+  function tousEvts() {
+    var auj = jour0(new Date());
+    var cat = ((S.data && S.data.evenements) || []).filter(function (e) { return S.hidden.indexOf(e.enseigne) < 0; }).map(function (e) {
+      return { enseigne: e.enseigne, nom: e.nom, titre: joliTitre(e.titre), d1: dIso(e.debut), d2: dIso(e.fin), operation: e.operation, pages: e.pages };
+    });
+    return cat.concat(evtsRdv()).filter(function (e) { return e.d2 >= auj; }).sort(function (a, b) {
+      var ra = (a.d1 <= auj ? 0 : 2) + (a.operation ? 0 : 1), rb = (b.d1 <= auj ? 0 : 2) + (b.operation ? 0 : 1);
+      return (a.d1 <= auj) === (b.d1 <= auj) ? (a.d1 <= auj ? (ra - rb) || (a.d2 - b.d2) : (a.d1 - b.d1) || (ra - rb)) : ra - rb;
+    });
+  }
+  function statut(e) {
+    var auj = jour0(new Date()), dem = new Date(auj); dem.setDate(auj.getDate() + 1);
+    if (e.d1 <= auj) {
+      if (+e.d2 === +auj) return { c: "last", t: "Dernier jour" };
+      return { c: "now", t: "En cours" };
+    }
+    if (+e.d1 === +dem) return { c: "soon", t: "Demain" };
+    var j = Math.round((e.d1 - auj) / 86400000);
+    return { c: j <= 6 ? "soon" : "later", t: j <= 6 ? JLONG[e.d1.getDay()].replace(/^./, function (x) { return x.toUpperCase(); }) : "Dans " + j + " j" };
+  }
+  function ligneAgenda(e, i) {
+    var st = statut(e);
+    var dates = +e.d1 === +e.d2 ? fmtJ(e.d1) : (e.d1 <= jour0(new Date()) ? "jusqu'au " + fmtJ(e.d2) : "du " + fmtJ(e.d1) + " au " + fmtJ(e.d2));
+    return '<div class="ag" style="--sc:' + (e.enseigne ? coul(e.enseigne) : "var(--tag)") + '"><div><div class="tt">' + (e.operation ? "⚡ " : "") + esc(e.titre) + '</div><div class="dd">' + esc(e.nom) + ' · ' + dates + (e.pages ? ' · ' + e.pages + ' p.' : '') + '</div></div>' +
+      '<span class="st ' + st.c + '">' + st.t + '</span>' +
+      (st.c !== "now" && st.c !== "last" ? '<button class="bell" type="button" data-remind="' + i + '">🔔 Me le rappeler</button>' : '') + '</div>';
+  }
+  var EVTS = [];
+  function afficherAgenda() {
+    EVTS = tousEvts();
+    var auj = jour0(new Date());
+    var duJour = EVTS.filter(function (e) { return e.operation && e.d1 <= auj; });
+    $("todayBox").hidden = !duJour.length;
+    $("todayBox").className = "today";
+    $("todayBox").innerHTML = duJour.length ? '<span>Aujourd\'hui</span>' + duJour.slice(0, 3).map(function (e) { return '<b>⚡ ' + esc(e.titre) + ' · ' + esc(e.nom) + '</b>'; }).join("") + (duJour.some(function (e) { return +e.d2 === +auj; }) ? '<span>Certaines finissent ce soir.</span>' : '') : "";
+    var l = S.agAll ? EVTS : EVTS.filter(function (e) { return e.operation || e.d1 > auj; }).slice(0, 6);
+    if (!l.length) l = EVTS.slice(0, 6);
+    $("agenda").innerHTML = l.length ? l.map(function (e) { return ligneAgenda(e, EVTS.indexOf(e)); }).join("") : '<p class="muted" style="margin:0">Aucun catalogue repéré pour l\'instant. Ajoute tes rendez-vous promo dans les réglages.</p>';
+    $("agToggle").textContent = S.agAll ? "Moins" : "Tout voir (" + EVTS.length + ")";
+    $("agToggle").hidden = EVTS.length <= l.length && !S.agAll;
+    // abonnement : webcal:// vers rappels.ics à côté de la page
+    var base = location.host + location.pathname.replace(/[^/]*$/, "");
+    $("btnSubscribe").href = (location.protocol === "https:" || location.protocol === "http:") ? "webcal://" + base + "rappels.ics" : "#";
+  }
+
+  // fichier calendrier pour un rappel ponctuel ou un rendez-vous qui revient
+  function ics(evts) {
+    function d8(d) { return d.getFullYear() + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2); }
+    function e(t) { return String(t).replace(/([,;\\])/g, "\\$1"); }
+    var L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Mes promos//FR"], stamp = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
+    evts.forEach(function (x, i) {
+      var fin = new Date(x.d1); fin.setDate(fin.getDate() + 1);
+      L.push("BEGIN:VEVENT", "UID:" + Date.now() + "-" + i + "@mes-promos", "DTSTAMP:" + stamp, "DTSTART;VALUE=DATE:" + d8(x.d1), "DTEND;VALUE=DATE:" + d8(fin), "SUMMARY:" + e(x.resume));
+      if (x.rrule) L.push("RRULE:" + x.rrule);
+      if (x.desc) L.push("DESCRIPTION:" + e(x.desc));
+      L.push("BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + e(x.resume), "TRIGGER;RELATED=START:PT9H", "END:VALARM", "END:VEVENT");
+    });
+    L.push("END:VCALENDAR");
+    return L.join("\r\n");
+  }
+  function ouvrirIcs(txt, nom) {
+    var blob = new Blob([txt], { type: "text/calendar;charset=utf-8" }), url = URL.createObjectURL(blob);
+    var a = document.createElement("a"); a.href = url; a.download = nom + ".ics"; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
+  }
+  function rappeler(e) {
+    var resume = e.nom + " : " + e.titre;
+    ouvrirIcs(ics([{ d1: e.d1, resume: resume, desc: "Rappel Mes promos" }]), "rappel-promo");
+    toast("Ouvre le fichier pour l'ajouter à ton calendrier");
+  }
+  function calendrierRdv(r) {
+    var jours = r.jours.slice().sort(), auj = jour0(new Date()), d = new Date(auj);
+    for (var k = 0; k < 7 && jours.indexOf(d.getDay()) < 0; k++) d.setDate(d.getDate() + 1);
+    var resume = (r.enseigne ? nomEns(r.enseigne) + " : " : "") + r.texte;
+    var rr = "FREQ=WEEKLY;BYDAY=" + jours.map(function (j) { return BYDAY[j]; }).join(",");
+    if (r.jusqua) rr += ";UNTIL=" + r.jusqua.replace(/-/g, "");
+    ouvrirIcs(ics([{ d1: d, resume: resume, rrule: rr, desc: "Rendez-vous promo" }]), "rendez-vous-promo");
+    toast("Ouvre le fichier pour l'ajouter à ton calendrier");
+  }
+  function afficherRdv() {
+    var ordre = [1, 2, 3, 4, 5, 6, 0];
+    $("rdvDays").innerHTML = ordre.map(function (j) { return '<label><input type="checkbox" value="' + j + '"><span>' + JSEM[j].replace(".", "") + '</span></label>'; }).join("");
+    $("rdvStore").innerHTML = '<option value="">Tous mes magasins</option>' + (S.data ? Object.keys(S.data.enseignes).map(function (k) { return '<option value="' + esc(k) + '">' + esc(nomEns(k)) + '</option>'; }).join("") : "");
+    $("rdvList").innerHTML = S.rdv.length ? S.rdv.map(function (r, i) {
+      var j = r.jours.slice().sort(function (a, b) { return (a || 7) - (b || 7); }).map(function (x) { return JLONG[x]; }).join(", ");
+      return '<div class="opt"><span><b>' + esc(r.texte) + '</b><br><span class="muted">' + esc(r.enseigne ? nomEns(r.enseigne) : "Tous mes magasins") + ' · ' + j + (r.jusqua ? ' · cette semaine' : ' · chaque semaine') + '</span></span><span class="row" style="flex-wrap:nowrap"><button class="icon" type="button" data-rdvcal="' + i + '" aria-label="Ajouter au calendrier">🔔</button><button class="icon" type="button" data-rdvdel="' + i + '" aria-label="Supprimer">×</button></span></div>';
+    }).join("") : '<span class="muted">Aucun pour l\'instant.</span>';
+  }
+  $("rdvForm").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var t = $("rdvTxt").value.trim(), jours = Array.prototype.map.call($("rdvDays").querySelectorAll("input:checked"), function (x) { return +x.value; });
+    if (!t || !jours.length) { toast("Écris l'offre et choisis au moins un jour"); return; }
+    var r = { texte: t, enseigne: $("rdvStore").value, jours: jours };
+    if ($("rdvWeeks").value === "1") { var f = jour0(new Date()); f.setDate(f.getDate() + 7); r.jusqua = f.getFullYear() + "-" + ("0" + (f.getMonth() + 1)).slice(-2) + "-" + ("0" + f.getDate()).slice(-2); }
+    S.rdv.push(r); ecrire("rdv", S.rdv); $("rdvTxt").value = "";
+    afficherRdv(); afficherAgenda(); toast("Ajouté à ton agenda des promos");
+  });
+  $("agToggle").addEventListener("click", function () { S.agAll = !S.agAll; afficherAgenda(); });
+
   // ---------- réglages
   function afficherReglages() {
     if (!S.data) return;
@@ -809,8 +974,8 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   $("closeSettings").addEventListener("click", function () { $("settings").close(); });
   $("watchForm2").addEventListener("submit", function (ev) { ev.preventDefault(); ajouterSurveille($("watchTxt2").value); $("watchTxt2").value = ""; });
   $("resetAll").addEventListener("click", function () {
-    S.liste = []; S.fav = []; S.watch = []; S.hidden = [];
-    ["liste", "fav", "watch", "hiddenStores"].forEach(function (k) { ecrire(k, []); });
+    S.liste = []; S.fav = []; S.watch = []; S.hidden = []; S.rdv = [];
+    ["liste", "fav", "watch", "hiddenStores", "rdv"].forEach(function (k) { ecrire(k, []); });
     rafraichir(); afficherReglages(); toast("Tout est remis à zéro");
   });
   $("btnMaj").addEventListener("click", function (ev) {
@@ -818,7 +983,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     ev.preventDefault(); fetch("/api/maj", { method: "POST" }).then(function () { suivi = 0; suivreMaj(); });
   });
 
-  function rafraichir() { afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); }
+  function rafraichir() { afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); afficherAgenda(); }
 
   document.addEventListener("submit", function (ev) {
     if (ev.target.id === "watchForm") { ev.preventDefault(); ajouterSurveille($("watchTxt").value); }
@@ -856,6 +1021,9 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     }
     if (b.id === "menuAll") { var n = 0; S.menu.forEach(function (x) { x.promos.forEach(function (p) { if (!dansListe(p.id)) { ajouter(p, true); n++; } }); }); toast(n + " promos ajoutées à la liste"); rafraichir(); return; }
     if (b.id === "menuNew") { faireMenu(true); return; }
+    if (ds.remind != null) { var ev2 = EVTS[+ds.remind]; if (ev2) rappeler(ev2); return; }
+    if (ds.rdvcal != null) { calendrierRdv(S.rdv[+ds.rdvcal]); return; }
+    if (ds.rdvdel != null) { S.rdv.splice(+ds.rdvdel, 1); ecrire("rdv", S.rdv); afficherRdv(); afficherAgenda(); return; }
     if (ds.del != null) { S.liste.splice(+ds.del, 1); ecrire("liste", S.liste); rafraichir(); return; }
   });
 })();

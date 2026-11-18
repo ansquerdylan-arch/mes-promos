@@ -266,6 +266,67 @@ def extraire_bonial(page, nom_enseigne):
     return items, validite
 
 
+# --------------------------------------------------------------------------- catalogues & opérations
+RE_CATA = re.compile(r'Prospectus\s+(.{2,40}?)\s+(?:à|de la semaine)\s*(?:[^,"]{0,40})?,?\s*"([^"]{1,80})",?\s+(?:avec\s+)?(\d+)\s+pages?,?\s+(?:de promos\s+)?(?:valables?|valides?)\s+du\s+(\d{2}/\d{2}/\d{4})\s+au\s+(\d{2}/\d{2}/\d{4})', re.I)
+MOTS_OPE = ("jeudi", "vendredi", "samedi", "week", "carte", "%", "flash", "inratable", "prix bas", "black", "foire", "anniversaire", "jours")
+
+
+def extraire_catalogues(page):
+    """Liste des catalogues visibles sur une page bonial : enseigne, titre, pages, début, fin."""
+    vus, sortie = set(), []
+    for m in RE_CATA.finditer(html.unescape(page)):
+        ens, titre, pages, d1, d2 = m.groups()
+        try:
+            debut = datetime.strptime(d1, "%d/%m/%Y").date()
+            fin = datetime.strptime(d2, "%d/%m/%Y").date()
+        except ValueError:
+            continue
+        cle = (norm(ens), norm(titre), debut, fin)
+        if cle in vus:
+            continue
+        vus.add(cle)
+        duree = (fin - debut).days + 1
+        t = norm(titre)
+        sortie.append({"enseigne_txt": ens.strip(), "titre": titre.strip(), "pages": int(pages),
+                       "debut": debut.isoformat(), "fin": fin.isoformat(), "jours": duree,
+                       "operation": duree <= 5 or any(norm(k) and norm(k) in t for k in MOTS_OPE if k != "%") or "%" in titre})
+    return sortie
+
+
+def ecrire_ics(evenements, chemin, nom_cal="Mes promos"):
+    """Calendrier à s'abonner sur le téléphone : un événement par catalogue / opération, avec alerte à 9 h."""
+    lignes = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Mes promos//FR", "CALSCALE:GREGORIAN",
+              "X-WR-CALNAME:" + nom_cal, "X-WR-TIMEZONE:Europe/Paris", "REFRESH-INTERVAL;VALUE=DURATION:PT12H",
+              "X-PUBLISHED-TTL:PT12H"]
+    stamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    for e in evenements:
+        d1 = date.fromisoformat(e["debut"])
+        d2 = date.fromisoformat(e["fin"])
+        uid = re.sub(r"[^a-z0-9]+", "-", norm(e["enseigne"] + " " + e["titre"] + " " + e["debut"])) + "@mes-promos"
+        resume = "%s : %s" % (e["nom"], e["titre"].title() if e["titre"].isupper() else e["titre"])
+        if e.get("operation"):
+            resume = "⚡ " + resume
+        desc = "Du %s au %s (%d page%s). Ouvre l'appli Mes promos pour le détail." % (
+            d1.strftime("%d/%m"), d2.strftime("%d/%m"), e["pages"], "s" if e["pages"] > 1 else "")
+        lignes += ["BEGIN:VEVENT", "UID:" + uid, "DTSTAMP:" + stamp,
+                   "DTSTART;VALUE=DATE:" + d1.strftime("%Y%m%d"),
+                   "DTEND;VALUE=DATE:" + date.fromordinal(d1.toordinal() + 1).strftime("%Y%m%d"),
+                   "SUMMARY:" + resume.replace(",", "\\,"), "DESCRIPTION:" + desc.replace(",", "\\,"),
+                   "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + resume.replace(",", "\\,"),
+                   "TRIGGER;RELATED=START:PT9H", "END:VALARM", "END:VEVENT"]
+        if e.get("operation") and (d2 - d1).days >= 1:
+            # rappel « dernier jour » pour les opérations courtes
+            lignes += ["BEGIN:VEVENT", "UID:fin-" + uid, "DTSTAMP:" + stamp,
+                       "DTSTART;VALUE=DATE:" + d2.strftime("%Y%m%d"),
+                       "DTEND;VALUE=DATE:" + date.fromordinal(d2.toordinal() + 1).strftime("%Y%m%d"),
+                       "SUMMARY:" + ("Dernier jour : " + resume).replace(",", "\\,"),
+                       "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + ("Dernier jour : " + resume).replace(",", "\\,"),
+                       "TRIGGER;RELATED=START:PT9H", "END:VALARM", "END:VEVENT"]
+    lignes.append("END:VCALENDAR")
+    with open(chemin, "w", encoding="utf-8", newline="") as f:
+        f.write("\r\n".join(lignes) + "\r\n")
+
+
 # --------------------------------------------------------------------------- anti-crise
 class Tableaux(HTMLParser):
     def __init__(self):
@@ -436,6 +497,7 @@ def mettre_a_jour(debug=False, log=print):
     resultat = {"maj": datetime.now().isoformat(timespec="seconds"), "ville": cfg.get("ville", ""),
                 "enseignes": {}, "promos": []}
     cache = {}
+    catalogues = []
     for ens in cfg["enseignes"]:
         if not ens.get("actif", True):
             continue
@@ -451,6 +513,7 @@ def mettre_a_jour(debug=False, log=print):
                 if debug:
                     with open(os.path.join(DATA, "debug", "%s-bonial.html" % ens["id"]), "w", encoding="utf-8") as f:
                         f.write(page)
+                catalogues += extraire_catalogues(page)
                 its, val = extraire_bonial(page, ens["nom"])
                 its += extraire_json(page)
                 log("   bonial : %d produits" % len(its))
@@ -497,6 +560,31 @@ def mettre_a_jour(debug=False, log=print):
     if not any(not e.get("ancien") for e in resultat["enseignes"].values()):
         log("Aucune nouvelle promo trouvée (connexion internet ? sites changés ?). Les promos actuelles sont gardées.")
         return ancien
+
+    aujourd = date.today()
+    noms = [(e["id"], e["nom"]) for e in cfg["enseignes"] if e.get("actif", True)]
+    evts, vus = [], set()
+    for c in catalogues:
+        ent = norm(c["enseigne_txt"])
+        ens_id = next((i for i, n in sorted(noms, key=lambda x: -len(x[1])) if ent.startswith(norm(n)) or norm(n).startswith(ent)), None)
+        if not ens_id or date.fromisoformat(c["fin"]) < aujourd or c["jours"] > 120:
+            continue
+        cle = (ens_id, norm(c["titre"]), c["debut"], c["fin"])
+        if cle in vus:
+            continue
+        vus.add(cle)
+        c.update({"enseigne": ens_id, "nom": dict(noms)[ens_id]})
+        evts.append(c)
+    evts.sort(key=lambda e: (e["debut"], e["nom"]))
+    resultat["evenements"] = evts
+    if evts or not ancien.get("evenements"):
+        try:
+            ecrire_ics(evts, os.path.join(DATA, "rappels.ics"))
+        except Exception as e:
+            log("Calendrier non écrit : %s" % e)
+    else:
+        resultat["evenements"] = [e for e in ancien.get("evenements", []) if e.get("fin", "") >= aujourd.isoformat()]
+    log("Catalogues et opérations à venir : %d" % len(resultat["evenements"]))
 
     tmp = FICHIER + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
