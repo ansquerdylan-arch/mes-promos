@@ -28,12 +28,19 @@ JETON = os.environ.get("GITHUB_TOKEN", "")
 ADRESSE_APPLI = ("https://%s.github.io/%s/" % (PROPRIO, DEPOT.split("/")[1])) if "/" in DEPOT else ""
 
 
-def api(chemin):
-    req = urllib.request.Request("https://api.github.com" + chemin, headers={
-        "Accept": "application/vnd.github+json", "User-Agent": "mes-promos",
-        **({"Authorization": "Bearer " + JETON} if JETON else {})})
-    with urllib.request.urlopen(req, timeout=20) as r:
-        return json.loads(r.read().decode("utf-8"))
+def api(chemin, avec_jeton=True):
+    """Lecture de l'API GitHub. Le jeton d'Actions n'a pas accès aux gists : on réessaie sans."""
+    entetes = {"Accept": "application/vnd.github+json", "User-Agent": "mes-promos"}
+    if avec_jeton and JETON:
+        entetes["Authorization"] = "Bearer " + JETON
+    req = urllib.request.Request("https://api.github.com" + chemin, headers=entetes)
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        if avec_jeton and JETON and e.code in (401, 403):
+            return api(chemin, avec_jeton=False)
+        raise
 
 
 def lire_reglages():
