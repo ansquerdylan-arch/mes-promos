@@ -8,7 +8,7 @@ on:
         required: false
         default: ""
       brut:
-        description: "oui = enregistrer les pages telles quelles dans la branche diag-brut"
+        description: "oui = pages telles quelles dans la branche diag-brut ; essai = mise à jour complète enregistrée dans diag-brut"
         required: false
         default: "non"
 
@@ -23,6 +23,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Outils images (essai complet)
+        if: github.event.inputs.urls == ''
+        run: |
+          sudo apt-get update -qq > /dev/null 2>&1 || true
+          sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-fra > /dev/null 2>&1 || true
+          pip install -q pillow || true
       - name: Tester
         env:
           URLS: ${{ github.event.inputs.urls }}
@@ -33,4 +39,11 @@ jobs:
             cd brut && git init -q -b diag-brut && git add -A
             git -c user.name="diag" -c user.email="diag@users.noreply.github.com" commit -q -m "pages brutes"
             git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag-brut
-          elif [ -n "$URLS" ]; then python diag.py $URLS --routes; else python maj_promos.py --essai; fi
+          elif [ -n "$URLS" ]; then python diag.py $URLS --routes
+          elif [ "${{ github.event.inputs.brut }}" = "essai" ]; then
+            mkdir -p essai && cp promos.json historique.json essai/ && cp -r offres essai/ 2>/dev/null || true
+            PROMOS_DATA=essai python maj_promos.py && PROMOS_DATA=essai python -c "import maj_promos as m, json; d=m.charger_donnees(); print('offres', len(d['offres']))"
+            cd essai && git init -q -b diag-brut && git add -A
+            git -c user.name="diag" -c user.email="diag@users.noreply.github.com" commit -q -m "essai complet"
+            git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag-brut
+          else python maj_promos.py --essai; fi

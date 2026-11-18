@@ -99,6 +99,21 @@ h3 { font-size: 15.5px; margin: 0; line-height: 1.25; text-wrap: balance; }
 .det { font-size: 12px; color: var(--muted); }
 .hist { font-size: 12px; color: var(--warn); font-weight: 600; }
 .b.low { background: var(--good); color: #fff; }
+.b.carte { background: #0f6e63; color: #fff; }
+.b.op { background: var(--accent); color: #fff; }
+.p .ph { width: 100%; height: 96px; object-fit: contain; background: #fff; border-radius: 9px; }
+.p.op .ph { height: auto; max-height: 220px; object-fit: cover; cursor: zoom-in; }
+.rail .p .ph { height: 74px; }
+.btn.more { width: 100%; margin-top: 10px; }
+.ag .rs, .today .rs { font-size: 13.5px; font-weight: 600; color: var(--good); }
+.today .rs { color: inherit; opacity: .9; }
+.ag .vis { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.ag .vis button { border: 0; padding: 0; background: none; border-radius: 8px; overflow: hidden; cursor: zoom-in; }
+.ag .vis img { display: block; height: 64px; width: auto; max-width: 120px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+dialog.zoom { padding: 0; border: 0; border-radius: 14px; max-width: min(96vw, 720px); background: var(--card); }
+dialog.zoom img { display: block; width: 100%; height: auto; }
+dialog.zoom form { position: absolute; top: 8px; right: 8px; }
+dialog.zoom::backdrop { background: rgba(0,0,0,.6); }
 .stale { background: var(--card); border: 1.5px solid var(--warn); border-left: 5px solid var(--warn); border-radius: 14px; padding: 12px 14px; display: grid; gap: 6px; }
 .store a { color: var(--accent); font-size: 12px; font-weight: 600; text-decoration: none; }
 .acts { display: flex; gap: 6px; margin-top: 3px; }
@@ -346,6 +361,7 @@ dialog .row { min-width: 0; }
       <div class="muted" id="count"></div>
     </div>
     <div class="grid" id="grid"></div>
+    <button class="btn more" type="button" id="gridMore" hidden></button>
   </section>
 
   <!-- PLATS -->
@@ -402,6 +418,7 @@ dialog .row { min-width: 0; }
   <button role="tab" data-v="liste" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>Liste<span class="nb" id="nbList" hidden></span></button>
 </nav>
 
+<dialog id="zoomDlg" class="zoom" aria-label="Image de l'opération"><form method="dialog"><button class="icon" type="submit" aria-label="Fermer">✕</button></form><img id="zoomImg" alt="Visuel de l'opération"></dialog>
 <dialog id="settings" aria-labelledby="setTitle">
   <div class="dlg">
     <div class="dlg-head"><h2 id="setTitle">Réglages</h2><button class="btn" type="button" id="closeSettings">Fermer</button></div>
@@ -445,6 +462,10 @@ dialog .row { min-width: 0; }
       <div class="seg" id="themeSeg"><button type="button" data-theme-set="auto">Auto</button><button type="button" data-theme-set="light">Clair</button><button type="button" data-theme-set="dark">Sombre</button></div>
     </div>
     <div style="display:grid;gap:8px">
+      <b>Photos des produits</b>
+      <div class="seg" id="photoSeg"><button type="button" data-photos="1">Afficher</button><button type="button" data-photos="0">Masquer (économise les données)</button></div>
+    </div>
+    <div style="display:grid;gap:8px">
       <b>Données</b>
       <span class="muted" id="setInfo"></span>
       <div class="row"><button class="btn" type="button" id="resetAll">Tout remettre à zéro</button></div>
@@ -470,7 +491,8 @@ dialog .row { min-width: 0; }
     envie: [], menu: null,
     fav: lire("fav", []), liste: lire("liste", []), watch: lire("watch", []),
     hidden: lire("hiddenStores", []), theme: lire("theme", "auto"),
-    vusAvant: lire("vus3", []), nouveaux: {}, rdv: lire("rdv", []), agAll: false, prenom: lire("prenom", ""), vue: "accueil"
+    vusAvant: lire("vus3", []), nouveaux: {}, rdv: lire("rdv", []), agAll: false, prenom: lire("prenom", ""), vue: "accueil",
+    photos: lire("photos", true)
   };
 
   // ---------- utilitaires
@@ -499,7 +521,7 @@ dialog .row { min-width: 0; }
   function finitBientot(p) { var j = joursRestants(p); return j != null && j >= 0 && j <= 2; }
   function surveille(p) {
     if (!S.watch.length) return false;
-    var t = " " + norm(p.nom + " " + p.marque) + " ";
+    var t = p._n || " " + norm(p.nom + " " + p.marque) + " ";
     return S.watch.some(function (w) { return t.indexOf(" " + norm(w)) >= 0; });
   }
   function visibles() { return S.data ? S.data.promos.filter(function (p) { return S.hidden.indexOf(p.enseigne) < 0; }) : []; }
@@ -526,6 +548,13 @@ dialog .row { min-width: 0; }
   });
 
   // ---------- thème
+  function majPhotos() { document.querySelectorAll("[data-photos]").forEach(function (b) { b.setAttribute("aria-pressed", (b.dataset.photos === "1") === S.photos ? "true" : "false"); }); }
+  // image en grand (opérations publiées en visuel : Jeudis Plus…)
+  function zoom(url) { $("zoomImg").src = url; $("zoomDlg").showModal(); }
+  document.addEventListener("click", function (ev) {
+    var im = ev.target.closest && ev.target.closest("img[data-zoom]");
+    if (im) zoom(im.dataset.zoom);
+  });
   function appliquerTheme() {
     if (S.theme === "auto") document.documentElement.removeAttribute("data-theme");
     else document.documentElement.setAttribute("data-theme", S.theme);
@@ -537,11 +566,56 @@ dialog .row { min-width: 0; }
   function charger() {
     var url = S.mode === "pc" ? "/api/promos" : "promos.json?t=" + Date.now();
     return fetch(url, { cache: "no-store" }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
-      if (d.v === 2) { S.brut = d; S.hidden = []; S.sel = selectionInitiale(); construireVue(); }
-      else S.data = d;
+      if (d.v === 2) {
+        S.brut = d; S.hidden = []; S.sel = selectionInitiale();
+        return chargerCatalogues().then(function () { construireVue(); marquerNouveaux(); tout(); });
+      }
+      S.data = d;
       marquerNouveaux();
       tout();
     }).catch(function () { $("sub").innerHTML = '<span class="err">Promos introuvables, vérifie ta connexion</span>'; });
+  }
+  // les offres sont rangées par catalogue (offres/<id>.json) : on ne charge que celles des magasins choisis
+  var CATS = {};
+  function catalogsUtiles() {
+    var d = S.brut, mags = {}, utiles = {};
+    (d.magasins || []).forEach(function (m) { mags[m.id] = m; });
+    S.sel.forEach(function (sid) {
+      var m = mags[sid], z = m && (d.zones || {})[m.zone];
+      ((z && z.catalogues) || []).forEach(function (c) { var x = (d.catalogues || {})[c]; if (x && x.n) utiles[c] = 1; });
+    });
+    return Object.keys(utiles);
+  }
+  function chargerCatalogues() {
+    var d = S.brut;
+    if (!d.fichiers) { etendreOffres(d); return Promise.resolve(); }
+    var manquants = 0;
+    var ids = catalogsUtiles().filter(function (id) { return !CATS[id] || CATS[id].maj !== d.maj; });
+    if (ids.length) $("sub").textContent = "Chargement des catalogues…";
+    return Promise.all(ids.map(function (id) {
+      return fetch(d.fichiers + "/" + id + ".json?v=" + encodeURIComponent(d.maj || ""), { cache: "no-cache" })
+        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+        .then(function (l) { CATS[id] = { maj: d.maj, l: etendreListe(l, d.catalogues || {}) }; })
+        .catch(function () { manquants++; });
+    })).then(function () {
+      OFFRES = etendreListe(d.offres || [], d.catalogues || {});
+      catalogsUtiles().forEach(function (id) { if (CATS[id]) OFFRES = OFFRES.concat(CATS[id].l); });
+      S.manquants = manquants;
+      nettoyerCache(d);
+    });
+  }
+  // le téléphone garde les catalogues pour le mode hors connexion : on oublie ceux qui sont terminés
+  function nettoyerCache(d) {
+    if (!window.caches) return;
+    caches.keys().then(function (noms) {
+      noms.forEach(function (n) {
+        caches.open(n).then(function (c) {
+          c.keys().then(function (cles) {
+            cles.forEach(function (k) { var m = /\/offres\/(\d+)\.json/.exec(k.url); if (m && !(d.catalogues || {})[m[1]]) c["delete"](k); });
+          });
+        });
+      });
+    }).catch(function () {});
   }
   // nouveautés depuis la dernière visite (par offre, quel que soit le magasin)
   function marquerNouveaux() {
@@ -549,7 +623,7 @@ dialog .row { min-width: 0; }
     S.nouveaux = {};
     var cles = {};
     S.data.promos.forEach(function (p) { var k = p.k || p.id; cles[k] = 1; if (S.vusAvant.length && !vus[k]) S.nouveaux[p.id] = 1; });
-    var tout_ = Object.keys(cles); S.vusAvant.forEach(function (k) { if (!cles[k] && tout_.length < 6000) tout_.push(k); });
+    var tout_ = Object.keys(cles); S.vusAvant.forEach(function (k) { if (!cles[k] && tout_.length < 15000) tout_.push(k); });
     ecrire("vus3", tout_);
   }
   function selectionInitiale() {
@@ -558,6 +632,22 @@ dialog .row { min-width: 0; }
     return s.length ? s : (S.brut.defaut || []).slice();
   }
   function jjmm(iso) { return iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) : ""; }
+  // promos.json allège les offres (champs vides retirés, dates du catalogue) : on les complète une fois
+  var OFFRES = [];
+  function etendreOffres(d) { OFFRES = etendreListe(d.offres || [], d.catalogues || {}); }
+  function etendreListe(liste, cats) {
+    return liste.map(function (o) {
+      var c = cats[o.cat] || {}, q = { marque: "", prix: null, avant: null, remise: null, unite: "", detail: "", bon_plan: "" };
+      Object.keys(o).forEach(function (k) { q[k] = o[k]; });
+      if (!q.chaine) q.chaine = c.chaine || "";
+      if (!q.debut) q.debut = c.debut || "";
+      if (!q.fin) q.fin = c.fin || "";
+      if (q.h) { q.histo = { min: q.h[0], min_date: q.h[1], fois: q.h[2] }; delete q.h; }
+      q._n = " " + norm(q.nom + " " + q.marque) + " ";
+      q._s = q._n + norm(q.rayon + " " + q.bon_plan + " " + q.detail) + " ";
+      return q;
+    });
+  }
   function construireVue() {
     var d = S.brut, mags = {}, auj = isoJ(new Date());
     (d.magasins || []).forEach(function (m) { mags[m.id] = m; });
@@ -566,10 +656,16 @@ dialog .row { min-width: 0; }
       var m = mags[sid]; if (!m) return;
       var z = (d.zones || {})[m.zone] || {}, ok = {};
       (z.catalogues || []).forEach(function (c) { ok[c] = 1; });
-      var mes = (d.offres || []).filter(function (o) { return o.chaine === m.chaine && (o.cat === "*" || ok[o.cat]); });
+      var mes = [], parK = {};
+      OFFRES.forEach(function (o) {
+        if (o.chaine !== m.chaine || !(o.cat === "*" || ok[o.cat])) return;
+        var deja = parK[o.k];
+        if (deja) { if ((o.prix || 9e9) < (deja.prix || 9e9)) mes[mes.indexOf(deja)] = parK[o.k] = o; return; }  // même produit dans 2 catalogues
+        parK[o.k] = o; mes.push(o);
+      });
       mes.forEach(function (o) {
         var q = {}; Object.keys(o).forEach(function (k) { q[k] = o[k]; });
-        q.id = sid + "|" + o.k; q.enseigne = sid; q.validite = o.debut && o.fin ? "du " + jjmm(o.debut) + " au " + jjmm(o.fin) : "";
+        q.id = sid + "|" + o.k; q.enseigne = sid; q.validite = o.debut && o.fin ? (o.debut === o.fin ? "le " + jjmm(o.debut) : "du " + jjmm(o.debut) + " au " + jjmm(o.fin)) : "";
         promos.push(q);
       });
       var princ = null;
@@ -577,7 +673,7 @@ dialog .row { min-width: 0; }
         var x = (d.catalogues || {})[c]; if (!x || x.fin < auj) return;
         if (x.debut <= auj && (!princ || (x.pages || 0) > (princ.pages || 0))) princ = x;
         var cle = m.chaine + "|" + c;
-        if (!evts[cle]) evts[cle] = { enseigne: sid, villes: [], base: m.nom, titre: x.titre, pages: x.pages, debut: x.debut, fin: x.fin, operation: x.operation };
+        if (!evts[cle]) evts[cle] = { enseigne: sid, villes: [], base: m.nom, titre: x.titre, pages: x.pages, debut: x.debut, fin: x.fin, operation: x.operation, resume: x.resume || "", images: x.images || [] };
         if (evts[cle].villes.indexOf(m.ville) < 0) evts[cle].villes.push(m.ville);
       });
       ens[sid] = { nom: m.nom + " " + m.ville, court: m.nom, ville: m.ville, chaine: m.chaine, nb: mes.length, adresse: m.adresse, cp: m.cp,
@@ -588,7 +684,9 @@ dialog .row { min-width: 0; }
   }
   function appliquerSelection() {
     ecrire("magasins", S.sel);
-    construireVue(); marquerNouveaux();
+    chargerCatalogues().then(function () { construireVue(); marquerNouveaux(); apresSelection(); });
+  }
+  function apresSelection() {
     if (S.store !== "all" && S.sel.indexOf(S.store) < 0) S.store = "all";
     tout(); syncAlertes();
   }
@@ -672,7 +770,8 @@ dialog .row { min-width: 0; }
   function tout() {
     var d = S.data, dt = d.maj ? new Date(d.maj) : null;
     afficherFraicheur();
-    $("sub").textContent = (d.ville || "") + (dt ? " · à jour le " + dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " " + dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "");
+    $("sub").textContent = (d.ville || "") + (dt ? " · à jour le " + dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " " + dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "") +
+      (S.manquants ? " · " + S.manquants + " catalogue" + (S.manquants > 1 ? "s" : "") + " non chargé" + (S.manquants > 1 ? "s" : "") + " (réseau)" : "");
     afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); afficherReglages(); afficherRdv(); afficherAgenda(); afficherInstall();
   }
 
@@ -687,15 +786,19 @@ dialog .row { min-width: 0; }
     if (surveille(p)) badges += '<span class="b watch">Surveillé</span>';
     var h = p.histo, bas = h && p.prix != null && p.prix <= h.min - 0.005, deja = h && p.prix != null && p.prix > h.min + 0.005;
     if (bas) badges += '<span class="b low">Plus bas prix vu</span>';
+    if (p.carte) badges += '<span class="b carte">Avec la carte</span>';
+    if (p.op) badges += '<span class="b op">⚡ Opération' + (p.debut && p.debut === p.fin ? ' le ' + jjmm(p.debut) : '') + '</span>';
     var deux = p.condition === "le 2e" && p.prix != null && p.avant;
     var bloc = "";
     if (p.prix != null) {
       bloc = deux
         ? '<div class="price"><span class="cond">Le 2e à</span><b>' + euro(p.prix) + '</b>' + (p.remise_2e ? '<span class="pct">-' + p.remise_2e + '% le 2e</span>' : '') + '</div><div class="unit">1er à ' + euro(p.avant) + ' · les 2 : ' + euro(p.avant + p.prix) + ' (-' + p.remise + '% au total)</div>'
-        : '<div class="price"><b>' + euro(p.prix) + '</b>' + (p.avant ? '<s>' + euro(p.avant) + '</s>' : '') + (p.remise ? '<span class="pct">-' + p.remise + '%</span>' : '') + '</div>';
+        : '<div class="price">' + (p.des ? '<span class="cond">Dès</span>' : '') + '<b>' + euro(p.prix) + '</b>' + (p.avant ? '<s>' + euro(p.avant) + '</s>' : '') + (p.remise ? '<span class="pct">-' + p.remise + '%</span>' : '') + '</div>';
     }
-    return '<article class="p" style="--sc:' + coul(p.enseigne) + '">' +
+    var photo = p.op && p.image ? p.image : (p.img ? "https://content-media.bonial.biz/" + p.img + "/main.jpg?impolicy=SEO-offer-thumbnails" : "");
+    return '<article class="p' + (p.op ? ' op' : '') + '" style="--sc:' + coul(p.enseigne) + '">' +
       '<div class="top"><span>' + esc(nomEns(p.enseigne)) + '</span>' + (opts.compact ? '' : '<span>' + esc(p.rayon) + '</span>') + '</div>' +
+      (photo && S.photos ? '<img class="ph" loading="lazy" decoding="async" alt="" src="' + esc(photo) + '"' + (p.op ? ' data-zoom="' + esc(p.image) + '"' : '') + ' onerror="this.remove()">' : '') +
       (badges ? '<div class="badges">' + badges + '</div>' : '') +
       (p.marque ? '<div class="brand">' + esc(p.marque) + '</div>' : '') +
       '<h3>' + esc(p.nom) + '</h3>' +
@@ -775,7 +878,7 @@ dialog .row { min-width: 0; }
       if (S.f["new"] && !S.nouveaux[p.id]) return false;
       if (S.f.end && !finitBientot(p)) return false;
       if (mots.length) {
-        var t = norm(p.nom + " " + p.marque + " " + p.rayon + " " + nomEns(p.enseigne));
+        var t = (p._s || norm(p.nom + " " + p.marque + " " + p.rayon + " " + p.bon_plan)) + norm(nomEns(p.enseigne));
         for (var i = 0; i < mots.length; i++) {
           var w = mots[i], w1 = w.length > 3 ? w.replace(/[sx]$/, "") : w;  // « pommes » trouve aussi « pomme »
           if (t.indexOf(w) < 0 && t.indexOf(w1) < 0) return false;
@@ -808,25 +911,49 @@ dialog .row { min-width: 0; }
       if (grp.length > 1 && Object.keys(mags).length > 1) cheapId = grp.reduce(function (m, p) { return !m || p.prix < m.prix ? p : m; }, null).id;
     }
     $("count").textContent = l.length + (l.length > 1 ? " promos" : " promo") + (cheapId ? " · le moins cher est marqué en vert" : "");
-    $("grid").innerHTML = l.length ? l.slice(0, 400).map(function (p) { return carte(p, { cheap: p.id === cheapId }); }).join("") : '<div class="empty">Aucune promo ne correspond. Essaie un autre mot ou enlève un filtre.</div>';
+    LISTE_AFF = { l: l, cheap: cheapId, n: Math.min(PAQUET, l.length) };
+    $("grid").innerHTML = l.length ? l.slice(0, LISTE_AFF.n).map(function (p) { return carte(p, { cheap: p.id === cheapId }); }).join("") : '<div class="empty">Aucune promo ne correspond. Essaie un autre mot ou enlève un filtre.</div>';
+    boutonPlus();
+  }
+  var PAQUET = 90, LISTE_AFF = { l: [], n: 0 };
+  function boutonPlus() {
+    var reste = LISTE_AFF.l.length - LISTE_AFF.n;
+    $("gridMore").hidden = reste <= 0;
+    $("gridMore").textContent = "Voir " + Math.min(PAQUET, reste) + " promos de plus (" + reste + " restantes)";
+  }
+  function afficherPlus() {
+    var a = LISTE_AFF.n, b = Math.min(a + PAQUET, LISTE_AFF.l.length);
+    $("grid").insertAdjacentHTML("beforeend", LISTE_AFF.l.slice(a, b).map(function (p) { return carte(p, { cheap: p.id === LISTE_AFF.cheap }); }).join(""));
+    LISTE_AFF.n = b; boutonPlus();
   }
 
   // ---------- plats
   var SUCRE = / (dessert|desserts|glace|glacee|glaces|chocolat|vanille|caramel|tartiner|bonbon|biscuit|biscuits|gateau|gateaux|yaourt|yaourts|visage|mains|corps|liegeois) /;
   function motPresent(t, alt) {
-    var a = norm(alt);
+    var a = alt;
     return t.indexOf(" " + a + " ") >= 0 || t.indexOf(" " + a + "s ") >= 0 || t.indexOf(" " + a + "x ") >= 0;
+  }
+  // candidats des plats : calculés une fois par vue (des milliers d'offres)
+  var CAND = { cle: null, l: [] };
+  function candidatsPlats() {
+    var cle = S.data ? S.data.promos.length + "|" + S.hidden.join(",") + "|" + S.sel.join(",") : "";
+    if (CAND.cle === cle && CAND.data === S.data) return CAND.l;
+    CAND = { cle: cle, data: S.data, l: visibles().filter(function (p) {
+      if (ALIM.indexOf(p.rayon) < 0 || p.rayon === "Épicerie sucrée" || p.prix == null) return false;
+      p._n = p._n || " " + norm(p.nom + " " + p.marque) + " ";
+      return !SUCRE.test(p._n);
+    }) };
+    return CAND.l;
   }
   function trouverPromo(alternatives, ens, exclure) {
     var best = null;
-    visibles().forEach(function (p) {
-      if (ALIM.indexOf(p.rayon) < 0 || p.rayon === "Épicerie sucrée" || p.prix == null) return;
+    var alts = alternatives.map(norm);
+    candidatsPlats().forEach(function (p) {
       if (ens && ens !== "all" && p.enseigne !== ens) return;
       if (exclure && exclure[p.id]) return;
-      var t = " " + norm(p.nom + " " + p.marque) + " ";
-      if (SUCRE.test(t)) return;
-      for (var i = 0; i < alternatives.length; i++) {
-        var alt = norm(alternatives[i]);
+      var t = p._n;
+      for (var i = 0; i < alts.length; i++) {
+        var alt = alts[i];
         if ((alt === "pomme" || alt === "pommes") && / (terre|noisette|noisettes|frites|dauphine|dauphines) /.test(t)) continue;
         if (/pommes? de terre/.test(alt) && / (surgele|surgeles|surgelee|surgelees|noisette|noisettes|frites|dauphines) /.test(t)) continue;
         if (motPresent(t, alt)) { if (!best || (p.remise || 0) > (best.remise || 0)) best = p; return; }
@@ -1314,7 +1441,7 @@ dialog .row { min-width: 0; }
   function tousEvts() {
     var auj = jour0(new Date());
     var cat = ((S.data && S.data.evenements) || []).filter(function (e) { return S.hidden.indexOf(e.enseigne) < 0; }).map(function (e) {
-      return { enseigne: e.enseigne, nom: e.nom, titre: joliTitre(e.titre), d1: dIso(e.debut), d2: dIso(e.fin), operation: e.operation, pages: e.pages };
+      return { enseigne: e.enseigne, nom: e.nom, titre: joliTitre(e.titre), d1: dIso(e.debut), d2: dIso(e.fin), operation: e.operation, pages: e.pages, resume: e.resume || "", images: e.images || [] };
     });
     return cat.concat(evtsRdv()).filter(function (e) { return e.d2 >= auj; }).sort(function (a, b) {
       var ra = (a.d1 <= auj ? 0 : 2) + (a.operation ? 0 : 1), rb = (b.d1 <= auj ? 0 : 2) + (b.operation ? 0 : 1);
@@ -1334,7 +1461,11 @@ dialog .row { min-width: 0; }
   function ligneAgenda(e, i) {
     var st = statut(e);
     var dates = +e.d1 === +e.d2 ? fmtJ(e.d1) : (e.d1 <= jour0(new Date()) ? "jusqu'au " + fmtJ(e.d2) : "du " + fmtJ(e.d1) + " au " + fmtJ(e.d2));
-    return '<div class="ag" style="--sc:' + (e.enseigne ? coul(e.enseigne) : "var(--tag)") + '"><div><div class="tt">' + (e.operation ? "⚡ " : "") + esc(e.titre) + '</div><div class="dd">' + esc(e.nom) + ' · ' + dates + (e.pages ? ' · ' + e.pages + ' p.' : '') + '</div></div>' +
+    return '<div class="ag" style="--sc:' + (e.enseigne ? coul(e.enseigne) : "var(--tag)") + '"><div><div class="tt">' + (e.operation ? "⚡ " : "") + esc(e.titre) + '</div>' +
+      (e.resume ? '<div class="rs">' + esc(e.resume) + '</div>' : '') +
+      '<div class="dd">' + esc(e.nom) + ' · ' + dates + (e.pages && e.pages > 1 ? ' · ' + e.pages + ' p.' : '') + '</div>' +
+      ((e.images || []).length ? '<div class="vis">' + e.images.slice(0, 4).map(function (u) { return '<button type="button" data-zoom="' + esc(u) + '" aria-label="Voir le visuel"><img loading="lazy" alt="" src="' + esc(u) + '"></button>'; }).join("") + '</div>' : '') +
+      '</div>' +
       '<span class="st ' + st.c + '">' + st.t + '</span>' +
       (st.c !== "now" && st.c !== "last" ? '<button class="bell" type="button" data-remind="' + i + '">🔔 Me le rappeler</button>' : '') + '</div>';
   }
@@ -1343,9 +1474,13 @@ dialog .row { min-width: 0; }
     EVTS = tousEvts();
     var auj = jour0(new Date());
     var duJour = EVTS.filter(function (e) { return e.operation && e.d1 <= auj; });
-    $("todayBox").hidden = !duJour.length;
+    var dem = new Date(auj); dem.setDate(dem.getDate() + 1);
+    var demain = EVTS.filter(function (e) { return e.operation && +e.d1 === +dem; });
+    function ligneOp(e) { return '<b>⚡ ' + esc(e.titre) + ' · ' + esc(e.nom) + '</b>' + (e.resume ? '<span class="rs">' + esc(e.resume) + '</span>' : ''); }
+    $("todayBox").hidden = !duJour.length && !demain.length;
     $("todayBox").className = "today";
-    $("todayBox").innerHTML = duJour.length ? '<span>Aujourd\'hui</span>' + duJour.slice(0, 3).map(function (e) { return '<b>⚡ ' + esc(e.titre) + ' · ' + esc(e.nom) + '</b>'; }).join("") + (duJour.some(function (e) { return +e.d2 === +auj; }) ? '<span>Certaines finissent ce soir.</span>' : '') : "";
+    $("todayBox").innerHTML = (duJour.length ? '<span>Aujourd\'hui</span>' + duJour.slice(0, 3).map(ligneOp).join("") + (duJour.some(function (e) { return +e.d2 === +auj; }) ? '<span>Certaines finissent ce soir.</span>' : '') : "") +
+      (demain.length ? '<span>Demain</span>' + demain.slice(0, 3).map(ligneOp).join("") : "");
     var l = S.agAll ? EVTS : EVTS.filter(function (e) { return e.operation || e.d1 > auj; }).slice(0, 6);
     if (!l.length) l = EVTS.slice(0, 6);
     $("agenda").innerHTML = l.length ? l.map(function (e) { return ligneAgenda(e, EVTS.indexOf(e)); }).join("") : '<p class="muted" style="margin:0">Aucun catalogue repéré pour l\'instant. Ajoute tes rendez-vous promo dans les réglages.</p>';
@@ -1428,6 +1563,7 @@ dialog .row { min-width: 0; }
 
   // ---------- réglages
   function afficherReglages() {
+    majPhotos();
     if (!S.data) return;
     afficherChoixMagasins();
     $("watchList2").innerHTML = S.watch.length ? S.watch.map(function (x, i) { return '<span class="wchip">' + esc(x) + '<button type="button" data-unwatch="' + i + '" aria-label="Retirer ' + esc(x) + '">×</button></span>'; }).join("") : '<span class="muted">Aucun pour l\'instant.</span>';
@@ -1563,6 +1699,9 @@ dialog .row { min-width: 0; }
     if (ds.ptag) { S.platTag = ds.ptag; afficherPlats(); return; }
     if (ds.q) { $("envie").value = ds.q; chercherEnvie(); return; }
     if (ds.themeSet) { S.theme = ds.themeSet; ecrire("theme", S.theme); appliquerTheme(); return; }
+    if (ds.photos) { S.photos = ds.photos === "1"; ecrire("photos", S.photos); majPhotos(); afficherAccueil(); afficherPromos(); return; }
+    if (b.id === "gridMore") { afficherPlus(); return; }
+    if (ds.zoom) { zoom(ds.zoom); return; }
     if (ds.unwatch != null) { S.watch.splice(+ds.unwatch, 1); ecrire("watch", S.watch); afficherAccueil(); afficherReglages(); afficherPromos(); syncAlertes(); return; }
     if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else { S.fav.push(ds.fav); toast("Ajouté aux favoris"); } ecrire("fav", S.fav); b.classList.toggle("on"); return; }
     if (ds.add) { var p = promoParId(ds.add); if (p) { var avant = dansListe(p.id); ajouter(p); toast(avant ? "Retiré de la liste" : "Ajouté à la liste"); rafraichir(); } return; }

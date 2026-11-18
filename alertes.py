@@ -84,7 +84,7 @@ def principal(log=print, aujourd=None, reglages=None, envoyer=ntfy):
     if not reglages:
         log("Pas de produits surveillés enregistrés (l'appli n'est pas encore connectée à GitHub).")
         return {}
-    donnees = m.charger_json(m.FICHIER, {"promos": [], "evenements": [], "enseignes": {}})
+    donnees = m.charger_donnees(m.FICHIER) or {"promos": [], "evenements": [], "enseignes": {}}
     masques = set(reglages.get("magasins_masques") or [])
     if donnees.get("v") == 2:
         # toute la Vendée : on ne garde que les magasins choisis dans l'appli
@@ -106,20 +106,29 @@ def principal(log=print, aujourd=None, reglages=None, envoyer=ntfy):
             cle = "p|%s|%s" % (p["id"], p.get("fin", ""))
             if cle in deja:
                 continue
-            texte = "%s — %s : %s%s" % (p["nom"], noms.get(p["enseigne"], p["enseigne"]), prix_txt(p),
-                                       (" (jusqu'au %s)" % m.jj_mm(p["fin"])) if p.get("fin") else "")
+            if p.get("debut") and p.get("debut") == p.get("fin"):
+                quand = " (le %s seulement)" % m.jj_mm(p["debut"])
+            else:
+                quand = (" (jusqu'au %s)" % m.jj_mm(p["fin"])) if p.get("fin") else ""
+            texte = "%s — %s : %s%s" % (p["nom"], noms.get(p["enseigne"], p["enseigne"]), prix_txt(p), quand)
             deja[cle] = {"date": jour, "texte": texte, "mot": mot}
             trouvees.append(texte)
 
     operations = []
     if reglages.get("operations"):
+        demain = (aujourd + timedelta(days=1)).isoformat()
         for e in donnees.get("evenements", []):
-            if e.get("operation") and e.get("debut") == jour and e.get("enseigne") not in masques:
-                cle = "o|%s|%s|%s" % (e["enseigne"], m.norm(e["titre"]), e["debut"])
-                if cle not in deja:
-                    texte = "%s : %s (jusqu'au %s)" % (e["nom"], e["titre"].title() if e["titre"].isupper() else e["titre"], m.jj_mm(e["fin"]))
-                    deja[cle] = {"date": jour, "texte": texte}
-                    operations.append(texte)
+            if not e.get("operation") or e.get("enseigne") in masques or e.get("debut") not in (jour, demain):
+                continue
+            quand = "Aujourd'hui" if e["debut"] == jour else "Demain"
+            cle = "o|%s|%s|%s|%s" % (e["enseigne"], m.norm(e["titre"]), e["debut"], quand)
+            if cle in deja:
+                continue
+            titre = e["titre"].title() if e["titre"].isupper() else e["titre"]
+            detail = (" — " + e["resume"]) if e.get("resume") else (" (jusqu'au %s)" % m.jj_mm(e["fin"]) if e["fin"] != e["debut"] else "")
+            texte = "%s · %s : %s%s" % (quand, e["nom"], titre, detail)
+            deja[cle] = {"date": jour, "texte": texte}
+            operations.append(texte)
 
     sujet = (reglages.get("ntfy") or "").strip()
     if sujet and trouvees:
@@ -131,7 +140,7 @@ def principal(log=print, aujourd=None, reglages=None, envoyer=ntfy):
             log("Notification non envoyée : %s" % e)
     if sujet and operations:
         try:
-            envoyer(sujet, "Aujourd'hui dans tes magasins", "\n".join("⚡ " + o for o in operations), ["zap"])
+            envoyer(sujet, "Opérations dans tes magasins", "\n".join("⚡ " + o for o in operations), ["zap"])
             log("Notification opérations envoyée (%d)" % len(operations))
         except Exception as e:
             log("Notification opérations non envoyée : %s" % e)
@@ -149,7 +158,7 @@ def principal(log=print, aujourd=None, reglages=None, envoyer=ntfy):
         m.ecrire_ics(donnees.get("evenements", []), os.path.join(m.DATA, "rappels.ics"), extras=extras)
     except Exception as e:
         log("Calendrier non mis à jour : %s" % e)
-    log("Alertes : %d produit(s) trouvé(s), %d opération(s) du jour." % (len(trouvees), len(operations)))
+    log("Alertes : %d produit(s) trouvé(s), %d opération(s) aujourd'hui ou demain." % (len(trouvees), len(operations)))
     return {"produits": trouvees, "operations": operations}
 
 

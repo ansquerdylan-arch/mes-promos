@@ -2,12 +2,13 @@
 """
 Mise à jour des promos — sans Claude, sans clé, sans compte.
 
-Pour chaque enseigne de config.json :
-  1. lit la page bonial.fr de l'enseigne dans ta ville (données structurées : titre, marque,
-     prix, ancien prix, conditions « le 2e à… », dates exactes, rayon, catalogues en cours) ;
-  2. lit la même page dans les villes voisines et garde seulement les offres des catalogues
-     valables dans ta ville (chaque ville montre une sélection différente) ;
-  3. complète avec les tableaux d'anti-crise.fr (bons de réduction, Intermarché).
+  1. parcourt les pages bonial.fr des enseignes de Vendée (magasins, horaires, catalogues en cours) ;
+  2. lit CHAQUE catalogue en entier dans la visionneuse publique de bonial (toutes les offres
+     repérées page par page : titre, marque, prix, ancien prix, « le 2e à… », carte de fidélité,
+     dates exactes) ;
+  3. pour les opérations publiées en images (Jeudis Plus U, etc.), garde les images et, si le
+     logiciel Tesseract est installé, lit le texte (34 % sur les chocolats de Noël, jour exact…) ;
+  4. complète avec les tableaux d'anti-crise.fr.
 Écrit promos.json, rappels.ics (calendrier) et historique.json (prix vus au fil des semaines).
 
 Utilisation :
@@ -37,6 +38,8 @@ except Exception:
 ICI = os.path.dirname(os.path.abspath(__file__))
 # Version PC : les données vont dans data/ ; version GitHub : à côté de la page.
 DATA = os.path.join(ICI, "data") if os.path.isdir(os.path.join(ICI, "data")) else ICI
+if os.environ.get("PROMOS_DATA"):  # essais : écrire ailleurs
+    DATA = os.path.abspath(os.environ["PROMOS_DATA"])
 FICHIER = os.path.join(DATA, "promos.json")
 HISTORIQUE = os.path.join(DATA, "historique.json")
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -80,19 +83,23 @@ def euro(x):
 DERNIER = {"code": None}
 
 
-def telecharger(url, log):
+def telecharger(url, log, entetes=None, binaire=False):
     DERNIER["code"] = None
-    req = urllib.request.Request(url, headers={
+    h = {
         "User-Agent": UA,
         "Accept": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
         "Accept-Language": "fr-FR,fr;q=0.9",
         "Accept-Encoding": "gzip",
-    })
+    }
+    h.update(entetes or {})
+    req = urllib.request.Request(url, headers=h)
     try:
-        with urllib.request.urlopen(req, timeout=25) as r:
+        with urllib.request.urlopen(req, timeout=40) as r:
             brut = r.read()
             if r.headers.get("Content-Encoding") == "gzip":
                 brut = gzip.decompress(brut)
+            if binaire:
+                return brut
             return brut.decode(r.headers.get_content_charset() or "utf-8", "replace")
     except urllib.error.HTTPError as e:
         DERNIER["code"] = e.code
@@ -179,6 +186,13 @@ def _date_locale(iso, fin=False):
 
 
 RE_2E = re.compile(r"\b(2\s*(e|eme|ème|nd)|deuxi[eè]me|second)\b", re.I)
+RE_UTILE = re.compile(r"%|offert|gratuit|remise|carte|achat|achete|2\s*(e|eme|nd)|3\s*(e|eme)|deuxieme|troisieme|lot de|\+|€|euro")
+
+
+def condition_banale(c):
+    """« Le sachet de 500 g », « LE PRODUIT », « La pièce » : description du produit, pas une condition."""
+    n = norm(c)
+    return bool(re.match(r"(le|la|les|l)\s", n + " ")) and not RE_UTILE.search(n) and "€" not in c
 
 
 def offre_bonial(o):
@@ -195,6 +209,7 @@ def offre_bonial(o):
             conds += [str(v) for v in c.values() if isinstance(v, (str, int, float)) and str(v).strip()]
         elif isinstance(c, str):
             conds.append(c)
+    conds = [c for c in conds if not condition_banale(c)]
     texte_prix = (pr.get("description") or "").strip()
     desc = [l.strip() for l in (o.get("description") or "").splitlines() if l.strip()]
     unite = next((l for l in desc if re.search(r"\b(kg|litre|le l|la piece)\b", norm(l)) and "€" in l), "")
@@ -203,7 +218,7 @@ def offre_bonial(o):
     cats = " ".join(n.get("name", "") for path in (o.get("categoryPaths") or []) for n in path[-3:])
     cats += " " + " ".join(o.get("categories") or [])
     it = {
-        "nom": titre, "marque": (o.get("brand") or "").strip(), "prix": p1,
+        "nom": titre, "marque": (o.get("brand") or "").strip() if len((o.get("brand") or "").strip()) > 1 else "", "prix": p1,
         "avant": p2 if (p1 and p2 and p2 > p1) else None, "unite": unite, "detail": detail,
         "debut": d1.isoformat() if d1 else "", "fin": d2.isoformat() if d2 else "",
         "categories": cats, "catalogue": str((o.get("parentContent") or {}).get("legacyId") or ""),
@@ -244,7 +259,7 @@ def brochures_bonial(pi):
                 if m:
                     pages = int(m.group(1))
                     break
-            sortie.append({"id": str(b.get("id")), "titre": (b.get("title") or "").strip(),
+            sortie.append({"id": str(b.get("id")), "titre": (b.get("title") or "").strip(), "type": b.get("type") or "",
                            "debut": _date_locale(b.get("validFrom")), "fin": _date_locale(b.get("validUntil"), fin=True),
                            "pages": pages or len(b.get("pages") or []) or 1})
     return sortie
@@ -269,6 +284,235 @@ def page_bonial(page, pi=None):
             if it:
                 offres.append(it)
     return offres, brochures_bonial(pi), re.findall(r'href="(https://www\.bonial\.fr/Magasins/[^"]+/v-f\d+)"', page)
+
+
+# --------------------------------------------------------------------------- bonial : catalogues complets
+# La page d'une enseigne ne montre que 16 offres. La visionneuse publique de bonial (celle qui
+# s'ouvre quand on clique sur un catalogue) donne toutes les offres repérées, page par page.
+VISIONNEUSE = "https://content-viewer-be.bonial.fr/v1"
+ENTETES_VISIONNEUSE = {"Bonial-Api-Consumer": "web-content-viewer-fe", "Accept": "application/json",
+                       "Origin": "https://www.bonial.fr", "Referer": "https://www.bonial.fr/"}
+
+
+def visionneuse(chemin, pos, log):
+    url = "%s%s?partner=bonial_web&lat=%s&lng=%s" % (VISIONNEUSE, chemin, round(pos[0], 4), round(pos[1], 4))
+    txt = telecharger(url, log, ENTETES_VISIONNEUSE)
+    if not txt:
+        return None
+    try:
+        return json.loads(txt)
+    except ValueError:
+        return None
+
+
+def _prix_deal(d):
+    if not d:
+        return None
+    v = d.get("min") or d.get("max")
+    return prix_float(v) or None
+
+
+def offre_visionneuse(c):
+    """Offre de la visionneuse -> même forme que les offres des pages, puis offre_bonial()."""
+    prods = c.get("products") or []
+    if not prods or not (prods[0].get("name") or "").strip():
+        return None
+    p = prods[0]
+    deals = c.get("deals") or []
+    vente = next((d for d in deals if d.get("type") == "SALES_PRICE"), None)
+    normal = next((d for d in deals if d.get("type") == "REGULAR_PRICE"), None)
+    autre = next((d for d in deals if d.get("type") not in ("SALES_PRICE", "REGULAR_PRICE")), None)
+    princ = vente or normal or autre or {}
+    second = normal if vente else None
+    carte = any(isinstance(x, dict) and x.get("loyaltyProgram") for d in deals for x in (d.get("conditions") or []))
+    conds = [x for x in (princ.get("conditions") or []) if not (isinstance(x, dict) and x.get("loyaltyProgram"))]
+    desc = "\n".join((x.get("paragraph") or "") for x in (p.get("description") or []) if isinstance(x, dict))
+    pc = c.get("parentContent") or {}
+    val = ((c.get("publicationProfiles") or [{}])[0] or {}).get("validity") or {}
+    cats = p.get("categoryPaths") or []
+    if cats and isinstance(cats[0], dict):
+        cats = [cats]
+    o = {"title": p.get("name"), "brand": p.get("brandName") or "", "description": desc, "categoryPaths": cats,
+         "categories": [], "validFrom": val.get("startDate"), "validUntil": val.get("endDate"),
+         "prices": {"mainPrice": _prix_deal(princ), "secondaryPrice": _prix_deal(second), "conditions": conds,
+                    "description": princ.get("description") or ""},
+         "parentContent": {"legacyId": pc.get("legacyId"), "page": {"number": (pc.get("page") or {}).get("number")}}}
+    it = offre_bonial(o)
+    if not it:
+        return None
+    if (c.get("image") or "").endswith("/main.jpg") and c.get("id"):
+        it["img"] = c["id"]  # photo : https://content-media.bonial.biz/<id>/main.jpg
+    if carte:
+        it["carte"] = True
+    if princ.get("min") and princ.get("max") and princ["max"] > princ["min"]:
+        it["des"] = True  # « dès 2,99 € » : plusieurs produits à des prix différents
+    lab = c.get("discountLabel") or {}
+    if lab.get("type") == "DISCOUNT_PERCENTAGE" and str(lab.get("value") or "").isdigit() and it.get("prix") is None:
+        it["remise_label"] = int(lab["value"])
+    return it
+
+
+def catalogue_complet(cid, typ, pos, log, pause=0.6):
+    """-> (offres, images de bannières) ou None si la visionneuse n'a pas répondu."""
+    offres, images = [], []
+    if typ != "DYNAMIC":
+        d = visionneuse("/brochures/%s/pages" % cid, pos, log)
+        time.sleep(pause)
+        if d is None:
+            return None
+        for pg in d.get("contents") or []:
+            for o in pg.get("offers") or []:
+                it = offre_visionneuse(o.get("content") or {})
+                if it:
+                    offres.append(it)
+        if d.get("contents") or typ == "BROCHURE":
+            return offres, images
+    # catalogue « dynamique » : des sections avec des offres et/ou des images
+    meta = visionneuse("/brochures/%s" % cid, pos, log)
+    time.sleep(pause)
+    if meta is None:
+        return None
+    for sec in ((meta.get("content") or {}).get("sections") or [])[:6]:
+        d = visionneuse("/brochures/%s/section/%s" % (cid, sec.get("number", 0)), pos, log)
+        time.sleep(pause)
+        for b in ((d or {}).get("content") or {}).get("blocks") or []:
+            for x in b.get("contents") or []:
+                cc = x.get("content") or {}
+                if cc.get("products") and cc.get("deals") is not None:
+                    it = offre_visionneuse(cc)
+                    if it:
+                        offres.append(it)
+                elif cc.get("type") == "image_banner" and cc.get("image"):
+                    images.append(cc["image"])
+    return offres, images
+
+
+# --------------------------------------------------------------------------- opérations en images (OCR)
+JOURS_SEM = "lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche"
+RE_JOUR = re.compile(r"\b(?:%s)\s+(\d{1,2})(?:er)?\s+(%s)\b" % (JOURS_SEM, "|".join(MOIS)))
+RE_DU_AU = re.compile(r"\bdu\s+(\d{1,2})(?:er)?\s+(?:(%s)\s+)?au\s+(\d{1,2})(?:er)?\s+(%s)\b" % ("|".join(MOIS), "|".join(MOIS)))
+RE_SUR = re.compile(r"^SUR\s+(?:LES|LA|LE|L'|L’|TOUS LES|TOUTES LES|TOUT LE|TOUTE LA|TOUT|TOUTE|VOS|NOS)\s+([A-ZÀ-ÖØ-Ý' ’-]{3,60}?)[\s.,;:!]*$")
+MAJ_MOTS = {"noel": "Noël", "paques": "Pâques", "u": "U", "carte": "carte"}
+
+
+def ocr_dispo():
+    import shutil
+    try:
+        import PIL  # noqa: F401
+    except ImportError:
+        return False
+    return bool(shutil.which("tesseract"))
+
+
+def ocr_image(donnees):
+    """Texte d'une bannière (plusieurs passes : petits textes, gros titres) + le plus gros nombre (34 %…)."""
+    import io
+    import subprocess
+    import tempfile
+    from PIL import Image, ImageOps
+    im = Image.open(io.BytesIO(donnees)).convert("RGB")
+    if im.width > 1600:
+        im = im.resize((1600, int(im.height * 1600 / im.width)))
+    vert = im.split()[1]  # le jaune et le blanc ressortent dans le vert, pas le rouge ni le magenta
+    gris = ImageOps.grayscale(im)
+    textes = [(gris, "3"), (gris, "11"), (ImageOps.invert(vert.point(lambda v: 255 if v > 170 else 0)), "11"),
+              (ImageOps.invert(gris.point(lambda v: 255 if v > 200 else 0)), "11")]
+    lignes, nombres = [], []
+
+    def tess(img, psm, tsv=False):
+        with tempfile.TemporaryDirectory() as tmp:
+            f = os.path.join(tmp, "i.png")
+            img.save(f)
+            cmd = ["tesseract", f, "-", "-l", "fra", "--psm", psm] + (["tsv"] if tsv else [])
+            return subprocess.run(cmd, capture_output=True, timeout=60).stdout.decode("utf-8", "replace")
+    for img, psm in textes:
+        try:
+            for l in tess(img, psm).splitlines():
+                l = l.strip()
+                if len(l) >= 3 and sum(ch.isalpha() for ch in l) >= 3 and l not in lignes:
+                    lignes.append(l)
+        except Exception:
+            continue
+    # les très gros chiffres ne se lisent qu'en réduisant beaucoup l'image
+    for k in (2, 4, 8, 12, 16):
+        petite = vert.resize((max(1, im.width // k), max(1, im.height // k)), Image.LANCZOS)
+        petite = ImageOps.expand(petite.point(lambda v: 0 if v > 170 else 255), border=16, fill=255)
+        try:
+            out = tess(petite, "11", tsv=True)
+        except Exception:
+            continue
+        for row in out.splitlines()[1:]:
+            c = row.split("\t")
+            if len(c) < 12:
+                continue
+            for x in re.findall(r"(?<!\d)(\d{1,2})(?!\d)", c[11]):
+                try:
+                    nombres.append((int(c[9]) * k, int(x)))
+                except ValueError:
+                    pass
+    grands = [x for x in nombres if x[0] >= 0.12 * im.height]
+    return {"t": "\n".join(lignes)[:2000], "n": max(grands)[1] if grands else None}
+
+
+def _date_fr(jour, mois, ref):
+    try:
+        y = ref.year + (1 if MOIS[mois] < ref.month - 6 else 0)
+        return date(y, MOIS[mois], int(jour))
+    except (KeyError, ValueError):
+        return None
+
+
+def operation_depuis_texte(lu, cat, url, famille):
+    """Texte d'une bannière -> une offre « opération » (ex. 34 % reversés sur la Carte U sur les chocolats de Noël)."""
+    texte = lu.get("t") or ""
+    n = norm(texte)
+    if not texte or "ne ratez pas" in n:
+        return None
+    sujet = None
+    for l in texte.splitlines():
+        m = RE_SUR.match(l.strip().replace("’", "'"))
+        if m and not re.match(r"\d", m.group(1)) and "PRODUIT" not in m.group(1):
+            sujet = m.group(1).strip(" -'")
+            break
+    if not sujet:
+        return None  # bannière produit (déjà dans le catalogue) ou simple visuel
+    mots = [MAJ_MOTS.get(norm(w), w.lower()) for w in sujet.split()]
+    nom = " ".join(mots)
+    nom = nom[:1].upper() + nom[1:]
+    pct = re.search(r"(\d{1,2})\s*%", texte)
+    pct = int(pct.group(1)) if pct else lu.get("n")
+    dates = [d for d in (_date_fr(a, b, cat["debut"]) for a, b in RE_JOUR.findall(n)) if d]
+    for a, m1, b, m2 in RE_DU_AU.findall(n):
+        d1, d2 = _date_fr(a, m1 or m2, cat["debut"]), _date_fr(b, m2, cat["debut"])
+        if d1 and d2:
+            dates += [d1, d2]
+    dates = [d for d in dates if cat["debut"] - timedelta(days=1) <= d <= cat["fin"]]
+    if "revers" in n:
+        meca = "reversés en € sur la Carte U" if famille == "u" else "reversés sur la carte de fidélité"
+    elif "remise immediate" in n:
+        meca = "de remise immédiate"
+    elif "offert" in n:
+        meca = "offert"
+    elif "carte" in n:
+        meca = "avec la carte"
+    else:
+        meca = "de réduction"
+    plan = ("%d %% %s" % (pct, meca)) if pct and 3 <= pct <= 90 else meca[:1].upper() + meca[1:]
+    lignes = texte.splitlines()
+    cond = " ".join(x.strip() for x in lignes if re.search(r"limit|une seule fois|maximum|par foyer|par compte", norm(x)) and len(x) > 30)[:200]
+    hors = next((x.strip() for x in lignes if norm(x).startswith("hors ") and len(x) > 20), "")
+    if hors and hors not in cond:
+        cond = (cond + " " + hors).strip()
+    it = {"nom": nom, "marque": "", "prix": None, "bon_plan": plan, "detail": "",
+          "debut": min(dates).isoformat() if dates else cat["debut"].isoformat(),
+          "fin": max(dates).isoformat() if dates else cat["fin"].isoformat(),
+          "categories": nom, "catalogue": str(cat["id"]), "image": url, "op": True}
+    it["detail"] = cond[:300]
+    if "carte" in n:
+        it["carte"] = True
+    if pct and 3 <= pct <= 90:
+        it["remise_label"] = pct
+    return it
 
 
 # --------------------------------------------------------------------------- bonial : texte (secours)
@@ -381,7 +625,10 @@ def ecrire_ics(evenements, chemin, nom_cal="Mes promos", extras=()):
         uid = slug(x["enseigne"] + " " + x["titre"] + " " + x["debut"]) + "@mes-promos"
         titre = x["titre"].title() if x["titre"].isupper() else x["titre"]
         resume = ("⚡ " if x.get("operation") else "") + "%s : %s" % (x["nom"], titre)
-        evt(uid, d1, resume, "Du %s au %s. Ouvre l'appli Mes promos pour le détail." % (d1.strftime("%d/%m"), d2.strftime("%d/%m")))
+        if x.get("resume"):
+            resume += " (" + x["resume"] + ")"
+        quand = ("Le %s." % d1.strftime("%d/%m")) if d1 == d2 else ("Du %s au %s." % (d1.strftime("%d/%m"), d2.strftime("%d/%m")))
+        evt(uid, d1, resume, quand + " Ouvre l'appli Mes promos pour le détail.")
         if x.get("operation") and (d2 - d1).days >= 1:
             evt("fin-" + uid, d2, "Dernier jour : " + resume)
     for x in extras:
@@ -711,13 +958,164 @@ def construire_offres(brutes, aujourd):
         rem = it.get("remise_effective")
         if rem is None and p and av and av > p:
             rem = round((1 - p / av) * 100)
+        if rem is None and p is None and it.get("remise_label"):
+            rem = it["remise_label"]
         e = {"k": "%s-%s%s" % (it["chaine"], slug(nom)[:55], ("-" + slug(marque)[:18]) if marque else ""),
              "chaine": it["chaine"], "cat": cat, "nom": nom, "marque": marque, "prix": p, "avant": av, "remise": rem,
              "unite": it.get("unite") or "", "detail": it.get("detail") or "", "bon_plan": it.get("bon_plan") or "",
-             "rayon": rayon(nom, marque, it.get("categories", "")), "debut": it.get("debut") or "", "fin": it.get("fin") or ""}
+             "rayon": it.get("rayon") or rayon(nom, marque, it.get("categories", "")),
+             "debut": it.get("debut") or "", "fin": it.get("fin") or ""}
         if it.get("condition"):
             e["condition"], e["remise_2e"] = it["condition"], it.get("remise_affichee")
+        for x in ("carte", "des", "image", "op", "img"):
+            if it.get(x):
+                e[x] = it[x]
         vus[cle] = e
+        sortie.append(e)
+    return sortie
+
+
+def lire_catalogues(cats, zones, ancien, brutes, cfg, log):
+    """Chaque catalogue en entier (visionneuse bonial) ; si elle ne répond pas, les offres complètes de la veille."""
+    dom = cfg.get("domicile") or {}
+    pause = float(cfg.get("pause", 0.6))
+    anciens = (ancien.get("catalogues") or {}) if ancien.get("v") == 2 else {}
+    vieilles = etendre(ancien.get("offres") or [], anciens) if ancien.get("v") == 2 else []
+    ocr = ocr_dispo()
+    cache = charger_json(os.path.join(DATA, "ocr.json"), {}) if ocr else {}
+    if not ocr:
+        log("   (lecture des images d'opérations : Tesseract absent, les images sont gardées sans texte)")
+    par_cat = {}
+    for b in brutes:
+        par_cat.setdefault(b.get("catalogue") or "*", []).append(b)
+    vus_images = {}
+    n_ok, n_total = 0, 0
+    for cid, c in sorted(cats.items()):
+        z = next((z for z in zones.values() if cid in z.get("catalogues", [])), {})
+        pos = (z.get("lat") or dom.get("lat") or 46.67, z.get("lng") or dom.get("lng") or -1.43)
+        res = catalogue_complet(cid, c.get("type", ""), pos, log, pause)
+        if res is None:
+            if (anciens.get(cid) or {}).get("complet"):
+                par_cat[cid] = [dict(o, catalogue=cid, remise_effective=o.get("remise") if o.get("condition") else None,
+                                     remise_affichee=o.get("remise_2e")) for o in vieilles if o["cat"] == cid]
+                for k in ("complet", "images", "resume"):
+                    if anciens[cid].get(k):
+                        c[k] = anciens[cid][k]
+                if anciens[cid].get("op_debut"):
+                    c["debut"], c["fin"] = anciens[cid]["op_debut"], anciens[cid]["op_fin"]
+            continue
+        offres, images = res
+        for it in offres:
+            it["chaine"], it["catalogue"] = c["chaine"], cid
+        if offres:
+            par_cat[cid] = offres
+        c["complet"] = True
+        n_ok += 1
+        n_total += len(offres)
+        if images:
+            c["images"] = images
+            for u in images:
+                vus_images.setdefault(u.rsplit("/", 1)[-1], set()).add(norm(c["titre"]))
+    log("Catalogues lus en entier : %d/%d (%d offres)" % (n_ok, len(cats), n_total))
+
+    # images : on retire les visuels communs à plusieurs catalogues (logos, « ne ratez pas… »)
+    garde = {}
+    for cid, c in cats.items():
+        imgs = [u for u in c.get("images", []) if len(vus_images.get(u.rsplit("/", 1)[-1], ())) < 2]
+        ops = []
+        for u in imgs:
+            if not ocr:
+                garde.setdefault(cid, []).append(u)
+                continue
+            if u not in cache:
+                data = telecharger(u, log, binaire=True)
+                try:
+                    cache[u] = dict(ocr_image(data), vu=date.today().isoformat()) if data else {"t": "", "n": None}
+                except Exception as e:
+                    log("   ! lecture d'image impossible : %s" % e)
+                    cache[u] = {"t": "", "n": None}
+            lu = cache[u]
+            lu["vu"] = date.today().isoformat()
+            t = lu.get("t", "")
+            lettres = sum(ch.isalpha() for ch in t)
+            if lettres < 25 or "ne ratez pas" in norm(t) or (lettres < 120 and not re.search(r"\d", t)):
+                continue  # logo, visuel décoratif
+            garde.setdefault(cid, []).append(u)
+            info = {"id": cid, "debut": date.fromisoformat(c["debut"]), "fin": date.fromisoformat(c["fin"])}
+            op = operation_depuis_texte(lu, info, u, chaine_de_id(c["chaine"]))
+            if op:
+                op["chaine"] = c["chaine"]
+                ops.append(op)
+        if ops:
+            par_cat[cid] = [o for o in par_cat.get(cid, []) if not o.get("op")] + ops
+            # le vrai jour de l'opération (ex. le jeudi seulement) pour l'agenda et les rappels
+            d1, d2 = min(o["debut"] for o in ops), max(o["fin"] for o in ops)
+            if c.get("type") == "DYNAMIC" and (d1, d2) != (c["debut"], c["fin"]):
+                c["debut"], c["fin"], c["op_debut"], c["op_fin"] = d1, d2, d1, d2
+            c["resume"] = " · ".join(dict.fromkeys("%s : %s" % (o["bon_plan"], o["nom"]) for o in ops))[:200]
+            c["operation"] = True
+    for cid, c in cats.items():
+        if garde.get(cid):
+            c["images"] = garde[cid][:6]
+        else:
+            c.pop("images", None)
+    if ocr:
+        limite = (date.today() - timedelta(days=60)).isoformat()
+        ecrire_json(os.path.join(DATA, "ocr.json"), {u: v for u, v in cache.items() if v.get("vu", "9") >= limite})
+    return [o for l in par_cat.values() for o in l]
+
+
+def charger_donnees(chemin=None):
+    """promos.json avec toutes ses offres (y compris celles rangées par catalogue dans offres/)."""
+    chemin = chemin or FICHIER
+    d = charger_json(chemin, {})
+    if d.get("fichiers"):
+        dossier = os.path.join(os.path.dirname(chemin), d["fichiers"])
+        offres = list(d.get("offres") or [])
+        for cid, c in (d.get("catalogues") or {}).items():
+            if c.get("n"):
+                offres += charger_json(os.path.join(dossier, cid + ".json"), [])
+        d["offres"] = offres
+    return d
+
+
+CHAMPS_VIDES = {"marque": "", "prix": None, "avant": None, "remise": None, "unite": "", "detail": "", "bon_plan": ""}
+
+
+def compacter(offres, cats):
+    """Allège promos.json : pas de champs vides, ni des dates/enseigne quand ce sont celles du catalogue."""
+    sortie = []
+    for o in offres:
+        c = cats.get(o["cat"]) or {}
+        e = {}
+        for k, v in o.items():
+            if k == "histo" or (k in CHAMPS_VIDES and v == CHAMPS_VIDES[k]):
+                continue
+            if k == "chaine" and c.get("chaine") == v:
+                continue
+            if k in ("debut", "fin") and (c.get("op_" + k) or c.get(k)) == v:
+                continue
+            e[k] = v
+        if o.get("histo"):
+            h = o["histo"]
+            e["h"] = [h["min"], h["min_date"], h["fois"]]
+        sortie.append(e)
+    return sortie
+
+
+def etendre(offres, cats):
+    """Inverse de compacter() (accepte aussi l'ancien format)."""
+    sortie = []
+    for o in offres:
+        c = cats.get(o.get("cat")) or {}
+        e = dict(CHAMPS_VIDES)
+        e.update(o)
+        e.setdefault("chaine", c.get("chaine", ""))
+        e.setdefault("debut", c.get("debut", ""))
+        e.setdefault("fin", c.get("fin", ""))
+        if "h" in e:
+            h = e.pop("h")
+            e["histo"] = {"min": h[0], "min_date": h[1], "fois": h[2]}
         sortie.append(e)
     return sortie
 
@@ -727,6 +1125,7 @@ def vue_magasins(donnees, ids):
     (même logique que dans la page, utilisée ici pour le calendrier et les alertes)"""
     mags = {m["id"]: m for m in donnees.get("magasins", [])}
     zones, cats = donnees.get("zones", {}), donnees.get("catalogues", {})
+    toutes = etendre(donnees.get("offres", []), cats)
     aujourd = date.today().isoformat()
     enseignes, promos, evts = {}, [], []
     for sid in ids:
@@ -736,7 +1135,17 @@ def vue_magasins(donnees, ids):
         z = zones.get(m.get("zone") or "", {})
         ok = set(z.get("catalogues", []))
         nom = "%s %s" % (m["nom"], m["ville"])
-        mes = [o for o in donnees.get("offres", []) if o["chaine"] == m["chaine"] and (o["cat"] == "*" or o["cat"] in ok)]
+        mes, vus = [], {}
+        for o in toutes:
+            if o["chaine"] != m["chaine"] or not (o["cat"] == "*" or o["cat"] in ok):
+                continue
+            if o["k"] in vus:  # même produit dans deux catalogues : on garde le meilleur prix
+                a = vus[o["k"]]
+                if (o.get("prix") or 9e9) < (a.get("prix") or 9e9):
+                    a.update(o)
+                continue
+            vus[o["k"]] = dict(o)
+            mes.append(vus[o["k"]])
         for o in mes:
             q = dict(o, id=sid + "|" + o["k"], enseigne=sid,
                      validite=("du %s au %s" % (jj_mm(o["debut"]), jj_mm(o["fin"]))) if o.get("debut") and o.get("fin") else "")
@@ -746,7 +1155,8 @@ def vue_magasins(donnees, ids):
             x = cats.get(c)
             if x and x.get("fin", "") >= aujourd:
                 evts.append({"enseigne": sid, "nom": nom, "titre": x["titre"], "pages": x.get("pages"),
-                             "debut": x["debut"], "fin": x["fin"], "operation": x.get("operation")})
+                             "debut": x["debut"], "fin": x["fin"], "operation": x.get("operation"),
+                             "resume": x.get("resume", ""), "images": x.get("images", [])})
     evts.sort(key=lambda e: (e["debut"], e["nom"]))
     return enseignes, promos, evts
 
@@ -781,7 +1191,7 @@ def mettre_a_jour(debug=False, log=print, essai=False):
     if debug:
         os.makedirs(os.path.join(DATA, "debug"), exist_ok=True)
     cfg = charger_config()
-    ancien = charger_json(FICHIER, {})
+    ancien = charger_donnees(FICHIER)
     aujourd = date.today()
     jour = aujourd.isoformat()
 
@@ -815,7 +1225,7 @@ def mettre_a_jour(debug=False, log=print, essai=False):
             if c.get("fin", "") >= jour:
                 catalogues.setdefault(k, c)
         lus = {(o["chaine"], o.get("catalogue")) for o in brutes}
-        for o in ancien.get("offres", []):
+        for o in etendre(ancien.get("offres", []), ancien.get("catalogues") or {}):
             if (o["chaine"], o["cat"]) not in lus and o["cat"] in catalogues and (not o.get("fin") or o["fin"] >= jour):
                 brutes.append(dict(o, catalogue=o["cat"]))
 
@@ -839,9 +1249,12 @@ def mettre_a_jour(debug=False, log=print, essai=False):
         if (date.fromisoformat(d2) - date.fromisoformat(d1)).days > 120:
             continue
         cats[k] = {"chaine": c["chaine"], "titre": c["titre"], "debut": d1, "fin": d2, "pages": c.get("pages"),
-                   "operation": est_operation(c["titre"], date.fromisoformat(d1), date.fromisoformat(d2))}
+                   "operation": est_operation(c["titre"], date.fromisoformat(d1), date.fromisoformat(d2)),
+                   "type": c.get("type") or ""}
     for z in zones.values():
         z["catalogues"] = [c for c in z["catalogues"] if c in cats]
+
+    brutes = lire_catalogues(cats, zones, ancien, brutes, cfg, log)
 
     offres = construire_offres(brutes, aujourd)
     offres = [o for o in offres if o["cat"] == "*" or o["cat"] in cats]
@@ -872,9 +1285,9 @@ def mettre_a_jour(debug=False, log=print, essai=False):
         mettre_historique(offres, aujourd)
     except Exception as e:
         log("Historique non mis à jour : %s" % e)
-    # vue « magasins par défaut » (anciennes versions de l'appli + calendrier de base)
+    # vue « magasins par défaut » (calendrier de base)
     ens, promos, evts = vue_magasins(resultat, defaut)
-    resultat["enseignes"], resultat["promos"], resultat["evenements"] = ens, promos, evts
+    resultat["enseignes"], resultat["evenements"] = ens, evts
     if essai:
         log("ESSAI : rien n'est enregistré.")
         return resultat
@@ -882,8 +1295,27 @@ def mettre_a_jour(debug=False, log=print, essai=False):
         ecrire_ics(evts, os.path.join(DATA, "rappels.ics"))
     except Exception as e:
         log("Calendrier non écrit : %s" % e)
+    # les offres vont dans un fichier par catalogue (offres/<id>.json) : l'appli ne charge que
+    # ceux des magasins choisis ; promos.json garde les magasins, catalogues et offres nationales
+    par = {}
+    for o in compacter(offres, cats):
+        par.setdefault(o["cat"], []).append(o)
+    resultat["offres"] = par.pop("*", [])
+    resultat["fichiers"] = "offres"
+    dossier = os.path.join(DATA, "offres")
+    os.makedirs(dossier, exist_ok=True)
+    total = 0
+    for cid, c in cats.items():
+        c["n"] = len(par.get(cid, []))
+        if c["n"]:
+            ecrire_json(os.path.join(dossier, cid + ".json"), par[cid])
+            total += os.path.getsize(os.path.join(dossier, cid + ".json"))
+    for f in os.listdir(dossier):  # catalogues terminés
+        if f.endswith(".json") and not cats.get(f[:-5], {}).get("n"):
+            os.remove(os.path.join(dossier, f))
     ecrire_json(FICHIER, resultat)
-    log("Terminé : %d magasins, %d catalogues, %d offres" % (len(magasins), len(cats), len(offres)))
+    log("Terminé : %d magasins, %d catalogues, %d offres (promos.json %d Ko + offres %d Ko)" % (
+        len(magasins), len(cats), len(offres), os.path.getsize(FICHIER) // 1024, total // 1024))
     return resultat
 
 

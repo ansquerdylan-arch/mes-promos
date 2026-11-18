@@ -16,6 +16,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Outils pour lire les opérations publiées en images (Jeudis Plus…)
+        run: |
+          sudo apt-get update -qq > /dev/null 2>&1 || true
+          sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-fra > /dev/null 2>&1 || echo "Tesseract non installé : les images seront gardées sans texte"
+          pip install -q pillow || true
       - name: Récupérer les promos
         env:
           TZ: Europe/Paris
@@ -29,5 +34,7 @@ jobs:
         run: |
           git config user.name "maj-promos"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A offres
           git add promos.json rappels.ics historique.json alertes_envoyees.json
+          git add ocr.json 2>/dev/null || true
           git diff --cached --quiet || (git commit -m "Promos du $(TZ=Europe/Paris date +%d/%m)" && git pull --rebase -q && git push)
