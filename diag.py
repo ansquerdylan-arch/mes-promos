@@ -73,6 +73,15 @@ def resume(url):
         plb = pi.get("template", {}).get("content", {}).get("PublisherLogoLinkbox", {})
         if plb:
             print("--- enseignes de la ville :", [l.get("link_href") for l in plb.get("links", [])])
+        if pi.get("city"):
+            print("--- ville :", json.dumps(pi["city"], ensure_ascii=False)[:900])
+        cont = (pi.get("template") or {}).get("content") or {}
+        for nom in ("StoreLogoLinkbox", "StoreLinkbox", "NearbyStores", "StoreList"):
+            if cont.get(nom):
+                print("--- %s :" % nom, json.dumps(cont[nom], ensure_ascii=False)[:1500])
+        for k, v in (pi or {}).items():
+            if isinstance(v, list) and v and isinstance(v[0], dict) and any(x in json.dumps(v[0])[:600] for x in ("zipCode", "street", "lat")):
+                print("--- liste magasins %s (%d) :" % (k, len(v)), json.dumps(v[:2], ensure_ascii=False)[:1200])
         if pi.get("store"):
             print("--- magasin :", json.dumps(pi["store"], ensure_ascii=False)[:2500])
         print("--- pageInformation : clés ---")
