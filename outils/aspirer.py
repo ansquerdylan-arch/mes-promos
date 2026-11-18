@@ -5,11 +5,21 @@ UA = ("Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like 
       "Chrome/131.0.0.0 Mobile Safari/537.36")
 os.makedirs("brut", exist_ok=True)
 bilan = []
-for i, url in enumerate(sys.argv[1:]):
+extra = {}
+args = sys.argv[1:]
+urls = []
+while args:
+    a = args.pop(0)
+    if a == "-H" and args:
+        k, _, v = args.pop(0).partition(":")
+        extra[k.strip()] = v.strip()
+    else:
+        urls.append((a, dict(extra)))
+for i, (url, ent) in enumerate(urls):
     nom = "%02d_%s" % (i, re.sub(r"[^A-Za-z0-9]+", "_", url.split("//", 1)[-1])[:90])
     req = urllib.request.Request(url, headers={
         "User-Agent": UA, "Accept": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
-        "Accept-Language": "fr-FR,fr;q=0.9", "Accept-Encoding": "gzip, deflate"})
+        "Accept-Language": "fr-FR,fr;q=0.9", "Accept-Encoding": "gzip, deflate", **ent})
     code, corps, entetes = 0, b"", {}
     try:
         with urllib.request.urlopen(req, timeout=40) as r:
