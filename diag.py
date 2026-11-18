@@ -66,8 +66,11 @@ def resume(url):
                 return
             if isinstance(o, list) and o and isinstance(o[0], dict) and any(re.search("price", kk, re.I) for kk in json.dumps(o[0])[:4000].split('"')):
                 print("--- liste avec prix : %s (%d éléments) ---" % (chemin, len(o)))
-                o0 = dict(o[0]); o0.pop("offerImages", None); o0.pop("categoryPaths", None)
-                print(json.dumps(o0, ensure_ascii=False)[:2500])
+                for it in o[:40]:
+                    pr = it.get("prices") or {}
+                    print("   · %-45s %-12s %7s %7s  %s → %s  %s" % (
+                        (it.get("title") or "")[:45], (it.get("brand") or "")[:12], pr.get("mainPrice"), pr.get("secondaryPrice"),
+                        (it.get("validFrom") or "")[:10], (it.get("validUntil") or "")[:10], (it.get("publisherName") or "")))
                 return
             if isinstance(o, dict):
                 for k, v in o.items():
