@@ -86,6 +86,12 @@ def principal(log=print, aujourd=None, reglages=None, envoyer=ntfy):
         return {}
     donnees = m.charger_json(m.FICHIER, {"promos": [], "evenements": [], "enseignes": {}})
     masques = set(reglages.get("magasins_masques") or [])
+    if donnees.get("v") == 2:
+        # toute la Vendée : on ne garde que les magasins choisis dans l'appli
+        ids = [i for i in (reglages.get("magasins") or []) if i] or donnees.get("defaut", [])
+        ens, promos, evts = m.vue_magasins(donnees, ids)
+        donnees = dict(donnees, enseignes=ens, promos=promos, evenements=evts)
+        masques = set()
     noms = {k: v.get("nom", k) for k, v in (donnees.get("enseignes") or {}).items()}
     deja = m.charger_json(ENVOYEES, {})
     jour = aujourd.isoformat()

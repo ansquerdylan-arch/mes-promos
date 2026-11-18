@@ -903,3 +903,5 @@ if __name__ == "__main__":
         print("Villes :", sorted({m["ville"] for m in r.get("magasins", [])}))
         print("Par défaut :", [(m["nom"], m["ville"]) for m in r.get("magasins", []) if m["id"] in r.get("defaut", [])])
         print("Exemple magasin :", json.dumps(r.get("magasins", [{}])[0], ensure_ascii=False)[:400])
+        print("Slugs de villes :", sorted({z["slug"] for z in r.get("zones", {}).values()}))
+        print("Catalogues par zone (moyenne) :", round(sum(len(z["catalogues"]) for z in r.get("zones", {}).values()) / max(1, len(r.get("zones", {}))), 1))

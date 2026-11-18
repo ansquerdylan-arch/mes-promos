@@ -190,6 +190,16 @@ body.shop .li .n { font-size: 20px; }
 body.shop .li input { width: 30px; height: 30px; }
 body.shop .li .pr { font-size: 18px; }
 
+/* choix des magasins */
+.mrow { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; border: 1.5px solid var(--line); border-left: 5px solid var(--sc, var(--line)); border-radius: 12px; padding: 8px 10px; background: var(--card); }
+.mrow b { font-size: 14.5px; }
+.mrow .sub { font-size: 12.5px; color: var(--muted); grid-column: 1; }
+.mrow .open { color: var(--good); font-weight: 600; }
+.mrow .closed { color: var(--bad); font-weight: 600; }
+.mrow button { grid-row: 1 / span 2; grid-column: 2; }
+.store .open { color: var(--good); font-weight: 600; }
+.store .closed { color: var(--bad); font-weight: 600; }
+
 /* partage, budget */
 .syncline { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 9px 12px; font-size: 14px; }
 .syncline .ok { color: var(--good); font-weight: 600; }
@@ -297,7 +307,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     </div>
 
     <div class="blk">
-      <div class="sec-head"><h2>Magasins</h2><button class="link" id="openStores" type="button">Choisir mes magasins</button></div>
+      <div class="sec-head"><h2>Mes magasins</h2><button class="link" id="openStores" type="button">Changer / ajouter</button></div>
       <div class="stores" id="homeStores"></div>
     </div>
     <p class="muted" style="margin:0">Prix relevés dans les catalogues publiés. Ils peuvent varier un peu selon le magasin.</p>
@@ -389,10 +399,14 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
 <dialog id="settings" aria-labelledby="setTitle">
   <div class="dlg">
     <div class="dlg-head"><h2 id="setTitle">Réglages</h2><button class="btn" type="button" id="closeSettings">Fermer</button></div>
-    <div style="display:grid;gap:6px">
+    <div style="display:grid;gap:8px" id="magSection">
       <b>Mes magasins</b>
-      <span class="muted">Décoche ceux où tu ne vas jamais : ils disparaissent de partout.</span>
-      <div id="setStores"></div>
+      <span class="muted">Choisis tes magasins parmi tous ceux de Vendée. Toute l'appli suit ton choix : promos, plats, agenda, alertes.</span>
+      <div id="selStores" style="display:grid;gap:6px"></div>
+      <b style="font-size:14px;margin-top:4px">Ajouter un magasin</b>
+      <div class="watch-add"><input id="storeQ" type="search" placeholder="Ville, code postal ou enseigne" aria-label="Chercher un magasin" autocomplete="off"><button class="btn" type="button" id="btnPres">Autour de moi</button></div>
+      <div class="chips" id="storeFam"></div>
+      <div id="storeRes" style="display:grid;gap:6px;max-height:360px;overflow:auto"></div>
     </div>
     <div style="display:grid;gap:8px">
       <b>Produits surveillés</b>
@@ -437,7 +451,9 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
 <script>
 (function () {
   "use strict";
-  var COULEURS = { superu: "#d7262e", leclerc: "#0066b3", intermarche: "#e2001a", lidl: "#f5c400", carrefour: "#1e5bc6", auchan: "#e2001a", aldi: "#00a0e1" };
+  var COULEURS = { u: "#d7262e", leclerc: "#0066b3", intermarche: "#e2001a", lidl: "#f5c400", carrefour: "#1e5bc6", auchan: "#e2001a", aldi: "#00a0e1" };
+  var FAMILLES = [["u", "Système U"], ["leclerc", "E.Leclerc"], ["intermarche", "Intermarché"], ["lidl", "Lidl"], ["carrefour", "Carrefour"]];
+  function familleDe(ch) { ch = ch || ""; if (/^(superu|hyperu|uexpress|marcheu)/.test(ch)) return "u"; if (/^intermarche/.test(ch)) return "intermarche"; if (/^carrefour/.test(ch)) return "carrefour"; return ch; }
   var ALIM = ["Poisson & mer", "Volaille", "Charcuterie", "Viande", "Fromage", "Crèmerie & œufs", "Fruits & légumes", "Surgelés", "Boulangerie", "Épicerie sucrée", "Épicerie salée"];
   var ORDRE_RAYONS = ALIM.concat(["Boissons", "Hygiène & beauté", "Entretien", "Animaux", "Maison & loisirs", "Autres"]);
   var JOURS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
@@ -448,7 +464,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     envie: [], menu: null,
     fav: lire("fav", []), liste: lire("liste", []), watch: lire("watch", []),
     hidden: lire("hiddenStores", []), theme: lire("theme", "auto"),
-    vusAvant: lire("vus2", []), nouveaux: {}, rdv: lire("rdv", []), agAll: false, prenom: lire("prenom", ""), vue: "accueil"
+    vusAvant: lire("vus3", []), nouveaux: {}, rdv: lire("rdv", []), agAll: false, prenom: lire("prenom", ""), vue: "accueil"
   };
 
   // ---------- utilitaires
@@ -459,7 +475,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   function norm(t) { return String(t || "").toLowerCase().replace(/œ/g, "oe").replace(/æ/g, "ae").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim(); }
   function euro(x) { return x == null ? "" : x.toFixed(2).replace(".", ",") + " €"; }
   function nomEns(id) { var e = S.data && S.data.enseignes[id]; return (e && e.nom) || id; }
-  function coul(id) { return COULEURS[id] || "#8a93a6"; }
+  function coul(id) { var e = S.data && S.data.enseignes && S.data.enseignes[id]; var ch = (e && e.chaine) || id; return COULEURS[familleDe(ch)] || "#8a93a6"; }
   function dot(id) { return '<span class="dot" style="background:' + coul(id) + '"></span>'; }
   function promoParId(id) { return S.data ? S.data.promos.find(function (p) { return p.id === id; }) : null; }
   function dansListe(id) { return S.liste.some(function (x) { return x.id === id && !x.suppr; }); }
@@ -515,15 +531,115 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   function charger() {
     var url = S.mode === "pc" ? "/api/promos" : "promos.json?t=" + Date.now();
     return fetch(url, { cache: "no-store" }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
-      S.data = d;
-      // nouveautés depuis la dernière visite
-      var ids = d.promos.map(function (p) { return p.id; });
-      S.nouveaux = {};
-      if (S.vusAvant.length) ids.forEach(function (id) { if (S.vusAvant.indexOf(id) < 0) S.nouveaux[id] = 1; });
-      ecrire("vus2", ids);
+      if (d.v === 2) { S.brut = d; S.hidden = []; S.sel = selectionInitiale(); construireVue(); }
+      else S.data = d;
+      marquerNouveaux();
       tout();
     }).catch(function () { $("sub").innerHTML = '<span class="err">Promos introuvables, vérifie ta connexion</span>'; });
   }
+  // nouveautés depuis la dernière visite (par offre, quel que soit le magasin)
+  function marquerNouveaux() {
+    var vus = {}; S.vusAvant.forEach(function (k) { vus[k] = 1; });
+    S.nouveaux = {};
+    var cles = {};
+    S.data.promos.forEach(function (p) { var k = p.k || p.id; cles[k] = 1; if (S.vusAvant.length && !vus[k]) S.nouveaux[p.id] = 1; });
+    var tout_ = Object.keys(cles); S.vusAvant.forEach(function (k) { if (!cles[k] && tout_.length < 6000) tout_.push(k); });
+    ecrire("vus3", tout_);
+  }
+  function selectionInitiale() {
+    var ids = {}; (S.brut.magasins || []).forEach(function (m) { ids[m.id] = 1; });
+    var s = (lire("magasins", null) || []).filter(function (id) { return ids[id]; });
+    return s.length ? s : (S.brut.defaut || []).slice();
+  }
+  function jjmm(iso) { return iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) : ""; }
+  function construireVue() {
+    var d = S.brut, mags = {}, auj = isoJ(new Date());
+    (d.magasins || []).forEach(function (m) { mags[m.id] = m; });
+    var ens = {}, promos = [], evts = {};
+    S.sel.forEach(function (sid) {
+      var m = mags[sid]; if (!m) return;
+      var z = (d.zones || {})[m.zone] || {}, ok = {};
+      (z.catalogues || []).forEach(function (c) { ok[c] = 1; });
+      var mes = (d.offres || []).filter(function (o) { return o.chaine === m.chaine && (o.cat === "*" || ok[o.cat]); });
+      mes.forEach(function (o) {
+        var q = {}; Object.keys(o).forEach(function (k) { q[k] = o[k]; });
+        q.id = sid + "|" + o.k; q.enseigne = sid; q.validite = o.debut && o.fin ? "du " + jjmm(o.debut) + " au " + jjmm(o.fin) : "";
+        promos.push(q);
+      });
+      var princ = null;
+      Object.keys(ok).forEach(function (c) {
+        var x = (d.catalogues || {})[c]; if (!x || x.fin < auj) return;
+        if (x.debut <= auj && (!princ || (x.pages || 0) > (princ.pages || 0))) princ = x;
+        var cle = m.chaine + "|" + c;
+        if (!evts[cle]) evts[cle] = { enseigne: sid, villes: [], base: m.nom, titre: x.titre, pages: x.pages, debut: x.debut, fin: x.fin, operation: x.operation };
+        if (evts[cle].villes.indexOf(m.ville) < 0) evts[cle].villes.push(m.ville);
+      });
+      ens[sid] = { nom: m.nom + " " + m.ville, court: m.nom, ville: m.ville, chaine: m.chaine, nb: mes.length, adresse: m.adresse, cp: m.cp,
+        lat: m.lat, lng: m.lng, horaires: m.horaires || [], validite: princ ? "du " + jjmm(princ.debut) + " au " + jjmm(princ.fin) : "" };
+    });
+    var ev = Object.keys(evts).map(function (k) { var e = evts[k]; e.nom = e.base + " " + e.villes.join(", "); return e; });
+    S.data = { v: 2, maj: d.maj, ville: d.ville, enseignes: ens, promos: promos, evenements: ev };
+  }
+  function appliquerSelection() {
+    ecrire("magasins", S.sel);
+    construireVue(); marquerNouveaux();
+    if (S.store !== "all" && S.sel.indexOf(S.store) < 0) S.store = "all";
+    tout(); syncAlertes();
+  }
+
+  // ---------- horaires d'ouverture (bonial : 1 = dimanche … 7 = samedi, en minutes)
+  function hm(min) { var h = Math.floor(min / 60), m = min % 60; return h + "h" + (m ? ("0" + m).slice(-2) : ""); }
+  function ouverture(horaires) {
+    if (!horaires || !horaires.length) return null;
+    var now = new Date(), jour = now.getDay() + 1, min = now.getHours() * 60 + now.getMinutes();
+    var auj = horaires.filter(function (h) { return h[0] === jour; }).sort(function (a, b) { return a[1] - b[1]; });
+    if (!auj.length) return { ouvert: false, txt: "Fermé aujourd'hui" };
+    var plage = auj.map(function (h) { return hm(h[1]) + "–" + hm(h[2]); }).join(", ");
+    var en = auj.find(function (h) { return min >= h[1] && min < h[2]; });
+    if (en) return { ouvert: true, txt: "Ouvert jusqu'à " + hm(en[2]) };
+    var prochain = auj.find(function (h) { return min < h[1]; });
+    return prochain ? { ouvert: false, txt: "Ouvre à " + hm(prochain[1]) + " (" + plage + ")" } : { ouvert: false, txt: "Fermé maintenant (" + plage + ")" };
+  }
+  function itineraire(e) {
+    var q = encodeURIComponent([e.court || e.nom, e.adresse, e.cp, e.ville].filter(Boolean).join(" "));
+    return IOS ? "https://maps.apple.com/?q=" + q : "https://www.google.com/maps/search/?api=1&query=" + q;
+  }
+
+  // ---------- choix des magasins dans toute la Vendée
+  var FAM = "toutes";
+  function distance(a, b) {
+    var R = 6371, r = Math.PI / 180, dLa = (b[0] - a[0]) * r, dLo = (b[1] - a[1]) * r;
+    var h = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+  function ligneMagasin(m, choisi) {
+    var o = ouverture(m.horaires), ref = S.pos || (S.brut && S.brut.domicile && S.brut.domicile.lat ? [S.brut.domicile.lat, S.brut.domicile.lng] : null);
+    var dist = ref && m.lat ? distance(ref, [m.lat, m.lng]) : null;
+    return '<div class="mrow" style="--sc:' + (COULEURS[familleDe(m.chaine)] || "#8a93a6") + '"><b>' + esc(m.nom) + ' · ' + esc(m.ville) + '</b>' +
+      '<button class="' + (choisi ? "icon on" : "icon") + '" type="button" data-' + (choisi ? "unpick" : "pick") + '="' + esc(m.id) + '">' + (choisi ? "Retirer" : "+ Ajouter") + '</button>' +
+      '<span class="sub">' + esc([m.adresse, m.cp].filter(Boolean).join(", ")) + (dist != null ? ' · ' + (dist < 10 ? dist.toFixed(1).replace(".", ",") : Math.round(dist)) + ' km' : '') +
+      (o ? ' · <span class="' + (o.ouvert ? "open" : "closed") + '">' + esc(o.txt) + '</span>' : '') + '</span></div>';
+  }
+  function afficherChoixMagasins() {
+    if (!S.brut || !$("selStores")) { if ($("magSection")) $("magSection").hidden = !S.brut; return; }
+    var mags = {}; S.brut.magasins.forEach(function (m) { mags[m.id] = m; });
+    $("selStores").innerHTML = S.sel.length ? S.sel.map(function (id) { return mags[id] ? ligneMagasin(mags[id], true) : ""; }).join("") : '<span class="muted">Aucun magasin choisi.</span>';
+    var compte = {}; S.brut.magasins.forEach(function (m) { var f = familleDe(m.chaine); compte[f] = (compte[f] || 0) + 1; });
+    $("storeFam").innerHTML = '<button class="chip" type="button" data-fam="toutes" aria-pressed="' + (FAM === "toutes") + '">Toutes <span class="n">' + S.brut.magasins.length + '</span></button>' +
+      FAMILLES.filter(function (f) { return compte[f[0]]; }).map(function (f) { return '<button class="chip" type="button" data-fam="' + f[0] + '" aria-pressed="' + (FAM === f[0]) + '"><span class="dot" style="background:' + COULEURS[f[0]] + '"></span>' + f[1] + ' <span class="n">' + compte[f[0]] + '</span></button>'; }).join("");
+    var mots = norm($("storeQ").value).split(" ").filter(Boolean);
+    var ref = S.pos || (S.brut.domicile && S.brut.domicile.lat ? [S.brut.domicile.lat, S.brut.domicile.lng] : null);
+    var l = S.brut.magasins.filter(function (m) {
+      if (S.sel.indexOf(m.id) >= 0) return false;
+      if (FAM !== "toutes" && familleDe(m.chaine) !== FAM) return false;
+      var t = norm([m.nom, m.ville, m.cp, m.adresse].join(" "));
+      return mots.every(function (w) { return t.indexOf(w) >= 0; });
+    });
+    if (ref) l.sort(function (a, b) { return (a.lat ? distance(ref, [a.lat, a.lng]) : 999) - (b.lat ? distance(ref, [b.lat, b.lng]) : 999); });
+    $("storeRes").innerHTML = l.length ? l.slice(0, 40).map(function (m) { return ligneMagasin(m, false); }).join("") + (l.length > 40 ? '<span class="muted">… ' + (l.length - 40) + ' autres : précise ta recherche.</span>' : '')
+      : '<span class="muted">Aucun magasin ne correspond.</span>';
+  }
+
   fetch("/api/etat", { cache: "no-store" }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function () {
     S.mode = "pc";
     $("btnMaj").hidden = false; $("btnMaj").removeAttribute("target"); $("btnMaj").querySelector("span").textContent = "Mettre à jour";
@@ -618,22 +734,12 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     var plats = platsDuMoment(null);
     $("homeDish").innerHTML = plats.length ? carteRecette(plats[0].r, plats[0].promos) : '<div class="empty">Les idées de plats arrivent.</div>';
 
-    $("homeStores").innerHTML = Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0 && S.data.enseignes[k].nb > 0; }).map(function (k) {
-      var e = S.data.enseignes[k];
-      return '<button class="store" type="button" data-gostore="' + esc(k) + '" style="--sc:' + coul(k) + '"><b>' + esc(e.nom) + '</b><span>' + e.nb + ' promos</span>' + (e.validite ? '<span>' + esc(e.validite) + '</span>' : '') + (e.ancien ? '<span class="old">pas de nouveau catalogue</span>' : '') + '</button>' + '';
+    $("homeStores").innerHTML = Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0; }).map(function (k) {
+      var e = S.data.enseignes[k], o = ouverture(e.horaires);
+      return '<div style="display:grid;gap:4px"><button class="store" type="button" data-gostore="' + esc(k) + '" style="--sc:' + coul(k) + '"><b>' + esc(e.court || e.nom) + '</b><span>' + esc(e.ville || "") + '</span><span>' + e.nb + ' promos' + (e.validite ? ' · ' + esc(e.validite) : '') + '</span>' +
+        (o ? '<span class="' + (o.ouvert ? "open" : "closed") + '">' + esc(o.txt) + '</span>' : '') + (e.ancien ? '<span class="old">pas de nouveau catalogue</span>' : '') + '</button>' +
+        (e.adresse ? '<a href="' + itineraire(e) + '" target="_blank" rel="noopener" style="font-size:12px;font-weight:600;color:var(--accent);text-decoration:none">Itinéraire →</a>' : '') + '</div>';
     }).join("");
-    // itinéraires sous les cartes magasin
-    Object.keys(S.data.enseignes).forEach(function (k) {
-      var e = S.data.enseignes[k]; if (!e.lat || S.hidden.indexOf(k) >= 0) return;
-      var btn = document.querySelector('#homeStores [data-gostore="' + k + '"]'); if (!btn) return;
-      var url = IOS ? "https://maps.apple.com/?daddr=" + e.lat + "," + e.lng + "&q=" + encodeURIComponent(e.nom) : "https://www.google.com/maps/dir/?api=1&destination=" + e.lat + "," + e.lng;
-      btn.insertAdjacentHTML("beforeend", '<span>' + esc(e.adresse || "") + '</span>');
-      btn.insertAdjacentHTML("afterend", "");
-      var a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener"; a.textContent = "Itinéraire →";
-      a.style.cssText = "font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;margin-top:-4px";
-      var wrap = document.createElement("div"); wrap.style.cssText = "display:grid;gap:4px";
-      btn.parentNode.insertBefore(wrap, btn); wrap.appendChild(btn); wrap.appendChild(a);
-    });
   }
 
   // ---------- promos
@@ -1094,7 +1200,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     if (!SYNC || SYNC.role !== "proprio") return;
     clearTimeout(SE.ta);
     SE.ta = setTimeout(function () {
-      var doc = { produits: S.watch, magasins_masques: S.hidden, ntfy: SYNC.ntfy ? SYNC.topic : "", operations: !!SYNC.ops };
+      var doc = { produits: S.watch, magasins: S.sel || [], magasins_masques: S.hidden, ntfy: SYNC.ntfy ? SYNC.topic : "", operations: !!SYNC.ops };
       var txt = JSON.stringify(doc, null, 1);
       if (txt === SE.alertesEnvoyees && SYNC.alertGist) return;
       var fichiers = {}; fichiers[F_ALERTES] = { content: txt };
@@ -1157,6 +1263,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     try { $("settings").showModal(); } catch (e) { $("settings").setAttribute("open", ""); }
     if (section === "gh") setTimeout(function () { $("ghSection").scrollIntoView({ block: "start" }); }, 50);
     if (section === "budget") setTimeout(function () { $("budgetIn").focus(); }, 50);
+    if (section === "magasins") setTimeout(function () { $("magSection").scrollIntoView({ block: "start" }); }, 50);
   }
 
   // mode magasin : gros texte + écran allumé
@@ -1316,9 +1423,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   // ---------- réglages
   function afficherReglages() {
     if (!S.data) return;
-    $("setStores").innerHTML = Object.keys(S.data.enseignes).map(function (k) {
-      return '<label class="opt" for="st-' + esc(k) + '"><span style="display:flex;align-items:center;gap:8px">' + dot(k) + esc(nomEns(k)) + ' <span class="muted">(' + S.data.enseignes[k].nb + ')</span></span><input type="checkbox" id="st-' + esc(k) + '" data-showstore="' + esc(k) + '"' + (S.hidden.indexOf(k) < 0 ? " checked" : "") + '></label>';
-    }).join("");
+    afficherChoixMagasins();
     $("watchList2").innerHTML = S.watch.length ? S.watch.map(function (x, i) { return '<span class="wchip">' + esc(x) + '<button type="button" data-unwatch="' + i + '" aria-label="Retirer ' + esc(x) + '">×</button></span>'; }).join("") : '<span class="muted">Aucun pour l\'instant.</span>';
     $("budgetIn").value = P.budget.montant ? P.budget.montant : "";
     $("prenomIn").value = S.prenom || "";
@@ -1385,8 +1490,18 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   });
   $("clearDone").addEventListener("click", function () { vivants().filter(function (x) { return x.fait; }).forEach(function (x) { retirer(x.id); }); sauverListe(); rafraichir(); });
   $("clearAll").addEventListener("click", function () { if (!vivants().length) return; vivants().forEach(function (x) { retirer(x.id); }); sauverListe(); rafraichir(); toast("Liste vidée"); });
+  var tqm;
+  $("storeQ").addEventListener("input", function () { clearTimeout(tqm); tqm = setTimeout(afficherChoixMagasins, 150); });
+  $("btnPres").addEventListener("click", function () {
+    if (!navigator.geolocation) { toast("Position indisponible sur cet appareil"); return; }
+    $("btnPres").textContent = "…";
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      S.pos = [pos.coords.latitude, pos.coords.longitude]; $("btnPres").textContent = "Autour de moi";
+      $("storeQ").value = ""; afficherChoixMagasins(); toast("Magasins triés par distance");
+    }, function () { $("btnPres").textContent = "Autour de moi"; toast("Position refusée : cherche par ville"); }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 });
+  });
   $("btnSettings").addEventListener("click", function () { afficherReglages(); try { $("settings").showModal(); } catch (e) { $("settings").setAttribute("open", ""); } });
-  $("openStores").addEventListener("click", function () { $("btnSettings").click(); });
+  $("openStores").addEventListener("click", function () { ouvrirReglages("magasins"); });
   $("closeSettings").addEventListener("click", function () { $("settings").close(); });
   $("watchForm2").addEventListener("submit", function (ev) { ev.preventDefault(); ajouterSurveille($("watchTxt2").value); $("watchTxt2").value = ""; });
   $("resetAll").addEventListener("click", function () {
@@ -1459,6 +1574,12 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     if (ds.rdvdel != null) { S.rdv.splice(+ds.rdvdel, 1); ecrire("rdv", S.rdv); afficherRdv(); afficherAgenda(); return; }
     if (ds.del != null) { retirer(ds.del); sauverListe(); rafraichir(); return; }
     if (ds.invite) { inviter(); return; }
+    if (ds.pick) { if (S.sel.indexOf(ds.pick) < 0) S.sel.push(ds.pick); appliquerSelection(); afficherChoixMagasins(); toast("Magasin ajouté"); return; }
+    if (ds.unpick) {
+      if (S.sel.length <= 1) { toast("Garde au moins un magasin"); return; }
+      S.sel = S.sel.filter(function (x) { return x !== ds.unpick; }); appliquerSelection(); afficherChoixMagasins(); toast("Magasin retiré"); return;
+    }
+    if (ds.fam) { FAM = ds.fam; afficherChoixMagasins(); return; }
     if (ds.resync) { SE.etag = null; syncListe(); return; }
     if (ds.payopen) { payOuvert = true; afficherBudget(); setTimeout(function () { var i = $("payMontant"); if (i) i.focus(); }, 30); return; }
     if (ds.paycancel) { payOuvert = false; afficherBudget(); return; }
