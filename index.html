@@ -237,7 +237,13 @@ nav.tabs button[aria-selected="true"]::before { content: ""; position: absolute;
 /* réglages */
 dialog { border: 0; border-radius: 18px; padding: 0; width: min(560px, calc(100vw - 24px)); max-height: 86vh; background: var(--card); color: var(--ink); }
 dialog::backdrop { background: rgba(10, 15, 30, .5); }
-.dlg { padding: 18px; display: grid; gap: 16px; }
+.dlg { padding: 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.dlg > div:not(.dlg-head) { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+dialog { overflow-x: hidden; }
+dialog [style*="display:grid"], dialog form, #ghBox, #rdvList, #selStores, #storeRes { grid-template-columns: minmax(0, 1fr); min-width: 0; }
+dialog .field, dialog input, dialog select { max-width: 100%; min-width: 0; }
+dialog .opt > span, dialog .step > span, dialog .muted { min-width: 0; overflow-wrap: anywhere; }
+dialog .row { min-width: 0; }
 .dlg-head { display: flex; justify-content: space-between; align-items: center; }
 .opt { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
 .opt:first-of-type { border-top: 0; }
@@ -616,7 +622,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     var o = ouverture(m.horaires), ref = S.pos || (S.brut && S.brut.domicile && S.brut.domicile.lat ? [S.brut.domicile.lat, S.brut.domicile.lng] : null);
     var dist = ref && m.lat ? distance(ref, [m.lat, m.lng]) : null;
     return '<div class="mrow" style="--sc:' + (COULEURS[familleDe(m.chaine)] || "#8a93a6") + '"><b>' + esc(m.nom) + ' · ' + esc(m.ville) + '</b>' +
-      '<button class="' + (choisi ? "icon on" : "icon") + '" type="button" data-' + (choisi ? "unpick" : "pick") + '="' + esc(m.id) + '">' + (choisi ? "Retirer" : "+ Ajouter") + '</button>' +
+      '<button class="icon" type="button" data-' + (choisi ? "unpick" : "pick") + '="' + esc(m.id) + '">' + (choisi ? "Retirer" : "+ Ajouter") + '</button>' +
       '<span class="sub">' + esc([m.adresse, m.cp].filter(Boolean).join(", ")) + (dist != null ? ' · ' + (dist < 10 ? dist.toFixed(1).replace(".", ",") : Math.round(dist)) + ' km' : '') +
       (o ? ' · <span class="' + (o.ouvert ? "open" : "closed") + '">' + esc(o.txt) + '</span>' : '') + '</span></div>';
   }
