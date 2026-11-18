@@ -2,20 +2,21 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14213d">
 <title>Mes promos</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icone-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mes promos">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Étal de promos : étiquettes jaunes, encre bleu nuit, une grille de fiches produit, barre d'onglets en bas comme une appli. */
+  /* Étal de promos : étiquettes jaunes sur encre bleu nuit ; rails horizontaux à l'accueil, grille de fiches ailleurs ; barre d'onglets en bas comme une appli iPhone. */
   --ink: #14213d;
   --paper: #eef0f5;
   --card: #ffffff;
@@ -26,121 +27,222 @@
   --accent: #1f4fd1;
   --good: #1b7f4b;
   --bad: #c62828;
+  --warn: #b85c00;
   --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
   --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --ink:#e8ecf5; --paper:#0d1322; --card:#172036; --line:#283352; --muted:#9aa4bb; --accent:#8fb0ff; --good:#5fd39a; --bad:#ff7b7b; color-scheme: dark; }
+  :root:not([data-theme="light"]) { --ink:#e8ecf5; --paper:#0d1322; --card:#172036; --line:#283352; --muted:#9aa4bb; --accent:#8fb0ff; --good:#5fd39a; --bad:#ff7b7b; --warn:#ffb15c; color-scheme: dark; }
 }
-:root[data-theme="dark"] { --ink:#e8ecf5; --paper:#0d1322; --card:#172036; --line:#283352; --muted:#9aa4bb; --accent:#8fb0ff; --good:#5fd39a; --bad:#ff7b7b; color-scheme: dark; }
-* { box-sizing: border-box; }
+:root[data-theme="dark"] { --ink:#e8ecf5; --paper:#0d1322; --card:#172036; --line:#283352; --muted:#9aa4bb; --accent:#8fb0ff; --good:#5fd39a; --bad:#ff7b7b; --warn:#ffb15c; color-scheme: dark; }
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; }
-body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.4; padding-bottom: 84px; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.4; padding-bottom: calc(76px + var(--safe-bottom)); }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-.wrap { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
-.wrap > *, section, .toolbar { min-width: 0; }
-header { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; justify-content: space-between; }
-h1 { font-family: var(--font-display); font-size: 32px; line-height: 1; margin: 0; letter-spacing: -0.01em; }
-h2 { font-family: var(--font-display); font-size: 21px; margin: 0; }
-h3 { font-size: 16px; margin: 0; line-height: 1.25; text-wrap: balance; }
-.sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
-.maj { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.btn { border: 1.5px solid var(--ink); background: transparent; border-radius: 10px; padding: 8px 12px; font-weight: 600; font-size: 14px; }
-.btn.primary { background: var(--ink); color: var(--paper); }
-.btn:disabled { opacity: .5; cursor: default; }
-.journal { font: 12px ui-monospace, Consolas, monospace; color: var(--muted); background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; white-space: pre-wrap; max-height: 150px; overflow: auto; }
-.stores { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
-.store-card { flex: none; background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 12px; display: grid; gap: 2px; min-width: 130px; text-align: left; }
-.store-card[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
-.store-card b { display: flex; align-items: center; gap: 6px; font-size: 14px; }
-.store-card span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.store-card .old { color: var(--bad); }
-.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
-.toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; position: sticky; top: 0; z-index: 4; background: var(--paper); padding: 8px 0; }
-.search { display: flex; gap: 8px; }
+[hidden] { display: none !important; }
+
+/* barre du haut */
+.topbar { position: sticky; top: 0; z-index: 20; background: var(--ink); color: var(--paper); padding: calc(10px + var(--safe-top)) 16px 10px; display: flex; align-items: center; gap: 12px; }
+.topbar h1 { font-family: var(--font-display); font-size: 24px; line-height: 1; margin: 0; flex: 1; letter-spacing: -0.01em; }
+.topbar h1 small { display: block; font: 500 12px var(--font-body); opacity: .75; margin-top: 3px; letter-spacing: 0; }
+.tb-btn { background: transparent; border: 1.5px solid rgba(255,255,255,.35); color: inherit; border-radius: 10px; padding: 6px 10px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+:root[data-theme="dark"] .tb-btn { border-color: rgba(13,19,34,.35); }
+.tb-btn svg { width: 18px; height: 18px; }
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 14px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.wrap > *, section { min-width: 0; }
+section { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+h2 { font-family: var(--font-display); font-size: 21px; margin: 0; line-height: 1.1; }
+h3 { font-size: 15.5px; margin: 0; line-height: 1.25; text-wrap: balance; }
+.sec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.link { background: none; border: 0; color: var(--accent); font-weight: 600; font-size: 14px; padding: 0; }
+.muted { color: var(--muted); font-size: 14px; }
+.err { color: var(--bad); }
+
+/* recherche */
+.search { display: flex; gap: 8px; align-items: center; }
 .search input { flex: 1; min-width: 0; border: 1.5px solid var(--line); background: var(--card); border-radius: 12px; padding: 11px 14px; font-size: 16px; }
-select { border: 1.5px solid var(--line); background: var(--card); border-radius: 12px; padding: 10px; font-size: 14px; max-width: 100%; }
-.search select { flex: none; width: 150px; }
-@media (max-width: 480px) { .search select { width: 118px; } }
-.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
-.chip { flex: none; border: 1.5px solid var(--line); background: var(--card); border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: 13px; white-space: nowrap; }
+.search select { flex: none; width: 128px; border: 1.5px solid var(--line); background: var(--card); border-radius: 12px; padding: 10px 8px; font-size: 14px; }
+
+.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.chips::-webkit-scrollbar, .rail::-webkit-scrollbar { display: none; }
+.chip { flex: none; border: 1.5px solid var(--line); background: var(--card); border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: 13px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.count { color: var(--muted); font-size: 13px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
-.p { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 6px; align-content: start; position: relative; }
-.p .top { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; color: var(--muted); }
-.p .top span { display: inline-flex; align-items: center; gap: 5px; }
-.p .brand { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
-.price { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.price b { font: 700 26px var(--font-display); font-variant-numeric: tabular-nums; background: var(--tag); color: var(--tag-ink); padding: 0 8px 0 7px; border-radius: 4px 12px 12px 4px; }
-.price s { color: var(--muted); font-size: 14px; }
-.badge { background: var(--bad); color: #fff; font-weight: 700; font-size: 12px; border-radius: 6px; padding: 2px 6px; }
+.chip .n { opacity: .6; font-weight: 500; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+.toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; position: sticky; top: calc(52px + var(--safe-top)); z-index: 5; background: var(--paper); padding: 6px 0 8px; }
+
+/* fiche produit */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.p { background: var(--card); border: 1.5px solid var(--line); border-left: 5px solid var(--sc, var(--line)); border-radius: 14px; padding: 11px 11px 10px; display: grid; gap: 5px; align-content: start; }
+.p .top { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; color: var(--muted); font-weight: 600; }
+.p .brand { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.badges { display: flex; flex-wrap: wrap; gap: 4px; }
+.b { font-size: 11px; font-weight: 700; border-radius: 6px; padding: 2px 6px; }
+.b.new { background: var(--accent); color: #fff; }
+.b.end { background: var(--warn); color: #fff; }
+.b.cheap { background: var(--good); color: #fff; }
+.b.watch { background: var(--tag); color: var(--tag-ink); }
+.price { display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap; }
+.price b { font: 700 24px var(--font-display); font-variant-numeric: tabular-nums; background: var(--tag); color: var(--tag-ink); padding: 0 8px 0 7px; border-radius: 4px 12px 12px 4px; }
+.price s { color: var(--muted); font-size: 13px; }
+.pct { background: var(--bad); color: #fff; font-weight: 700; font-size: 12px; border-radius: 6px; padding: 2px 6px; }
 .unit { font-size: 12px; color: var(--muted); }
 .plan { font-size: 13px; color: var(--good); font-weight: 600; }
-.p .acts { display: flex; gap: 6px; margin-top: 4px; }
-.icon { border: 1.5px solid var(--line); background: transparent; border-radius: 10px; padding: 6px 10px; font-size: 13px; font-weight: 600; }
+.acts { display: flex; gap: 6px; margin-top: 3px; }
+.icon { border: 1.5px solid var(--line); background: transparent; border-radius: 10px; padding: 7px 10px; font-size: 13px; font-weight: 600; }
 .icon.on { background: var(--good); border-color: var(--good); color: #fff; }
 .star.on { background: var(--tag); border-color: var(--tag); color: var(--tag-ink); }
-.empty { background: var(--card); border: 1.5px dashed var(--line); border-radius: 14px; padding: 22px; color: var(--muted); }
-.recipes { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
-.r { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 8px; align-content: start; }
+
+/* accueil */
+.rail { display: grid; grid-auto-flow: column; grid-auto-columns: 168px; gap: 10px; overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x mandatory; }
+.rail > * { scroll-snap-align: start; }
+.rail .p h3 { font-size: 14px; }
+.rail .price b { font-size: 21px; }
+.hero { background: var(--ink); color: var(--paper); border-radius: 16px; padding: 14px; display: grid; gap: 10px; }
+.hero .search input { border-color: transparent; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat { background: rgba(255,255,255,.08); border-radius: 12px; padding: 8px 10px; text-align: left; border: 0; color: inherit; }
+:root[data-theme="dark"] .stat { background: rgba(13,19,34,.12); }
+.stat b { display: block; font: 700 22px var(--font-display); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; opacity: .8; }
+.stores { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.store { background: var(--card); border: 1.5px solid var(--line); border-top: 4px solid var(--sc); border-radius: 12px; padding: 9px 11px; text-align: left; display: grid; gap: 2px; }
+.store b { font-size: 14px; }
+.store span { font-size: 12px; color: var(--muted); }
+.store .old { color: var(--bad); }
+.card { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.blk { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.watch-add { display: flex; gap: 8px; }
+.watch-add input { flex: 1; min-width: 0; border: 1.5px solid var(--line); background: var(--paper); border-radius: 10px; padding: 9px 12px; font-size: 16px; }
+.wchip { display: inline-flex; align-items: center; gap: 6px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 4px 6px 4px 11px; font-size: 13px; font-weight: 600; }
+.wchip button { border: 0; background: var(--line); border-radius: 50%; width: 20px; height: 20px; line-height: 18px; font-size: 13px; padding: 0; }
+
+/* plats */
+.recipes { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 10px; }
+.r { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 13px; display: grid; gap: 8px; align-content: start; }
 .r .head { display: flex; justify-content: space-between; gap: 8px; }
 .r .time { font: 700 13px var(--font-display); color: var(--muted); white-space: nowrap; }
+.r.day { border-top: 4px solid var(--tag); }
+.r .dayname { font: 700 12px var(--font-body); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 .tags { display: flex; flex-wrap: wrap; gap: 5px; }
 .pt { background: var(--tag); color: var(--tag-ink); font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 4px 10px 10px 4px; display: inline-flex; gap: 5px; align-items: center; }
 .t { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
 .why { font-size: 14px; color: var(--muted); margin: 0; }
 details summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; }
 details ul, details ol { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 3px; font-size: 14px; }
-.panel { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 12px; }
-textarea { width: 100%; min-height: 80px; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--paper); font-size: 16px; resize: vertical; }
-.row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-.row2 > div { display: grid; gap: 4px; }
+textarea, .field { width: 100%; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--paper); font-size: 16px; }
+textarea { min-height: 64px; resize: vertical; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.btn { border: 1.5px solid var(--ink); background: transparent; border-radius: 10px; padding: 9px 13px; font-weight: 600; font-size: 14px; }
+.btn.primary { background: var(--ink); color: var(--paper); }
+.btn:disabled { opacity: .5; }
 label { font-weight: 600; font-size: 14px; }
-.status { font-size: 14px; color: var(--muted); }
-.err { color: var(--bad); }
-.list-store { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; overflow: hidden; }
-.list-store h2 { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; font-size: 18px; border-bottom: 1px solid var(--line); }
-.list-store h2 span { font: 600 14px var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; }
-.li { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; padding: 9px 14px; border-top: 1px solid var(--line); }
-.li:first-of-type { border-top: 0; }
-.li input { width: 20px; height: 20px; }
+
+/* liste */
+.summary { background: var(--ink); color: var(--paper); border-radius: 16px; padding: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.summary div b { display: block; font: 700 22px var(--font-display); font-variant-numeric: tabular-nums; }
+.summary div span { font-size: 12px; opacity: .8; }
+.lstore { background: var(--card); border: 1.5px solid var(--line); border-left: 5px solid var(--sc, var(--line)); border-radius: 14px; overflow: hidden; }
+.lstore h2 { display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; font-size: 18px; border-bottom: 1px solid var(--line); }
+.lstore h2 span { font: 600 14px var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; }
+.lray { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; padding: 8px 14px 2px; }
+.li { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; padding: 9px 14px; }
+.li input { width: 22px; height: 22px; accent-color: var(--good); }
+.li .n { font-weight: 500; }
 .li.done .n { text-decoration: line-through; color: var(--muted); }
 .li .pr { font-variant-numeric: tabular-nums; font-weight: 600; }
-.li button { border: 0; background: transparent; color: var(--muted); font-size: 18px; padding: 0 4px; }
-.total { display: flex; justify-content: space-between; font: 700 20px var(--font-display); padding: 4px 2px; }
-.add { display: flex; gap: 8px; }
-.add input { flex: 1; min-width: 0; border: 1.5px solid var(--line); background: var(--card); border-radius: 10px; padding: 9px 12px; }
-nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1.5px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); z-index: 10; padding-bottom: env(safe-area-inset-bottom); }
-nav.tabs button { border: 0; background: transparent; padding: 10px 4px 12px; font-weight: 700; font-size: 13px; color: var(--muted); display: grid; justify-items: center; gap: 3px; position: relative; }
-nav.tabs button svg { width: 22px; height: 22px; }
+.li .del { border: 0; background: transparent; color: var(--muted); font-size: 20px; padding: 0 4px; }
+body.shop .li { padding: 14px; }
+body.shop .li .n { font-size: 20px; }
+body.shop .li input { width: 30px; height: 30px; }
+body.shop .li .pr { font-size: 18px; }
+
+/* onglets */
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1.5px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); z-index: 30; padding-bottom: var(--safe-bottom); }
+nav.tabs button { border: 0; background: transparent; padding: 9px 4px 10px; font-weight: 700; font-size: 12px; color: var(--muted); display: grid; justify-items: center; gap: 3px; position: relative; }
+nav.tabs svg { width: 23px; height: 23px; }
 nav.tabs button[aria-selected="true"] { color: var(--ink); }
-nav.tabs button[aria-selected="true"]::before { content: ""; position: absolute; top: 0; left: 25%; right: 25%; height: 3px; background: var(--tag); border-radius: 0 0 3px 3px; }
-.nb { position: absolute; top: 5px; left: calc(50% + 6px); background: var(--bad); color: #fff; font-size: 11px; border-radius: 999px; padding: 0 5px; min-width: 18px; }
-[hidden] { display: none !important; }
-@media (max-width: 480px) { h1 { font-size: 27px; } .grid { grid-template-columns: 1fr 1fr; gap: 8px; } .p { padding: 10px; } .price b { font-size: 22px; } }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+nav.tabs button[aria-selected="true"]::before { content: ""; position: absolute; top: 0; left: 28%; right: 28%; height: 3px; background: var(--tag); border-radius: 0 0 3px 3px; }
+.nb { position: absolute; top: 4px; left: calc(50% + 7px); background: var(--bad); color: #fff; font-size: 11px; border-radius: 999px; padding: 0 5px; min-width: 18px; }
+
+/* réglages */
+dialog { border: 0; border-radius: 18px; padding: 0; width: min(560px, calc(100vw - 24px)); max-height: 86vh; background: var(--card); color: var(--ink); }
+dialog::backdrop { background: rgba(10, 15, 30, .5); }
+.dlg { padding: 18px; display: grid; gap: 16px; }
+.dlg-head { display: flex; justify-content: space-between; align-items: center; }
+.opt { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.opt:first-of-type { border-top: 0; }
+.opt input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--good); }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; }
+.seg button { border: 0; background: transparent; padding: 8px; font-weight: 600; font-size: 14px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.journal { font: 12px ui-monospace, Consolas, monospace; color: var(--muted); background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; white-space: pre-wrap; max-height: 150px; overflow: auto; }
+.empty { background: var(--card); border: 1.5px dashed var(--line); border-radius: 14px; padding: 18px; color: var(--muted); font-size: 14px; }
+.toast { position: fixed; left: 50%; bottom: calc(86px + var(--safe-bottom)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 9px 14px; border-radius: 10px; font-weight: 600; font-size: 14px; z-index: 40; max-width: calc(100vw - 32px); }
+
+@media (max-width: 480px) {
+  .grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .p { padding: 9px 9px 8px; }
+  .price b { font-size: 21px; }
+  .acts .icon { padding: 6px 8px; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
 </style>
 </head>
 <body>
+<header class="topbar">
+  <h1>Mes promos<small id="sub">Chargement…</small></h1>
+  <a class="tb-btn" id="btnMaj" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><span>MAJ</span></a>
+  <button class="tb-btn" id="btnSettings" type="button" aria-label="Réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+</header>
+
 <div class="wrap">
-  <header>
-    <div>
-      <h1>Mes promos</h1>
-      <div class="sub" id="sub">Chargement…</div>
-    </div>
-    <div class="maj">
-      <a class="btn" id="btnMaj" href="#" target="_blank" rel="noopener" style="text-decoration:none">Mettre à jour</a>
-    </div>
-  </header>
   <div class="journal" id="journal" hidden></div>
-  <div class="stores" id="stores" role="group" aria-label="Enseignes"></div>
+
+  <!-- ACCUEIL -->
+  <section id="v-accueil">
+    <div class="hero">
+      <form class="search" id="homeSearch"><input id="homeQ" type="search" placeholder="Chercher une promo : poulet, raclette…" aria-label="Chercher une promo" autocomplete="off"></form>
+      <div class="stats">
+        <button class="stat" type="button" data-goto="promos" data-preset="alim"><b id="stAlim">–</b><span>promos alimentaires</span></button>
+        <button class="stat" type="button" data-goto="promos" data-preset="new"><b id="stNew">–</b><span>nouvelles depuis ta visite</span></button>
+        <button class="stat" type="button" data-goto="liste"><b id="stList">–</b><span>dans ta liste</span></button>
+      </div>
+    </div>
+
+    <div id="homeWatch" class="card"></div>
+
+    <div class="blk">
+      <div class="sec-head"><h2>Meilleures remises</h2><button class="link" data-goto="promos" data-preset="remise" type="button">Tout voir</button></div>
+      <div class="rail" id="railTop"></div>
+    </div>
+
+    <div class="blk" id="blocEnd">
+      <div class="sec-head"><h2>Finissent bientôt</h2><button class="link" data-goto="promos" data-preset="end" type="button">Tout voir</button></div>
+      <div class="rail" id="railEnd"></div>
+    </div>
+
+    <div class="blk">
+      <div class="sec-head"><h2>Idée pour ce soir</h2><button class="link" data-goto="plats" type="button">Plus de plats</button></div>
+      <div id="homeDish"></div>
+    </div>
+
+    <div class="blk">
+      <div class="sec-head"><h2>Magasins</h2><button class="link" id="openStores" type="button">Choisir mes magasins</button></div>
+      <div class="stores" id="homeStores"></div>
+    </div>
+    <p class="muted" style="margin:0">Prix relevés dans les catalogues publiés. Ils peuvent varier un peu selon le magasin.</p>
+  </section>
 
   <!-- PROMOS -->
-  <section id="v-promos">
+  <section id="v-promos" hidden>
     <div class="toolbar">
       <div class="search">
         <input id="q" type="search" placeholder="Rechercher : poulet, raclette, Barilla…" autocomplete="off" aria-label="Rechercher une promo">
@@ -148,91 +250,124 @@ nav.tabs button[aria-selected="true"]::before { content: ""; position: absolute;
           <option value="remise">Meilleure remise</option>
           <option value="prix">Prix croissant</option>
           <option value="prix-desc">Prix décroissant</option>
+          <option value="fin">Finit bientôt</option>
           <option value="nom">De A à Z</option>
           <option value="enseigne">Par magasin</option>
         </select>
       </div>
+      <div class="chips" id="storeChips" aria-label="Magasins"></div>
       <div class="chips" id="rayons" aria-label="Rayons"></div>
       <div class="chips">
-        <button class="chip" id="fAlim" aria-pressed="false" type="button">Alimentaire</button>
-        <button class="chip" id="fBarre" aria-pressed="false" type="button">Avec prix barré</button>
-        <button class="chip" id="fPlan" aria-pressed="false" type="button">Bons plans (-%, 2e à…)</button>
-        <button class="chip" id="fFav" aria-pressed="false" type="button">★ Favoris</button>
+        <button class="chip" data-f="alim" aria-pressed="false" type="button">Alimentaire</button>
+        <button class="chip" data-f="new" aria-pressed="false" type="button">Nouveau</button>
+        <button class="chip" data-f="end" aria-pressed="false" type="button">Finit bientôt</button>
+        <button class="chip" data-f="barre" aria-pressed="false" type="button">Prix barré</button>
+        <button class="chip" data-f="plan" aria-pressed="false" type="button">Bons plans</button>
+        <button class="chip" data-f="fav" aria-pressed="false" type="button">★ Favoris</button>
       </div>
-      <div class="count" id="count"></div>
+      <div class="muted" id="count"></div>
     </div>
     <div class="grid" id="grid"></div>
   </section>
 
   <!-- PLATS -->
   <section id="v-plats" hidden>
-    <div class="toolbar">
-      <div class="chips" id="platTags"></div>
-      <div class="count" id="platCount"></div>
-    </div>
-    <div class="recipes" id="recipes"></div>
-  </section>
-
-  <!-- IA -->
-  <section id="v-ia" hidden style="display:grid;gap:12px">
-    <form class="panel" id="iaForm">
-      <div style="display:grid;gap:6px">
-        <label for="envie">De quoi as-tu envie ?</label>
-        <textarea id="envie" placeholder="Ex. : poulet, fromage, rapide, pas cher, poisson, léger…"></textarea>
-      </div>
+    <form class="card" id="envieForm">
+      <label for="envie">De quoi as-tu envie ?</label>
+      <textarea id="envie" placeholder="Ex. : poulet, fromage, rapide, pas cher, poisson, léger…"></textarea>
       <div class="chips" id="quick">
         <button type="button" class="chip" data-q="réconfortant">Réconfortant</button>
         <button type="button" class="chip" data-q="léger">Léger</button>
         <button type="button" class="chip" data-q="pas cher">Pas cher</button>
         <button type="button" class="chip" data-q="rapide">Express</button>
-        <button type="button" class="chip" data-q="à partager">Entre potes</button>
         <button type="button" class="chip" data-q="poisson">Poisson</button>
         <button type="button" class="chip" data-q="végétarien">Végétarien</button>
+        <button type="button" class="chip" data-q="à partager">Entre potes</button>
       </div>
-      <div class="row2">
-        <div><label for="tmax">Temps max</label><select id="tmax"><option value="20">20 min</option><option value="40" selected>40 min</option><option value="90">1 h 30</option><option value="0">Peu importe</option></select></div>
-        <div><label for="iaStore">Magasin</label><select id="iaStore"><option value="all">Tous</option></select></div>
+      <div class="row">
+        <select id="tmax" class="field" style="width:auto" aria-label="Temps maximum"><option value="0">Temps : peu importe</option><option value="20">20 min max</option><option value="40">40 min max</option><option value="90">1 h 30 max</option></select>
+        <button class="btn primary" type="submit">Trouver</button>
+        <button class="btn" type="button" id="btnIA" hidden>Demander à l'IA</button>
+        <button class="btn" type="button" id="btnMenu">Menu de la semaine</button>
       </div>
-      <div><button class="btn primary" type="submit" id="iaGo">Trouver des plats</button></div>
-      <p class="status" id="iaStatus" role="status"></p>
+      <p class="muted" id="envieStatus" style="margin:0" role="status"></p>
     </form>
-    <div class="recipes" id="iaOut"></div>
+    <div class="recipes" id="envieOut"></div>
+    <div class="sec-head"><h2 id="platTitle">Faisables avec les promos</h2></div>
+    <div class="chips" id="platTags"></div>
+    <div class="recipes" id="recipes"></div>
   </section>
 
   <!-- LISTE -->
-  <section id="v-liste" hidden style="display:grid;gap:12px">
-    <form class="add" id="addForm">
-      <input id="addTxt" placeholder="Ajouter un article à la main (ex. : pain, lait)" aria-label="Ajouter un article">
+  <section id="v-liste" hidden>
+    <div class="summary" id="listSummary"></div>
+    <form class="watch-add" id="addForm">
+      <input id="addTxt" placeholder="Ajouter un article (ex. : pain, lait)" aria-label="Ajouter un article">
       <button class="btn" type="submit">Ajouter</button>
     </form>
-    <div id="listBody" style="display:grid;gap:12px"></div>
-    <div class="total" id="listTotal"></div>
-    <div class="maj">
-      <button class="btn" id="copyList" type="button">Copier la liste</button>
-      <button class="btn" id="clearDone" type="button">Retirer les articles cochés</button>
+    <div class="row">
+      <button class="btn" id="btnShop" type="button">Mode magasin</button>
+      <button class="btn" id="btnShare" type="button">Partager</button>
+      <button class="btn" id="clearDone" type="button">Retirer les cochés</button>
       <button class="btn" id="clearAll" type="button">Tout vider</button>
     </div>
+    <div id="listBody" style="display:grid;gap:12px"></div>
   </section>
 </div>
 
 <nav class="tabs" role="tablist" aria-label="Sections">
-  <button role="tab" data-v="promos" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Promos</button>
+  <button role="tab" data-v="accueil" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg>Accueil</button>
+  <button role="tab" data-v="promos" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Promos</button>
   <button role="tab" data-v="plats" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="7"/><path d="M3 3v6a2 2 0 0 0 2 2M5 3v18M21 3c-2 1-3 3-3 6s1 3 3 3v9"/></svg>Plats</button>
-  <button role="tab" data-v="ia" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>Mon envie</button>
   <button role="tab" data-v="liste" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>Liste<span class="nb" id="nbList" hidden></span></button>
 </nav>
+
+<dialog id="settings" aria-labelledby="setTitle">
+  <div class="dlg">
+    <div class="dlg-head"><h2 id="setTitle">Réglages</h2><button class="btn" type="button" id="closeSettings">Fermer</button></div>
+    <div style="display:grid;gap:6px">
+      <b>Mes magasins</b>
+      <span class="muted">Décoche ceux où tu ne vas jamais : ils disparaissent de partout.</span>
+      <div id="setStores"></div>
+    </div>
+    <div style="display:grid;gap:8px">
+      <b>Produits surveillés</b>
+      <span class="muted">L'accueil te les montre dès qu'ils sont en promo.</span>
+      <form class="watch-add" id="watchForm2"><input id="watchTxt2" placeholder="Ex. : raclette, coca, lessive" aria-label="Produit à surveiller"><button class="btn" type="submit">Ajouter</button></form>
+      <div class="row" id="watchList2"></div>
+    </div>
+    <div style="display:grid;gap:8px">
+      <b>Thème</b>
+      <div class="seg" id="themeSeg"><button type="button" data-theme-set="auto">Auto</button><button type="button" data-theme-set="light">Clair</button><button type="button" data-theme-set="dark">Sombre</button></div>
+    </div>
+    <div style="display:grid;gap:8px">
+      <b>Données</b>
+      <span class="muted" id="setInfo"></span>
+      <div class="row"><button class="btn" type="button" id="resetAll">Tout remettre à zéro</button></div>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" hidden></div>
 
 <script>
 (function () {
   "use strict";
   var COULEURS = { superu: "#d7262e", leclerc: "#0066b3", intermarche: "#e2001a", lidl: "#f5c400", carrefour: "#1e5bc6", auchan: "#e2001a", aldi: "#00a0e1" };
   var ALIM = ["Poisson & mer", "Volaille", "Charcuterie", "Viande", "Fromage", "Crèmerie & œufs", "Fruits & légumes", "Surgelés", "Boulangerie", "Épicerie sucrée", "Épicerie salée"];
+  var ORDRE_RAYONS = ALIM.concat(["Boissons", "Hygiène & beauté", "Entretien", "Animaux", "Maison & loisirs", "Autres"]);
+  var JOURS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+
   var S = {
-    data: null, recettes: [], store: "all", rayon: "Tous", q: "", tri: "remise",
-    fAlim: false, fBarre: false, fPlan: false, fFav: false, platTag: "Tous", iaPlats: [],
-    fav: lire("fav", []), liste: lire("liste", [])
+    data: null, recettes: [], mode: "static", ia: false,
+    store: "all", rayon: "Tous", q: "", tri: "remise", f: {}, platTag: "Tous",
+    envie: [], menu: null,
+    fav: lire("fav", []), liste: lire("liste", []), watch: lire("watch", []),
+    hidden: lire("hiddenStores", []), theme: lire("theme", "auto"),
+    vusAvant: lire("vus", []), nouveaux: {}
   };
 
+  // ---------- utilitaires
   function lire(k, d) { try { var v = localStorage.getItem("mespromos-" + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
   function ecrire(k, v) { try { localStorage.setItem("mespromos-" + k, JSON.stringify(v)); } catch (e) {} }
   function $(id) { return document.getElementById(id); }
@@ -243,52 +378,149 @@ nav.tabs button[aria-selected="true"]::before { content: ""; position: absolute;
   function coul(id) { return COULEURS[id] || "#8a93a6"; }
   function dot(id) { return '<span class="dot" style="background:' + coul(id) + '"></span>'; }
   function promoParId(id) { return S.data ? S.data.promos.find(function (p) { return p.id === id; }) : null; }
+  function dansListe(id) { return S.liste.some(function (x) { return x.id === id; }); }
+  var tTimer;
+  function toast(msg) { var t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(tTimer); tTimer = setTimeout(function () { t.hidden = true; }, 1800); }
 
-  // ---------------- chargement
+  // fin de validité : "du 17/11 au 29/11" -> Date
+  function finValidite(v) {
+    var m = /au\s+(\d{1,2})\/(\d{1,2})/.exec(v || ""); if (!m) return null;
+    var now = new Date(), y = now.getFullYear(), mo = +m[2] - 1;
+    if (mo < now.getMonth() - 6) y++;
+    return new Date(y, mo, +m[1], 23, 59);
+  }
+  function joursRestants(p) { var f = finValidite(p.validite); return f ? Math.floor((f - new Date()) / 86400000) : null; }
+  function finitBientot(p) { var j = joursRestants(p); return j != null && j >= 0 && j <= 2; }
+  function surveille(p) {
+    if (!S.watch.length) return false;
+    var t = " " + norm(p.nom + " " + p.marque) + " ";
+    return S.watch.some(function (w) { return t.indexOf(" " + norm(w)) >= 0; });
+  }
+  function visibles() { return S.data ? S.data.promos.filter(function (p) { return S.hidden.indexOf(p.enseigne) < 0; }) : []; }
+
+  // ---------- thème
+  function appliquerTheme() {
+    if (S.theme === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", S.theme);
+    document.querySelectorAll("[data-theme-set]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.themeSet === S.theme ? "true" : "false"); });
+  }
+  appliquerTheme();
+
+  // ---------- chargement : version PC (serveur local) ou version en ligne (fichier promos.json)
   function charger() {
-    return fetch("promos.json?t=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
-      S.data = d; toutAfficher();
-    }).catch(function () {
-      $("sub").innerHTML = '<span class="err">Impossible de lire les promos. Vérifie ta connexion et recharge la page.</span>';
-    });
+    var url = S.mode === "pc" ? "/api/promos" : "promos.json?t=" + Date.now();
+    return fetch(url, { cache: "no-store" }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
+      S.data = d;
+      // nouveautés depuis la dernière visite
+      var ids = d.promos.map(function (p) { return p.id; });
+      S.nouveaux = {};
+      if (S.vusAvant.length) ids.forEach(function (id) { if (S.vusAvant.indexOf(id) < 0) S.nouveaux[id] = 1; });
+      ecrire("vus", ids);
+      tout();
+    }).catch(function () { $("sub").innerHTML = '<span class="err">Promos introuvables, vérifie ta connexion</span>'; });
   }
-  fetch("recettes.json").then(function (r) { return r.json(); }).then(function (r) { S.recettes = r; if (S.data) afficherPlats(); }).catch(function () {});
+  fetch("/api/etat", { cache: "no-store" }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function () {
+    S.mode = "pc";
+    $("btnMaj").hidden = false; $("btnMaj").removeAttribute("target"); $("btnMaj").querySelector("span").textContent = "Mettre à jour";
+    fetch("/api/ia/etat").then(function (r) { return r.json(); }).then(function (e) { S.ia = !!(e.ollama && e.installe); $("btnIA").hidden = !S.ia; }).catch(function () {});
+    suivreMaj(); return charger();
+  }).catch(function () {
+    S.mode = "static";
+    var m = location.hostname.match(/^([^.]+)\.github\.io$/), repo = location.pathname.split("/").filter(Boolean)[0];
+    if (m && repo) { $("btnMaj").href = "https://github.com/" + m[1] + "/" + repo + "/actions/workflows/maj.yml"; $("btnMaj").hidden = false; }
+    if ("serviceWorker" in navigator) { try { navigator.serviceWorker.register("sw.js"); } catch (e) {} }
+    return charger();
+  });
+  fetch("recettes.json").then(function (r) { return r.json(); }).then(function (r) { S.recettes = r; if (S.data) { afficherPlats(); afficherAccueil(); } }).catch(function () {});
 
-  function toutAfficher() {
-    var d = S.data;
-    var dt = d.maj ? new Date(d.maj) : null;
-    $("sub").textContent = (d.ville ? d.ville + " · " : "") + d.promos.length + " promos" + (dt ? " · mis à jour le " + dt.toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) + " à " + dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "");
-    afficherMagasins(); afficherRayons(); afficherPromos(); afficherPlats(); afficherListe();
-    var sel = $("iaStore"); sel.innerHTML = '<option value="all">Tous</option>' + Object.keys(d.enseignes).map(function (k) { return '<option value="' + esc(k) + '">' + esc(nomEns(k)) + '</option>'; }).join("");
+  function tout() {
+    var d = S.data, dt = d.maj ? new Date(d.maj) : null;
+    $("sub").textContent = (d.ville || "") + (dt ? " · à jour le " + dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " " + dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "");
+    afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); afficherReglages();
   }
 
-  function afficherMagasins() {
-    var d = S.data, html = '<button class="store-card" data-store="all" aria-pressed="' + (S.store === "all") + '"><b>Tous les magasins</b><span>' + d.promos.length + ' promos</span></button>';
-    Object.keys(d.enseignes).forEach(function (k) {
-      var e = d.enseignes[k];
-      html += '<button class="store-card" data-store="' + esc(k) + '" aria-pressed="' + (S.store === k) + '"><b>' + dot(k) + esc(e.nom) + '</b><span>' + e.nb + ' promos' + (e.validite ? ' · ' + esc(e.validite) : '') + '</span>' + (e.ancien ? '<span class="old">pas de nouveau catalogue trouvé</span>' : '') + '</button>';
-    });
-    $("stores").innerHTML = html;
+  // ---------- fiche produit
+  function carte(p, opts) {
+    opts = opts || {};
+    var fav = S.fav.indexOf(p.id) >= 0, dans = dansListe(p.id), j = joursRestants(p);
+    var badges = "";
+    if (opts.cheap) badges += '<span class="b cheap">Le moins cher</span>';
+    if (S.nouveaux[p.id]) badges += '<span class="b new">Nouveau</span>';
+    if (finitBientot(p)) badges += '<span class="b end">' + (j === 0 ? "Dernier jour" : "Finit dans " + j + " j") + '</span>';
+    if (surveille(p)) badges += '<span class="b watch">Surveillé</span>';
+    return '<article class="p" style="--sc:' + coul(p.enseigne) + '">' +
+      '<div class="top"><span>' + esc(nomEns(p.enseigne)) + '</span>' + (opts.compact ? '' : '<span>' + esc(p.rayon) + '</span>') + '</div>' +
+      (badges ? '<div class="badges">' + badges + '</div>' : '') +
+      (p.marque ? '<div class="brand">' + esc(p.marque) + '</div>' : '') +
+      '<h3>' + esc(p.nom) + '</h3>' +
+      (p.prix != null ? '<div class="price"><b>' + euro(p.prix) + '</b>' + (p.avant ? '<s>' + euro(p.avant) + '</s>' : '') + (p.remise ? '<span class="pct">-' + p.remise + '%</span>' : '') + '</div>' : '') +
+      (p.unite ? '<div class="unit">' + esc(p.unite) + '</div>' : '') +
+      (p.bon_plan ? '<div class="plan">' + esc(p.bon_plan) + '</div>' : '') +
+      (!opts.compact && p.validite ? '<div class="unit">Valable ' + esc(p.validite) + '</div>' : '') +
+      '<div class="acts"><button class="icon star' + (fav ? ' on' : '') + '" data-fav="' + esc(p.id) + '" aria-label="Favori" type="button">★</button>' +
+      '<button class="icon' + (dans ? ' on' : '') + '" data-add="' + esc(p.id) + '" type="button">' + (dans ? '✓ Liste' : '+ Liste') + '</button></div>' +
+    '</article>';
   }
 
-  function afficherRayons() {
-    var cnt = {};
-    S.data.promos.forEach(function (p) { if (S.store === "all" || p.enseigne === S.store) cnt[p.rayon] = (cnt[p.rayon] || 0) + 1; });
-    var ordre = ALIM.concat(["Boissons", "Hygiène & beauté", "Entretien", "Animaux", "Maison & loisirs", "Autres"]).filter(function (r) { return cnt[r]; });
-    $("rayons").innerHTML = ['Tous'].concat(ordre).map(function (r) {
-      return '<button class="chip" data-rayon="' + esc(r) + '" aria-pressed="' + (S.rayon === r) + '">' + esc(r) + (r !== "Tous" ? ' <span style="opacity:.6">' + cnt[r] + '</span>' : '') + '</button>';
+  // ---------- accueil
+  function afficherAccueil() {
+    if (!S.data) return;
+    var v = visibles(), alim = v.filter(function (p) { return ALIM.indexOf(p.rayon) >= 0; });
+    $("stAlim").textContent = alim.length;
+    $("stNew").textContent = S.vusAvant.length ? Object.keys(S.nouveaux).length : "–";
+    $("stList").textContent = S.liste.filter(function (x) { return !x.fait; }).length;
+
+    // produits surveillés
+    var w = v.filter(surveille);
+    var html = '<div class="sec-head"><h2>Tes produits surveillés</h2>' + (S.watch.length ? '<span class="muted">' + w.length + ' en promo</span>' : '') + '</div>';
+    if (S.watch.length) html += '<div class="row">' + S.watch.map(function (x, i) { return '<span class="wchip">' + esc(x) + '<button type="button" data-unwatch="' + i + '" aria-label="Retirer ' + esc(x) + '">×</button></span>'; }).join("") + '</div>';
+    html += '<form class="watch-add" id="watchForm"><input id="watchTxt" placeholder="Ajoute un produit : raclette, coca…" aria-label="Produit à surveiller"><button class="btn" type="submit">Surveiller</button></form>';
+    if (w.length) html += '<div class="rail">' + w.slice(0, 20).map(function (p) { return carte(p, { compact: true }); }).join("") + '</div>';
+    else if (S.watch.length) html += '<p class="muted" style="margin:0">Aucun de tes produits n\'est en promo en ce moment.</p>';
+    $("homeWatch").innerHTML = html;
+
+    var top = alim.filter(function (p) { return p.remise; }).sort(function (a, b) { return b.remise - a.remise; }).slice(0, 15);
+    $("railTop").innerHTML = top.length ? top.map(function (p) { return carte(p, { compact: true }); }).join("") : '<div class="empty">Pas de remise chiffrée cette semaine.</div>';
+
+    var fin = v.filter(finitBientot).sort(function (a, b) { return (b.remise || 0) - (a.remise || 0); }).slice(0, 15);
+    $("blocEnd").hidden = !fin.length;
+    $("railEnd").innerHTML = fin.map(function (p) { return carte(p, { compact: true }); }).join("");
+
+    var plats = platsDuMoment(null);
+    $("homeDish").innerHTML = plats.length ? carteRecette(plats[0].r, plats[0].promos) : '<div class="empty">Les idées de plats arrivent.</div>';
+
+    $("homeStores").innerHTML = Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0; }).map(function (k) {
+      var e = S.data.enseignes[k];
+      return '<button class="store" type="button" data-gostore="' + esc(k) + '" style="--sc:' + coul(k) + '"><b>' + esc(e.nom) + '</b><span>' + e.nb + ' promos</span>' + (e.validite ? '<span>' + esc(e.validite) + '</span>' : '') + (e.ancien ? '<span class="old">pas de nouveau catalogue</span>' : '') + '</button>';
     }).join("");
   }
 
+  // ---------- promos
+  function afficherFiltres() {
+    var ens = Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0; });
+    if (S.store !== "all" && ens.indexOf(S.store) < 0) S.store = "all";
+    $("storeChips").innerHTML = '<button class="chip" type="button" data-store="all" aria-pressed="' + (S.store === "all") + '">Tous</button>' + ens.map(function (k) {
+      return '<button class="chip" type="button" data-store="' + esc(k) + '" aria-pressed="' + (S.store === k) + '">' + dot(k) + esc(nomEns(k)) + '</button>';
+    }).join("");
+    var cnt = {};
+    visibles().forEach(function (p) { if (S.store === "all" || p.enseigne === S.store) cnt[p.rayon] = (cnt[p.rayon] || 0) + 1; });
+    $("rayons").innerHTML = ["Tous"].concat(ORDRE_RAYONS.filter(function (r) { return cnt[r]; })).map(function (r) {
+      return '<button class="chip" type="button" data-rayon="' + esc(r) + '" aria-pressed="' + (S.rayon === r) + '">' + esc(r) + (r !== "Tous" ? ' <span class="n">' + cnt[r] + '</span>' : '') + '</button>';
+    }).join("");
+    document.querySelectorAll("[data-f]").forEach(function (b) { b.setAttribute("aria-pressed", S.f[b.dataset.f] ? "true" : "false"); });
+  }
+
   function filtrer() {
-    var q = norm(S.q), mots = q ? q.split(" ") : [];
-    var l = S.data.promos.filter(function (p) {
+    var mots = norm(S.q).split(" ").filter(Boolean);
+    var l = visibles().filter(function (p) {
       if (S.store !== "all" && p.enseigne !== S.store) return false;
       if (S.rayon !== "Tous" && p.rayon !== S.rayon) return false;
-      if (S.fAlim && ALIM.indexOf(p.rayon) < 0) return false;
-      if (S.fBarre && !p.avant) return false;
-      if (S.fPlan && !p.bon_plan) return false;
-      if (S.fFav && S.fav.indexOf(p.id) < 0) return false;
+      if (S.f.alim && ALIM.indexOf(p.rayon) < 0) return false;
+      if (S.f.barre && !p.avant) return false;
+      if (S.f.plan && !p.bon_plan) return false;
+      if (S.f.fav && S.fav.indexOf(p.id) < 0) return false;
+      if (S.f["new"] && !S.nouveaux[p.id]) return false;
+      if (S.f.end && !finitBientot(p)) return false;
       if (mots.length) {
         var t = norm(p.nom + " " + p.marque + " " + p.rayon + " " + nomEns(p.enseigne));
         for (var i = 0; i < mots.length; i++) if (t.indexOf(mots[i]) < 0) return false;
@@ -299,6 +531,7 @@ nav.tabs button[aria-selected="true"]::before { content: ""; position: absolute;
     l.sort(function (a, b) {
       if (tri === "prix") return (a.prix == null ? 1e9 : a.prix) - (b.prix == null ? 1e9 : b.prix);
       if (tri === "prix-desc") return (b.prix || 0) - (a.prix || 0);
+      if (tri === "fin") { var ja = joursRestants(a), jb = joursRestants(b); return (ja == null ? 999 : ja) - (jb == null ? 999 : jb); }
       if (tri === "nom") return a.nom.localeCompare(b.nom, "fr");
       if (tri === "enseigne") return nomEns(a.enseigne).localeCompare(nomEns(b.enseigne), "fr") || a.nom.localeCompare(b.nom, "fr");
       return (b.remise || (b.bon_plan ? 1 : 0)) - (a.remise || (a.bon_plan ? 1 : 0));
@@ -306,197 +539,325 @@ nav.tabs button[aria-selected="true"]::before { content: ""; position: absolute;
     return l;
   }
 
-  function carte(p) {
-    var fav = S.fav.indexOf(p.id) >= 0, dans = S.liste.some(function (x) { return x.id === p.id; });
-    return '<article class="p">' +
-      '<div class="top"><span>' + dot(p.enseigne) + esc(nomEns(p.enseigne)) + '</span><span>' + esc(p.rayon) + '</span></div>' +
-      (p.marque ? '<div class="brand">' + esc(p.marque) + '</div>' : '') +
-      '<h3>' + esc(p.nom) + '</h3>' +
-      (p.prix != null ? '<div class="price"><b>' + euro(p.prix) + '</b>' + (p.avant ? '<s>' + euro(p.avant) + '</s>' : '') + (p.remise ? '<span class="badge">-' + p.remise + '%</span>' : '') + '</div>' : '') +
-      (p.unite ? '<div class="unit">' + esc(p.unite) + '</div>' : '') +
-      (p.bon_plan ? '<div class="plan">' + esc(p.bon_plan) + '</div>' : '') +
-      (p.validite ? '<div class="unit">Valable ' + esc(p.validite) + '</div>' : '') +
-      '<div class="acts"><button class="icon star' + (fav ? ' on' : '') + '" data-fav="' + esc(p.id) + '" aria-label="Favori">★</button>' +
-      '<button class="icon' + (dans ? ' on' : '') + '" data-add="' + esc(p.id) + '">' + (dans ? '✓ Dans la liste' : '+ Liste') + '</button></div>' +
-    '</article>';
-  }
-
   function afficherPromos() {
     if (!S.data) return;
     var l = filtrer();
-    $("count").textContent = l.length + (l.length > 1 ? " promos" : " promo");
-    $("grid").innerHTML = l.length ? l.slice(0, 400).map(carte).join("") : '<div class="empty">Aucune promo ne correspond. Essaie un autre mot ou enlève un filtre.</div>';
+    // comparateur : quand on cherche un produit présent dans plusieurs magasins, on marque le moins cher
+    var cheapId = null;
+    if (S.q.trim() && l.length > 1) {
+      var avecPrix = l.filter(function (p) { return p.prix != null; });
+      var mags = {}; avecPrix.forEach(function (p) { mags[p.enseigne] = 1; });
+      if (Object.keys(mags).length > 1) cheapId = avecPrix.reduce(function (m, p) { return !m || p.prix < m.prix ? p : m; }, null).id;
+    }
+    $("count").textContent = l.length + (l.length > 1 ? " promos" : " promo") + (cheapId ? " · le moins cher est marqué en vert" : "");
+    $("grid").innerHTML = l.length ? l.slice(0, 400).map(function (p) { return carte(p, { cheap: p.id === cheapId }); }).join("") : '<div class="empty">Aucune promo ne correspond. Essaie un autre mot ou enlève un filtre.</div>';
   }
 
-  // ---------------- plats (recettes x promos)
-  function trouverPromo(alternatives, ens) {
+  // ---------- plats
+  function trouverPromo(alternatives, ens, exclure) {
     var best = null;
-    S.data.promos.forEach(function (p) {
+    visibles().forEach(function (p) {
       if (ALIM.indexOf(p.rayon) < 0 || p.prix == null) return;
       if (ens && ens !== "all" && p.enseigne !== ens) return;
+      if (exclure && exclure[p.id]) return;
       var t = " " + norm(p.nom + " " + p.marque) + " ";
       for (var i = 0; i < alternatives.length; i++) {
-        if (t.indexOf(" " + norm(alternatives[i])) >= 0) {
-          if (!best || (p.remise || 0) > (best.remise || 0)) best = p;
-          return;
-        }
+        if (t.indexOf(" " + norm(alternatives[i])) >= 0) { if (!best || (p.remise || 0) > (best.remise || 0)) best = p; return; }
       }
     });
     return best;
   }
-
-  function platsDuMoment() {
+  function platsDuMoment(ens) {
     return S.recettes.map(function (r) {
       var trouves = [];
-      r.cles.forEach(function (alts) { var p = trouverPromo(alts, S.store); if (p && trouves.indexOf(p) < 0) trouves.push(p); });
+      r.cles.forEach(function (alts) { var p = trouverPromo(alts, ens); if (p && trouves.indexOf(p) < 0) trouves.push(p); });
       return { r: r, promos: trouves };
     }).filter(function (x) { return x.promos.length; }).sort(function (a, b) {
       return (b.promos.length / b.r.cles.length) - (a.promos.length / a.r.cles.length) || b.promos.length - a.promos.length;
     });
   }
-
-  function carteRecette(r, promos, opts) {
-    opts = opts || {};
+  function carteRecette(r, promos, jour) {
     var ids = promos.map(function (p) { return p.id; }).join(",");
-    var toutes = promos.length && promos.every(function (p) { return S.liste.some(function (x) { return x.id === p.id; }); });
-    return '<article class="r"><div class="head"><h3>' + esc(r.nom) + '</h3>' + (r.temps ? '<span class="time">' + esc(r.temps) + ' min</span>' : '') + '</div>' +
+    var toutes = promos.length && promos.every(function (p) { return dansListe(p.id); });
+    return '<article class="r' + (jour ? ' day' : '') + '">' + (jour ? '<div class="dayname">' + esc(jour) + '</div>' : '') +
+      '<div class="head"><h3>' + esc(r.nom) + '</h3>' + (r.temps ? '<span class="time">' + esc(r.temps) + ' min</span>' : '') + '</div>' +
       (r.pourquoi ? '<p class="why">' + esc(r.pourquoi) + '</p>' : '') +
       '<div class="tags">' + promos.map(function (p) { return '<span class="pt">' + dot(p.enseigne) + esc(p.nom) + ' · ' + euro(p.prix) + '</span>'; }).join("") + '</div>' +
       ((r.tags || []).length ? '<div class="tags">' + r.tags.map(function (t) { return '<span class="t">' + esc(t) + '</span>'; }).join("") + '</div>' : '') +
       '<details><summary>Voir la recette</summary><b style="font-size:14px">Ingrédients</b><ul>' + (r.ingredients || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>' +
       '<b style="font-size:14px;display:block;margin-top:8px">Étapes</b><ol>' + (r.etapes || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ol></details>' +
-      (promos.length ? '<div><button class="icon' + (toutes ? ' on' : '') + '" data-addmany="' + esc(ids) + '">' + (toutes ? '✓ Promos dans la liste' : '+ Mettre les promos dans ma liste') + '</button></div>' : '') +
+      (promos.length ? '<div><button class="icon' + (toutes ? ' on' : '') + '" type="button" data-addmany="' + esc(ids) + '">' + (toutes ? '✓ Promos dans la liste' : '+ Mettre les promos dans ma liste') + '</button></div>' : '') +
     '</article>';
   }
-
   function afficherPlats() {
     if (!S.data || !S.recettes.length) return;
-    var l = platsDuMoment();
+    var l = platsDuMoment(null);
     var tags = {}; l.forEach(function (x) { (x.r.tags || []).forEach(function (t) { tags[t] = 1; }); });
-    $("platTags").innerHTML = ["Tous"].concat(Object.keys(tags).sort()).map(function (t) { return '<button class="chip" data-ptag="' + esc(t) + '" aria-pressed="' + (S.platTag === t) + '">' + esc(t) + '</button>'; }).join("");
+    $("platTags").innerHTML = ["Tous"].concat(Object.keys(tags).sort()).map(function (t) { return '<button class="chip" type="button" data-ptag="' + esc(t) + '" aria-pressed="' + (S.platTag === t) + '">' + esc(t) + '</button>'; }).join("");
     if (S.platTag !== "Tous") l = l.filter(function (x) { return (x.r.tags || []).indexOf(S.platTag) >= 0; });
-    $("platCount").textContent = l.length + " plats faisables avec les promos" + (S.store !== "all" ? " de " + nomEns(S.store) : "");
-    $("recipes").innerHTML = l.length ? l.map(function (x) { return carteRecette(x.r, x.promos); }).join("") : '<div class="empty">Aucun plat ne colle aux promos de ce magasin. Essaie « Mon envie ».</div>';
+    $("platTitle").textContent = l.length + " plats faisables avec les promos";
+    $("recipes").innerHTML = l.length ? l.map(function (x) { return carteRecette(x.r, x.promos); }).join("") : '<div class="empty">Aucun plat ne colle aux promos de tes magasins.</div>';
+    afficherEnvie();
+  }
+  function afficherEnvie() {
+    if (S.menu) {
+      $("envieOut").innerHTML = S.menu.map(function (x, i) { return carteRecette(x.r, x.promos, JOURS[i]); }).join("") +
+        '<div class="card"><b>Tout le menu</b><span class="muted">' + S.menu.reduce(function (n, x) { return n + x.promos.length; }, 0) + ' produits en promo pour 5 soirs.</span><div><button class="btn primary" type="button" id="menuAll">Mettre tout le menu dans ma liste</button> <button class="btn" type="button" id="menuNew">Un autre menu</button></div></div>';
+    } else {
+      $("envieOut").innerHTML = S.envie.map(function (x) { return carteRecette(x.r, x.promos); }).join("");
+    }
   }
 
-  // ---------------- liste de courses
-  function ajouter(p) {
-    if (S.liste.some(function (x) { return x.id === p.id; })) S.liste = S.liste.filter(function (x) { return x.id !== p.id; });
-    else S.liste.push({ id: p.id, nom: p.nom, enseigne: p.enseigne, prix: p.prix, fait: false });
-    ecrire("liste", S.liste);
-  }
-  function afficherListe() {
-    var nb = S.liste.filter(function (x) { return !x.fait; }).length;
-    $("nbList").hidden = !nb; $("nbList").textContent = nb;
-    if (!S.liste.length) { $("listBody").innerHTML = '<div class="empty">Ta liste est vide. Ajoute des promos avec « + Liste » ou depuis un plat.</div>'; $("listTotal").textContent = ""; return; }
-    var groupes = {}, total = 0;
-    S.liste.forEach(function (x, i) { var k = x.enseigne || "autre"; (groupes[k] = groupes[k] || []).push({ x: x, i: i }); });
-    $("listBody").innerHTML = Object.keys(groupes).map(function (k) {
-      var st = 0; groupes[k].forEach(function (o) { if (o.x.prix) st += o.x.prix; });
-      total += st;
-      return '<div class="list-store"><h2><span style="display:flex;align-items:center;gap:8px;font:inherit;color:inherit">' + (k !== "autre" ? dot(k) + esc(nomEns(k)) : "Autres articles") + '</span><span>' + (st ? "≈ " + euro(st) : "") + '</span></h2>' +
-        groupes[k].map(function (o) {
-          return '<div class="li' + (o.x.fait ? ' done' : '') + '"><input type="checkbox" id="li' + o.i + '" data-done="' + o.i + '"' + (o.x.fait ? ' checked' : '') + '><label class="n" for="li' + o.i + '" style="font-weight:500">' + esc(o.x.nom) + '</label><span class="pr">' + euro(o.x.prix) + '</span><button data-del="' + o.i + '" aria-label="Retirer">×</button></div>';
-        }).join("") + '</div>';
-    }).join("");
-    $("listTotal").innerHTML = total ? '<span>Total des promos</span><span>≈ ' + euro(total) + '</span>' : "";
-  }
-
-  // ---------------- « Mon envie » sans IA : recherche intelligente dans les plats faisables
-  $("iaStatus").textContent = "Écris un ou plusieurs mots (ingrédient, envie, temps) : l'appli choisit les plats qui collent le mieux aux promos.";
+  // « Mon envie » sans IA : recherche dans les plats faisables
   var SYN = {
     "rapide": ["rapide", "express", "vite", "presse", "20 min"], "leger": ["leger", "light", "frais", "salade", "regime"],
     "pas cher": ["pas cher", "econom", "budget", "moins cher", "fauche"], "reconfortant": ["reconfort", "chaud", "hiver", "cocooning", "gratin"],
     "a partager": ["partag", "amis", "potes", "soiree", "apero"], "vegetarien": ["vegetarien", "vege", "sans viande"],
     "poisson": ["poisson", "mer", "crevette", "saumon", "thon", "moule"], "enfants": ["enfant", "gamin", "petit"]
   };
-  $("iaForm").addEventListener("submit", function (ev) {
-    ev.preventDefault();
-    if (!S.data || !S.recettes.length) return;
-    var envie = norm($("envie").value), ens = $("iaStore").value, tmax = +$("tmax").value;
-    var saveStore = S.store; S.store = ens; var l = platsDuMoment(); S.store = saveStore;
+  var VIANDE = /poulet|boeuf|porc|dinde|saucisse|lardon|jambon|crevette|thon|saumon|rognon|steak|hache|paupiette|cordon|chorizo|moule|poisson|pintade|osso/;
+  function chercherEnvie() {
+    var envie = norm($("envie").value), tmax = +$("tmax").value;
     var mots = envie.split(" ").filter(function (w) { return w.length > 2; });
-    var res = l.map(function (x) {
+    S.menu = null;
+    S.envie = platsDuMoment(null).map(function (x) {
       var r = x.r, txt = norm(r.nom + " " + (r.tags || []).join(" ") + " " + (r.ingredients || []).join(" ") + " " + x.promos.map(function (p) { return p.nom; }).join(" "));
       var sc = x.promos.length / r.cles.length;
       mots.forEach(function (w) { if (txt.indexOf(w) >= 0) sc += 2; });
       Object.keys(SYN).forEach(function (tag) {
-        if (SYN[tag].some(function (k) { return envie.indexOf(k) >= 0; })) {
-          var tagsN = (r.tags || []).map(norm);
-          if (tagsN.indexOf(tag) >= 0) sc += 3;
-          if (tag === "rapide" && r.temps <= 25) sc += 2;
-          if (tag === "pas cher") sc += 2 - Math.min(2, x.promos.reduce(function (s, p) { return s + (p.prix || 0); }, 0) / 10);
-          if (tag === "vegetarien" && /poulet|boeuf|porc|dinde|saucisse|lardon|jambon|crevette|thon|saumon|rognon|steak|hache|paupiette|cordon|chorizo|moule|poisson/.test(norm(r.ingredients.join(" ")))) sc -= 5;
-          if (tag === "poisson" && /crevette|thon|saumon|poisson|moule|cabillaud/.test(txt)) sc += 3;
-        }
+        if (!SYN[tag].some(function (k) { return envie.indexOf(k) >= 0; })) return;
+        if ((r.tags || []).map(norm).indexOf(tag) >= 0) sc += 3;
+        if (tag === "rapide" && r.temps <= 25) sc += 2;
+        if (tag === "pas cher") sc += 2 - Math.min(2, x.promos.reduce(function (s, p) { return s + (p.prix || 0); }, 0) / 10);
+        if (tag === "vegetarien" && VIANDE.test(norm(r.ingredients.join(" ")))) sc -= 6;
+        if (tag === "poisson" && /crevette|thon|saumon|poisson|moule|cabillaud/.test(txt)) sc += 3;
       });
       if (tmax && r.temps > tmax) sc -= 4;
       return { r: r, promos: x.promos, sc: sc };
     }).filter(function (x) { return x.sc > 0.5; }).sort(function (a, b) { return b.sc - a.sc; }).slice(0, 6);
-    S.iaPlats = res;
-    $("iaStatus").textContent = res.length ? res.length + " plats pour toi :" : "Rien ne colle. Essaie d'autres mots (ex. : poulet, fromage, rapide).";
-    afficherIA();
-  });
-  function afficherIA() { $("iaOut").innerHTML = S.iaPlats.map(function (x) { return carteRecette(x.r, x.promos); }).join(""); }
+    $("envieStatus").textContent = S.envie.length ? S.envie.length + " plats pour toi :" : "Rien ne colle. Essaie d'autres mots (poulet, fromage, rapide…).";
+    afficherEnvie();
+  }
 
-  // ---------------- mise à jour : faite chaque nuit par GitHub ; le bouton ouvre la page pour la forcer
-  (function () {
-    var h = location.hostname, m = h.match(/^([^.]+)\.github\.io$/), repo = location.pathname.split("/").filter(Boolean)[0];
-    var b = $("btnMaj");
-    if (m && repo) b.href = "https://github.com/" + m[1] + "/" + repo + "/actions/workflows/maj.yml";
-    else b.hidden = true;
-  })();
-  if ("serviceWorker" in navigator) { try { navigator.serviceWorker.register("sw.js"); } catch (e) {} }
+  // menu de la semaine : 5 plats variés, en évitant de réutiliser la même promo
+  function faireMenu(melange) {
+    var l = platsDuMoment(null).slice();
+    if (melange) l.sort(function () { return Math.random() - 0.5; });
+    var pris = {}, menu = [], tagsVus = {};
+    for (var i = 0; i < l.length && menu.length < 5; i++) {
+      var x = l[i], neuf = x.promos.filter(function (p) { return !pris[p.id]; });
+      if (!neuf.length) continue;
+      var tag0 = (x.r.tags || [])[0];
+      if (tag0 && tagsVus[tag0] >= 2) continue;
+      neuf.forEach(function (p) { pris[p.id] = 1; });
+      tagsVus[tag0] = (tagsVus[tag0] || 0) + 1;
+      menu.push({ r: x.r, promos: neuf });
+    }
+    S.menu = menu; S.envie = [];
+    $("envieStatus").textContent = menu.length ? "Ton menu du lundi au vendredi :" : "Pas assez de promos pour un menu complet.";
+    afficherEnvie();
+  }
 
-  // ---------------- interactions
+  // IA locale (version PC avec Ollama)
+  function demanderIA() {
+    var envie = $("envie").value.trim();
+    if (!envie) { $("envieStatus").textContent = "Écris d'abord ton envie."; return; }
+    var promos = visibles().filter(function (p) { return ALIM.indexOf(p.rayon) >= 0 && p.prix != null; }).sort(function (a, b) { return (b.remise || 0) - (a.remise || 0); }).slice(0, 120);
+    var liste = promos.map(function (p) { return "- [" + nomEns(p.enseigne) + "] " + p.nom + (p.marque ? " (" + p.marque + ")" : "") + " : " + euro(p.prix); }).join("\n");
+    var tmax = $("tmax").value;
+    var prompt = "Promotions en cours :\n" + liste + "\n\nMa demande : « " + envie + " »\nTemps max : " + (tmax === "0" ? "pas de limite" : tmax + " minutes") +
+      "\n\nPropose 3 plats simples, en français, qui utilisent le plus possible les produits en promo. Sel, huile, beurre, épices, oignon et ail sont au placard.\nRéponds avec ce JSON :\n{\"plats\":[{\"nom\":\"...\",\"pourquoi\":\"une phrase\",\"temps\":25,\"promos\":[\"nom exact d'un produit de la liste\"],\"tags\":[\"...\"],\"ingredients\":[\"...\"],\"etapes\":[\"...\"]}]}";
+    $("btnIA").disabled = true; $("envieStatus").textContent = "L'IA réfléchit… (10 à 60 s)";
+    fetch("/api/ia", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.erreur || "erreur"); return j; }); })
+      .then(function (j) {
+        var t = j.texte || "", obj;
+        try { obj = JSON.parse(t); } catch (e) { obj = JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1)); }
+        S.menu = null;
+        S.envie = (obj.plats || []).map(function (pl) {
+          var ps = [];
+          (pl.promos || []).forEach(function (nom) {
+            var n = norm(nom), best = null, bs = 0;
+            promos.forEach(function (p) {
+              var w = norm(p.nom + " " + p.marque).split(" ").filter(function (x) { return x.length > 2; });
+              var hit = w.filter(function (x) { return n.indexOf(x) >= 0; }).length / Math.max(w.length, 1);
+              if (hit > bs) { bs = hit; best = p; }
+            });
+            if (best && bs >= 0.4 && ps.indexOf(best) < 0) ps.push(best);
+          });
+          return { r: pl, promos: ps };
+        });
+        $("envieStatus").textContent = S.envie.length ? "Idées de l'IA :" : "Pas de réponse exploitable, reformule.";
+        afficherEnvie();
+      })
+      .catch(function (e) { $("envieStatus").innerHTML = '<span class="err">L\'IA n\'a pas répondu : ' + esc(e.message) + '</span>'; })
+      .then(function () { $("btnIA").disabled = false; });
+  }
+
+  // ---------- liste
+  function ajouter(p, force) {
+    var dans = dansListe(p.id);
+    if (dans && force !== true) S.liste = S.liste.filter(function (x) { return x.id !== p.id; });
+    else if (!dans) S.liste.push({ id: p.id, nom: p.nom, enseigne: p.enseigne, prix: p.prix, avant: p.avant || null, rayon: p.rayon, fait: false });
+    ecrire("liste", S.liste);
+  }
+  function afficherListe() {
+    var restant = S.liste.filter(function (x) { return !x.fait; });
+    $("nbList").hidden = !restant.length; $("nbList").textContent = restant.length;
+    var total = 0, eco = 0;
+    S.liste.forEach(function (x) { if (x.prix) total += x.prix; if (x.prix && x.avant) eco += x.avant - x.prix; });
+    $("listSummary").innerHTML = '<div><b>' + restant.length + '</b><span>à prendre</span></div><div><b>' + (total ? euro(total) : "–") + '</b><span>total des promos</span></div><div><b>' + (eco ? euro(eco) : "–") + '</b><span>économisés</span></div>';
+    if (!S.liste.length) { $("listBody").innerHTML = '<div class="empty">Ta liste est vide. Ajoute des promos avec « + Liste », depuis un plat, ou écris un article au-dessus.</div>'; return; }
+    var groupes = {};
+    S.liste.forEach(function (x, i) { var k = x.enseigne || "autre"; (groupes[k] = groupes[k] || []).push({ x: x, i: i }); });
+    $("listBody").innerHTML = Object.keys(groupes).map(function (k) {
+      var g = groupes[k], st = 0; g.forEach(function (o) { if (o.x.prix && !o.x.fait) st += o.x.prix; });
+      // rangé par rayon, articles cochés en bas
+      g.sort(function (a, b) { return (a.x.fait - b.x.fait) || (ORDRE_RAYONS.indexOf(a.x.rayon || "Autres") - ORDRE_RAYONS.indexOf(b.x.rayon || "Autres")); });
+      var dernier = null, lignes = "";
+      g.forEach(function (o) {
+        var ray = o.x.fait ? "Déjà pris" : (o.x.rayon || "");
+        if (ray && ray !== dernier) { lignes += '<div class="lray">' + esc(ray) + '</div>'; dernier = ray; }
+        lignes += '<div class="li' + (o.x.fait ? ' done' : '') + '"><input type="checkbox" id="li' + o.i + '" data-done="' + o.i + '"' + (o.x.fait ? ' checked' : '') + '><label class="n" for="li' + o.i + '">' + esc(o.x.nom) + '</label><span class="pr">' + euro(o.x.prix) + '</span><button class="del" type="button" data-del="' + o.i + '" aria-label="Retirer">×</button></div>';
+      });
+      return '<div class="lstore" style="--sc:' + (k !== "autre" ? coul(k) : "var(--line)") + '"><h2><span style="font:inherit;color:inherit">' + (k !== "autre" ? esc(nomEns(k)) : "Autres articles") + '</span><span>' + (st ? "≈ " + euro(st) : "") + '</span></h2>' + lignes + '</div>';
+    }).join("");
+  }
+  function texteListe() {
+    var groupes = {};
+    S.liste.filter(function (x) { return !x.fait; }).forEach(function (x) { var k = x.enseigne ? nomEns(x.enseigne) : "Autres"; (groupes[k] = groupes[k] || []).push(x); });
+    return "Liste de courses\n" + Object.keys(groupes).map(function (k) { return "\n" + k + " :\n" + groupes[k].map(function (x) { return "- " + x.nom + (x.prix ? " (" + euro(x.prix) + ")" : ""); }).join("\n"); }).join("\n");
+  }
+
+  // mode magasin : gros texte + écran allumé
+  var wake = null;
+  function modeMagasin(on) {
+    document.body.classList.toggle("shop", on);
+    $("btnShop").textContent = on ? "Quitter le mode magasin" : "Mode magasin";
+    $("btnShop").classList.toggle("primary", on);
+    if (on && navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wake = w; }).catch(function () {});
+    if (!on && wake) { try { wake.release(); } catch (e) {} wake = null; }
+  }
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && document.body.classList.contains("shop") && navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wake = w; }).catch(function () {}); });
+
+  // ---------- réglages
+  function afficherReglages() {
+    if (!S.data) return;
+    $("setStores").innerHTML = Object.keys(S.data.enseignes).map(function (k) {
+      return '<label class="opt" for="st-' + esc(k) + '"><span style="display:flex;align-items:center;gap:8px">' + dot(k) + esc(nomEns(k)) + ' <span class="muted">(' + S.data.enseignes[k].nb + ')</span></span><input type="checkbox" id="st-' + esc(k) + '" data-showstore="' + esc(k) + '"' + (S.hidden.indexOf(k) < 0 ? " checked" : "") + '></label>';
+    }).join("");
+    $("watchList2").innerHTML = S.watch.length ? S.watch.map(function (x, i) { return '<span class="wchip">' + esc(x) + '<button type="button" data-unwatch="' + i + '" aria-label="Retirer ' + esc(x) + '">×</button></span>'; }).join("") : '<span class="muted">Aucun pour l\'instant.</span>';
+    $("setInfo").textContent = S.data.promos.length + " promos chargées · " + S.liste.length + " articles dans ta liste · " + S.fav.length + " favoris. Tout reste sur ce téléphone.";
+  }
+  function ajouterSurveille(v) {
+    v = (v || "").trim(); if (!v) return;
+    if (S.watch.map(norm).indexOf(norm(v)) < 0) S.watch.push(v);
+    ecrire("watch", S.watch); afficherAccueil(); afficherReglages(); afficherPromos();
+    var n = visibles().filter(surveille).length;
+    toast(n ? n + " promo" + (n > 1 ? "s" : "") + " trouvée" + (n > 1 ? "s" : "") : "Surveillé : tu le verras dès qu'il est en promo");
+  }
+
+  // ---------- mise à jour (version PC)
+  var suivi = null;
+  function suivreMaj() {
+    fetch("/api/etat").then(function (r) { return r.json(); }).then(function (e) {
+      $("journal").hidden = !e.en_cours;
+      $("journal").textContent = e.journal.join("\n"); $("journal").scrollTop = 1e6;
+      $("btnMaj").querySelector("span").textContent = e.en_cours ? "En cours…" : "Mettre à jour";
+      if (e.en_cours) suivi = setTimeout(suivreMaj, 1500);
+      else if (suivi !== null) { suivi = null; charger(); toast("Promos mises à jour"); }
+    }).catch(function () {});
+  }
+
+  // ---------- navigation
   function vue(v) {
-    ["promos", "plats", "ia", "liste"].forEach(function (x) { $("v-" + x).hidden = x !== v; });
+    ["accueil", "promos", "plats", "liste"].forEach(function (x) { $("v-" + x).hidden = x !== v; });
     document.querySelectorAll("nav.tabs button").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.v === v ? "true" : "false"); });
-    $("stores").hidden = v === "liste" || v === "ia";
     window.scrollTo(0, 0);
   }
+  function preset(p) {
+    S.f = {}; S.rayon = "Tous"; S.store = "all";
+    if (p === "alim") S.f.alim = true;
+    if (p === "new") S.f["new"] = true;
+    if (p === "end") S.f.end = true;
+    if (p === "remise") { S.f.alim = true; S.tri = "remise"; $("tri").value = "remise"; }
+    afficherFiltres(); afficherPromos();
+  }
+
+  // ---------- événements
   var tq;
   $("q").addEventListener("input", function () { clearTimeout(tq); var v = this.value; tq = setTimeout(function () { S.q = v; afficherPromos(); }, 120); });
+  $("homeSearch").addEventListener("submit", function (ev) { ev.preventDefault(); S.q = $("homeQ").value; $("q").value = S.q; S.f = {}; S.rayon = "Tous"; afficherFiltres(); afficherPromos(); vue("promos"); $("homeQ").blur(); });
   $("tri").addEventListener("change", function () { S.tri = this.value; afficherPromos(); });
-  ["fAlim", "fBarre", "fPlan", "fFav"].forEach(function (k) {
-    $(k).addEventListener("click", function () { S[k] = !S[k]; this.setAttribute("aria-pressed", S[k]); afficherPromos(); });
-  });
+  $("envieForm").addEventListener("submit", function (ev) { ev.preventDefault(); chercherEnvie(); });
+  $("btnMenu").addEventListener("click", function () { faireMenu(false); });
+  $("btnIA").addEventListener("click", demanderIA);
   $("addForm").addEventListener("submit", function (ev) {
     ev.preventDefault(); var t = $("addTxt").value.trim(); if (!t) return;
-    S.liste.push({ id: "m-" + Date.now(), nom: t, enseigne: "", prix: null, fait: false }); ecrire("liste", S.liste); $("addTxt").value = ""; afficherListe();
+    S.liste.push({ id: "m-" + Date.now(), nom: t, enseigne: "", prix: null, rayon: "", fait: false }); ecrire("liste", S.liste); $("addTxt").value = ""; afficherListe(); afficherAccueil();
   });
-  $("clearDone").addEventListener("click", function () { S.liste = S.liste.filter(function (x) { return !x.fait; }); ecrire("liste", S.liste); afficherListe(); afficherPromos(); });
-  $("clearAll").addEventListener("click", function () { S.liste = []; ecrire("liste", S.liste); afficherListe(); afficherPromos(); afficherPlats(); });
-  $("copyList").addEventListener("click", function () {
-    var txt = $("listBody").innerText.replace(/\n×/g, "");
-    var b = this;
-    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function () { b.textContent = "Copiée !"; }, function () { b.textContent = "Copie impossible"; })
-      .then(function () { setTimeout(function () { b.textContent = "Copier la liste"; }, 1500); });
+  $("btnShop").addEventListener("click", function () { modeMagasin(!document.body.classList.contains("shop")); });
+  $("btnShare").addEventListener("click", function () {
+    var txt = texteListe();
+    if (navigator.share) navigator.share({ title: "Liste de courses", text: txt }).catch(function () {});
+    else if (navigator.clipboard) navigator.clipboard.writeText(txt).then(function () { toast("Liste copiée"); }, function () { toast("Copie impossible"); });
+  });
+  $("clearDone").addEventListener("click", function () { S.liste = S.liste.filter(function (x) { return !x.fait; }); ecrire("liste", S.liste); rafraichir(); });
+  $("clearAll").addEventListener("click", function () { if (!S.liste.length) return; S.liste = []; ecrire("liste", S.liste); rafraichir(); toast("Liste vidée"); });
+  $("btnSettings").addEventListener("click", function () { afficherReglages(); try { $("settings").showModal(); } catch (e) { $("settings").setAttribute("open", ""); } });
+  $("openStores").addEventListener("click", function () { $("btnSettings").click(); });
+  $("closeSettings").addEventListener("click", function () { $("settings").close(); });
+  $("watchForm2").addEventListener("submit", function (ev) { ev.preventDefault(); ajouterSurveille($("watchTxt2").value); $("watchTxt2").value = ""; });
+  $("resetAll").addEventListener("click", function () {
+    S.liste = []; S.fav = []; S.watch = []; S.hidden = [];
+    ["liste", "fav", "watch", "hiddenStores"].forEach(function (k) { ecrire(k, []); });
+    rafraichir(); afficherReglages(); toast("Tout est remis à zéro");
+  });
+  $("btnMaj").addEventListener("click", function (ev) {
+    if (S.mode !== "pc") return;
+    ev.preventDefault(); fetch("/api/maj", { method: "POST" }).then(function () { suivi = 0; suivreMaj(); });
+  });
+
+  function rafraichir() { afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); }
+
+  document.addEventListener("submit", function (ev) {
+    if (ev.target.id === "watchForm") { ev.preventDefault(); ajouterSurveille($("watchTxt").value); }
   });
   document.addEventListener("change", function (ev) {
-    var d = ev.target.dataset && ev.target.dataset.done;
-    if (d != null) { S.liste[+d].fait = ev.target.checked; ecrire("liste", S.liste); afficherListe(); }
+    var d = ev.target.dataset || {};
+    if (d.done != null) { S.liste[+d.done].fait = ev.target.checked; ecrire("liste", S.liste); afficherListe(); afficherAccueil(); }
+    if (d.showstore) {
+      var k = d.showstore, i = S.hidden.indexOf(k);
+      if (ev.target.checked && i >= 0) S.hidden.splice(i, 1);
+      if (!ev.target.checked && i < 0) S.hidden.push(k);
+      ecrire("hiddenStores", S.hidden); rafraichir();
+    }
   });
   document.addEventListener("click", function (ev) {
     var b = ev.target.closest("button"); if (!b) return;
     var ds = b.dataset;
     if (ds.v) return vue(ds.v);
-    if (ds.store) { S.store = ds.store; S.rayon = "Tous"; afficherMagasins(); afficherRayons(); afficherPromos(); afficherPlats(); return; }
-    if (ds.rayon) { S.rayon = ds.rayon; afficherRayons(); afficherPromos(); return; }
+    if (ds["goto"]) { if (ds.preset) preset(ds.preset); return vue(ds["goto"]); }
+    if (ds.gostore) { preset(); S.store = ds.gostore; afficherFiltres(); afficherPromos(); return vue("promos"); }
+    if (ds.store) { S.store = ds.store; S.rayon = "Tous"; afficherFiltres(); afficherPromos(); return; }
+    if (ds.rayon) { S.rayon = ds.rayon; afficherFiltres(); afficherPromos(); return; }
+    if (ds.f) { S.f[ds.f] = !S.f[ds.f]; afficherFiltres(); afficherPromos(); return; }
     if (ds.ptag) { S.platTag = ds.ptag; afficherPlats(); return; }
-    if (ds.q) { $("envie").value = ds.q; $("envie").focus(); return; }
-    if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else S.fav.push(ds.fav); ecrire("fav", S.fav); afficherPromos(); return; }
-    if (ds.add) { var p = promoParId(ds.add); if (p) { ajouter(p); afficherPromos(); afficherListe(); afficherPlats(); afficherIA(); } return; }
+    if (ds.q) { $("envie").value = ds.q; chercherEnvie(); return; }
+    if (ds.themeSet) { S.theme = ds.themeSet; ecrire("theme", S.theme); appliquerTheme(); return; }
+    if (ds.unwatch != null) { S.watch.splice(+ds.unwatch, 1); ecrire("watch", S.watch); afficherAccueil(); afficherReglages(); afficherPromos(); return; }
+    if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else { S.fav.push(ds.fav); toast("Ajouté aux favoris"); } ecrire("fav", S.fav); b.classList.toggle("on"); return; }
+    if (ds.add) { var p = promoParId(ds.add); if (p) { var avant = dansListe(p.id); ajouter(p); toast(avant ? "Retiré de la liste" : "Ajouté à la liste"); rafraichir(); } return; }
     if (ds.addmany) {
       var ps = ds.addmany.split(",").map(promoParId).filter(Boolean);
-      var toutes = ps.every(function (p) { return S.liste.some(function (x) { return x.id === p.id; }); });
-      ps.forEach(function (p) { var dans = S.liste.some(function (x) { return x.id === p.id; }); if (toutes ? dans : !dans) ajouter(p); });
-      afficherListe(); afficherPromos(); afficherPlats(); afficherIA(); return;
+      var toutes = ps.every(function (x) { return dansListe(x.id); });
+      ps.forEach(function (x) { if (toutes) ajouter(x); else ajouter(x, true); });
+      toast(toutes ? "Retiré de la liste" : ps.length + " promos ajoutées à la liste"); rafraichir(); return;
     }
-    if (ds.del != null) { S.liste.splice(+ds.del, 1); ecrire("liste", S.liste); afficherListe(); afficherPromos(); return; }
+    if (b.id === "menuAll") { var n = 0; S.menu.forEach(function (x) { x.promos.forEach(function (p) { if (!dansListe(p.id)) { ajouter(p, true); n++; } }); }); toast(n + " promos ajoutées à la liste"); rafraichir(); return; }
+    if (b.id === "menuNew") { faireMenu(true); return; }
+    if (ds.del != null) { S.liste.splice(+ds.del, 1); ecrire("liste", S.liste); rafraichir(); return; }
   });
-
-  charger();
 })();
 </script>
 </body>
