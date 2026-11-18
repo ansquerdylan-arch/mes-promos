@@ -70,6 +70,9 @@ def resume(url):
         of = pi.get("offers", {})
         if of:
             print("--- offers : clés", {k: (len(v.get("items", [])) if isinstance(v, dict) else type(v).__name__) for k, v in of.items()})
+        plb = pi.get("template", {}).get("content", {}).get("PublisherLogoLinkbox", {})
+        if plb:
+            print("--- enseignes de la ville :", [l.get("link_href") for l in plb.get("links", [])])
         print("--- pageInformation : clés ---")
         for k, v in pi.items():
             taille = len(v) if isinstance(v, (list, dict, str)) else ""
