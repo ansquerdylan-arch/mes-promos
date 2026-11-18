@@ -84,6 +84,7 @@ def resume(url):
                 return
             if isinstance(o, list) and o and isinstance(o[0], dict) and any(re.search("price", kk, re.I) for kk in json.dumps(o[0])[:4000].split('"')):
                 print("--- liste avec prix : %s (%d éléments) ---" % (chemin, len(o)))
+                print("   exemple complet :", json.dumps(o[0], ensure_ascii=False)[:1600])
                 for it in o[:40]:
                     pr = it.get("prices") or {}
                     print("   · %-45s %-12s %7s %7s  %s → %s  %s" % (
