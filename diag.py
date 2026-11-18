@@ -57,6 +57,19 @@ def resume(url):
                     marche(v, chemin + "[%d]" % i, prof + 1)
         marche(data, "")
         pi = data.get("props", {}).get("pageProps", {}).get("pageInformation", {})
+        br = pi.get("brochures", {})
+        if br:
+            print("--- brochures : clés", {k: len(v) if isinstance(v, list) else type(v).__name__ for k, v in br.items()})
+            for k, v in br.items():
+                if isinstance(v, list) and v:
+                    print("  exemple", k, ":", json.dumps(v[0], ensure_ascii=False)[:1500])
+                    lid = str(v[0].get("id"))
+                    for mm in list(re.finditer(re.escape(lid), page))[:4]:
+                        print("  ... contexte HTML :", page[max(0, mm.start() - 160): mm.end() + 80].replace("\n", " "))
+                    break
+        of = pi.get("offers", {})
+        if of:
+            print("--- offers : clés", {k: (len(v.get("items", [])) if isinstance(v, dict) else type(v).__name__) for k, v in of.items()})
         print("--- pageInformation : clés ---")
         for k, v in pi.items():
             taille = len(v) if isinstance(v, (list, dict, str)) else ""
