@@ -1,32 +1,34 @@
 {
- "maj": "2026-11-18T15:56:06",
+ "maj": "2026-11-18T15:57:18",
  "ville": "Olonne-sur-Mer",
  "enseignes": {
   "superu": {
    "nom": "Super U",
    "validite": "du 17/11 au 29/11",
-   "nb": 16,
-   "maj": "2026-11-18T15:56:06",
+   "nb": 33,
+   "maj": "2026-11-18T15:57:18",
    "ancien": false,
    "sources": [
-    "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+    "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8",
+    "https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
    ]
   },
   "leclerc": {
    "nom": "E.Leclerc",
    "validite": "du 03/11 au 31/12",
-   "nb": 16,
-   "maj": "2026-11-18T15:56:06",
+   "nb": 32,
+   "maj": "2026-11-18T15:57:18",
    "ancien": false,
    "sources": [
-    "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+    "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140",
+    "https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
    ]
   },
   "intermarche": {
    "nom": "Intermarché",
    "validite": "du 17/11 au 29/11",
    "nb": 25,
-   "maj": "2026-11-18T15:56:06",
+   "maj": "2026-11-18T15:57:18",
    "ancien": false,
    "sources": [
     "https://anti-crise.fr/catalogue/catalogue-intermarche-du-17-au-29-novembre-2026-version-super/"
@@ -36,7 +38,7 @@
    "nom": "Lidl",
    "validite": "du 19/11 au 25/11",
    "nb": 15,
-   "maj": "2026-11-18T15:56:06",
+   "maj": "2026-11-18T15:57:18",
    "ancien": false,
    "sources": [
     "https://www.bonial.fr/Olonne-sur-Mer/Lidl/p-r1"
@@ -45,11 +47,12 @@
   "carrefour": {
    "nom": "Carrefour Market",
    "validite": "du 03/11 au 30/11",
-   "nb": 15,
-   "maj": "2026-11-18T15:56:06",
+   "nb": 35,
+   "maj": "2026-11-18T15:57:18",
    "ancien": false,
    "sources": [
-    "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+    "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5",
+    "https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
    ]
   }
  },
@@ -66,7 +69,7 @@
    "bon_plan": "",
    "rayon": "Fruits & légumes",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-airfryer-grill",
@@ -78,9 +81,9 @@
    "remise": 56,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-senseo-original",
@@ -92,9 +95,9 @@
    "remise": 38,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-boucleur-automatique-curl-secret",
@@ -106,9 +109,9 @@
    "remise": 50,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-expresso-broyeur-ecam12-123-b",
@@ -120,9 +123,9 @@
    "remise": 35,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-seche-linge-pompe-a-chaleur-8-kg",
@@ -134,9 +137,9 @@
    "remise": 33,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-aspirateur-sans-sac",
@@ -148,9 +151,9 @@
    "remise": 40,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-lave-linge-frontal-9-kg",
@@ -162,9 +165,9 @@
    "remise": 30,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-balai-aspirateur-flex",
@@ -176,9 +179,9 @@
    "remise": 41,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-lave-linge-top-6-kg",
@@ -190,9 +193,9 @@
    "remise": 25,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-casque-bluetooth-a-reduction-de-bruit",
@@ -204,9 +207,9 @@
    "remise": 42,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-smartphone-galaxy-a27-5g",
@@ -218,9 +221,9 @@
    "remise": 19,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-imprimante-multifonction",
@@ -232,9 +235,9 @@
    "remise": 18,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-smartphone-redmi-15c-4g",
@@ -246,9 +249,9 @@
    "remise": 25,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-tablette-galaxy-tab-a11",
@@ -260,9 +263,9 @@
    "remise": 22,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "superu-30-de-remise-immediate-avec-ma-carte-u-sur-une-selection-de-",
@@ -274,9 +277,247 @@
    "remise": null,
    "unite": "",
    "bon_plan": "- 30% de remise immédiate avec ma carte U sur une selection de tv et de barres de son HISENSE",
+   "rayon": "Maison & loisirs",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-crottins-de-chevre-lot-de-2",
+   "enseigne": "superu",
+   "nom": "Crottins de chèvre (lot de 2)",
+   "marque": "rians",
+   "prix": 3.75,
+   "avant": 5.36,
+   "remise": 30,
+   "unite": "",
+   "bon_plan": "2,75 € avec bons / remboursement",
+   "rayon": "Fromage",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-cafe-en-capsules-neo-lot-de-2",
+   "enseigne": "superu",
+   "nom": "Café en capsules néo (lot de 2)",
+   "marque": "Dolce Gusto",
+   "prix": 5.48,
+   "avant": 8.3,
+   "remise": 34,
+   "unite": "",
+   "bon_plan": "4,08 € avec bons / remboursement",
+   "rayon": "Boissons",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-sucre-en-poudre",
+   "enseigne": "superu",
+   "nom": "Sucre en poudre",
+   "marque": "Daddy",
+   "prix": 1.85,
+   "avant": 2.81,
+   "remise": 34,
+   "unite": "",
+   "bon_plan": "1,35 € avec bons / remboursement",
+   "rayon": "Épicerie sucrée",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-wraps-de-ble",
+   "enseigne": "superu",
+   "nom": "Wraps de blé",
+   "marque": "OLD EL PASO",
+   "prix": 2.25,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "1,75 € avec bons / remboursement",
+   "rayon": "Boulangerie",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-pates-farcies-lot-de-2",
+   "enseigne": "superu",
+   "nom": "Pâtes farcies (lot de 2)",
+   "marque": "Giovanni RANA",
+   "prix": 4.71,
+   "avant": 7.14,
+   "remise": 34,
+   "unite": "",
+   "bon_plan": "3,71 € avec bons / remboursement",
+   "rayon": "Épicerie salée",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-emmental-rape",
+   "enseigne": "superu",
+   "nom": "Emmental râpé",
+   "marque": "EntreMont",
+   "prix": 3.29,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "2,89 € avec bons / remboursement",
+   "rayon": "Fromage",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-roquefort-lot-de-2",
+   "enseigne": "superu",
+   "nom": "Roquefort (lot de 2)",
+   "marque": "SOCIETE",
+   "prix": 4.09,
+   "avant": 5.84,
+   "remise": 30,
+   "unite": "",
+   "bon_plan": "2,49 € avec bons / remboursement",
+   "rayon": "Fromage",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-l-instant-gourmand",
+   "enseigne": "superu",
+   "nom": "L'Instant Gourmand",
+   "marque": "SAINT ALBRAY",
+   "prix": 3.85,
+   "avant": 5.5,
+   "remise": 30,
+   "unite": "",
+   "bon_plan": "2,85 € avec bons / remboursement",
    "rayon": "Autres",
    "validite": "du 17/11 au 29/11",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-pack-de-biere-lot-de-2",
+   "enseigne": "superu",
+   "nom": "Pack de bière (lot de 2)",
+   "marque": "DESPERADOS",
+   "prix": 10.92,
+   "avant": 14.56,
+   "remise": 25,
+   "unite": "",
+   "bon_plan": "8,92 € avec bons / remboursement",
+   "rayon": "Boissons",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-capsules-lave-vaisselle-lot-de-2",
+   "enseigne": "superu",
+   "nom": "Capsules lave-vaisselle (lot de 2)",
+   "marque": "sun",
+   "prix": 13.42,
+   "avant": 22.36,
+   "remise": 40,
+   "unite": "",
+   "bon_plan": "11,18 € avec bons / remboursement",
+   "rayon": "Maison & loisirs",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-liquide-vaisselle-lot-de-2",
+   "enseigne": "superu",
+   "nom": "Liquide vaisselle (lot de 2)",
+   "marque": "MIR",
+   "prix": 1.64,
+   "avant": 2.74,
+   "remise": 40,
+   "unite": "",
+   "bon_plan": "0,94 € avec bons / remboursement",
+   "rayon": "Entretien",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-liquide-vaisselle-lot-de-4",
+   "enseigne": "superu",
+   "nom": "Liquide vaisselle (lot de 4)",
+   "marque": "MIR",
+   "prix": 3.29,
+   "avant": 5.48,
+   "remise": 40,
+   "unite": "",
+   "bon_plan": "0,29 € avec bons / remboursement",
+   "rayon": "Entretien",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-papier-toilette",
+   "enseigne": "superu",
+   "nom": "Papier toilette",
+   "marque": "Lotus",
+   "prix": 7.49,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "6,49 € avec bons / remboursement",
+   "rayon": "Entretien",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-mouchoirs-etuis",
+   "enseigne": "superu",
+   "nom": "Mouchoirs étuis",
+   "marque": "Lotus",
+   "prix": 2.01,
+   "avant": 3.05,
+   "remise": 34,
+   "unite": "",
+   "bon_plan": "1,61 € avec bons / remboursement",
+   "rayon": "Autres",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-pyjama-pants-lot-de-2",
+   "enseigne": "superu",
+   "nom": "Pyjama pants (lot de 2)",
+   "marque": "DryNites",
+   "prix": 14.94,
+   "avant": 24.9,
+   "remise": 40,
+   "unite": "",
+   "bon_plan": "11,94 € avec bons / remboursement",
+   "rayon": "Maison & loisirs",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-pep-s-box",
+   "enseigne": "superu",
+   "nom": "Pep's box",
+   "marque": "Maître CoQ",
+   "prix": 3.79,
+   "avant": 4.79,
+   "remise": 21,
+   "unite": "",
+   "bon_plan": "2,79 € avec bons / remboursement",
+   "rayon": "Volaille",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "superu-brie-de-meaux-part-200g",
+   "enseigne": "superu",
+   "nom": "Brie de Meaux part 200g",
+   "marque": "ANDRE COLLET",
+   "prix": 2.6,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "1,60 € avec bons / remboursement",
+   "rayon": "Fromage",
+   "validite": "du 17/11 au 29/11",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8, https://anti-crise.fr/catalogue/catalogue-super-u-du-17-au-29-novembre-2026/"
   },
   {
    "id": "leclerc-collier-en-or-jaune-et-argent-rhodie-saphir-poire-et-oxydes-",
@@ -288,9 +529,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Fruits & légumes",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-bague-en-plaque-or-et-oxydes-de-zirconium",
@@ -302,9 +543,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-bague-en-or-jaune-et-oxydes-de-zirconium",
@@ -316,9 +557,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-bracelet-en-argent-rhodie-et-oxydes-de-zirconium",
@@ -330,9 +571,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-bracelet-en-or-jaune-maille-gourmette",
@@ -344,9 +585,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-boucles-d-oreilles-en-plaque-or-noeud-de-corde",
@@ -358,9 +599,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-bague-en-or-jaune-et-rhodie-perle-de-culture",
@@ -372,9 +613,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-pendentif-en-or-jaune-perle-de-culture-et-ambre",
@@ -386,9 +627,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-collier-en-plaque-or-maille-palmier",
@@ -400,9 +641,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-bague-en-or-jaune-et-oxydes-de-zirconium-spirale",
@@ -414,9 +655,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-collier-or-jaune-maille-rectangle-allongee",
@@ -428,9 +669,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-bague-en-or-jaune-et-amethystes",
@@ -442,9 +683,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-pendentif-en-or-jaune-et-perle-de-culture",
@@ -456,9 +697,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-bague-en-argent-rhodie-et-oxydes-de-zirconium",
@@ -470,9 +711,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-bague-en-or-jaune-et-grenat-briolette",
@@ -484,9 +725,9 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "leclerc-boucles-d-oreilles-en-or-jaune-et-argent-rhodie-diamants",
@@ -498,9 +739,233 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
+   "rayon": "Maison & loisirs",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-cordons-bleus",
+   "enseigne": "leclerc",
+   "nom": "Cordons bleus",
+   "marque": "Maître CoQ",
+   "prix": 4.94,
+   "avant": 6.18,
+   "remise": 20,
+   "unite": "",
+   "bon_plan": "3,94 € avec bons / remboursement",
+   "rayon": "Volaille",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-fromage-madame-loik-lot-de-2",
+   "enseigne": "leclerc",
+   "nom": "Fromage Madame Loïk (lot de 2)",
+   "marque": "Paysan Breton",
+   "prix": 3.08,
+   "avant": 4.4,
+   "remise": 30,
+   "unite": "",
+   "bon_plan": "2,38 € avec bons / remboursement",
+   "rayon": "Fromage",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-liegeois-patissier-lot-de-4",
+   "enseigne": "leclerc",
+   "nom": "Liégeois pâtissier (lot de 4)",
+   "marque": "Danette",
+   "prix": 6.83,
+   "avant": 9.76,
+   "remise": 30,
+   "unite": "",
+   "bon_plan": "5,86 € avec bons / remboursement",
+   "rayon": "Crèmerie & œufs",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-cafe-en-capsules-neo",
+   "enseigne": "leclerc",
+   "nom": "Café en capsules néo",
+   "marque": "Dolce Gusto",
+   "prix": 3.89,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "2,19 € avec bons / remboursement",
+   "rayon": "Boissons",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-lessive-liquide-lot-de-2",
+   "enseigne": "leclerc",
+   "nom": "Lessive liquide (lot de 2)",
+   "marque": "Dash",
+   "prix": 13.43,
+   "avant": 22.38,
+   "remise": 40,
+   "unite": "",
+   "bon_plan": "11,63 € avec bons / remboursement",
+   "rayon": "Entretien",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-nettoyant-menager-lot-de-2",
+   "enseigne": "leclerc",
+   "nom": "Nettoyant ménager (lot de 2)",
+   "marque": "AJAX",
+   "prix": 3.75,
+   "avant": 5.36,
+   "remise": 30,
+   "unite": "",
+   "bon_plan": "3,25 € avec bons / remboursement",
+   "rayon": "Entretien",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-desodorisant-lot-de-2",
+   "enseigne": "leclerc",
+   "nom": "Désodorisant (lot de 2)",
+   "marque": "glade",
+   "prix": 6.06,
+   "avant": 10.1,
+   "remise": 40,
+   "unite": "",
+   "bon_plan": "4,86 € avec bons / remboursement",
+   "rayon": "Entretien",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-pyjama-pants",
+   "enseigne": "leclerc",
+   "nom": "Pyjama pants",
+   "marque": "DryNites",
+   "prix": 7.11,
+   "avant": 11.85,
+   "remise": 40,
+   "unite": "",
+   "bon_plan": "4,11 € avec bons / remboursement",
+   "rayon": "Maison & loisirs",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-essuie-tout",
+   "enseigne": "leclerc",
+   "nom": "Essuie-tout",
+   "marque": "Okay",
+   "prix": 6.6,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "5,90 € avec bons / remboursement",
+   "rayon": "Entretien",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-essuie-tout-lot-de-2",
+   "enseigne": "leclerc",
+   "nom": "Essuie-tout (lot de 2)",
+   "marque": "Okay",
+   "prix": 13.2,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "10,40 € avec bons / remboursement",
+   "rayon": "Entretien",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-mouchoirs",
+   "enseigne": "leclerc",
+   "nom": "Mouchoirs",
+   "marque": "Kleenex",
+   "prix": 3.0,
+   "avant": 4.29,
+   "remise": 30,
+   "unite": "",
+   "bon_plan": "2,50 € avec bons / remboursement",
    "rayon": "Autres",
    "validite": "du 03/11 au 31/12",
-   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-mouchoirs-lot-de-3",
+   "enseigne": "leclerc",
+   "nom": "Mouchoirs (lot de 3)",
+   "marque": "Kleenex",
+   "prix": 9.01,
+   "avant": 12.87,
+   "remise": 30,
+   "unite": "",
+   "bon_plan": "7,11 € avec bons / remboursement",
+   "rayon": "Autres",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-papier-toilette",
+   "enseigne": "leclerc",
+   "nom": "Papier toilette",
+   "marque": "Lotus",
+   "prix": 5.99,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "4,99 € avec bons / remboursement",
+   "rayon": "Entretien",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-dentifrice",
+   "enseigne": "leclerc",
+   "nom": "Dentifrice",
+   "marque": "Colgate",
+   "prix": 4.04,
+   "avant": 6.73,
+   "remise": 40,
+   "unite": "",
+   "bon_plan": "3,44 € avec bons / remboursement",
+   "rayon": "Hygiène & beauté",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-dentifrice-lot-de-3",
+   "enseigne": "leclerc",
+   "nom": "Dentifrice (lot de 3)",
+   "marque": "Colgate",
+   "prix": 12.11,
+   "avant": 20.19,
+   "remise": 40,
+   "unite": "",
+   "bon_plan": "7,70 € avec bons / remboursement",
+   "rayon": "Hygiène & beauté",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
+  },
+  {
+   "id": "leclerc-pere-noel-lot-de-3",
+   "enseigne": "leclerc",
+   "nom": "Père Noël (lot de 3)",
+   "marque": "Milka",
+   "prix": 7.14,
+   "avant": 10.71,
+   "remise": 33,
+   "unite": "",
+   "bon_plan": "4,14 € avec bons / remboursement",
+   "rayon": "Épicerie sucrée",
+   "validite": "du 03/11 au 31/12",
+   "source": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140, https://anti-crise.fr/catalogue/catalogue-leclerc-du-17-au-28-novembre-2026/"
   },
   {
    "id": "intermarche-pintade-fermiere",
@@ -722,7 +1187,7 @@
    "remise": 35,
    "unite": "",
    "bon_plan": "10,99 € avec bons / remboursement",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
    "source": "https://anti-crise.fr/catalogue/catalogue-intermarche-du-17-au-29-novembre-2026-version-super/"
   },
@@ -820,7 +1285,7 @@
    "remise": 33,
    "unite": "",
    "bon_plan": "3,52 € avec bons / remboursement",
-   "rayon": "Épicerie sucrée",
+   "rayon": "Maison & loisirs",
    "validite": "du 17/11 au 29/11",
    "source": "https://anti-crise.fr/catalogue/catalogue-intermarche-du-17-au-29-novembre-2026-version-super/"
   },
@@ -862,7 +1327,7 @@
    "remise": 46,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 19/11 au 25/11",
    "source": "https://www.bonial.fr/Olonne-sur-Mer/Lidl/p-r1"
   },
@@ -876,7 +1341,7 @@
    "remise": 25,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 19/11 au 25/11",
    "source": "https://www.bonial.fr/Olonne-sur-Mer/Lidl/p-r1"
   },
@@ -890,7 +1355,7 @@
    "remise": null,
    "unite": "",
    "bon_plan": "",
-   "rayon": "Autres",
+   "rayon": "Maison & loisirs",
    "validite": "du 19/11 au 25/11",
    "source": "https://www.bonial.fr/Olonne-sur-Mer/Lidl/p-r1"
   },
@@ -1074,7 +1539,7 @@
    "bon_plan": "",
    "rayon": "Poisson & mer",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-hache-au-boeuf-simpl",
@@ -1088,7 +1553,7 @@
    "bon_plan": "",
    "rayon": "Viande",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-filets-de-truite-avec-peau-simpl",
@@ -1102,7 +1567,7 @@
    "bon_plan": "",
    "rayon": "Poisson & mer",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-oignon-simpl",
@@ -1116,7 +1581,7 @@
    "bon_plan": "",
    "rayon": "Fruits & légumes",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-15-boulettes-au-buf-simpl",
@@ -1130,7 +1595,7 @@
    "bon_plan": "",
    "rayon": "Autres",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-tomate-cerise-simpl",
@@ -1144,7 +1609,7 @@
    "bon_plan": "",
    "rayon": "Fruits & légumes",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-tranches-de-filets-de-colin-d-alaska-surgelees",
@@ -1158,7 +1623,7 @@
    "bon_plan": "",
    "rayon": "Poisson & mer",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-saucisse-seche",
@@ -1172,7 +1637,7 @@
    "bon_plan": "",
    "rayon": "Viande",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-lardons",
@@ -1186,7 +1651,7 @@
    "bon_plan": "",
    "rayon": "Charcuterie",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-saucisse-cuite-fumee",
@@ -1200,7 +1665,7 @@
    "bon_plan": "",
    "rayon": "Viande",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-jambon-cuit-choix",
@@ -1214,7 +1679,7 @@
    "bon_plan": "",
    "rayon": "Charcuterie",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-buche-aux-laits-de-vache-et-de-chevre",
@@ -1228,7 +1693,7 @@
    "bon_plan": "",
    "rayon": "Fromage",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-lait",
@@ -1242,7 +1707,7 @@
    "bon_plan": "",
    "rayon": "Boissons",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-fromage-fondu-en-tranches",
@@ -1256,7 +1721,7 @@
    "bon_plan": "",
    "rayon": "Fromage",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   },
   {
    "id": "carrefour-fromage-a-raclette",
@@ -1270,7 +1735,287 @@
    "bon_plan": "",
    "rayon": "Fromage",
    "validite": "du 03/11 au 30/11",
-   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-huile-d-olive-lot-de-2",
+   "enseigne": "carrefour",
+   "nom": "Huile d'olive (lot de 2)",
+   "marque": "CARAPELLI",
+   "prix": 17.58,
+   "avant": 21.98,
+   "remise": 20,
+   "unite": "",
+   "bon_plan": "15,39 € avec bons / remboursement",
+   "rayon": "Épicerie salée",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-pates-lot-de-3",
+   "enseigne": "carrefour",
+   "nom": "Pâtes (lot de 3)",
+   "marque": "PANZANI",
+   "prix": 3.34,
+   "avant": 4.77,
+   "remise": 30,
+   "unite": "",
+   "bon_plan": "2,84 € avec bons / remboursement",
+   "rayon": "Épicerie salée",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-dentifrice-lot-de-3",
+   "enseigne": "carrefour",
+   "nom": "Dentifrice (lot de 3)",
+   "marque": "Colgate",
+   "prix": 16.02,
+   "avant": 26.7,
+   "remise": 40,
+   "unite": "",
+   "bon_plan": "13,35 € avec bons / remboursement",
+   "rayon": "Hygiène & beauté",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-soda-lot-de-2",
+   "enseigne": "carrefour",
+   "nom": "Soda (lot de 2)",
+   "marque": "PEPSI",
+   "prix": 1.87,
+   "avant": 2.5,
+   "remise": 25,
+   "unite": "",
+   "bon_plan": "1,08 € avec bons / remboursement",
+   "rayon": "Boissons",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-riz-au-lait-chocolat-lot-de-2",
+   "enseigne": "carrefour",
+   "nom": "Riz au lait chocolat (lot de 2)",
+   "marque": "la Laitière",
+   "prix": 2.53,
+   "avant": 3.38,
+   "remise": 25,
+   "unite": "",
+   "bon_plan": "1,54 € avec bons / remboursement",
+   "rayon": "Épicerie sucrée",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-emmental-lot-de-5",
+   "enseigne": "carrefour",
+   "nom": "Emmental (lot de 5)",
+   "marque": "PRESIDENT",
+   "prix": 18.45,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "16,61 € avec bons / remboursement",
+   "rayon": "Fromage",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-le-fouette",
+   "enseigne": "carrefour",
+   "nom": "Le Fouetté",
+   "marque": "SOCIETE",
+   "prix": 1.57,
+   "avant": 2.25,
+   "remise": 30,
+   "unite": "",
+   "bon_plan": "0,03 € avec bons / remboursement",
+   "rayon": "Autres",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-le-fuet-lot-de-3",
+   "enseigne": "carrefour",
+   "nom": "Le fuet (lot de 3)",
+   "marque": "Herta",
+   "prix": 5.78,
+   "avant": 8.67,
+   "remise": 33,
+   "unite": "",
+   "bon_plan": "4,28 € avec bons / remboursement",
+   "rayon": "Autres",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-jambon-blanc",
+   "enseigne": "carrefour",
+   "nom": "Jambon blanc",
+   "marque": "Madrange",
+   "prix": 2.59,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "2,09 € avec bons / remboursement",
+   "rayon": "Charcuterie",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-pate-a-pizza-lot-de-3",
+   "enseigne": "carrefour",
+   "nom": "Pâte à pizza (lot de 3)",
+   "marque": "Herta",
+   "prix": 10.14,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "8,64 € avec bons / remboursement",
+   "rayon": "Charcuterie",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-creme-fraiche-lot-de-2",
+   "enseigne": "carrefour",
+   "nom": "Crème fraîche (lot de 2)",
+   "marque": "Bridélice",
+   "prix": 2.98,
+   "avant": 3.98,
+   "remise": 25,
+   "unite": "",
+   "bon_plan": "1,79 € avec bons / remboursement",
+   "rayon": "Crèmerie & œufs",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-haches-happy-family",
+   "enseigne": "carrefour",
+   "nom": "Hachés happy family",
+   "marque": "CHARAL",
+   "prix": 8.29,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "6,99 € avec bons / remboursement",
+   "rayon": "Viande",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-biscuits-cookies-lot-de-3",
+   "enseigne": "carrefour",
+   "nom": "Biscuits cookies (lot de 3)",
+   "marque": "Granola",
+   "prix": 24.5,
+   "avant": 32.67,
+   "remise": 25,
+   "unite": "",
+   "bon_plan": "22,70 € avec bons / remboursement",
+   "rayon": "Épicerie sucrée",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-biscuits-moelleux-lot-de-4",
+   "enseigne": "carrefour",
+   "nom": "Biscuits moelleux (lot de 4)",
+   "marque": "NAPOLITAIN",
+   "prix": 9.57,
+   "avant": 12.76,
+   "remise": 25,
+   "unite": "",
+   "bon_plan": "7,57 € avec bons / remboursement",
+   "rayon": "Épicerie sucrée",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-riz-basmati-lot-de-2",
+   "enseigne": "carrefour",
+   "nom": "Riz basmati (lot de 2)",
+   "marque": "TAUREAU AILE",
+   "prix": 6.64,
+   "avant": 9.48,
+   "remise": 30,
+   "unite": "",
+   "bon_plan": "6,04 € avec bons / remboursement",
+   "rayon": "Épicerie salée",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-chipster-lot-de-4",
+   "enseigne": "carrefour",
+   "nom": "Chipster (lot de 4)",
+   "marque": "BeLiN",
+   "prix": 4.35,
+   "avant": 5.8,
+   "remise": 25,
+   "unite": "",
+   "bon_plan": "3,25 € avec bons / remboursement",
+   "rayon": "Autres",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-coloration-palette",
+   "enseigne": "carrefour",
+   "nom": "Coloration Palette",
+   "marque": "Schwarzkopf",
+   "prix": 4.35,
+   "avant": null,
+   "remise": null,
+   "unite": "",
+   "bon_plan": "2,85 € avec bons / remboursement",
+   "rayon": "Autres",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-serviettes-discreet",
+   "enseigne": "carrefour",
+   "nom": "Serviettes discreet",
+   "marque": "TENA",
+   "prix": 5.67,
+   "avant": 9.45,
+   "remise": 40,
+   "unite": "",
+   "bon_plan": "4,67 € avec bons / remboursement",
+   "rayon": "Autres",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-lessive-liquide",
+   "enseigne": "carrefour",
+   "nom": "Lessive liquide",
+   "marque": "MIR",
+   "prix": 4.19,
+   "avant": 6.45,
+   "remise": 35,
+   "unite": "",
+   "bon_plan": "1,19 € avec bons / remboursement",
+   "rayon": "Entretien",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  },
+  {
+   "id": "carrefour-croquettes-bifensis-lot-de-2",
+   "enseigne": "carrefour",
+   "nom": "Croquettes bifensis (lot de 2)",
+   "marque": "PURINA",
+   "prix": 9.51,
+   "avant": 13.58,
+   "remise": 30,
+   "unite": "",
+   "bon_plan": "7,51 € avec bons / remboursement",
+   "rayon": "Animaux",
+   "validite": "du 03/11 au 30/11",
+   "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
   }
  ]
 }
