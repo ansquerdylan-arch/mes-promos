@@ -1,5 +1,5 @@
 // Garde l'appli et les dernières promos en mémoire pour l'ouvrir même sans réseau (en magasin).
-var CACHE = "mes-promos-v4";
+var CACHE = "mes-promos-v5";
 var BASE = ["./", "index.html", "recettes.json", "manifest.json", "icone-192.png", "icone-512.png", "icone-maskable-512.png"];
 self.addEventListener("install", function (e) { e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(BASE); })); self.skipWaiting(); });
 self.addEventListener("activate", function (e) { e.waitUntil(self.clients.claim()); });

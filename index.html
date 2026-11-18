@@ -190,6 +190,32 @@ body.shop .li .n { font-size: 20px; }
 body.shop .li input { width: 30px; height: 30px; }
 body.shop .li .pr { font-size: 18px; }
 
+/* partage, budget */
+.syncline { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 9px 12px; font-size: 14px; }
+.syncline .ok { color: var(--good); font-weight: 600; }
+.syncline .ko { color: var(--bad); font-weight: 600; }
+.budget { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 14px; display: grid; gap: 9px; }
+.budget .head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.budget .big { font: 700 24px var(--font-display); font-variant-numeric: tabular-nums; }
+.bar { height: 12px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); overflow: hidden; display: flex; }
+.bar i { display: block; height: 100%; }
+.bar .paye { background: var(--ink); }
+.bar .prevu { background: var(--tag); }
+.bar.over { border-color: var(--bad); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.legend b { color: var(--ink); }
+.dep { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 14px; border-top: 1px solid var(--line); padding-top: 6px; }
+.dep button { border: 0; background: transparent; color: var(--muted); font-size: 18px; }
+.payform { display: grid; gap: 8px; border-top: 1px dashed var(--line); padding-top: 9px; }
+.payform .row input[type="number"] { width: 120px; }
+.li .pr button { border: 1px dashed var(--line); background: transparent; border-radius: 8px; padding: 1px 7px; color: var(--muted); font-size: 13px; }
+.li .par { font-size: 11.5px; color: var(--muted); font-weight: 500; }
+.hbudget { font-size: 13px; opacity: .85; }
+.hbudget b { font-variant-numeric: tabular-nums; }
+.step { display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: start; font-size: 14px; }
+.step > span:first-child { background: var(--ink); color: var(--paper); border-radius: 50%; width: 22px; height: 22px; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+code.topic { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; font-size: 13px; user-select: all; }
+
 /* onglets */
 nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1.5px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); z-index: 30; padding-bottom: var(--safe-bottom); }
 nav.tabs button { border: 0; background: transparent; padding: 9px 4px 10px; font-weight: 700; font-size: 12px; color: var(--muted); display: grid; justify-items: center; gap: 3px; position: relative; }
@@ -241,6 +267,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
         <button class="stat" type="button" data-goto="promos" data-preset="new"><b id="stNew">–</b><span>nouvelles depuis ta visite</span></button>
         <button class="stat" type="button" data-goto="liste"><b id="stList">–</b><span>dans ta liste</span></button>
       </div>
+      <div class="hbudget" id="homeBudget" hidden></div>
     </div>
 
     <div class="stale" id="staleBox" hidden></div>
@@ -335,6 +362,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
 
   <!-- LISTE -->
   <section id="v-liste" hidden>
+    <div class="syncline" id="syncLine"></div>
     <div class="summary" id="listSummary"></div>
     <form class="watch-add" id="addForm">
       <input id="addTxt" placeholder="Ajouter un article (ex. : pain, lait)" aria-label="Ajouter un article">
@@ -342,11 +370,12 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     </form>
     <div class="row">
       <button class="btn" id="btnShop" type="button">Mode magasin</button>
-      <button class="btn" id="btnShare" type="button">Partager</button>
+      <button class="btn" id="btnShare" type="button">Envoyer en texte</button>
       <button class="btn" id="clearDone" type="button">Retirer les cochés</button>
       <button class="btn" id="clearAll" type="button">Tout vider</button>
     </div>
     <div id="listBody" style="display:grid;gap:12px"></div>
+    <div class="budget" id="budgetBox"></div>
   </section>
 </div>
 
@@ -383,6 +412,15 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
       <div id="rdvList" style="display:grid;gap:6px"></div>
     </div>
     <div style="display:grid;gap:8px">
+      <b>Budget courses</b>
+      <div class="row"><input class="field" id="budgetIn" type="number" inputmode="decimal" min="0" step="5" placeholder="Ex. : 80" style="width:130px" aria-label="Budget par semaine en euros"><span class="muted">€ par semaine</span></div>
+      <div class="row"><input class="field" id="prenomIn" placeholder="Ton prénom (affiché dans la liste partagée)" aria-label="Ton prénom" style="max-width:320px"></div>
+    </div>
+    <div style="display:grid;gap:8px" id="ghSection">
+      <b>Liste partagée et alertes</b>
+      <div id="ghBox" style="display:grid;gap:10px"></div>
+    </div>
+    <div style="display:grid;gap:8px">
       <b>Thème</b>
       <div class="seg" id="themeSeg"><button type="button" data-theme-set="auto">Auto</button><button type="button" data-theme-set="light">Clair</button><button type="button" data-theme-set="dark">Sombre</button></div>
     </div>
@@ -410,7 +448,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     envie: [], menu: null,
     fav: lire("fav", []), liste: lire("liste", []), watch: lire("watch", []),
     hidden: lire("hiddenStores", []), theme: lire("theme", "auto"),
-    vusAvant: lire("vus2", []), nouveaux: {}, rdv: lire("rdv", []), agAll: false
+    vusAvant: lire("vus2", []), nouveaux: {}, rdv: lire("rdv", []), agAll: false, prenom: lire("prenom", ""), vue: "accueil"
   };
 
   // ---------- utilitaires
@@ -424,7 +462,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   function coul(id) { return COULEURS[id] || "#8a93a6"; }
   function dot(id) { return '<span class="dot" style="background:' + coul(id) + '"></span>'; }
   function promoParId(id) { return S.data ? S.data.promos.find(function (p) { return p.id === id; }) : null; }
-  function dansListe(id) { return S.liste.some(function (x) { return x.id === id; }); }
+  function dansListe(id) { return S.liste.some(function (x) { return x.id === id && !x.suppr; }); }
   var tTimer;
   function toast(msg) { var t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(tTimer); tTimer = setTimeout(function () { t.hidden = true; }, 1800); }
 
@@ -556,13 +594,16 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     var v = visibles(), alim = v.filter(function (p) { return ALIM.indexOf(p.rayon) >= 0; });
     $("stAlim").textContent = alim.length;
     $("stNew").textContent = S.vusAvant.length ? Object.keys(S.nouveaux).length : "–";
-    $("stList").textContent = S.liste.filter(function (x) { return !x.fait; }).length;
+    $("stList").textContent = vivants().filter(function (x) { return !x.fait; }).length;
 
     // produits surveillés
     var w = v.filter(surveille);
     var html = '<div class="sec-head"><h2>Tes produits surveillés</h2>' + (S.watch.length ? '<span class="muted">' + w.length + ' en promo</span>' : '') + '</div>';
     if (S.watch.length) html += '<div class="row">' + S.watch.map(function (x, i) { return '<span class="wchip">' + esc(x) + '<button type="button" data-unwatch="' + i + '" aria-label="Retirer ' + esc(x) + '">×</button></span>'; }).join("") + '</div>';
     html += '<form class="watch-add" id="watchForm"><input id="watchTxt" placeholder="Ajoute un produit : raclette, coca…" aria-label="Produit à surveiller"><button class="btn" type="submit">Surveiller</button></form>';
+    html += (SYNC && SYNC.role === "proprio")
+      ? '<span class="muted" style="font-size:13px">🔔 Alertes actives même appli fermée' + (SYNC.ntfy ? " (notifications + calendrier)" : " (calendrier)") + '</span>'
+      : '<button class="link" type="button" data-opensettings="gh" style="text-align:left">🔔 Être prévenu même quand l\'appli est fermée →</button>';
     if (w.length) html += '<div class="rail">' + w.slice(0, 20).map(function (p) { return carte(p, { compact: true }); }).join("") + '</div>';
     else if (S.watch.length) html += '<p class="muted" style="margin:0">Aucun de tes produits n\'est en promo en ce moment.</p>';
     $("homeWatch").innerHTML = html;
@@ -812,16 +853,27 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
       .then(function () { $("btnIA").disabled = false; });
   }
 
-  // ---------- liste
+  // ---------- liste (chaque article garde sa date de modification et les suppressions sont marquées,
+  //            pour pouvoir fusionner sans rien perdre quand la liste est partagée entre deux téléphones)
+  function vivants() { return S.liste.filter(function (x) { return !x.suppr; }); }
+  function nouvelId() { return "m-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7); }
+  function toucher(x) { x.maj = Date.now(); return x; }
+  function sauverListe() { ecrire("liste", S.liste); aSynchroniser(); }
+  function mettre(item) {
+    var ex = S.liste.find(function (x) { return x.id === item.id; });
+    if (ex) { Object.keys(item).forEach(function (k) { ex[k] = item[k]; }); ex.suppr = false; ex.fait = false; toucher(ex); }
+    else { item.cree = item.cree || Date.now(); if (S.prenom) item.par = S.prenom; S.liste.push(toucher(item)); }
+  }
+  function retirer(id) { var x = S.liste.find(function (y) { return y.id === id; }); if (x && !x.suppr) { x.suppr = true; toucher(x); } }
   function ajouter(p, force) {
     var dans = dansListe(p.id);
-    if (dans && force !== true) S.liste = S.liste.filter(function (x) { return x.id !== p.id; });
+    if (dans && force !== true) retirer(p.id);
     else if (!dans) {
       var deux = p.condition === "le 2e" && p.prix != null && p.avant;
-      S.liste.push({ id: p.id, nom: p.nom + (deux ? " ×2 (le 2e à -" + (p.remise_2e || "") + "%)" : ""), enseigne: p.enseigne,
-        prix: deux ? Math.round((p.avant + p.prix) * 100) / 100 : p.prix, avant: deux ? p.avant * 2 : (p.avant || null), rayon: p.rayon, fait: false });
+      mettre({ id: p.id, nom: p.nom + (deux ? " ×2 (le 2e à -" + (p.remise_2e || "") + "%)" : ""), enseigne: p.enseigne,
+        prix: deux ? Math.round((p.avant + p.prix) * 100) / 100 : p.prix, avant: deux ? p.avant * 2 : (p.avant || null), rayon: p.rayon });
     }
-    ecrire("liste", S.liste);
+    sauverListe();
   }
   // une recette entière : ses promos + les autres ingrédients (sans doublon avec les promos)
   function ajouterRecette(x) {
@@ -832,39 +884,279 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     (x.r.ingredients || []).forEach(function (ing) {
       var mots = norm(ing).split(" ").filter(function (w) { return w.length > 3; });
       if (mots.some(function (w) { return motsPromos[w.replace(/s$/, "")]; })) return;
-      if (S.liste.some(function (y) { return !y.enseigne && norm(y.nom) === norm(ing); })) return;
-      S.liste.push({ id: "m-" + Date.now() + "-" + n, nom: ing, enseigne: "", prix: null, rayon: "", fait: false, recette: x.r.nom });
+      if (vivants().some(function (y) { return !y.enseigne && norm(y.nom) === norm(ing); })) return;
+      mettre({ id: nouvelId(), nom: ing, enseigne: "", prix: null, rayon: "", recette: x.r.nom });
       n++;
     });
-    ecrire("liste", S.liste);
+    sauverListe();
     return n;
   }
   function afficherListe() {
-    var restant = S.liste.filter(function (x) { return !x.fait; });
+    var l = vivants(), restant = l.filter(function (x) { return !x.fait; });
     $("nbList").hidden = !restant.length; $("nbList").textContent = restant.length;
     var total = 0, eco = 0;
-    S.liste.forEach(function (x) { if (x.prix) total += x.prix; if (x.prix && x.avant) eco += x.avant - x.prix; });
-    $("listSummary").innerHTML = '<div><b>' + restant.length + '</b><span>à prendre</span></div><div><b>' + (total ? euro(total) : "–") + '</b><span>total des promos</span></div><div><b>' + (eco ? euro(eco) : "–") + '</b><span>économisés</span></div>';
-    if (!S.liste.length) { $("listBody").innerHTML = '<div class="empty">Ta liste est vide. Ajoute des promos avec « + Liste », depuis un plat, ou écris un article au-dessus.</div>'; return; }
+    l.forEach(function (x) { if (x.prix) total += x.prix; if (x.prix && x.avant) eco += x.avant - x.prix; });
+    $("listSummary").innerHTML = '<div><b>' + restant.length + '</b><span>à prendre</span></div><div><b>' + (total ? euro(total) : "–") + '</b><span>total estimé</span></div><div><b>' + (eco ? euro(eco) : "–") + '</b><span>économisés</span></div>';
+    afficherBudget(); afficherSync();
+    if (!l.length) { $("listBody").innerHTML = '<div class="empty">Ta liste est vide. Ajoute des promos avec « + Liste », depuis un plat, ou écris un article au-dessus.</div>'; return; }
     var groupes = {};
-    S.liste.forEach(function (x, i) { var k = x.enseigne || "autre"; (groupes[k] = groupes[k] || []).push({ x: x, i: i }); });
+    l.forEach(function (x) { var k = x.enseigne || "autre"; (groupes[k] = groupes[k] || []).push(x); });
     $("listBody").innerHTML = Object.keys(groupes).map(function (k) {
-      var g = groupes[k], st = 0; g.forEach(function (o) { if (o.x.prix && !o.x.fait) st += o.x.prix; });
+      var g = groupes[k], st = 0; g.forEach(function (x) { if (x.prix && !x.fait) st += x.prix; });
       // rangé par rayon, articles cochés en bas
-      g.sort(function (a, b) { return (a.x.fait - b.x.fait) || (ORDRE_RAYONS.indexOf(a.x.rayon || "Autres") - ORDRE_RAYONS.indexOf(b.x.rayon || "Autres")); });
+      g.sort(function (a, b) { return ((a.fait ? 1 : 0) - (b.fait ? 1 : 0)) || (ORDRE_RAYONS.indexOf(a.rayon || "Autres") - ORDRE_RAYONS.indexOf(b.rayon || "Autres")) || ((a.cree || 0) - (b.cree || 0)); });
       var dernier = null, lignes = "";
-      g.forEach(function (o) {
-        var ray = o.x.fait ? "Déjà pris" : (o.x.rayon || "");
+      g.forEach(function (x) {
+        var ray = x.fait ? "Déjà pris" : (x.rayon || "");
         if (ray && ray !== dernier) { lignes += '<div class="lray">' + esc(ray) + '</div>'; dernier = ray; }
-        lignes += '<div class="li' + (o.x.fait ? ' done' : '') + '"><input type="checkbox" id="li' + o.i + '" data-done="' + o.i + '"' + (o.x.fait ? ' checked' : '') + '><label class="n" for="li' + o.i + '">' + esc(o.x.nom) + '</label><span class="pr">' + euro(o.x.prix) + '</span><button class="del" type="button" data-del="' + o.i + '" aria-label="Retirer">×</button></div>';
+        var idh = "li-" + esc(x.id);
+        var prix = x.prix != null ? euro(x.prix) : (!x.enseigne ? '<button type="button" data-editprix="' + esc(x.id) + '" aria-label="Indiquer le prix">+ prix</button>' : "");
+        if (x.prix != null && !x.enseigne) prix = '<button type="button" data-editprix="' + esc(x.id) + '" aria-label="Modifier le prix" style="border:0;padding:0;color:inherit;font:inherit">' + euro(x.prix) + '</button>';
+        lignes += '<div class="li' + (x.fait ? ' done' : '') + '"><input type="checkbox" id="' + idh + '" data-done="' + esc(x.id) + '"' + (x.fait ? ' checked' : '') + '><label class="n" for="' + idh + '">' + esc(x.nom) +
+          (x.par && x.par !== S.prenom ? ' <span class="par">· ' + esc(x.par) + '</span>' : '') + '</label><span class="pr">' + prix + '</span><button class="del" type="button" data-del="' + esc(x.id) + '" aria-label="Retirer">×</button></div>';
       });
       return '<div class="lstore" style="--sc:' + (k !== "autre" ? coul(k) : "var(--line)") + '"><h2><span style="font:inherit;color:inherit">' + (k !== "autre" ? esc(nomEns(k)) : "Autres articles") + '</span><span>' + (st ? "≈ " + euro(st) : "") + '</span></h2>' + lignes + '</div>';
     }).join("");
   }
   function texteListe() {
     var groupes = {};
-    S.liste.filter(function (x) { return !x.fait; }).forEach(function (x) { var k = x.enseigne ? nomEns(x.enseigne) : "Autres"; (groupes[k] = groupes[k] || []).push(x); });
+    vivants().filter(function (x) { return !x.fait; }).forEach(function (x) { var k = x.enseigne ? nomEns(x.enseigne) : "Autres"; (groupes[k] = groupes[k] || []).push(x); });
     return "Liste de courses\n" + Object.keys(groupes).map(function (k) { return "\n" + k + " :\n" + groupes[k].map(function (x) { return "- " + x.nom + (x.prix ? " (" + euro(x.prix) + ")" : ""); }).join("\n"); }).join("\n");
+  }
+
+  // ---------- budget de la semaine (lundi -> dimanche)
+  var P = lire("partage", { budget: { montant: 0, maj: 0 }, depenses: [] });
+  if (!P.budget) P.budget = { montant: 0, maj: 0 };
+  if (!P.depenses) P.depenses = [];
+  function sauverPartage() { ecrire("partage", P); aSynchroniser(); }
+  function lundi(d) { var x = jour0(d || new Date()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
+  function isoJ(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function depensesSemaine(decalage) {
+    var l1 = lundi(); l1.setDate(l1.getDate() + 7 * (decalage || 0));
+    var l2 = new Date(l1); l2.setDate(l1.getDate() + 6);
+    var a = isoJ(l1), b = isoJ(l2);
+    return { debut: l1, fin: l2, liste: P.depenses.filter(function (x) { return !x.suppr && x.date >= a && x.date <= b; }) };
+  }
+  var payOuvert = false;
+  function afficherBudget() {
+    var box = $("budgetBox"); if (!box) return;
+    var b = +P.budget.montant || 0, sem = depensesSemaine(0), avant = depensesSemaine(-1);
+    var paye = sem.liste.reduce(function (s, x) { return s + (+x.montant || 0); }, 0);
+    var l = vivants(), prevu = 0, caddie = 0;
+    l.forEach(function (x) { if (x.prix) { if (x.fait) caddie += x.prix; else prevu += x.prix; } });
+    var prev = avant.liste.reduce(function (s, x) { return s + (+x.montant || 0); }, 0);
+    var h = '<div class="head"><b>Budget de la semaine</b><span class="muted">' + fmtJ(sem.debut) + ' → ' + fmtJ(sem.fin) + '</span></div>';
+    if (b > 0) {
+      var reste = b - paye, over = paye + prevu + caddie > b;
+      var w1 = Math.min(100, paye / b * 100), w2 = Math.max(0, Math.min(100 - w1, (prevu + caddie) / b * 100));
+      h += '<div class="head"><span class="big" style="color:' + (reste < 0 ? 'var(--bad)' : 'inherit') + '">' + euro(reste) + '</span><span class="muted">restants sur ' + euro(b) + '</span></div>' +
+        '<div class="bar' + (over ? ' over' : '') + '" role="img" aria-label="Budget utilisé"><i class="paye" style="width:' + w1 + '%"></i><i class="prevu" style="width:' + w2 + '%"></i></div>' +
+        '<div class="legend"><span>Payé <b>' + euro(paye) + '</b></span><span>Liste ≈ <b>' + euro(prevu + caddie) + '</b></span>' + (caddie ? '<span>Dans le caddie ≈ <b>' + euro(caddie) + '</b></span>' : '') + (prev ? '<span>Semaine dernière <b>' + euro(prev) + '</b></span>' : '') + '</div>' +
+        (over ? '<span class="err" style="font-size:13px;font-weight:600">Avec ta liste, tu dépasses le budget de ' + euro(paye + prevu + caddie - b) + '.</span>' : '');
+    } else {
+      h += '<span class="muted" style="font-size:14px">Payé cette semaine : <b>' + euro(paye) + '</b>' + (caddie ? ' · dans le caddie ≈ ' + euro(caddie) : '') + '. <button class="link" type="button" data-opensettings="budget">Fixer un budget</button></span>';
+    }
+    h += sem.liste.slice().sort(function (a, c) { return a.date < c.date ? -1 : 1; }).map(function (x) {
+      var d = dIso(x.date);
+      return '<div class="dep"><span>' + fmtJ(d) + ' · ' + esc(x.enseigne ? nomEns(x.enseigne) : "Courses") + (x.par && x.par !== S.prenom ? ' <span class="par">· ' + esc(x.par) + '</span>' : '') + '</span><span><b>' + euro(+x.montant) + '</b> <button type="button" data-deldep="' + esc(x.id) + '" aria-label="Supprimer cette dépense">×</button></span></div>';
+    }).join("");
+    if (payOuvert) {
+      var opts = '<option value="">Magasin…</option>' + (S.data ? Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0; }).map(function (k) { return '<option value="' + esc(k) + '">' + esc(nomEns(k)) + '</option>'; }).join("") : "") + '<option value="autre">Autre</option>';
+      var auto = caddie ? caddie.toFixed(2) : "";
+      h += '<form class="payform" id="payForm"><div class="row"><input class="field" id="payMontant" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Montant du ticket" value="' + auto + '" aria-label="Montant payé"><select class="field" id="payStore" style="width:auto" aria-label="Magasin">' + opts + '</select></div>' +
+        '<label class="row" style="font-weight:500"><input type="checkbox" id="payClear" checked style="width:20px;height:20px"> Retirer de la liste les articles cochés</label>' +
+        '<div class="row"><button class="btn primary" type="submit">Enregistrer</button><button class="btn" type="button" data-paycancel="1">Annuler</button></div></form>';
+    } else {
+      h += '<div><button class="btn" type="button" data-payopen="1">J\'ai payé…</button></div>';
+    }
+    box.innerHTML = h;
+    // accueil
+    var hb = $("homeBudget");
+    if (b > 0) { hb.hidden = false; hb.innerHTML = 'Budget de la semaine : <b>' + euro(b - paye) + '</b> restants sur ' + euro(b); }
+    else hb.hidden = true;
+  }
+
+  // ---------- synchronisation GitHub (gists) : liste partagée + produits surveillés pour les alertes
+  var API = "https://api.github.com", F_LISTE = "liste-mes-promos.json", F_ALERTES = "alertes-mes-promos.json";
+  var SYNC = lire("sync", null);
+  var SE = { etag: null, distant: null, enCours: false, derniere: 0, erreur: "", t: null, ta: null, alertesEnvoyees: lire("alertesEnvoyees", "") };
+  function gh(methode, chemin, corps, entetes) {
+    var h = { "Accept": "application/vnd.github+json", "Authorization": "token " + SYNC.token };
+    Object.keys(entetes || {}).forEach(function (k) { h[k] = entetes[k]; });
+    if (corps) h["Content-Type"] = "application/json";
+    return fetch(API + chemin, { method: methode, headers: h, body: corps ? JSON.stringify(corps) : undefined, cache: "no-store" }).then(function (r) {
+      if (r.status === 204 || r.status === 304) return { status: r.status, headers: r.headers, json: null };
+      return r.json().catch(function () { return null; }).then(function (j) { return { status: r.status, headers: r.headers, json: j }; });
+    });
+  }
+  function fusion(a, b) {
+    var m = {};
+    (a || []).concat(b || []).forEach(function (x) { if (!x || !x.id) return; var y = m[x.id]; if (!y || (x.maj || 0) > (y.maj || 0)) m[x.id] = x; });
+    var limite = Date.now() - 3 * 86400000;  // les suppressions sont oubliées après 3 jours
+    return Object.keys(m).map(function (k) { return m[k]; }).filter(function (x) { return !(x.suppr && (x.maj || 0) < limite); });
+  }
+  function canon(d) {
+    function tri(l) { return (l || []).slice().sort(function (a, b) { return a.id < b.id ? -1 : 1; }); }
+    return JSON.stringify({ i: tri(d && d.items), d: tri(d && d.depenses), b: d && d.budget || null });
+  }
+  function docLocal() { return { v: 1, items: S.liste, depenses: P.depenses, budget: P.budget }; }
+  function appliquer(doc) {
+    var avant = canon(docLocal());
+    S.liste = doc.items; P.depenses = doc.depenses; P.budget = doc.budget || P.budget;
+    ecrire("liste", S.liste); ecrire("partage", P);
+    if (canon(docLocal()) !== avant) { afficherListe(); afficherAccueil(); afficherPromos(); if (S.recettes.length) afficherPlats(); }
+  }
+  function aSynchroniser() {
+    if (!SYNC || !SYNC.gist) return;
+    clearTimeout(SE.t); SE.t = setTimeout(syncListe, 600);
+  }
+  function syncListe() {
+    if (!SYNC || !SYNC.gist || SE.enCours) return Promise.resolve();
+    if (!navigator.onLine) { SE.erreur = "hors ligne"; afficherSync(); return Promise.resolve(); }
+    SE.enCours = true;
+    return gh("GET", "/gists/" + SYNC.gist, null, SE.etag ? { "If-None-Match": SE.etag } : null).then(function (r) {
+      if (r.status === 304 && SE.distant) return SE.distant;
+      if (r.status === 401) throw new Error("jeton GitHub refusé (expiré ?)");
+      if (r.status === 404) throw new Error("liste partagée introuvable");
+      if (r.status !== 200) throw new Error("GitHub a répondu " + r.status);
+      SE.etag = r.headers.get("ETag");
+      var f = r.json && r.json.files && r.json.files[F_LISTE], doc = {};
+      try { doc = JSON.parse((f && f.content) || "{}"); } catch (e) { doc = {}; }
+      SE.distant = doc; return doc;
+    }).then(function (dist) {
+      var fus = { v: 1, items: fusion(S.liste, dist.items), depenses: fusion(P.depenses, dist.depenses),
+        budget: ((dist.budget && dist.budget.maj) || 0) > ((P.budget && P.budget.maj) || 0) ? dist.budget : P.budget };
+      appliquer(fus);
+      if (canon(fus) === canon(dist)) return;
+      var fichiers = {}; fichiers[F_LISTE] = { content: JSON.stringify(fus) };
+      return gh("PATCH", "/gists/" + SYNC.gist, { files: fichiers }).then(function (r) {
+        if (r.status === 401) throw new Error("jeton GitHub refusé (expiré ?)");
+        if (r.status !== 200) throw new Error("envoi refusé (" + r.status + ")");
+        SE.etag = r.headers.get("ETag"); SE.distant = fus;
+      });
+    }).then(function () { SE.erreur = ""; }, function (e) { SE.erreur = (e && e.message) || "connexion impossible"; })
+      .then(function () { SE.enCours = false; SE.derniere = Date.now(); afficherSync(); });
+  }
+  setInterval(function () {
+    if (document.hidden || !SYNC || !SYNC.gist) return;
+    var periode = S.vue === "liste" ? 6000 : 25000;
+    if (Date.now() - SE.derniere > periode) syncListe();
+  }, 2000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) syncListe(); });
+  window.addEventListener("online", function () { syncListe(); });
+
+  function afficherSync() {
+    var el = $("syncLine"); if (!el) return;
+    if (!SYNC || !SYNC.gist) {
+      el.innerHTML = '<span class="muted">Liste sur ce téléphone seulement</span><button class="btn" type="button" data-invite="1">Partager avec quelqu\'un</button>';
+      return;
+    }
+    var s = Math.round((Date.now() - SE.derniere) / 1000);
+    el.innerHTML = SE.erreur
+      ? '<span class="ko">Liste partagée : ' + esc(SE.erreur) + '</span><button class="link" type="button" data-resync="1">Réessayer</button>'
+      : '<span class="ok">● Liste partagée</span><span class="muted">' + (SE.derniere ? "à jour" + (s > 20 ? " il y a " + (s < 90 ? s + " s" : Math.round(s / 60) + " min") : "") : "connexion…") + '</span>' +
+        (SYNC.role === "proprio" ? '<button class="link" type="button" data-invite="1">Inviter</button>' : '');
+  }
+  function lienInvitation() {
+    var base = location.origin + location.pathname;
+    return base + "#rejoindre=" + SYNC.gist + "~" + SYNC.token;
+  }
+  function inviter() {
+    if (!SYNC || SYNC.role !== "proprio") { ouvrirReglages("gh"); toast("Connecte d'abord GitHub (une seule fois)"); return; }
+    var etape = SYNC.gist ? Promise.resolve() : (function () {
+      var fichiers = {}; fichiers[F_LISTE] = { content: JSON.stringify(docLocal()) };
+      return gh("POST", "/gists", { description: "Mes promos : liste de courses partagée", public: false, files: fichiers }).then(function (r) {
+        if (r.status !== 201 || !r.json) throw new Error("création refusée (" + r.status + ")");
+        SYNC.gist = r.json.id; ecrire("sync", SYNC);
+      });
+    })();
+    etape.then(function () {
+      var lien = lienInvitation();
+      afficherSync(); syncListe();
+      var msg = "Rejoins ma liste de courses (appli Mes promos) : ";
+      if (navigator.share) navigator.share({ title: "Ma liste de courses", text: msg, url: lien }).catch(function () {});
+      else if (navigator.clipboard) navigator.clipboard.writeText(msg + lien).then(function () { toast("Lien copié, envoie-le par SMS ou WhatsApp"); });
+    }).catch(function (e) { toast("Partage impossible : " + e.message); });
+  }
+  // ouverture d'un lien d'invitation : #rejoindre=<gist>~<jeton>
+  (function () {
+    var m = /#rejoindre=([0-9a-f]+)~([A-Za-z0-9_]+)/.exec(location.hash);
+    if (!m) return;
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+    if (SYNC && SYNC.role === "proprio" && SYNC.gist === m[1]) return;
+    SYNC = { token: m[2], gist: m[1], role: "invite" };
+    ecrire("sync", SYNC);
+    setTimeout(function () { toast("Tu as rejoint la liste partagée"); vue("liste"); syncListe(); }, 300);
+  })();
+
+  // produits surveillés -> gist public lu chaque matin par la mise à jour automatique
+  function syncAlertes() {
+    if (!SYNC || SYNC.role !== "proprio") return;
+    clearTimeout(SE.ta);
+    SE.ta = setTimeout(function () {
+      var doc = { produits: S.watch, magasins_masques: S.hidden, ntfy: SYNC.ntfy ? SYNC.topic : "", operations: !!SYNC.ops };
+      var txt = JSON.stringify(doc, null, 1);
+      if (txt === SE.alertesEnvoyees && SYNC.alertGist) return;
+      var fichiers = {}; fichiers[F_ALERTES] = { content: txt };
+      var p = SYNC.alertGist ? gh("PATCH", "/gists/" + SYNC.alertGist, { files: fichiers })
+        : gh("GET", "/gists?per_page=100").then(function (r) {
+            var g = (r.json || []).find(function (x) { return x.files && x.files[F_ALERTES]; });
+            if (g) { SYNC.alertGist = g.id; ecrire("sync", SYNC); return gh("PATCH", "/gists/" + g.id, { files: fichiers }); }
+            return gh("POST", "/gists", { description: "Mes promos : produits surveillés (lu par la mise à jour automatique)", public: true, files: fichiers }).then(function (r2) {
+              if (r2.json && r2.json.id) { SYNC.alertGist = r2.json.id; ecrire("sync", SYNC); }
+              return r2;
+            });
+          });
+      p.then(function (r) { if (r && (r.status === 200 || r.status === 201)) { SE.alertesEnvoyees = txt; ecrire("alertesEnvoyees", txt); } }).catch(function () {});
+    }, 1200);
+  }
+  function testNtfy() {
+    var corps = { topic: SYNC.topic, title: "Mes promos", message: "Les notifications marchent. Tu seras prévenu chaque matin si un produit surveillé passe en promo.", tags: ["shopping_cart"] };
+    fetch("https://ntfy.sh/", { method: "POST", body: JSON.stringify(corps) }).then(function (r) { toast(r.ok ? "Notification envoyée, regarde ton téléphone" : "Envoi refusé (" + r.status + ")"); }, function () { toast("Envoi impossible (hors ligne ?)"); });
+  }
+  function connecter(jeton) {
+    jeton = (jeton || "").trim();
+    if (!/^(ghp_|github_pat_|gho_)[A-Za-z0-9_]+$/.test(jeton)) { toast("Ce n'est pas un jeton GitHub (il commence par ghp_)"); return; }
+    var ancien = SYNC; SYNC = { token: jeton };
+    gh("GET", "/user").then(function (r) {
+      if (r.status !== 200) throw new Error(r.status === 401 ? "jeton refusé" : "GitHub a répondu " + r.status);
+      var portee = (r.headers.get("X-OAuth-Scopes") || "");
+      if (portee && portee.split(/,\s*/).indexOf("gist") < 0) throw new Error("coche la case « gist » en créant le jeton");
+      SYNC = { token: jeton, login: r.json.login, role: "proprio", topic: (ancien && ancien.topic) || "mespromos-" + Math.random().toString(36).slice(2, 12), ntfy: !!(ancien && ancien.ntfy), ops: ancien ? ancien.ops !== false : true, gist: ancien && ancien.role === "proprio" ? ancien.gist : null };
+      ecrire("sync", SYNC); SE.alertesEnvoyees = ""; syncAlertes();
+      afficherGh(); afficherSync(); afficherAccueil(); toast("Connecté à GitHub : " + r.json.login);
+    }).catch(function (e) { SYNC = ancien; toast("Connexion impossible : " + e.message); });
+  }
+  function afficherGh() {
+    var box = $("ghBox"); if (!box) return;
+    var lienJeton = "https://github.com/settings/tokens/new?description=" + encodeURIComponent("Mes promos") + "&scopes=gist";
+    if (SYNC && SYNC.role === "invite") {
+      box.innerHTML = '<span class="muted">Ce téléphone utilise la liste partagée de quelqu\'un d\'autre.</span><div class="row"><button class="btn" type="button" data-quitter="1">Quitter la liste partagée</button></div>';
+      return;
+    }
+    if (!SYNC || !SYNC.token) {
+      box.innerHTML = '<span class="muted">Pour partager ta liste en direct et recevoir des alertes même quand l\'appli est fermée, l\'appli range ces infos dans ton compte GitHub. À faire une seule fois :</span>' +
+        '<div class="step"><span>1</span><span><a href="' + lienJeton + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">Créer mon jeton sur GitHub</a> : la case <b>gist</b> est déjà cochée. Choisis l\'expiration <b>No expiration</b>, puis touche <b>Generate token</b> en bas et copie le code (il commence par ghp_).</span></div>' +
+        '<div class="step"><span>2</span><span>Colle-le ici :</span></div>' +
+        '<form class="watch-add" id="ghForm"><input id="ghJeton" placeholder="ghp_…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Jeton GitHub"><button class="btn primary" type="submit">Connecter</button></form>' +
+        '<span class="muted" style="font-size:12.5px">Ce jeton ne donne accès qu\'à tes « gists » (petits fichiers), pas à ton code ni à ton compte. Il reste sur ce téléphone.</span>';
+      return;
+    }
+    box.innerHTML = '<div class="opt"><span>Connecté à GitHub : <b>' + esc(SYNC.login || "") + '</b></span><button class="link" type="button" data-deconnecter="1">Déconnecter</button></div>' +
+      '<div class="opt"><span>Liste partagée' + (SYNC.gist ? ' <span class="muted">(active)</span>' : '') + '</span><button class="btn" type="button" data-invite="1">' + (SYNC.gist ? "Inviter quelqu'un" : "Partager ma liste") + '</button></div>' +
+      '<label class="opt" for="optNtfy"><span>Notifications sur le téléphone<br><span class="muted" style="font-size:12.5px">Chaque matin, si un produit surveillé passe en promo</span></span><input type="checkbox" id="optNtfy"' + (SYNC.ntfy ? " checked" : "") + '></label>' +
+      (SYNC.ntfy ? '<div style="display:grid;gap:8px;padding-left:4px">' +
+        '<div class="step"><span>1</span><span>Installe l\'appli gratuite <b>ntfy</b> (<a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" rel="noopener" style="color:var(--accent)">iPhone</a> · <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener" style="color:var(--accent)">Android</a>).</span></div>' +
+        '<div class="step"><span>2</span><span>Dans ntfy, touche <b>+</b> et abonne-toi à : <code class="topic">' + esc(SYNC.topic) + '</code> <button class="link" type="button" data-copytopic="1">Copier</button></span></div>' +
+        '<div class="step"><span>3</span><span><button class="link" type="button" data-testntfy="1">Envoyer une notification de test</button></span></div></div>' : '') +
+      '<label class="opt" for="optOps"><span>Prévenir aussi des opérations du jour (⚡ Jeudis Plus U…)</span><input type="checkbox" id="optOps"' + (SYNC.ops ? " checked" : "") + '></label>' +
+      '<span class="muted" style="font-size:12.5px">Les produits surveillés sont aussi ajoutés au calendrier des promos, si tu y es abonné.</span>';
+  }
+  function ouvrirReglages(section) {
+    afficherReglages();
+    try { $("settings").showModal(); } catch (e) { $("settings").setAttribute("open", ""); }
+    if (section === "gh") setTimeout(function () { $("ghSection").scrollIntoView({ block: "start" }); }, 50);
+    if (section === "budget") setTimeout(function () { $("budgetIn").focus(); }, 50);
   }
 
   // mode magasin : gros texte + écran allumé
@@ -1028,12 +1320,15 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
       return '<label class="opt" for="st-' + esc(k) + '"><span style="display:flex;align-items:center;gap:8px">' + dot(k) + esc(nomEns(k)) + ' <span class="muted">(' + S.data.enseignes[k].nb + ')</span></span><input type="checkbox" id="st-' + esc(k) + '" data-showstore="' + esc(k) + '"' + (S.hidden.indexOf(k) < 0 ? " checked" : "") + '></label>';
     }).join("");
     $("watchList2").innerHTML = S.watch.length ? S.watch.map(function (x, i) { return '<span class="wchip">' + esc(x) + '<button type="button" data-unwatch="' + i + '" aria-label="Retirer ' + esc(x) + '">×</button></span>'; }).join("") : '<span class="muted">Aucun pour l\'instant.</span>';
-    $("setInfo").textContent = S.data.promos.length + " promos chargées · " + S.liste.length + " articles dans ta liste · " + S.fav.length + " favoris. Tout reste sur ce téléphone.";
+    $("budgetIn").value = P.budget.montant ? P.budget.montant : "";
+    $("prenomIn").value = S.prenom || "";
+    afficherGh();
+    $("setInfo").textContent = S.data.promos.length + " promos chargées · " + vivants().length + " articles dans ta liste · " + S.fav.length + " favoris. Tout reste sur ce téléphone.";
   }
   function ajouterSurveille(v) {
     v = (v || "").trim(); if (!v) return;
     if (S.watch.map(norm).indexOf(norm(v)) < 0) S.watch.push(v);
-    ecrire("watch", S.watch); afficherAccueil(); afficherReglages(); afficherPromos();
+    ecrire("watch", S.watch); afficherAccueil(); afficherReglages(); afficherPromos(); syncAlertes();
     var n = visibles().filter(surveille).length;
     toast(n ? n + " promo" + (n > 1 ? "s" : "") + " trouvée" + (n > 1 ? "s" : "") : "Surveillé : tu le verras dès qu'il est en promo");
   }
@@ -1052,6 +1347,8 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
 
   // ---------- navigation
   function vue(v) {
+    S.vue = v;
+    if (v === "liste") syncListe();
     ["accueil", "promos", "plats", "liste"].forEach(function (x) { $("v-" + x).hidden = x !== v; });
     document.querySelectorAll("nav.tabs button").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.v === v ? "true" : "false"); });
     window.scrollTo(0, 0);
@@ -1078,7 +1375,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   $("btnIA").addEventListener("click", demanderIA);
   $("addForm").addEventListener("submit", function (ev) {
     ev.preventDefault(); var t = $("addTxt").value.trim(); if (!t) return;
-    S.liste.push({ id: "m-" + Date.now(), nom: t, enseigne: "", prix: null, rayon: "", fait: false }); ecrire("liste", S.liste); $("addTxt").value = ""; afficherListe(); afficherAccueil();
+    mettre({ id: nouvelId(), nom: t, enseigne: "", prix: null, rayon: "" }); sauverListe(); $("addTxt").value = ""; afficherListe(); afficherAccueil();
   });
   $("btnShop").addEventListener("click", function () { modeMagasin(!document.body.classList.contains("shop")); });
   $("btnShare").addEventListener("click", function () {
@@ -1086,14 +1383,16 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     if (navigator.share) navigator.share({ title: "Liste de courses", text: txt }).catch(function () {});
     else if (navigator.clipboard) navigator.clipboard.writeText(txt).then(function () { toast("Liste copiée"); }, function () { toast("Copie impossible"); });
   });
-  $("clearDone").addEventListener("click", function () { S.liste = S.liste.filter(function (x) { return !x.fait; }); ecrire("liste", S.liste); rafraichir(); });
-  $("clearAll").addEventListener("click", function () { if (!S.liste.length) return; S.liste = []; ecrire("liste", S.liste); rafraichir(); toast("Liste vidée"); });
+  $("clearDone").addEventListener("click", function () { vivants().filter(function (x) { return x.fait; }).forEach(function (x) { retirer(x.id); }); sauverListe(); rafraichir(); });
+  $("clearAll").addEventListener("click", function () { if (!vivants().length) return; vivants().forEach(function (x) { retirer(x.id); }); sauverListe(); rafraichir(); toast("Liste vidée"); });
   $("btnSettings").addEventListener("click", function () { afficherReglages(); try { $("settings").showModal(); } catch (e) { $("settings").setAttribute("open", ""); } });
   $("openStores").addEventListener("click", function () { $("btnSettings").click(); });
   $("closeSettings").addEventListener("click", function () { $("settings").close(); });
   $("watchForm2").addEventListener("submit", function (ev) { ev.preventDefault(); ajouterSurveille($("watchTxt2").value); $("watchTxt2").value = ""; });
   $("resetAll").addEventListener("click", function () {
+    SYNC = null; ecrire("sync", null);  // ne touche pas à la liste partagée des autres
     S.liste = []; S.fav = []; S.watch = []; S.hidden = []; S.rdv = [];
+    P = { budget: { montant: 0, maj: 0 }, depenses: [] }; ecrire("partage", P);
     ["liste", "fav", "watch", "hiddenStores", "rdv"].forEach(function (k) { ecrire(k, []); });
     rafraichir(); afficherReglages(); toast("Tout est remis à zéro");
   });
@@ -1106,15 +1405,29 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
 
   document.addEventListener("submit", function (ev) {
     if (ev.target.id === "watchForm") { ev.preventDefault(); ajouterSurveille($("watchTxt").value); }
+    if (ev.target.id === "ghForm") { ev.preventDefault(); connecter($("ghJeton").value); }
+    if (ev.target.id === "payForm") {
+      ev.preventDefault();
+      var v = parseFloat(String($("payMontant").value).replace(",", "."));
+      if (isNaN(v) || v <= 0) { toast("Indique le montant du ticket"); return; }
+      P.depenses.push({ id: nouvelId(), montant: Math.round(v * 100) / 100, enseigne: $("payStore").value === "autre" ? "" : $("payStore").value, date: isoJ(new Date()), maj: Date.now(), par: S.prenom || undefined });
+      if ($("payClear").checked) vivants().filter(function (x) { return x.fait; }).forEach(function (x) { retirer(x.id); });
+      payOuvert = false; sauverPartage(); sauverListe(); afficherListe(); afficherAccueil();
+      toast("Dépense enregistrée : " + euro(Math.round(v * 100) / 100));
+    }
   });
   document.addEventListener("change", function (ev) {
     var d = ev.target.dataset || {};
-    if (d.done != null) { S.liste[+d.done].fait = ev.target.checked; ecrire("liste", S.liste); afficherListe(); afficherAccueil(); }
+    if (d.done != null) { var it = S.liste.find(function (x) { return x.id === d.done; }); if (it) { it.fait = ev.target.checked; toucher(it); sauverListe(); afficherListe(); afficherAccueil(); } }
+    if (ev.target.id === "optNtfy") { SYNC.ntfy = ev.target.checked; ecrire("sync", SYNC); syncAlertes(); afficherGh(); }
+    if (ev.target.id === "optOps") { SYNC.ops = ev.target.checked; ecrire("sync", SYNC); syncAlertes(); }
+    if (ev.target.id === "budgetIn") { var v = parseFloat(String(ev.target.value).replace(",", ".")); P.budget = { montant: isNaN(v) ? 0 : v, maj: Date.now() }; sauverPartage(); afficherBudget(); }
+    if (ev.target.id === "prenomIn") { S.prenom = ev.target.value.trim(); ecrire("prenom", S.prenom); }
     if (d.showstore) {
       var k = d.showstore, i = S.hidden.indexOf(k);
       if (ev.target.checked && i >= 0) S.hidden.splice(i, 1);
       if (!ev.target.checked && i < 0) S.hidden.push(k);
-      ecrire("hiddenStores", S.hidden); rafraichir();
+      ecrire("hiddenStores", S.hidden); rafraichir(); syncAlertes();
     }
   });
   document.addEventListener("click", function (ev) {
@@ -1129,7 +1442,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     if (ds.ptag) { S.platTag = ds.ptag; afficherPlats(); return; }
     if (ds.q) { $("envie").value = ds.q; chercherEnvie(); return; }
     if (ds.themeSet) { S.theme = ds.themeSet; ecrire("theme", S.theme); appliquerTheme(); return; }
-    if (ds.unwatch != null) { S.watch.splice(+ds.unwatch, 1); ecrire("watch", S.watch); afficherAccueil(); afficherReglages(); afficherPromos(); return; }
+    if (ds.unwatch != null) { S.watch.splice(+ds.unwatch, 1); ecrire("watch", S.watch); afficherAccueil(); afficherReglages(); afficherPromos(); syncAlertes(); return; }
     if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else { S.fav.push(ds.fav); toast("Ajouté aux favoris"); } ecrire("fav", S.fav); b.classList.toggle("on"); return; }
     if (ds.add) { var p = promoParId(ds.add); if (p) { var avant = dansListe(p.id); ajouter(p); toast(avant ? "Retiré de la liste" : "Ajouté à la liste"); rafraichir(); } return; }
     if (ds.addmany) {
@@ -1144,8 +1457,38 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     if (ds.remind != null) { var ev2 = EVTS[+ds.remind]; if (ev2) rappeler(ev2); return; }
     if (ds.rdvcal != null) { calendrierRdv(S.rdv[+ds.rdvcal]); return; }
     if (ds.rdvdel != null) { S.rdv.splice(+ds.rdvdel, 1); ecrire("rdv", S.rdv); afficherRdv(); afficherAgenda(); return; }
-    if (ds.del != null) { S.liste.splice(+ds.del, 1); ecrire("liste", S.liste); rafraichir(); return; }
+    if (ds.del != null) { retirer(ds.del); sauverListe(); rafraichir(); return; }
+    if (ds.invite) { inviter(); return; }
+    if (ds.resync) { SE.etag = null; syncListe(); return; }
+    if (ds.payopen) { payOuvert = true; afficherBudget(); setTimeout(function () { var i = $("payMontant"); if (i) i.focus(); }, 30); return; }
+    if (ds.paycancel) { payOuvert = false; afficherBudget(); return; }
+    if (ds.deldep) { var dp = P.depenses.find(function (x) { return x.id === ds.deldep; }); if (dp) { dp.suppr = true; dp.maj = Date.now(); sauverPartage(); afficherBudget(); } return; }
+    if (ds.opensettings) { ouvrirReglages(ds.opensettings); return; }
+    if (ds.quitter) { SYNC = null; ecrire("sync", null); afficherGh(); afficherSync(); toast("Ce téléphone a quitté la liste partagée"); return; }
+    if (ds.deconnecter) { SYNC = null; ecrire("sync", null); afficherGh(); afficherSync(); afficherAccueil(); toast("GitHub déconnecté sur ce téléphone"); return; }
+    if (ds.copytopic) { (navigator.clipboard ? navigator.clipboard.writeText(SYNC.topic) : Promise.reject()).then(function () { toast("Nom copié"); }, function () { toast(SYNC.topic); }); return; }
+    if (ds.testntfy) { testNtfy(); return; }
+    if (ds.editprix) {
+      var cible = S.liste.find(function (x) { return x.id === ds.editprix; }); if (!cible) return;
+      var inp = document.createElement("input"); inp.type = "number"; inp.inputMode = "decimal"; inp.step = "0.01"; inp.min = "0";
+      inp.value = cible.prix != null ? cible.prix : ""; inp.style.cssText = "width:80px;border:1.5px solid var(--line);border-radius:8px;padding:3px 6px;background:var(--paper)";
+      inp.setAttribute("aria-label", "Prix de " + cible.nom);
+      b.replaceWith(inp); inp.focus();
+      var fini = false;
+      var valider = function () {
+        if (fini) return; fini = true;
+        var v = parseFloat(String(inp.value).replace(",", "."));
+        cible.prix = isNaN(v) ? null : Math.round(v * 100) / 100; toucher(cible); sauverListe(); afficherListe();
+      };
+      inp.addEventListener("blur", valider);
+      inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); inp.blur(); } });
+      return;
+    }
   });
+  // démarrage du partage et des alertes
+  afficherSync();
+  if (SYNC && SYNC.role === "proprio") syncAlertes();
+  if (SYNC && SYNC.gist) setTimeout(syncListe, 800);
 })();
 </script>
 </body>

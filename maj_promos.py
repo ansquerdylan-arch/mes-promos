@@ -348,8 +348,9 @@ def est_operation(titre, debut, fin):
     return duree <= 5 or "%" in titre or any(norm(k) in t for k in MOTS_OPE if k != "%")
 
 
-def ecrire_ics(evenements, chemin, nom_cal="Mes promos"):
-    """Calendrier à s'abonner sur le téléphone : un événement par catalogue / opération, avec alerte à 9 h."""
+def ecrire_ics(evenements, chemin, nom_cal="Mes promos", extras=()):
+    """Calendrier à s'abonner sur le téléphone : un événement par catalogue / opération, avec alerte à 9 h.
+    extras : événements en plus (alertes produits surveillés) : dicts uid, jour (date), resume, desc."""
     def e(t):
         return str(t).replace("\\", "\\\\").replace(",", "\\,").replace(";", "\\;")
     lignes = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Mes promos//FR", "CALSCALE:GREGORIAN",
@@ -372,6 +373,8 @@ def ecrire_ics(evenements, chemin, nom_cal="Mes promos"):
         evt(uid, d1, resume, "Du %s au %s. Ouvre l'appli Mes promos pour le détail." % (d1.strftime("%d/%m"), d2.strftime("%d/%m")))
         if x.get("operation") and (d2 - d1).days >= 1:
             evt("fin-" + uid, d2, "Dernier jour : " + resume)
+    for x in extras:
+        evt(x["uid"], x["jour"], x["resume"], x.get("desc", ""))
     lignes.append("END:VCALENDAR")
     with open(chemin, "w", encoding="utf-8", newline="") as f:
         f.write("\r\n".join(lignes) + "\r\n")

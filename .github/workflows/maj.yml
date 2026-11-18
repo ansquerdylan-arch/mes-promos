@@ -20,9 +20,14 @@ jobs:
         env:
           TZ: Europe/Paris
         run: python maj_promos.py
+      - name: Alertes (produits surveillés, opérations du jour)
+        env:
+          TZ: Europe/Paris
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python alertes.py
       - name: Enregistrer si ça a changé
         run: |
           git config user.name "maj-promos"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add promos.json rappels.ics historique.json
+          git add promos.json rappels.ics historique.json alertes_envoyees.json
           git diff --cached --quiet || (git commit -m "Promos du $(TZ=Europe/Paris date +%d/%m)" && git pull --rebase -q && git push)
