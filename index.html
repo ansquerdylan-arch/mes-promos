@@ -237,6 +237,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
       </div>
     </div>
 
+    <div class="card" id="installBox" hidden></div>
     <div id="todayBox" hidden></div>
     <div class="card" id="agendaCard">
       <div class="sec-head"><h2>Agenda des promos</h2><button class="link" type="button" id="agToggle">Tout voir</button></div>
@@ -436,6 +437,27 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   }
   function visibles() { return S.data ? S.data.promos.filter(function (p) { return S.hidden.indexOf(p.enseigne) < 0; }) : []; }
 
+  // ---------- appareil : Android / iPhone, appli installée ou non
+  var UA = navigator.userAgent || "";
+  var ANDROID = /Android/i.test(UA), IOS = /iPhone|iPad|iPod/i.test(UA) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var INSTALLEE = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  var invite = null;
+  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); invite = e; afficherInstall(); });
+  window.addEventListener("appinstalled", function () { INSTALLEE = true; afficherInstall(); toast("Appli installée"); });
+  function afficherInstall() {
+    var box = $("installBox");
+    if (INSTALLEE || lire("installVu", false) || location.protocol !== "https:") { box.hidden = true; return; }
+    var txt = "";
+    if (invite) txt = '<b>Installe Mes promos sur ton téléphone</b><span class="muted">Une icône sur l\'écran d\'accueil, l\'appli s\'ouvre en plein écran et marche même sans réseau en magasin.</span><div class="row"><button class="btn primary" type="button" id="btnInstall">Installer l\'appli</button><button class="link" type="button" id="hideInstall">Plus tard</button></div>';
+    else if (ANDROID) txt = '<b>Installe Mes promos</b><span class="muted">Dans Chrome : touche ⋮ en haut à droite, puis <b>Ajouter à l\'écran d\'accueil</b> (ou <b>Installer l\'appli</b>).</span><div><button class="link" type="button" id="hideInstall">C\'est fait</button></div>';
+    else if (IOS) txt = '<b>Installe Mes promos</b><span class="muted">Ouvre cette page dans <b>Safari</b>, touche <b>Partager</b> puis <b>Sur l\'écran d\'accueil</b>.</span><div><button class="link" type="button" id="hideInstall">C\'est fait</button></div>';
+    box.innerHTML = txt; box.hidden = !txt;
+  }
+  document.addEventListener("click", function (ev) {
+    if (ev.target.id === "btnInstall" && invite) { invite.prompt(); invite.userChoice.then(function () { invite = null; afficherInstall(); }); }
+    if (ev.target.id === "hideInstall") { ecrire("installVu", true); afficherInstall(); }
+  });
+
   // ---------- thème
   function appliquerTheme() {
     if (S.theme === "auto") document.documentElement.removeAttribute("data-theme");
@@ -474,7 +496,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
   function tout() {
     var d = S.data, dt = d.maj ? new Date(d.maj) : null;
     $("sub").textContent = (d.ville || "") + (dt ? " · à jour le " + dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " " + dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "");
-    afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); afficherReglages(); afficherRdv(); afficherAgenda();
+    afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); afficherReglages(); afficherRdv(); afficherAgenda(); afficherInstall();
   }
 
   // ---------- fiche produit
@@ -848,7 +870,14 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     $("agToggle").hidden = EVTS.length <= l.length && !S.agAll;
     // abonnement : webcal:// vers rappels.ics à côté de la page
     var base = location.host + location.pathname.replace(/[^/]*$/, "");
-    $("btnSubscribe").href = (location.protocol === "https:" || location.protocol === "http:") ? "webcal://" + base + "rappels.ics" : "#";
+    var webcal = "webcal://" + base + "rappels.ics";
+    if (ANDROID) {
+      $("btnSubscribe").href = "https://calendar.google.com/calendar/r?cid=" + encodeURIComponent(webcal);
+      $("btnSubscribe").target = "_blank"; $("btnSubscribe").rel = "noopener";
+      $("btnSubscribe").textContent = "Ajouter les rappels à Google Agenda";
+    } else {
+      $("btnSubscribe").href = webcal;
+    }
   }
 
   // fichier calendrier pour un rappel ponctuel ou un rendez-vous qui revient
@@ -871,8 +900,16 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     var a = document.createElement("a"); a.href = url; a.download = nom + ".ics"; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
   }
+  function d8s(d) { return d.getFullYear() + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2); }
+  function googleAgenda(titre, d1, d2, recur) {
+    var fin = new Date(d2 || d1); fin.setDate(fin.getDate() + 1);
+    var u = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(titre) + "&dates=" + d8s(d1) + "/" + d8s(fin) + "&details=" + encodeURIComponent("Rappel Mes promos");
+    if (recur) u += "&recur=" + encodeURIComponent("RRULE:" + recur);
+    window.open(u, "_blank");
+  }
   function rappeler(e) {
     var resume = e.nom + " : " + e.titre;
+    if (ANDROID) { googleAgenda(resume, e.d1); return; }
     ouvrirIcs(ics([{ d1: e.d1, resume: resume, desc: "Rappel Mes promos" }]), "rappel-promo");
     toast("Ouvre le fichier pour l'ajouter à ton calendrier");
   }
@@ -882,6 +919,7 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     var resume = (r.enseigne ? nomEns(r.enseigne) + " : " : "") + r.texte;
     var rr = "FREQ=WEEKLY;BYDAY=" + jours.map(function (j) { return BYDAY[j]; }).join(",");
     if (r.jusqua) rr += ";UNTIL=" + r.jusqua.replace(/-/g, "");
+    if (ANDROID) { googleAgenda(resume, d, null, rr); return; }
     ouvrirIcs(ics([{ d1: d, resume: resume, rrule: rr, desc: "Rendez-vous promo" }]), "rendez-vous-promo");
     toast("Ouvre le fichier pour l'ajouter à ton calendrier");
   }
@@ -948,6 +986,9 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
     if (p === "remise") { S.f.alim = true; S.tri = "remise"; $("tri").value = "remise"; }
     afficherFiltres(); afficherPromos();
   }
+
+  // raccourcis de l'icône (Android) : #liste, #promos, #plats
+  if (/^#(promos|plats|liste)$/.test(location.hash)) setTimeout(function () { vue(location.hash.slice(1)); }, 0);
 
   // ---------- événements
   var tq;
