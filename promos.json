@@ -1,12 +1,12 @@
 {
- "maj": "2026-11-18T15:57:18",
+ "maj": "2026-11-18T16:31:33",
  "ville": "Olonne-sur-Mer",
  "enseignes": {
   "superu": {
    "nom": "Super U",
    "validite": "du 17/11 au 29/11",
    "nb": 33,
-   "maj": "2026-11-18T15:57:18",
+   "maj": "2026-11-18T16:31:33",
    "ancien": false,
    "sources": [
     "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8",
@@ -17,7 +17,7 @@
    "nom": "E.Leclerc",
    "validite": "du 03/11 au 31/12",
    "nb": 32,
-   "maj": "2026-11-18T15:57:18",
+   "maj": "2026-11-18T16:31:33",
    "ancien": false,
    "sources": [
     "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140",
@@ -28,7 +28,7 @@
    "nom": "Intermarché",
    "validite": "du 17/11 au 29/11",
    "nb": 25,
-   "maj": "2026-11-18T15:57:18",
+   "maj": "2026-11-18T16:31:33",
    "ancien": false,
    "sources": [
     "https://anti-crise.fr/catalogue/catalogue-intermarche-du-17-au-29-novembre-2026-version-super/"
@@ -38,7 +38,7 @@
    "nom": "Lidl",
    "validite": "du 19/11 au 25/11",
    "nb": 15,
-   "maj": "2026-11-18T15:57:18",
+   "maj": "2026-11-18T16:31:33",
    "ancien": false,
    "sources": [
     "https://www.bonial.fr/Olonne-sur-Mer/Lidl/p-r1"
@@ -48,7 +48,7 @@
    "nom": "Carrefour Market",
    "validite": "du 03/11 au 30/11",
    "nb": 35,
-   "maj": "2026-11-18T15:57:18",
+   "maj": "2026-11-18T16:31:33",
    "ancien": false,
    "sources": [
     "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5",
@@ -2016,6 +2016,217 @@
    "rayon": "Animaux",
    "validite": "du 03/11 au 30/11",
    "source": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5, https://anti-crise.fr/catalogue/catalogue-carrefour-market-du-17-au-29-novembre-2026/"
+  }
+ ],
+ "evenements": [
+  {
+   "enseigne_txt": "Lidl",
+   "titre": "Des étoiles plein les yeux, ça vaut le coup.",
+   "pages": 52,
+   "debut": "2026-10-29",
+   "fin": "2026-12-27",
+   "jours": 60,
+   "operation": false,
+   "enseigne": "lidl",
+   "nom": "Lidl"
+  },
+  {
+   "enseigne_txt": "Carrefour Market",
+   "titre": "LES NOUVEAUTÉS",
+   "pages": 12,
+   "debut": "2026-11-03",
+   "fin": "2026-11-30",
+   "jours": 28,
+   "operation": false,
+   "enseigne": "carrefour",
+   "nom": "Carrefour Market"
+  },
+  {
+   "enseigne_txt": "Carrefour Market",
+   "titre": "Carrefour market",
+   "pages": 12,
+   "debut": "2026-11-03",
+   "fin": "2026-11-22",
+   "jours": 20,
+   "operation": false,
+   "enseigne": "carrefour",
+   "nom": "Carrefour Market"
+  },
+  {
+   "enseigne_txt": "E.Leclerc",
+   "titre": "HIVER",
+   "pages": 1,
+   "debut": "2026-11-03",
+   "fin": "2026-12-31",
+   "jours": 59,
+   "operation": false,
+   "enseigne": "leclerc",
+   "nom": "E.Leclerc"
+  },
+  {
+   "enseigne_txt": "Super U",
+   "titre": "ILLUMINATION'S minions",
+   "pages": 1,
+   "debut": "2026-11-03",
+   "fin": "2026-12-06",
+   "jours": 34,
+   "operation": false,
+   "enseigne": "superu",
+   "nom": "Super U"
+  },
+  {
+   "enseigne_txt": "Carrefour Market",
+   "titre": "Carrefour market",
+   "pages": 56,
+   "debut": "2026-11-09",
+   "fin": "2026-11-22",
+   "jours": 14,
+   "operation": false,
+   "enseigne": "carrefour",
+   "nom": "Carrefour Market"
+  },
+  {
+   "enseigne_txt": "E.Leclerc",
+   "titre": "LA SÉLECTION AUTOMNE",
+   "pages": 4,
+   "debut": "2026-11-10",
+   "fin": "2026-11-21",
+   "jours": 12,
+   "operation": false,
+   "enseigne": "leclerc",
+   "nom": "E.Leclerc"
+  },
+  {
+   "enseigne_txt": "E.Leclerc",
+   "titre": "NOËL SERA CULTUREL",
+   "pages": 108,
+   "debut": "2026-11-10",
+   "fin": "2026-12-19",
+   "jours": 40,
+   "operation": false,
+   "enseigne": "leclerc",
+   "nom": "E.Leclerc"
+  },
+  {
+   "enseigne_txt": "Super U",
+   "titre": "SUPER U",
+   "pages": 92,
+   "debut": "2026-11-10",
+   "fin": "2026-11-29",
+   "jours": 20,
+   "operation": false,
+   "enseigne": "superu",
+   "nom": "Super U"
+  },
+  {
+   "enseigne_txt": "Super U",
+   "titre": "SUPER U",
+   "pages": 18,
+   "debut": "2026-11-10",
+   "fin": "2026-12-24",
+   "jours": 45,
+   "operation": false,
+   "enseigne": "superu",
+   "nom": "Super U"
+  },
+  {
+   "enseigne_txt": "Lidl",
+   "titre": "Le vrai goût de Noël à prix craquant !",
+   "pages": 65,
+   "debut": "2026-11-12",
+   "fin": "2026-11-18",
+   "jours": 7,
+   "operation": false,
+   "enseigne": "lidl",
+   "nom": "Lidl"
+  },
+  {
+   "enseigne_txt": "Lidl",
+   "titre": "Lidl Black Week",
+   "pages": 20,
+   "debut": "2026-11-16",
+   "fin": "2026-11-19",
+   "jours": 4,
+   "operation": true,
+   "enseigne": "lidl",
+   "nom": "Lidl"
+  },
+  {
+   "enseigne_txt": "Carrefour Market",
+   "titre": "CarrefourMarket_6147",
+   "pages": 56,
+   "debut": "2026-11-17",
+   "fin": "2026-11-29",
+   "jours": 13,
+   "operation": false,
+   "enseigne": "carrefour",
+   "nom": "Carrefour Market"
+  },
+  {
+   "enseigne_txt": "E.Leclerc",
+   "titre": "ENCORE PLUS DE BONS PLANS",
+   "pages": 26,
+   "debut": "2026-11-17",
+   "fin": "2026-11-28",
+   "jours": 12,
+   "operation": false,
+   "enseigne": "leclerc",
+   "nom": "E.Leclerc"
+  },
+  {
+   "enseigne_txt": "Super U",
+   "titre": "SUPER U",
+   "pages": 40,
+   "debut": "2026-11-17",
+   "fin": "2026-11-29",
+   "jours": 13,
+   "operation": false,
+   "enseigne": "superu",
+   "nom": "Super U"
+  },
+  {
+   "enseigne_txt": "Super U",
+   "titre": "Les inratables",
+   "pages": 1,
+   "debut": "2026-11-17",
+   "fin": "2026-11-29",
+   "jours": 13,
+   "operation": true,
+   "enseigne": "superu",
+   "nom": "Super U"
+  },
+  {
+   "enseigne_txt": "Super U",
+   "titre": "Les prix bas de la semaine U",
+   "pages": 1,
+   "debut": "2026-11-17",
+   "fin": "2026-11-29",
+   "jours": 13,
+   "operation": true,
+   "enseigne": "superu",
+   "nom": "Super U"
+  },
+  {
+   "enseigne_txt": "Super U",
+   "titre": "JEUDIS PLUS U",
+   "pages": 1,
+   "debut": "2026-11-17",
+   "fin": "2026-11-19",
+   "jours": 3,
+   "operation": true,
+   "enseigne": "superu",
+   "nom": "Super U"
+  },
+  {
+   "enseigne_txt": "Lidl",
+   "titre": "Noël prend vie, Lidl baisse ses prix !",
+   "pages": 63,
+   "debut": "2026-11-19",
+   "fin": "2026-11-25",
+   "jours": 7,
+   "operation": false,
+   "enseigne": "lidl",
+   "nom": "Lidl"
   }
  ]
 }
