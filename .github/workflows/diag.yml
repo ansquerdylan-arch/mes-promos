@@ -21,4 +21,4 @@ jobs:
           URLS: ${{ github.event.inputs.urls }}
           TZ: Europe/Paris
         run: |
-          if [ -n "$URLS" ]; then python diag.py $URLS; else python maj_promos.py --essai; fi
+          if [ -n "$URLS" ]; then python diag.py $URLS --routes; else python maj_promos.py --essai; fi

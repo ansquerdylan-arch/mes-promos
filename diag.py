@@ -41,6 +41,12 @@ def resume(url):
     nd = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', page, re.S)
     if nd:
         data = json.loads(nd.group(1))
+        bid = data.get("buildId")
+        print("--- page Next.js : %s | buildId %s" % (data.get("page"), bid))
+        if bid and "--routes" in sys.argv:
+            hote = re.match(r"https?://[^/]+", url).group(0)
+            man = m.telecharger("%s/_next/static/%s/_buildManifest.js" % (hote, bid), print) or ""
+            print("--- routes du site :", sorted(set(re.findall(r'"(/[^"]*)"\s*:', man)))[:120])
         chemins = []
 
         def marche(o, chemin, prof=0):
@@ -144,4 +150,5 @@ def resume(url):
 
 if __name__ == "__main__":
     for u in sys.argv[1:]:
-        resume(u)
+        if not u.startswith("--"):
+            resume(u)
