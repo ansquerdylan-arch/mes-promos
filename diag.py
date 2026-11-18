@@ -56,6 +56,26 @@ def resume(url):
                 for i, v in enumerate(o[:3]):
                     marche(v, chemin + "[%d]" % i, prof + 1)
         marche(data, "")
+        pi = data.get("props", {}).get("pageProps", {}).get("pageInformation", {})
+        print("--- pageInformation : clés ---")
+        for k, v in pi.items():
+            taille = len(v) if isinstance(v, (list, dict, str)) else ""
+            print("   %-28s %-6s %s" % (k, type(v).__name__, taille))
+        def listes_offres(o, chemin, prof=0):
+            if prof > 12:
+                return
+            if isinstance(o, list) and o and isinstance(o[0], dict) and any(re.search("price", kk, re.I) for kk in json.dumps(o[0])[:4000].split('"')):
+                print("--- liste avec prix : %s (%d éléments) ---" % (chemin, len(o)))
+                print(json.dumps(o[0], ensure_ascii=False)[:1800])
+                return
+            if isinstance(o, dict):
+                for k, v in o.items():
+                    if k != "_nextI18Next":
+                        listes_offres(v, chemin + "." + k, prof + 1)
+            elif isinstance(o, list):
+                for i, v in enumerate(o[:2]):
+                    listes_offres(v, chemin + "[%d]" % i, prof + 1)
+        listes_offres(data.get("props", {}).get("pageProps", {}), "pageProps")
         print("--- __NEXT_DATA__ : clés prix / offres ---")
         for c in chemins[:60]:
             print("  ", c)
