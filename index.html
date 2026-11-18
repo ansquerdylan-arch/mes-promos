@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14213d">
+<title>Mes promos</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icone-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mes promos">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Étal de promos : étiquettes jaunes, encre bleu nuit, une grille de fiches produit, barre d'onglets en bas comme une appli. */
+  --ink: #14213d;
+  --paper: #eef0f5;
+  --card: #ffffff;
+  --line: #dbe0ea;
+  --muted: #5c6578;
+  --tag: #ffd23f;
+  --tag-ink: #14213d;
+  --accent: #1f4fd1;
+  --good: #1b7f4b;
+  --bad: #c62828;
+  --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --ink:#e8ecf5; --paper:#0d1322; --card:#172036; --line:#283352; --muted:#9aa4bb; --accent:#8fb0ff; --good:#5fd39a; --bad:#ff7b7b; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --ink:#e8ecf5; --paper:#0d1322; --card:#172036; --line:#283352; --muted:#9aa4bb; --accent:#8fb0ff; --good:#5fd39a; --bad:#ff7b7b; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.4; padding-bottom: 84px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.wrap > *, section, .toolbar { min-width: 0; }
+header { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; justify-content: space-between; }
+h1 { font-family: var(--font-display); font-size: 32px; line-height: 1; margin: 0; letter-spacing: -0.01em; }
+h2 { font-family: var(--font-display); font-size: 21px; margin: 0; }
+h3 { font-size: 16px; margin: 0; line-height: 1.25; text-wrap: balance; }
+.sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.maj { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn { border: 1.5px solid var(--ink); background: transparent; border-radius: 10px; padding: 8px 12px; font-weight: 600; font-size: 14px; }
+.btn.primary { background: var(--ink); color: var(--paper); }
+.btn:disabled { opacity: .5; cursor: default; }
+.journal { font: 12px ui-monospace, Consolas, monospace; color: var(--muted); background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; white-space: pre-wrap; max-height: 150px; overflow: auto; }
+.stores { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+.store-card { flex: none; background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 12px; display: grid; gap: 2px; min-width: 130px; text-align: left; }
+.store-card[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.store-card b { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+.store-card span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.store-card .old { color: var(--bad); }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+.toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; position: sticky; top: 0; z-index: 4; background: var(--paper); padding: 8px 0; }
+.search { display: flex; gap: 8px; }
+.search input { flex: 1; min-width: 0; border: 1.5px solid var(--line); background: var(--card); border-radius: 12px; padding: 11px 14px; font-size: 16px; }
+select { border: 1.5px solid var(--line); background: var(--card); border-radius: 12px; padding: 10px; font-size: 14px; max-width: 100%; }
+.search select { flex: none; width: 150px; }
+@media (max-width: 480px) { .search select { width: 118px; } }
+.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+.chip { flex: none; border: 1.5px solid var(--line); background: var(--card); border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: 13px; white-space: nowrap; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.count { color: var(--muted); font-size: 13px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.p { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 6px; align-content: start; position: relative; }
+.p .top { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; color: var(--muted); }
+.p .top span { display: inline-flex; align-items: center; gap: 5px; }
+.p .brand { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.price { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.price b { font: 700 26px var(--font-display); font-variant-numeric: tabular-nums; background: var(--tag); color: var(--tag-ink); padding: 0 8px 0 7px; border-radius: 4px 12px 12px 4px; }
+.price s { color: var(--muted); font-size: 14px; }
+.badge { background: var(--bad); color: #fff; font-weight: 700; font-size: 12px; border-radius: 6px; padding: 2px 6px; }
+.unit { font-size: 12px; color: var(--muted); }
+.plan { font-size: 13px; color: var(--good); font-weight: 600; }
+.p .acts { display: flex; gap: 6px; margin-top: 4px; }
+.icon { border: 1.5px solid var(--line); background: transparent; border-radius: 10px; padding: 6px 10px; font-size: 13px; font-weight: 600; }
+.icon.on { background: var(--good); border-color: var(--good); color: #fff; }
+.star.on { background: var(--tag); border-color: var(--tag); color: var(--tag-ink); }
+.empty { background: var(--card); border: 1.5px dashed var(--line); border-radius: 14px; padding: 22px; color: var(--muted); }
+.recipes { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+.r { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 8px; align-content: start; }
+.r .head { display: flex; justify-content: space-between; gap: 8px; }
+.r .time { font: 700 13px var(--font-display); color: var(--muted); white-space: nowrap; }
+.tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.pt { background: var(--tag); color: var(--tag-ink); font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 4px 10px 10px 4px; display: inline-flex; gap: 5px; align-items: center; }
+.t { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+.why { font-size: 14px; color: var(--muted); margin: 0; }
+details summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; }
+details ul, details ol { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 3px; font-size: 14px; }
+.panel { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 12px; }
+textarea { width: 100%; min-height: 80px; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--paper); font-size: 16px; resize: vertical; }
+.row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.row2 > div { display: grid; gap: 4px; }
+label { font-weight: 600; font-size: 14px; }
+.status { font-size: 14px; color: var(--muted); }
+.err { color: var(--bad); }
+.list-store { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; overflow: hidden; }
+.list-store h2 { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; font-size: 18px; border-bottom: 1px solid var(--line); }
+.list-store h2 span { font: 600 14px var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; }
+.li { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; padding: 9px 14px; border-top: 1px solid var(--line); }
+.li:first-of-type { border-top: 0; }
+.li input { width: 20px; height: 20px; }
+.li.done .n { text-decoration: line-through; color: var(--muted); }
+.li .pr { font-variant-numeric: tabular-nums; font-weight: 600; }
+.li button { border: 0; background: transparent; color: var(--muted); font-size: 18px; padding: 0 4px; }
+.total { display: flex; justify-content: space-between; font: 700 20px var(--font-display); padding: 4px 2px; }
+.add { display: flex; gap: 8px; }
+.add input { flex: 1; min-width: 0; border: 1.5px solid var(--line); background: var(--card); border-radius: 10px; padding: 9px 12px; }
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1.5px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); z-index: 10; padding-bottom: env(safe-area-inset-bottom); }
+nav.tabs button { border: 0; background: transparent; padding: 10px 4px 12px; font-weight: 700; font-size: 13px; color: var(--muted); display: grid; justify-items: center; gap: 3px; position: relative; }
+nav.tabs button svg { width: 22px; height: 22px; }
+nav.tabs button[aria-selected="true"] { color: var(--ink); }
+nav.tabs button[aria-selected="true"]::before { content: ""; position: absolute; top: 0; left: 25%; right: 25%; height: 3px; background: var(--tag); border-radius: 0 0 3px 3px; }
+.nb { position: absolute; top: 5px; left: calc(50% + 6px); background: var(--bad); color: #fff; font-size: 11px; border-radius: 999px; padding: 0 5px; min-width: 18px; }
+[hidden] { display: none !important; }
+@media (max-width: 480px) { h1 { font-size: 27px; } .grid { grid-template-columns: 1fr 1fr; gap: 8px; } .p { padding: 10px; } .price b { font-size: 22px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Mes promos</h1>
+      <div class="sub" id="sub">Chargement…</div>
+    </div>
+    <div class="maj">
+      <a class="btn" id="btnMaj" href="#" target="_blank" rel="noopener" style="text-decoration:none">Mettre à jour</a>
+    </div>
+  </header>
+  <div class="journal" id="journal" hidden></div>
+  <div class="stores" id="stores" role="group" aria-label="Enseignes"></div>
+
+  <!-- PROMOS -->
+  <section id="v-promos">
+    <div class="toolbar">
+      <div class="search">
+        <input id="q" type="search" placeholder="Rechercher : poulet, raclette, Barilla…" autocomplete="off" aria-label="Rechercher une promo">
+        <select id="tri" aria-label="Trier">
+          <option value="remise">Meilleure remise</option>
+          <option value="prix">Prix croissant</option>
+          <option value="prix-desc">Prix décroissant</option>
+          <option value="nom">De A à Z</option>
+          <option value="enseigne">Par magasin</option>
+        </select>
+      </div>
+      <div class="chips" id="rayons" aria-label="Rayons"></div>
+      <div class="chips">
+        <button class="chip" id="fAlim" aria-pressed="false" type="button">Alimentaire</button>
+        <button class="chip" id="fBarre" aria-pressed="false" type="button">Avec prix barré</button>
+        <button class="chip" id="fPlan" aria-pressed="false" type="button">Bons plans (-%, 2e à…)</button>
+        <button class="chip" id="fFav" aria-pressed="false" type="button">★ Favoris</button>
+      </div>
+      <div class="count" id="count"></div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- PLATS -->
+  <section id="v-plats" hidden>
+    <div class="toolbar">
+      <div class="chips" id="platTags"></div>
+      <div class="count" id="platCount"></div>
+    </div>
+    <div class="recipes" id="recipes"></div>
+  </section>
+
+  <!-- IA -->
+  <section id="v-ia" hidden style="display:grid;gap:12px">
+    <form class="panel" id="iaForm">
+      <div style="display:grid;gap:6px">
+        <label for="envie">De quoi as-tu envie ?</label>
+        <textarea id="envie" placeholder="Ex. : poulet, fromage, rapide, pas cher, poisson, léger…"></textarea>
+      </div>
+      <div class="chips" id="quick">
+        <button type="button" class="chip" data-q="réconfortant">Réconfortant</button>
+        <button type="button" class="chip" data-q="léger">Léger</button>
+        <button type="button" class="chip" data-q="pas cher">Pas cher</button>
+        <button type="button" class="chip" data-q="rapide">Express</button>
+        <button type="button" class="chip" data-q="à partager">Entre potes</button>
+        <button type="button" class="chip" data-q="poisson">Poisson</button>
+        <button type="button" class="chip" data-q="végétarien">Végétarien</button>
+      </div>
+      <div class="row2">
+        <div><label for="tmax">Temps max</label><select id="tmax"><option value="20">20 min</option><option value="40" selected>40 min</option><option value="90">1 h 30</option><option value="0">Peu importe</option></select></div>
+        <div><label for="iaStore">Magasin</label><select id="iaStore"><option value="all">Tous</option></select></div>
+      </div>
+      <div><button class="btn primary" type="submit" id="iaGo">Trouver des plats</button></div>
+      <p class="status" id="iaStatus" role="status"></p>
+    </form>
+    <div class="recipes" id="iaOut"></div>
+  </section>
+
+  <!-- LISTE -->
+  <section id="v-liste" hidden style="display:grid;gap:12px">
+    <form class="add" id="addForm">
+      <input id="addTxt" placeholder="Ajouter un article à la main (ex. : pain, lait)" aria-label="Ajouter un article">
+      <button class="btn" type="submit">Ajouter</button>
+    </form>
+    <div id="listBody" style="display:grid;gap:12px"></div>
+    <div class="total" id="listTotal"></div>
+    <div class="maj">
+      <button class="btn" id="copyList" type="button">Copier la liste</button>
+      <button class="btn" id="clearDone" type="button">Retirer les articles cochés</button>
+      <button class="btn" id="clearAll" type="button">Tout vider</button>
+    </div>
+  </section>
+</div>
+
+<nav class="tabs" role="tablist" aria-label="Sections">
+  <button role="tab" data-v="promos" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Promos</button>
+  <button role="tab" data-v="plats" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="7"/><path d="M3 3v6a2 2 0 0 0 2 2M5 3v18M21 3c-2 1-3 3-3 6s1 3 3 3v9"/></svg>Plats</button>
+  <button role="tab" data-v="ia" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>Mon envie</button>
+  <button role="tab" data-v="liste" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>Liste<span class="nb" id="nbList" hidden></span></button>
+</nav>
+
+<script>
+(function () {
+  "use strict";
+  var COULEURS = { superu: "#d7262e", leclerc: "#0066b3", intermarche: "#e2001a", lidl: "#f5c400", carrefour: "#1e5bc6", auchan: "#e2001a", aldi: "#00a0e1" };
+  var ALIM = ["Poisson & mer", "Volaille", "Charcuterie", "Viande", "Fromage", "Crèmerie & œufs", "Fruits & légumes", "Surgelés", "Boulangerie", "Épicerie sucrée", "Épicerie salée"];
+  var S = {
+    data: null, recettes: [], store: "all", rayon: "Tous", q: "", tri: "remise",
+    fAlim: false, fBarre: false, fPlan: false, fFav: false, platTag: "Tous", iaPlats: [],
+    fav: lire("fav", []), liste: lire("liste", [])
+  };
+
+  function lire(k, d) { try { var v = localStorage.getItem("mespromos-" + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+  function ecrire(k, v) { try { localStorage.setItem("mespromos-" + k, JSON.stringify(v)); } catch (e) {} }
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function norm(t) { return String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim(); }
+  function euro(x) { return x == null ? "" : x.toFixed(2).replace(".", ",") + " €"; }
+  function nomEns(id) { var e = S.data && S.data.enseignes[id]; return (e && e.nom) || id; }
+  function coul(id) { return COULEURS[id] || "#8a93a6"; }
+  function dot(id) { return '<span class="dot" style="background:' + coul(id) + '"></span>'; }
+  function promoParId(id) { return S.data ? S.data.promos.find(function (p) { return p.id === id; }) : null; }
+
+  // ---------------- chargement
+  function charger() {
+    return fetch("promos.json?t=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+      S.data = d; toutAfficher();
+    }).catch(function () {
+      $("sub").innerHTML = '<span class="err">Impossible de lire les promos. Vérifie ta connexion et recharge la page.</span>';
+    });
+  }
+  fetch("recettes.json").then(function (r) { return r.json(); }).then(function (r) { S.recettes = r; if (S.data) afficherPlats(); }).catch(function () {});
+
+  function toutAfficher() {
+    var d = S.data;
+    var dt = d.maj ? new Date(d.maj) : null;
+    $("sub").textContent = (d.ville ? d.ville + " · " : "") + d.promos.length + " promos" + (dt ? " · mis à jour le " + dt.toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) + " à " + dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "");
+    afficherMagasins(); afficherRayons(); afficherPromos(); afficherPlats(); afficherListe();
+    var sel = $("iaStore"); sel.innerHTML = '<option value="all">Tous</option>' + Object.keys(d.enseignes).map(function (k) { return '<option value="' + esc(k) + '">' + esc(nomEns(k)) + '</option>'; }).join("");
+  }
+
+  function afficherMagasins() {
+    var d = S.data, html = '<button class="store-card" data-store="all" aria-pressed="' + (S.store === "all") + '"><b>Tous les magasins</b><span>' + d.promos.length + ' promos</span></button>';
+    Object.keys(d.enseignes).forEach(function (k) {
+      var e = d.enseignes[k];
+      html += '<button class="store-card" data-store="' + esc(k) + '" aria-pressed="' + (S.store === k) + '"><b>' + dot(k) + esc(e.nom) + '</b><span>' + e.nb + ' promos' + (e.validite ? ' · ' + esc(e.validite) : '') + '</span>' + (e.ancien ? '<span class="old">pas de nouveau catalogue trouvé</span>' : '') + '</button>';
+    });
+    $("stores").innerHTML = html;
+  }
+
+  function afficherRayons() {
+    var cnt = {};
+    S.data.promos.forEach(function (p) { if (S.store === "all" || p.enseigne === S.store) cnt[p.rayon] = (cnt[p.rayon] || 0) + 1; });
+    var ordre = ALIM.concat(["Boissons", "Hygiène & beauté", "Entretien", "Animaux", "Autres"]).filter(function (r) { return cnt[r]; });
+    $("rayons").innerHTML = ['Tous'].concat(ordre).map(function (r) {
+      return '<button class="chip" data-rayon="' + esc(r) + '" aria-pressed="' + (S.rayon === r) + '">' + esc(r) + (r !== "Tous" ? ' <span style="opacity:.6">' + cnt[r] + '</span>' : '') + '</button>';
+    }).join("");
+  }
+
+  function filtrer() {
+    var q = norm(S.q), mots = q ? q.split(" ") : [];
+    var l = S.data.promos.filter(function (p) {
+      if (S.store !== "all" && p.enseigne !== S.store) return false;
+      if (S.rayon !== "Tous" && p.rayon !== S.rayon) return false;
+      if (S.fAlim && ALIM.indexOf(p.rayon) < 0) return false;
+      if (S.fBarre && !p.avant) return false;
+      if (S.fPlan && !p.bon_plan) return false;
+      if (S.fFav && S.fav.indexOf(p.id) < 0) return false;
+      if (mots.length) {
+        var t = norm(p.nom + " " + p.marque + " " + p.rayon + " " + nomEns(p.enseigne));
+        for (var i = 0; i < mots.length; i++) if (t.indexOf(mots[i]) < 0) return false;
+      }
+      return true;
+    });
+    var tri = S.tri;
+    l.sort(function (a, b) {
+      if (tri === "prix") return (a.prix == null ? 1e9 : a.prix) - (b.prix == null ? 1e9 : b.prix);
+      if (tri === "prix-desc") return (b.prix || 0) - (a.prix || 0);
+      if (tri === "nom") return a.nom.localeCompare(b.nom, "fr");
+      if (tri === "enseigne") return nomEns(a.enseigne).localeCompare(nomEns(b.enseigne), "fr") || a.nom.localeCompare(b.nom, "fr");
+      return (b.remise || (b.bon_plan ? 1 : 0)) - (a.remise || (a.bon_plan ? 1 : 0));
+    });
+    return l;
+  }
+
+  function carte(p) {
+    var fav = S.fav.indexOf(p.id) >= 0, dans = S.liste.some(function (x) { return x.id === p.id; });
+    return '<article class="p">' +
+      '<div class="top"><span>' + dot(p.enseigne) + esc(nomEns(p.enseigne)) + '</span><span>' + esc(p.rayon) + '</span></div>' +
+      (p.marque ? '<div class="brand">' + esc(p.marque) + '</div>' : '') +
+      '<h3>' + esc(p.nom) + '</h3>' +
+      (p.prix != null ? '<div class="price"><b>' + euro(p.prix) + '</b>' + (p.avant ? '<s>' + euro(p.avant) + '</s>' : '') + (p.remise ? '<span class="badge">-' + p.remise + '%</span>' : '') + '</div>' : '') +
+      (p.unite ? '<div class="unit">' + esc(p.unite) + '</div>' : '') +
+      (p.bon_plan ? '<div class="plan">' + esc(p.bon_plan) + '</div>' : '') +
+      (p.validite ? '<div class="unit">Valable ' + esc(p.validite) + '</div>' : '') +
+      '<div class="acts"><button class="icon star' + (fav ? ' on' : '') + '" data-fav="' + esc(p.id) + '" aria-label="Favori">★</button>' +
+      '<button class="icon' + (dans ? ' on' : '') + '" data-add="' + esc(p.id) + '">' + (dans ? '✓ Dans la liste' : '+ Liste') + '</button></div>' +
+    '</article>';
+  }
+
+  function afficherPromos() {
+    if (!S.data) return;
+    var l = filtrer();
+    $("count").textContent = l.length + (l.length > 1 ? " promos" : " promo");
+    $("grid").innerHTML = l.length ? l.slice(0, 400).map(carte).join("") : '<div class="empty">Aucune promo ne correspond. Essaie un autre mot ou enlève un filtre.</div>';
+  }
+
+  // ---------------- plats (recettes x promos)
+  function trouverPromo(alternatives, ens) {
+    var best = null;
+    S.data.promos.forEach(function (p) {
+      if (ALIM.indexOf(p.rayon) < 0 || p.prix == null) return;
+      if (ens && ens !== "all" && p.enseigne !== ens) return;
+      var t = " " + norm(p.nom + " " + p.marque) + " ";
+      for (var i = 0; i < alternatives.length; i++) {
+        if (t.indexOf(" " + norm(alternatives[i])) >= 0) {
+          if (!best || (p.remise || 0) > (best.remise || 0)) best = p;
+          return;
+        }
+      }
+    });
+    return best;
+  }
+
+  function platsDuMoment() {
+    return S.recettes.map(function (r) {
+      var trouves = [];
+      r.cles.forEach(function (alts) { var p = trouverPromo(alts, S.store); if (p && trouves.indexOf(p) < 0) trouves.push(p); });
+      return { r: r, promos: trouves };
+    }).filter(function (x) { return x.promos.length; }).sort(function (a, b) {
+      return (b.promos.length / b.r.cles.length) - (a.promos.length / a.r.cles.length) || b.promos.length - a.promos.length;
+    });
+  }
+
+  function carteRecette(r, promos, opts) {
+    opts = opts || {};
+    var ids = promos.map(function (p) { return p.id; }).join(",");
+    var toutes = promos.length && promos.every(function (p) { return S.liste.some(function (x) { return x.id === p.id; }); });
+    return '<article class="r"><div class="head"><h3>' + esc(r.nom) + '</h3>' + (r.temps ? '<span class="time">' + esc(r.temps) + ' min</span>' : '') + '</div>' +
+      (r.pourquoi ? '<p class="why">' + esc(r.pourquoi) + '</p>' : '') +
+      '<div class="tags">' + promos.map(function (p) { return '<span class="pt">' + dot(p.enseigne) + esc(p.nom) + ' · ' + euro(p.prix) + '</span>'; }).join("") + '</div>' +
+      ((r.tags || []).length ? '<div class="tags">' + r.tags.map(function (t) { return '<span class="t">' + esc(t) + '</span>'; }).join("") + '</div>' : '') +
+      '<details><summary>Voir la recette</summary><b style="font-size:14px">Ingrédients</b><ul>' + (r.ingredients || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>' +
+      '<b style="font-size:14px;display:block;margin-top:8px">Étapes</b><ol>' + (r.etapes || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ol></details>' +
+      (promos.length ? '<div><button class="icon' + (toutes ? ' on' : '') + '" data-addmany="' + esc(ids) + '">' + (toutes ? '✓ Promos dans la liste' : '+ Mettre les promos dans ma liste') + '</button></div>' : '') +
+    '</article>';
+  }
+
+  function afficherPlats() {
+    if (!S.data || !S.recettes.length) return;
+    var l = platsDuMoment();
+    var tags = {}; l.forEach(function (x) { (x.r.tags || []).forEach(function (t) { tags[t] = 1; }); });
+    $("platTags").innerHTML = ["Tous"].concat(Object.keys(tags).sort()).map(function (t) { return '<button class="chip" data-ptag="' + esc(t) + '" aria-pressed="' + (S.platTag === t) + '">' + esc(t) + '</button>'; }).join("");
+    if (S.platTag !== "Tous") l = l.filter(function (x) { return (x.r.tags || []).indexOf(S.platTag) >= 0; });
+    $("platCount").textContent = l.length + " plats faisables avec les promos" + (S.store !== "all" ? " de " + nomEns(S.store) : "");
+    $("recipes").innerHTML = l.length ? l.map(function (x) { return carteRecette(x.r, x.promos); }).join("") : '<div class="empty">Aucun plat ne colle aux promos de ce magasin. Essaie « Mon envie ».</div>';
+  }
+
+  // ---------------- liste de courses
+  function ajouter(p) {
+    if (S.liste.some(function (x) { return x.id === p.id; })) S.liste = S.liste.filter(function (x) { return x.id !== p.id; });
+    else S.liste.push({ id: p.id, nom: p.nom, enseigne: p.enseigne, prix: p.prix, fait: false });
+    ecrire("liste", S.liste);
+  }
+  function afficherListe() {
+    var nb = S.liste.filter(function (x) { return !x.fait; }).length;
+    $("nbList").hidden = !nb; $("nbList").textContent = nb;
+    if (!S.liste.length) { $("listBody").innerHTML = '<div class="empty">Ta liste est vide. Ajoute des promos avec « + Liste » ou depuis un plat.</div>'; $("listTotal").textContent = ""; return; }
+    var groupes = {}, total = 0;
+    S.liste.forEach(function (x, i) { var k = x.enseigne || "autre"; (groupes[k] = groupes[k] || []).push({ x: x, i: i }); });
+    $("listBody").innerHTML = Object.keys(groupes).map(function (k) {
+      var st = 0; groupes[k].forEach(function (o) { if (o.x.prix) st += o.x.prix; });
+      total += st;
+      return '<div class="list-store"><h2><span style="display:flex;align-items:center;gap:8px;font:inherit;color:inherit">' + (k !== "autre" ? dot(k) + esc(nomEns(k)) : "Autres articles") + '</span><span>' + (st ? "≈ " + euro(st) : "") + '</span></h2>' +
+        groupes[k].map(function (o) {
+          return '<div class="li' + (o.x.fait ? ' done' : '') + '"><input type="checkbox" id="li' + o.i + '" data-done="' + o.i + '"' + (o.x.fait ? ' checked' : '') + '><label class="n" for="li' + o.i + '" style="font-weight:500">' + esc(o.x.nom) + '</label><span class="pr">' + euro(o.x.prix) + '</span><button data-del="' + o.i + '" aria-label="Retirer">×</button></div>';
+        }).join("") + '</div>';
+    }).join("");
+    $("listTotal").innerHTML = total ? '<span>Total des promos</span><span>≈ ' + euro(total) + '</span>' : "";
+  }
+
+  // ---------------- « Mon envie » sans IA : recherche intelligente dans les plats faisables
+  $("iaStatus").textContent = "Écris un ou plusieurs mots (ingrédient, envie, temps) : l'appli choisit les plats qui collent le mieux aux promos.";
+  var SYN = {
+    "rapide": ["rapide", "express", "vite", "presse", "20 min"], "leger": ["leger", "light", "frais", "salade", "regime"],
+    "pas cher": ["pas cher", "econom", "budget", "moins cher", "fauche"], "reconfortant": ["reconfort", "chaud", "hiver", "cocooning", "gratin"],
+    "a partager": ["partag", "amis", "potes", "soiree", "apero"], "vegetarien": ["vegetarien", "vege", "sans viande"],
+    "poisson": ["poisson", "mer", "crevette", "saumon", "thon", "moule"], "enfants": ["enfant", "gamin", "petit"]
+  };
+  $("iaForm").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    if (!S.data || !S.recettes.length) return;
+    var envie = norm($("envie").value), ens = $("iaStore").value, tmax = +$("tmax").value;
+    var saveStore = S.store; S.store = ens; var l = platsDuMoment(); S.store = saveStore;
+    var mots = envie.split(" ").filter(function (w) { return w.length > 2; });
+    var res = l.map(function (x) {
+      var r = x.r, txt = norm(r.nom + " " + (r.tags || []).join(" ") + " " + (r.ingredients || []).join(" ") + " " + x.promos.map(function (p) { return p.nom; }).join(" "));
+      var sc = x.promos.length / r.cles.length;
+      mots.forEach(function (w) { if (txt.indexOf(w) >= 0) sc += 2; });
+      Object.keys(SYN).forEach(function (tag) {
+        if (SYN[tag].some(function (k) { return envie.indexOf(k) >= 0; })) {
+          var tagsN = (r.tags || []).map(norm);
+          if (tagsN.indexOf(tag) >= 0) sc += 3;
+          if (tag === "rapide" && r.temps <= 25) sc += 2;
+          if (tag === "pas cher") sc += 2 - Math.min(2, x.promos.reduce(function (s, p) { return s + (p.prix || 0); }, 0) / 10);
+          if (tag === "vegetarien" && /poulet|boeuf|porc|dinde|saucisse|lardon|jambon|crevette|thon|saumon|rognon|steak|hache|paupiette|cordon|chorizo|moule|poisson/.test(norm(r.ingredients.join(" ")))) sc -= 5;
+          if (tag === "poisson" && /crevette|thon|saumon|poisson|moule|cabillaud/.test(txt)) sc += 3;
+        }
+      });
+      if (tmax && r.temps > tmax) sc -= 4;
+      return { r: r, promos: x.promos, sc: sc };
+    }).filter(function (x) { return x.sc > 0.5; }).sort(function (a, b) { return b.sc - a.sc; }).slice(0, 6);
+    S.iaPlats = res;
+    $("iaStatus").textContent = res.length ? res.length + " plats pour toi :" : "Rien ne colle. Essaie d'autres mots (ex. : poulet, fromage, rapide).";
+    afficherIA();
+  });
+  function afficherIA() { $("iaOut").innerHTML = S.iaPlats.map(function (x) { return carteRecette(x.r, x.promos); }).join(""); }
+
+  // ---------------- mise à jour : faite chaque nuit par GitHub ; le bouton ouvre la page pour la forcer
+  (function () {
+    var h = location.hostname, m = h.match(/^([^.]+)\.github\.io$/), repo = location.pathname.split("/").filter(Boolean)[0];
+    var b = $("btnMaj");
+    if (m && repo) b.href = "https://github.com/" + m[1] + "/" + repo + "/actions/workflows/maj.yml";
+    else b.hidden = true;
+  })();
+  if ("serviceWorker" in navigator) { try { navigator.serviceWorker.register("sw.js"); } catch (e) {} }
+
+  // ---------------- interactions
+  function vue(v) {
+    ["promos", "plats", "ia", "liste"].forEach(function (x) { $("v-" + x).hidden = x !== v; });
+    document.querySelectorAll("nav.tabs button").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.v === v ? "true" : "false"); });
+    $("stores").hidden = v === "liste" || v === "ia";
+    window.scrollTo(0, 0);
+  }
+  var tq;
+  $("q").addEventListener("input", function () { clearTimeout(tq); var v = this.value; tq = setTimeout(function () { S.q = v; afficherPromos(); }, 120); });
+  $("tri").addEventListener("change", function () { S.tri = this.value; afficherPromos(); });
+  ["fAlim", "fBarre", "fPlan", "fFav"].forEach(function (k) {
+    $(k).addEventListener("click", function () { S[k] = !S[k]; this.setAttribute("aria-pressed", S[k]); afficherPromos(); });
+  });
+  $("addForm").addEventListener("submit", function (ev) {
+    ev.preventDefault(); var t = $("addTxt").value.trim(); if (!t) return;
+    S.liste.push({ id: "m-" + Date.now(), nom: t, enseigne: "", prix: null, fait: false }); ecrire("liste", S.liste); $("addTxt").value = ""; afficherListe();
+  });
+  $("clearDone").addEventListener("click", function () { S.liste = S.liste.filter(function (x) { return !x.fait; }); ecrire("liste", S.liste); afficherListe(); afficherPromos(); });
+  $("clearAll").addEventListener("click", function () { S.liste = []; ecrire("liste", S.liste); afficherListe(); afficherPromos(); afficherPlats(); });
+  $("copyList").addEventListener("click", function () {
+    var txt = $("listBody").innerText.replace(/\n×/g, "");
+    var b = this;
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function () { b.textContent = "Copiée !"; }, function () { b.textContent = "Copie impossible"; })
+      .then(function () { setTimeout(function () { b.textContent = "Copier la liste"; }, 1500); });
+  });
+  document.addEventListener("change", function (ev) {
+    var d = ev.target.dataset && ev.target.dataset.done;
+    if (d != null) { S.liste[+d].fait = ev.target.checked; ecrire("liste", S.liste); afficherListe(); }
+  });
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest("button"); if (!b) return;
+    var ds = b.dataset;
+    if (ds.v) return vue(ds.v);
+    if (ds.store) { S.store = ds.store; S.rayon = "Tous"; afficherMagasins(); afficherRayons(); afficherPromos(); afficherPlats(); return; }
+    if (ds.rayon) { S.rayon = ds.rayon; afficherRayons(); afficherPromos(); return; }
+    if (ds.ptag) { S.platTag = ds.ptag; afficherPlats(); return; }
+    if (ds.q) { $("envie").value = ds.q; $("envie").focus(); return; }
+    if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else S.fav.push(ds.fav); ecrire("fav", S.fav); afficherPromos(); return; }
+    if (ds.add) { var p = promoParId(ds.add); if (p) { ajouter(p); afficherPromos(); afficherListe(); afficherPlats(); afficherIA(); } return; }
+    if (ds.addmany) {
+      var ps = ds.addmany.split(",").map(promoParId).filter(Boolean);
+      var toutes = ps.every(function (p) { return S.liste.some(function (x) { return x.id === p.id; }); });
+      ps.forEach(function (p) { var dans = S.liste.some(function (x) { return x.id === p.id; }); if (toutes ? dans : !dans) ajouter(p); });
+      afficherListe(); afficherPromos(); afficherPlats(); afficherIA(); return;
+    }
+    if (ds.del != null) { S.liste.splice(+ds.del, 1); ecrire("liste", S.liste); afficherListe(); afficherPromos(); return; }
+  });
+
+  charger();
+})();
+</script>
+</body>
+</html>
