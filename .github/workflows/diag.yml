@@ -7,6 +7,13 @@ on:
         description: "Adresses à tester (séparées par des espaces) ; vide = essai complet sans rien enregistrer"
         required: false
         default: ""
+      brut:
+        description: "oui = enregistrer les pages telles quelles dans la branche diag-brut"
+        required: false
+        default: "non"
+
+permissions:
+  contents: write
 
 jobs:
   diag:
@@ -21,4 +28,9 @@ jobs:
           URLS: ${{ github.event.inputs.urls }}
           TZ: Europe/Paris
         run: |
-          if [ -n "$URLS" ]; then python diag.py $URLS --routes; else python maj_promos.py --essai; fi
+          if [ "${{ github.event.inputs.brut }}" = "oui" ]; then
+            python outils/aspirer.py $URLS
+            cd brut && git init -q -b diag-brut && git add -A
+            git -c user.name="diag" -c user.email="diag@users.noreply.github.com" commit -q -m "pages brutes"
+            git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag-brut
+          elif [ -n "$URLS" ]; then python diag.py $URLS --routes; else python maj_promos.py --essai; fi
