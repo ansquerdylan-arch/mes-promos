@@ -38,6 +38,30 @@ def resume(url):
     debut = next((i for i, l in enumerate(lignes) if "€" in l), 0)
     for l in lignes[max(0, debut - 15): debut + 130]:
         print("  |", l[:140])
+    nd = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', page, re.S)
+    if nd:
+        data = json.loads(nd.group(1))
+        chemins = []
+
+        def marche(o, chemin, prof=0):
+            if prof > 30 or len(chemins) > 60:
+                return
+            if isinstance(o, dict):
+                for k, v in o.items():
+                    if re.search(r"price|prix|offer|validity|valid|brochure|publisher", k, re.I):
+                        apercu = json.dumps(v, ensure_ascii=False)[:220]
+                        chemins.append(chemin + "." + k + " = " + apercu)
+                    marche(v, chemin + "." + k, prof + 1)
+            elif isinstance(o, list):
+                for i, v in enumerate(o[:3]):
+                    marche(v, chemin + "[%d]" % i, prof + 1)
+        marche(data, "")
+        print("--- __NEXT_DATA__ : clés prix / offres ---")
+        for c in chemins[:60]:
+            print("  ", c)
+    print("--- liens catalogues ---")
+    for l in sorted(set(re.findall(r'href="([^"]*(?:brochure|catalogue|/b-|/Magasins/)[^"]*)"', page)))[:30]:
+        print("  ", l)
     its = m.extraire_json(page)
     print("--- extraction JSON générique : %d produits" % len(its))
     for it in its[:8]:
