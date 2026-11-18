@@ -623,7 +623,10 @@ dialog::backdrop { background: rgba(10, 15, 30, .5); }
       if (S.f.end && !finitBientot(p)) return false;
       if (mots.length) {
         var t = norm(p.nom + " " + p.marque + " " + p.rayon + " " + nomEns(p.enseigne));
-        for (var i = 0; i < mots.length; i++) if (t.indexOf(mots[i]) < 0) return false;
+        for (var i = 0; i < mots.length; i++) {
+          var w = mots[i], w1 = w.length > 3 ? w.replace(/[sx]$/, "") : w;  // « pommes » trouve aussi « pomme »
+          if (t.indexOf(w) < 0 && t.indexOf(w1) < 0) return false;
+        }
       }
       return true;
     });
