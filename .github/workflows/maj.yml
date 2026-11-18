@@ -24,5 +24,5 @@ jobs:
         run: |
           git config user.name "maj-promos"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add promos.json rappels.ics
-          git diff --cached --quiet || (git commit -m "Promos du $(TZ=Europe/Paris date +%d/%m)" && git push)
+          git add promos.json rappels.ics historique.json
+          git diff --cached --quiet || (git commit -m "Promos du $(TZ=Europe/Paris date +%d/%m)" && git pull --rebase -q && git push)

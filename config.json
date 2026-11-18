@@ -3,6 +3,19 @@
   "port": 8000,
   "acces_telephone": true,
   "maj_auto_heures": 12,
+  "villes_voisines": [
+    "Les-Sables-Dolonne",
+    "Chateau-Dolonne",
+    "Talmont-Saint-Hilaire",
+    "La-Mothe-Achard",
+    "Bretignolles-sur-Mer",
+    "Saint-Gilles-Croix-de-Vie",
+    "La-Roche-sur-Yon",
+    "Challans",
+    "Lucon",
+    "Aizenay",
+    "Nantes"
+  ],
   "ollama": {
     "url": "http://localhost:11434",
     "modele": "qwen2.5:7b"
@@ -12,50 +25,77 @@
       "id": "superu",
       "nom": "Super U",
       "actif": true,
-      "sources": [
-        {"type": "bonial", "url": "https://www.bonial.fr/Olonne-sur-Mer/Super-U/p-r8"},
-        {"type": "bonial", "url": "https://www.bonial.fr/Les-Sables-Dolonne/Super-U/p-r8"},
-        {"type": "anticrise", "motif": "catalogue-super-u-du-[^\"'#?]+"}
-      ]
+      "bonial": {
+        "ville": "Olonne-sur-Mer",
+        "page": "Super-U/p-r8"
+      },
+      "anticrise": {
+        "motif": "catalogue-super-u-du-[^\"'#?]+"
+      }
     },
     {
       "id": "leclerc",
       "nom": "E.Leclerc",
       "actif": true,
-      "sources": [
-        {"type": "bonial", "url": "https://www.bonial.fr/Olonne-sur-Mer/E-Leclerc/p-r140"},
-        {"type": "bonial", "url": "https://www.bonial.fr/Les-Sables-Dolonne/E-Leclerc/p-r140"},
-        {"type": "anticrise", "motif": "catalogue-leclerc-du-[^\"'#?]+centre-ouest", "secours": "catalogue-leclerc-du-[^\"'#?]+"}
-      ]
+      "bonial": {
+        "ville": "Olonne-sur-Mer",
+        "page": "E-Leclerc/p-r140"
+      },
+      "anticrise": {
+        "motif": "catalogue-leclerc-du-[^\"'#?]+centre-ouest",
+        "secours": "catalogue-leclerc-du-[^\"'#?]+"
+      }
     },
     {
       "id": "intermarche",
       "nom": "Intermarché",
       "actif": true,
-      "sources": [
-        {"type": "bonial", "url": "https://www.bonial.fr/Olonne-sur-Mer/Intermarche/p-r3"},
-        {"type": "bonial", "url": "https://www.bonial.fr/Les-Sables-Dolonne/Intermarche/p-r3"},
-        {"type": "anticrise", "motif": "catalogue-intermarche-du-[^\"'#?]+version-super", "secours": "catalogue-intermarche-du-[^\"'#?]+"}
-      ]
+      "anticrise": {
+        "motif": "catalogue-intermarche-du-[^\"'#?]+version-super",
+        "secours": "catalogue-intermarche-du-[^\"'#?]+"
+      }
     },
     {
       "id": "lidl",
       "nom": "Lidl",
       "actif": true,
-      "sources": [
-        {"type": "bonial", "url": "https://www.bonial.fr/Olonne-sur-Mer/Lidl/p-r1"},
-        {"type": "bonial", "url": "https://www.bonial.fr/Les-Sables-Dolonne/Lidl/p-r1"},
-        {"type": "anticrise", "motif": "catalogue-lidl-du-[^\"'#?]+"}
-      ]
+      "bonial": {
+        "ville": "Olonne-sur-Mer",
+        "page": "Lidl/p-r1"
+      },
+      "anticrise": {
+        "motif": "catalogue-lidl-du-[^\"'#?]+"
+      }
     },
     {
       "id": "carrefour",
       "nom": "Carrefour Market",
       "actif": true,
-      "sources": [
-        {"type": "bonial", "url": "https://www.bonial.fr/Les-Sables-Dolonne/Carrefour-Market/p-r5"},
-        {"type": "anticrise", "motif": "catalogue-carrefour-market-du-[^\"'#?]+"}
-      ]
+      "bonial": {
+        "ville": "Les-Sables-Dolonne",
+        "page": "Carrefour-Market/p-r5"
+      },
+      "anticrise": {
+        "motif": "catalogue-carrefour-market-du-[^\"'#?]+"
+      }
+    },
+    {
+      "id": "grandfrais",
+      "nom": "Grand Frais",
+      "actif": true,
+      "bonial": {
+        "ville": "Olonne-sur-Mer",
+        "page": "Grand-Frais/p-r57"
+      }
+    },
+    {
+      "id": "picard",
+      "nom": "Picard",
+      "actif": true,
+      "bonial": {
+        "ville": "Olonne-sur-Mer",
+        "page": "Picard/p-r143"
+      }
     }
   ]
 }
