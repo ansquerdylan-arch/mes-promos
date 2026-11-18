@@ -1,10 +1,12 @@
 # Mes promos
 
-Promos et bons plans des supermarchés autour d'Olonne-sur-Mer (Super U, E.Leclerc, Intermarché, Lidl, Carrefour Market), avec des idées de plats, un agenda des opérations et une liste de courses.
+Promos et bons plans des supermarchés de toute la Vendée (Super U, Hyper U, U Express, E.Leclerc, Intermarché, Lidl, Carrefour…), avec des idées de plats, un agenda des opérations et une liste de courses.
 
 - **La page** : `index.html` (servie par GitHub Pages), installable sur iPhone et Android.
-- **Les promos** : `promos.json`, mis à jour chaque matin par GitHub Actions (`.github/workflows/maj.yml`), qui lance `maj_promos.py`.
-  - Source principale : les pages bonial.fr de chaque enseigne à Olonne (dates exactes, offres « le 2e à… »), complétées par les mêmes pages dans quelques villes voisines (seulement les catalogues valables à Olonne) et par les tableaux d'anti-crise.fr.
+- **Les promos** : mises à jour chaque matin par GitHub Actions (`.github/workflows/maj.yml`), qui lance `maj_promos.py`.
+  - `promos.json` : magasins, horaires, catalogues en cours, offres nationales ; `offres/<catalogue>.json` : toutes les offres de chaque catalogue (l'appli ne charge que celles des magasins choisis).
+  - Sources : les pages bonial.fr des enseignes (magasins, catalogues) puis la visionneuse publique de bonial, qui donne **toutes** les offres repérées dans chaque catalogue (prix, ancien prix, « le 2e à… », carte de fidélité, dates exactes, photo), plus les tableaux d'anti-crise.fr.
+  - Opérations publiées en images (Jeudis Plus U…) : les visuels sont gardés et, sur GitHub, lus par Tesseract (jour exact, pourcentage, produits concernés) ; mémoire des lectures : `ocr.json`.
 - **Agenda / rappels** : `rappels.ics`, calendrier auquel le téléphone s'abonne.
 - **Alertes même appli fermée** : l'appli enregistre les produits surveillés dans un gist public (`alertes-mes-promos.json`) ; chaque matin `alertes.py` cherche ces produits dans les promos, ajoute un rappel au calendrier et envoie une notification via l'appli ntfy si elle est activée (mémoire : `alertes_envoyees.json`).
 - **Liste partagée et budget** : rangés dans un gist privé (`liste-mes-promos.json`), synchronisés en direct entre les téléphones invités.

@@ -100,6 +100,7 @@ h3 { font-size: 15.5px; margin: 0; line-height: 1.25; text-wrap: balance; }
 .hist { font-size: 12px; color: var(--warn); font-weight: 600; }
 .b.low { background: var(--good); color: #fff; }
 .b.carte { background: #0f6e63; color: #fff; }
+.b.soon { background: #6b4fd8; color: #fff; }
 .b.op { background: var(--accent); color: #fff; }
 .p .ph { width: 100%; height: 96px; object-fit: contain; background: #fff; border-radius: 9px; }
 .p.op .ph { height: auto; max-height: 220px; object-fit: cover; cursor: zoom-in; }
@@ -482,7 +483,7 @@ dialog .row { min-width: 0; }
   var FAMILLES = [["u", "Système U"], ["leclerc", "E.Leclerc"], ["intermarche", "Intermarché"], ["lidl", "Lidl"], ["carrefour", "Carrefour"]];
   function familleDe(ch) { ch = ch || ""; if (/^(superu|hyperu|uexpress|marcheu)/.test(ch)) return "u"; if (/^intermarche/.test(ch)) return "intermarche"; if (/^carrefour/.test(ch)) return "carrefour"; return ch; }
   var ALIM = ["Poisson & mer", "Volaille", "Charcuterie", "Viande", "Fromage", "Crèmerie & œufs", "Fruits & légumes", "Surgelés", "Boulangerie", "Épicerie sucrée", "Épicerie salée"];
-  var ORDRE_RAYONS = ALIM.concat(["Boissons", "Hygiène & beauté", "Entretien", "Animaux", "Maison & loisirs", "Autres"]);
+  var ORDRE_RAYONS = ALIM.concat(["Boissons", "Hygiène & beauté", "Entretien", "Animaux", "Maison & déco", "High-tech & électroménager", "Jouets & culture", "Mode & sport", "Jardin & bricolage", "Maison & loisirs", "Autres"]);
   var JOURS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 
   var S = {
@@ -518,7 +519,8 @@ dialog .row { min-width: 0; }
     return new Date(y, mo, +m[1], 23, 59);
   }
   function joursRestants(p) { var f = p.fin ? new Date(p.fin + "T23:59:00") : finValidite(p.validite); return f ? Math.floor((f - new Date()) / 86400000) : null; }
-  function finitBientot(p) { var j = joursRestants(p); return j != null && j >= 0 && j <= 2; }
+  function pasCommencee(p) { return !!(p.debut && p.debut > isoJ(new Date())); }
+  function finitBientot(p) { var j = joursRestants(p); return j != null && j >= 0 && j <= 2 && !pasCommencee(p); }
   function surveille(p) {
     if (!S.watch.length) return false;
     var t = p._n || " " + norm(p.nom + " " + p.marque) + " ";
@@ -782,7 +784,10 @@ dialog .row { min-width: 0; }
     var badges = "";
     if (opts.cheap) badges += '<span class="b cheap">Le moins cher</span>';
     if (S.nouveaux[p.id]) badges += '<span class="b new">Nouveau</span>';
-    if (finitBientot(p)) badges += '<span class="b end">' + (j === 0 ? "Dernier jour" : "Finit dans " + j + " j") + '</span>';
+    if (pasCommencee(p)) {
+      var dem = new Date(); dem.setDate(dem.getDate() + 1);
+      badges += '<span class="b soon">' + (p.debut === isoJ(dem) ? "À partir de demain" : "À partir du " + jjmm(p.debut)) + '</span>';
+    } else if (finitBientot(p)) badges += '<span class="b end">' + (j === 0 ? "Dernier jour" : "Finit dans " + j + " j") + '</span>';
     if (surveille(p)) badges += '<span class="b watch">Surveillé</span>';
     var h = p.histo, bas = h && p.prix != null && p.prix <= h.min - 0.005, deja = h && p.prix != null && p.prix > h.min + 0.005;
     if (bas) badges += '<span class="b low">Plus bas prix vu</span>';
@@ -795,7 +800,7 @@ dialog .row { min-width: 0; }
         ? '<div class="price"><span class="cond">Le 2e à</span><b>' + euro(p.prix) + '</b>' + (p.remise_2e ? '<span class="pct">-' + p.remise_2e + '% le 2e</span>' : '') + '</div><div class="unit">1er à ' + euro(p.avant) + ' · les 2 : ' + euro(p.avant + p.prix) + ' (-' + p.remise + '% au total)</div>'
         : '<div class="price">' + (p.des ? '<span class="cond">Dès</span>' : '') + '<b>' + euro(p.prix) + '</b>' + (p.avant ? '<s>' + euro(p.avant) + '</s>' : '') + (p.remise ? '<span class="pct">-' + p.remise + '%</span>' : '') + '</div>';
     }
-    var photo = p.op && p.image ? p.image : (p.img ? "https://content-media.bonial.biz/" + p.img + "/main.jpg?impolicy=SEO-offer-thumbnails" : "");
+    var photo = p.op && p.image ? p.image : (p.img ? "https://content-media.bonial.biz/" + p.img + "/main.jpg?impolicy=SEO-offer-normal" : "");
     return '<article class="p' + (p.op ? ' op' : '') + '" style="--sc:' + coul(p.enseigne) + '">' +
       '<div class="top"><span>' + esc(nomEns(p.enseigne)) + '</span>' + (opts.compact ? '' : '<span>' + esc(p.rayon) + '</span>') + '</div>' +
       (photo && S.photos ? '<img class="ph" loading="lazy" decoding="async" alt="" src="' + esc(photo) + '"' + (p.op ? ' data-zoom="' + esc(p.image) + '"' : '') + ' onerror="this.remove()">' : '') +
