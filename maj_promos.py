@@ -87,6 +87,7 @@ def telecharger(url, log):
 
 # --------------------------------------------------------------------------- rayons
 RAYONS = {
+    "Maison & loisirs": "bague, collier, bracelet, pendentif, boucles d oreilles, montre, smartphone, tablette, telephone, aspirateur, balai aspirateur, lave linge, seche linge, lave vaisselle, refrigerateur, airfryer, friteuse, expresso, cafetiere, senseo, imprimante, casque, ecouteurs, enceinte, television, tv, console, jouet, lego, playmobil, peluche, poupee, t shirt, pull, chaussures, baskets, chaussettes, pyjama, couette, oreiller, drap, boucleur, seche cheveux, lisseur, perceuse, outil, sapin, guirlande, decoration, bougie, collection",
     "Hygiène & beauté": "shampoing, gel douche, deodorant, dentifrice, brosse a dents, rasoir, maquillage, creme visage, creme mains, lingettes, demaquillant, savon, parfum, couches, protege slip, serviettes hygieniques, coton, vernis, apres shampoing, soin",
     "Entretien": "lessive, adoucissant, liquide vaisselle, pastilles lave, eponge, nettoyant, javel, essuie tout, papier toilette, sacs poubelle, desodorisant, capsules de lessive",
     "Animaux": "chat, chien, croquettes, patee, litiere, sheba, felix, whiskas, pedigree, friskies",
@@ -439,9 +440,11 @@ def mettre_a_jour(debug=False, log=print):
         if not ens.get("actif", True):
             continue
         log("→ %s" % ens["nom"])
-        bruts, sources, validite = [], [], ""
+        bruts, sources, validite, bonial_ok = [], [], "", False
         for src in ens.get("sources", []):
             if src["type"] == "bonial":
+                if bonial_ok:
+                    continue  # une page bonial suffit, la seconde est un secours
                 page = telecharger(src["url"], log)
                 if not page:
                     continue
@@ -455,7 +458,7 @@ def mettre_a_jour(debug=False, log=print):
                     bruts += its
                     sources.append(src["url"])
                     validite = validite or val
-                    break  # une page bonial suffit, la seconde est un secours
+                    bonial_ok = True
             elif src["type"] == "anticrise":
                 url, dates = trouver_anticrise(src.get("motif"), src.get("secours"), log, cache)
                 if not url:

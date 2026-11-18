@@ -274,7 +274,7 @@ nav.tabs button[aria-selected="true"]::before { content: ""; position: absolute;
   function afficherRayons() {
     var cnt = {};
     S.data.promos.forEach(function (p) { if (S.store === "all" || p.enseigne === S.store) cnt[p.rayon] = (cnt[p.rayon] || 0) + 1; });
-    var ordre = ALIM.concat(["Boissons", "Hygiène & beauté", "Entretien", "Animaux", "Autres"]).filter(function (r) { return cnt[r]; });
+    var ordre = ALIM.concat(["Boissons", "Hygiène & beauté", "Entretien", "Animaux", "Maison & loisirs", "Autres"]).filter(function (r) { return cnt[r]; });
     $("rayons").innerHTML = ['Tous'].concat(ordre).map(function (r) {
       return '<button class="chip" data-rayon="' + esc(r) + '" aria-pressed="' + (S.rayon === r) + '">' + esc(r) + (r !== "Tous" ? ' <span style="opacity:.6">' + cnt[r] + '</span>' : '') + '</button>';
     }).join("");
