@@ -118,6 +118,24 @@ def resume(url):
     print("--- liens catalogues ---")
     for l in sorted(set(re.findall(r'href="([^"]*(?:brochure|catalogue|/b-|/Magasins/)[^"]*)"', page)))[:30]:
         print("  ", l)
+    ist = re.search(r"window\.__INITIAL_STATE\s*=\s*(\{.*?\})\s*;?\s*</script>", page, re.S)
+    if ist:
+        try:
+            st = json.loads(ist.group(1))
+            print("--- __INITIAL_STATE : clés", {k: (len(v) if isinstance(v, (list, dict)) else v if isinstance(v, (int, float)) else type(v).__name__) for k, v in st.items()})
+            pbp = st.get("productsByPages") or {}
+            tous = [x for pg in pbp.values() for x in (pg or [])]
+            print("   produits :", len(tous), "sur", len(pbp), "pages")
+            for x in tous[:3]:
+                print("   exemple :", json.dumps(x, ensure_ascii=False)[:1500])
+            for k, v in st.items():
+                if k != "productsByPages":
+                    print("   %s = %s" % (k, json.dumps(v, ensure_ascii=False)[:700]))
+        except Exception as e:
+            print("   __INITIAL_STATE illisible :", e)
+    print("--- liens catalogues vos-promos ---")
+    for l in sorted(set(re.findall(r'href="(https://vos-promos\.fr/[a-z0-9-]+-catalogues/[^"#]+)"', page)))[:30]:
+        print("  ", l)
     its = m.extraire_json(page)
     print("--- extraction JSON générique : %d produits" % len(its))
     for it in its[:8]:
