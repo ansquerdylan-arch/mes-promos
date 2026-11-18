@@ -77,7 +77,11 @@ def euro(x):
     return ("%.2f €" % x).replace(".", ",") if x is not None else ""
 
 
+DERNIER = {"code": None}
+
+
 def telecharger(url, log):
+    DERNIER["code"] = None
     req = urllib.request.Request(url, headers={
         "User-Agent": UA,
         "Accept": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
@@ -91,6 +95,7 @@ def telecharger(url, log):
                 brut = gzip.decompress(brut)
             return brut.decode(r.headers.get_content_charset() or "utf-8", "replace")
     except urllib.error.HTTPError as e:
+        DERNIER["code"] = e.code
         if e.code != 404:  # 404 = l'enseigne n'existe pas dans cette ville, c'est normal
             log("   ! %s -> erreur HTTP %s" % (url, e.code))
     except Exception as e:  # réseau coupé, délai dépassé…
@@ -245,12 +250,18 @@ def brochures_bonial(pi):
     return sortie
 
 
-def page_bonial(page):
-    """-> (offres, catalogues, liens magasins) depuis une page bonial « enseigne dans une ville »."""
+def infos_page(page):
     d = donnees_next(page)
-    if not d:
-        return [], [], []
-    pi = ((d.get("props") or {}).get("pageProps") or {}).get("pageInformation") or {}
+    return (((d or {}).get("props") or {}).get("pageProps") or {}).get("pageInformation") or {}
+
+
+def page_bonial(page, pi=None):
+    """-> (offres, catalogues, liens magasins) depuis une page bonial « enseigne dans une ville »."""
+    if pi is None:
+        d = donnees_next(page)
+        if not d:
+            return [], [], []
+        pi = ((d.get("props") or {}).get("pageProps") or {}).get("pageInformation") or {}
     offres = []
     for cle, bloc in (pi.get("offers") or {}).items():
         for o in (bloc or {}).get("items") or []:
@@ -564,6 +575,183 @@ def nettoyer(items, ens, validite_defaut, aujourd):
     return sortie
 
 
+# --------------------------------------------------------------------------- enseignes suivies
+# nom de page bonial -> (id, nom affiché, famille)
+FAMILLES = [
+    (r"Super-U", "superu", "Super U", "u"),
+    (r"Hyper-U", "hyperu", "Hyper U", "u"),
+    (r"U-Express", "uexpress", "U Express", "u"),
+    (r"Marche-U", "marcheu", "Marché U", "u"),
+    (r"E-Leclerc", "leclerc", "E.Leclerc", "leclerc"),
+    (r"Intermarche(-(?:Super|Hyper|Contact|Express))?", "intermarche", "Intermarché", "intermarche"),
+    (r"Lidl", "lidl", "Lidl", "lidl"),
+    (r"Carrefour(-(?:Market|City|Contact|Express|Proximite))?", "carrefour", "Carrefour", "carrefour"),
+]
+
+
+def chaine_de(nom_page):
+    for motif, ident, nom, fam in FAMILLES:
+        m = re.fullmatch(motif, nom_page or "")
+        if m:
+            suffixe = (m.group(1) or "").strip("-") if m.groups() else ""
+            if suffixe:
+                jolis = {"Proximite": "Proximité"}
+                return {"id": ident + suffixe.lower(), "nom": nom + " " + jolis.get(suffixe, suffixe), "famille": fam}
+            return {"id": ident, "nom": nom, "famille": fam}
+    return None
+
+
+def distance_km(a, b):
+    try:
+        from math import radians, sin, cos, asin, sqrt
+        la1, lo1, la2, lo2 = map(radians, (a[0], a[1], b[0], b[1]))
+        h = sin((la2 - la1) / 2) ** 2 + cos(la1) * cos(la2) * sin((lo2 - lo1) / 2) ** 2
+        return 6371 * 2 * asin(sqrt(h))
+    except Exception:
+        return 9999
+
+
+# --------------------------------------------------------------------------- exploration de la Vendée
+def explorer(cfg, log, debug=False):
+    """Parcourt les pages bonial « enseigne dans une ville » de proche en proche :
+    chaque page donne ses promos, ses catalogues, les magasins de l'enseigne aux alentours
+    (adresse, code postal, horaires) et les autres enseignes de la ville."""
+    from collections import deque
+    dept = str(cfg.get("departement", "85"))
+    maxi = int(cfg.get("max_pages", 400))
+    pause = float(cfg.get("pause", 0.7))
+    file = deque(cfg.get("graines", []))
+    vus, zones, magasins, catalogues, offres = set(), {}, {}, {}, []
+    n, arret = 0, False
+    while file and n < maxi:
+        chemin = file.popleft()
+        if chemin in vus:
+            continue
+        vus.add(chemin)
+        try:
+            ville, nom_page, pid = chemin.split("/")
+        except ValueError:
+            continue
+        ch = chaine_de(nom_page)
+        if not ch:
+            continue
+        page = telecharger("https://www.bonial.fr/" + chemin, log)
+        n += 1
+        time.sleep(pause)
+        if not page:
+            if DERNIER["code"] in (403, 429):
+                log("   ! le site freine (%s) : arrêt de l'exploration, les données manquantes seront reprises de la veille" % DERNIER["code"])
+                arret = True
+                break
+            continue
+        pi = infos_page(page)
+        cite = pi.get("city") or {}
+        cp = str(cite.get("primaryZipCode") or "")
+        if not cp.startswith(dept):
+            continue  # hors Vendée
+        if debug:
+            with open(os.path.join(DATA, "debug", chemin.replace("/", "_") + ".html"), "w", encoding="utf-8") as f:
+                f.write(page)
+        its, brochures, _ = page_bonial(page, pi)
+        cle = ville + "|" + ch["id"]
+        zones[cle] = {"ville": cite.get("displayName") or cite.get("name") or ville, "slug": ville, "chaine": ch["id"],
+                      "page": chemin, "cp": cp, "lat": cite.get("lat"), "lng": cite.get("lng"),
+                      "catalogues": sorted({b["id"] for b in brochures})}
+        for b in brochures:
+            catalogues[b["id"]] = dict(b, chaine=ch["id"])
+        for it in its:
+            it["chaine"] = ch["id"]
+            offres.append(it)
+        cont = (pi.get("template") or {}).get("content") or {}
+        # magasins de l'enseigne aux alentours
+        for l in ((cont.get("StoreLogoLinkbox") or {}).get("links") or []):
+            m = re.match(r"https://www\.bonial\.fr/Magasins/([^/]+)/[^/]+/v-f(\d+)", l.get("link_href") or "")
+            lt = l.get("link_text") or {}
+            mc = re.match(r"(\d{5})\s+(.+)", (lt.get("city") or "").strip())
+            if not m or not mc or not mc.group(1).startswith(dept):
+                continue
+            chm = chaine_de(l.get("publisherUrl") or nom_page)
+            if not chm or chm["id"] != ch["id"]:
+                continue
+            sid = ch["id"] + "-" + m.group(2)
+            horaires = [[h.get("dayOfWeek"), h.get("minutesFrom"), h.get("minutesTo")]
+                        for h in ((l.get("openingHours") or {}).get("regularOpeningHours") or []) if h.get("dayOfWeek")]
+            magasins[sid] = {"id": sid, "chaine": ch["id"], "nom": ch["nom"], "adresse": (lt.get("address") or "").strip(),
+                             "cp": mc.group(1), "ville": mc.group(2).strip(), "slug_ville": m.group(1),
+                             "horaires": horaires, "zone_ref": cle, "fiche": l.get("link_href")}
+            file.append("%s/%s/%s" % (m.group(1), nom_page, pid))
+        # autres enseignes de la même ville
+        for l in ((cont.get("PublisherLogoLinkbox") or {}).get("links") or []):
+            m = re.match(r"https://www\.bonial\.fr/([^/]+)/([^/]+)/(p-r\d+)$", l.get("link_href") or "")
+            if m and chaine_de(m.group(2)):
+                file.append("%s/%s/%s" % m.groups())
+    log("Exploration : %d pages lues, %d villes/enseignes, %d magasins, %d catalogues" % (n, len(zones), len(magasins), len(catalogues)))
+    return zones, magasins, catalogues, offres, arret
+
+
+def construire_offres(brutes, aujourd):
+    """Offres dédoublonnées par enseigne + catalogue."""
+    vus, sortie = {}, []
+    for it in brutes:
+        nom = re.sub(r"\s+", " ", (it.get("nom") or "")).strip(" –:")
+        if len(nom) < 2 or (it.get("fin") and it["fin"] < aujourd.isoformat()):
+            continue
+        marque = (it.get("marque") or "").strip()
+        if marque.isupper() and len(marque) > 3:
+            marque = marque.title()
+        cat = it.get("catalogue") or "*"
+        cle = "%s|%s|%s|%s" % (it["chaine"], cat, norm(nom), norm(marque))
+        if cle in vus:
+            a = vus[cle]
+            for k in ("avant", "prix", "unite", "detail", "debut", "fin"):
+                if not a.get(k) and it.get(k):
+                    a[k] = it[k]
+            continue
+        p, av = it.get("prix"), it.get("avant")
+        rem = it.get("remise_effective")
+        if rem is None and p and av and av > p:
+            rem = round((1 - p / av) * 100)
+        e = {"k": "%s-%s%s" % (it["chaine"], slug(nom)[:55], ("-" + slug(marque)[:18]) if marque else ""),
+             "chaine": it["chaine"], "cat": cat, "nom": nom, "marque": marque, "prix": p, "avant": av, "remise": rem,
+             "unite": it.get("unite") or "", "detail": it.get("detail") or "", "bon_plan": it.get("bon_plan") or "",
+             "rayon": rayon(nom, marque, it.get("categories", "")), "debut": it.get("debut") or "", "fin": it.get("fin") or ""}
+        if it.get("condition"):
+            e["condition"], e["remise_2e"] = it["condition"], it.get("remise_affichee")
+        vus[cle] = e
+        sortie.append(e)
+    return sortie
+
+
+def vue_magasins(donnees, ids):
+    """Ce que voit l'appli pour une sélection de magasins : promos, enseignes, agenda.
+    (même logique que dans la page, utilisée ici pour le calendrier et les alertes)"""
+    mags = {m["id"]: m for m in donnees.get("magasins", [])}
+    zones, cats = donnees.get("zones", {}), donnees.get("catalogues", {})
+    aujourd = date.today().isoformat()
+    enseignes, promos, evts = {}, [], []
+    for sid in ids:
+        m = mags.get(sid)
+        if not m:
+            continue
+        z = zones.get(m.get("zone") or "", {})
+        ok = set(z.get("catalogues", []))
+        nom = "%s %s" % (m["nom"], m["ville"])
+        mes = [o for o in donnees.get("offres", []) if o["chaine"] == m["chaine"] and (o["cat"] == "*" or o["cat"] in ok)]
+        for o in mes:
+            q = dict(o, id=sid + "|" + o["k"], enseigne=sid,
+                     validite=("du %s au %s" % (jj_mm(o["debut"]), jj_mm(o["fin"]))) if o.get("debut") and o.get("fin") else "")
+            promos.append(q)
+        enseignes[sid] = {"nom": nom, "chaine": m["chaine"], "nb": len(mes)}
+        for c in ok:
+            x = cats.get(c)
+            if x and x.get("fin", "") >= aujourd:
+                evts.append({"enseigne": sid, "nom": nom, "titre": x["titre"], "pages": x.get("pages"),
+                             "debut": x["debut"], "fin": x["fin"], "operation": x.get("operation")})
+    evts.sort(key=lambda e: (e["debut"], e["nom"]))
+    return enseignes, promos, evts
+
+
+# --------------------------------------------------------------------------- historique des prix
 # --------------------------------------------------------------------------- historique des prix
 def mettre_historique(promos, aujourd):
     h = charger_json(HISTORIQUE, {})
@@ -572,7 +760,7 @@ def mettre_historique(promos, aujourd):
     for p in promos:
         if p.get("prix") is None:
             continue
-        cle = p["enseigne"] + "|" + norm(p["nom"]) + "|" + norm(p.get("marque"))
+        cle = p.get("chaine", p.get("enseigne")) + "|" + norm(p["nom"]) + "|" + norm(p.get("marque"))
         lst = [x for x in h.get(cle, []) if x[0] >= limite]
         # infos pour l'appli : prix vus avant cette semaine
         avant = [x for x in lst if x[0] < (aujourd - timedelta(days=6)).isoformat()]
@@ -588,133 +776,130 @@ def mettre_historique(promos, aujourd):
 
 
 # --------------------------------------------------------------------------- mise à jour
-def mettre_a_jour(debug=False, log=print):
+def mettre_a_jour(debug=False, log=print, essai=False):
     os.makedirs(DATA, exist_ok=True)
-    dossier_debug = os.path.join(DATA, "debug")
     if debug:
-        os.makedirs(dossier_debug, exist_ok=True)
+        os.makedirs(os.path.join(DATA, "debug"), exist_ok=True)
     cfg = charger_config()
-    ancien = charger_json(FICHIER, {"enseignes": {}, "promos": []})
+    ancien = charger_json(FICHIER, {})
     aujourd = date.today()
-    resultat = {"maj": datetime.now().isoformat(timespec="seconds"), "ville": cfg.get("ville", ""),
-                "enseignes": {}, "promos": [], "evenements": []}
-    voisines = cfg.get("villes_voisines", [])
+    jour = aujourd.isoformat()
+
+    zones, magasins, catalogues, brutes, arret = explorer(cfg, log, debug)
+
+    # promos nationales d'anti-crise : valables dans tous les magasins de l'enseigne
     cache = {}
-
-    for ens in cfg["enseignes"]:
-        if not ens.get("actif", True):
+    for ident, a in (cfg.get("anticrise") or {}).items():
+        url, dates = trouver_anticrise(a.get("motif"), a.get("secours"), log, cache)
+        if not url:
             continue
-        log("→ %s" % ens["nom"])
-        bruts, sources, catalogues, magasin = [], [], [], None
-        b = ens.get("bonial")
-        if b:
-            url = "https://www.bonial.fr/%s/%s" % (b["ville"], b["page"])
-            page = telecharger(url, log)
-            if page:
-                if debug:
-                    with open(os.path.join(dossier_debug, "%s-%s.html" % (ens["id"], b["ville"])), "w", encoding="utf-8") as f:
-                        f.write(page)
-                offres, catalogues, liens = page_bonial(page)
-                if not offres:  # page sans données structurées : lecture du texte
-                    offres = extraire_bonial_texte(page, ens["nom"])
-                bruts += offres
-                sources.append(url)
-                magasin = next((l for l in liens if "/Magasins/%s/" % b["ville"] in l), None)
-                log("   %s : %d offres, %d catalogues" % (b["ville"], len(offres), len(catalogues)))
-            permis = {c["id"] for c in catalogues}
-            # même enseigne dans les villes voisines : autre sélection d'offres, mêmes catalogues
-            if permis:
-                total = 0
-                for v in voisines:
-                    if v == b["ville"]:
-                        continue
-                    time.sleep(0.8)
-                    pg = telecharger("https://www.bonial.fr/%s/%s" % (v, b["page"]), log)
-                    if not pg:
-                        continue
-                    offres, _, _ = page_bonial(pg)
-                    gardees = [o for o in offres if o.get("catalogue") in permis]
-                    total += len(gardees)
-                    bruts += gardees
-                log("   villes voisines : %d offres de plus (catalogues valables à %s)" % (total, b["ville"]))
-        a = ens.get("anticrise")
-        if a:
-            url, dates = trouver_anticrise(a.get("motif"), a.get("secours"), log, cache)
-            if url:
-                page = telecharger(url, log)
-                its = extraire_anticrise(page) if page else []
-                if its and dates:
-                    for it in its:
-                        it["debut"], it["fin"] = dates[0].isoformat(), dates[1].isoformat()
-                log("   anti-crise : %d produits" % len(its))
-                if its:
-                    bruts += its
-                    sources.append(url)
-            time.sleep(0.8)
+        page = telecharger(url, log)
+        its = extraire_anticrise(page) if page else []
+        for it in its:
+            it["chaine"] = ident
+            it["catalogue"] = "*"
+            if dates:
+                it["debut"], it["fin"] = dates[0].isoformat(), dates[1].isoformat()
+        brutes += its
+        log("   anti-crise %s : %d produits" % (ident, len(its)))
+        time.sleep(0.7)
 
-        # catalogues -> agenda
-        evts = []
-        for c in catalogues:
-            if not c["debut"] or not c["fin"] or c["fin"] < aujourd or (c["fin"] - c["debut"]).days > 120:
-                continue
-            evts.append({"enseigne": ens["id"], "nom": ens["nom"], "titre": c["titre"], "pages": c["pages"],
-                         "debut": c["debut"].isoformat(), "fin": c["fin"].isoformat(),
-                         "operation": est_operation(c["titre"], c["debut"], c["fin"])})
-        vus = set()
-        for e in evts:
-            k = (norm(e["titre"]), e["debut"], e["fin"])
-            if k not in vus:
-                vus.add(k)
-                resultat["evenements"].append(e)
+    # si l'exploration a été coupée : on garde ce qu'on avait la veille pour les villes non relues
+    if ancien.get("v") == 2:
+        for k, z in (ancien.get("zones") or {}).items():
+            if k not in zones:
+                zones[k] = z
+        for k, mg in {m["id"]: m for m in ancien.get("magasins", [])}.items():
+            magasins.setdefault(k, mg)
+        for k, c in (ancien.get("catalogues") or {}).items():
+            if c.get("fin", "") >= jour:
+                catalogues.setdefault(k, c)
+        lus = {(o["chaine"], o.get("catalogue")) for o in brutes}
+        for o in ancien.get("offres", []):
+            if (o["chaine"], o["cat"]) not in lus and o["cat"] in catalogues and (not o.get("fin") or o["fin"] >= jour):
+                brutes.append(dict(o, catalogue=o["cat"]))
 
-        principal = max((c for c in catalogues if c["debut"] and c["fin"] and c["debut"] <= aujourd <= c["fin"]),
-                        key=lambda c: c["pages"] or 0, default=None)
-        val_defaut = ("du %s au %s" % (principal["debut"].strftime("%d/%m"), principal["fin"].strftime("%d/%m"))) if principal else ""
-        promos = nettoyer(bruts, ens, val_defaut, aujourd)
-        info = {"nom": ens["nom"], "validite": val_defaut, "nb": len(promos), "maj": resultat["maj"],
-                "ancien": False, "sources": sources}
-        if magasin:
-            info["magasin"] = magasin
-            fiche = telecharger(magasin, log)
-            st = ((((donnees_next(fiche) or {}).get("props") or {}).get("pageProps") or {}).get("pageInformation") or {}).get("store") or {}
-            if st:
-                info["adresse"] = " ".join(x for x in [str(st.get("houseNumber") or ""), st.get("street") or ""] if x).strip() + \
-                    (", %s %s" % (st.get("zipCode") or "", st.get("cityName") or "")).rstrip()
-                if st.get("lat") and st.get("lng"):
-                    info["lat"], info["lng"] = st["lat"], st["lng"]
-        if promos:
-            resultat["enseignes"][ens["id"]] = info
-            resultat["promos"] += promos
-            log("   ✓ %d promos gardées" % len(promos))
-        else:
-            # rien trouvé : on garde les promos précédentes encore valables plutôt que de tout vider
-            garde = [p for p in ancien.get("promos", []) if p.get("enseigne") == ens["id"]
-                     and (not p.get("fin") or p["fin"] >= aujourd.isoformat())]
-            info.update(ancien.get("enseignes", {}).get(ens["id"], {}))
-            info.update({"nb": len(garde), "ancien": True, "nom": ens["nom"]})
-            resultat["enseignes"][ens["id"]] = info
-            resultat["promos"] += garde
-            log("   ✗ rien de nouveau, %d anciennes promos conservées" % len(garde))
-        time.sleep(0.8)
+    # magasins -> zone (page de leur ville, sinon celle où on les a trouvés), position
+    for m in magasins.values():
+        z = m["slug_ville"] + "|" + m["chaine"]
+        m["zone"] = z if z in zones else m.get("zone_ref")
+        zz = zones.get(m["zone"]) or {}
+        zv = next((x for k, x in zones.items() if k.startswith(m["slug_ville"] + "|")), None) or zz
+        m["lat"], m["lng"] = zv.get("lat"), zv.get("lng")
+    magasins = {k: m for k, m in magasins.items() if m.get("zone") in zones}
 
-    if not any(not e.get("ancien") for e in resultat["enseignes"].values()):
-        log("Aucune nouvelle promo trouvée (connexion internet ? sites changés ?). Les promos actuelles sont gardées.")
+    # catalogues : dates françaises, opérations courtes repérées
+    cats = {}
+    for k, c in catalogues.items():
+        d1, d2 = c.get("debut"), c.get("fin")
+        if isinstance(d1, date):
+            d1, d2 = d1.isoformat(), d2.isoformat()
+        if not d1 or not d2 or d2 < jour:
+            continue
+        if (date.fromisoformat(d2) - date.fromisoformat(d1)).days > 120:
+            continue
+        cats[k] = {"chaine": c["chaine"], "titre": c["titre"], "debut": d1, "fin": d2, "pages": c.get("pages"),
+                   "operation": est_operation(c["titre"], date.fromisoformat(d1), date.fromisoformat(d2))}
+    for z in zones.values():
+        z["catalogues"] = [c for c in z["catalogues"] if c in cats]
+
+    offres = construire_offres(brutes, aujourd)
+    offres = [o for o in offres if o["cat"] == "*" or o["cat"] in cats]
+
+    # magasins proposés par défaut : le plus proche de chez toi pour chaque enseigne de config
+    dom = cfg.get("domicile") or {}
+    pos = (dom.get("lat"), dom.get("lng"))
+    defaut = []
+    for ident in cfg.get("enseignes_defaut", []):
+        cand = [m for m in magasins.values() if m["chaine"] == ident or (ident.endswith("*") and m["chaine"].startswith(ident[:-1]))]
+        cand = [m for m in cand if m.get("lat")]
+        if cand and pos[0]:
+            defaut.append(min(cand, key=lambda m: distance_km(pos, (m["lat"], m["lng"])))["id"])
+
+    chaines = {}
+    for m in magasins.values():
+        ch = chaine_de_id(m["chaine"])
+        chaines[m["chaine"]] = {"nom": m["nom"], "famille": ch}
+    resultat = {"v": 2, "maj": datetime.now().isoformat(timespec="seconds"), "ville": dom.get("ville", ""),
+                "departement": str(cfg.get("departement", "85")), "domicile": dom, "chaines": chaines,
+                "zones": zones, "magasins": sorted(magasins.values(), key=lambda m: (m["ville"], m["nom"])),
+                "catalogues": cats, "offres": offres, "defaut": defaut}
+
+    if not offres:
+        log("Aucune promo trouvée (connexion internet ? site changé ?). Les promos actuelles sont gardées.")
         return ancien
-
-    resultat["evenements"].sort(key=lambda e: (e["debut"], e["nom"]))
     try:
-        ecrire_ics(resultat["evenements"], os.path.join(DATA, "rappels.ics"))
-    except Exception as e:
-        log("Calendrier non écrit : %s" % e)
-    try:
-        mettre_historique(resultat["promos"], aujourd)
+        mettre_historique(offres, aujourd)
     except Exception as e:
         log("Historique non mis à jour : %s" % e)
+    # vue « magasins par défaut » (anciennes versions de l'appli + calendrier de base)
+    ens, promos, evts = vue_magasins(resultat, defaut)
+    resultat["enseignes"], resultat["promos"], resultat["evenements"] = ens, promos, evts
+    if essai:
+        log("ESSAI : rien n'est enregistré.")
+        return resultat
+    try:
+        ecrire_ics(evts, os.path.join(DATA, "rappels.ics"))
+    except Exception as e:
+        log("Calendrier non écrit : %s" % e)
     ecrire_json(FICHIER, resultat)
-    log("Catalogues et opérations : %d" % len(resultat["evenements"]))
-    log("Terminé : %d promos enregistrées" % len(resultat["promos"]))
+    log("Terminé : %d magasins, %d catalogues, %d offres" % (len(magasins), len(cats), len(offres)))
     return resultat
 
 
+def chaine_de_id(ident):
+    for motif, i, nom, fam in FAMILLES:
+        if ident.startswith(i):
+            return fam
+    return ident
+
+
 if __name__ == "__main__":
-    mettre_a_jour(debug="--debug" in sys.argv)
+    r = mettre_a_jour(debug="--debug" in sys.argv, essai="--essai" in sys.argv)
+    if "--essai" in sys.argv and r:
+        from collections import Counter
+        print("Magasins par enseigne :", dict(Counter(m["chaine"] for m in r.get("magasins", []))))
+        print("Offres par enseigne :", dict(Counter(o["chaine"] for o in r.get("offres", []))))
+        print("Villes :", sorted({m["ville"] for m in r.get("magasins", [])}))
+        print("Par défaut :", [(m["nom"], m["ville"]) for m in r.get("magasins", []) if m["id"] in r.get("defaut", [])])
+        print("Exemple magasin :", json.dumps(r.get("magasins", [{}])[0], ensure_ascii=False)[:400])

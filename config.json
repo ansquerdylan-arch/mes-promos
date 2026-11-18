@@ -3,93 +3,74 @@
   "port": 8000,
   "acces_telephone": true,
   "maj_auto_heures": 12,
-  "villes_voisines": [
-    "Les-Sables-Dolonne",
-    "Chateau-Dolonne",
-    "La-Roche-sur-Yon",
-    "Challans",
-    "Saint-Gilles-Croix-de-Vie"
-  ],
   "ollama": {
     "url": "http://localhost:11434",
     "modele": "qwen2.5:7b"
   },
-  "enseignes": [
-    {
-      "id": "superu",
-      "nom": "Super U",
-      "actif": true,
-      "bonial": {
-        "ville": "Olonne-sur-Mer",
-        "page": "Super-U/p-r8"
-      },
-      "anticrise": {
-        "motif": "catalogue-super-u-du-[^\"'#?]+"
-      }
+  "departement": "85",
+  "domicile": {
+    "ville": "Olonne-sur-Mer",
+    "lat": 46.5364,
+    "lng": -1.77283
+  },
+  "enseignes_defaut": [
+    "superu",
+    "leclerc",
+    "intermarche*",
+    "lidl",
+    "carrefourmarket"
+  ],
+  "max_pages": 450,
+  "pause": 0.6,
+  "graines": [
+    "Olonne-sur-Mer/Super-U/p-r8",
+    "Olonne-sur-Mer/E-Leclerc/p-r140",
+    "Olonne-sur-Mer/Lidl/p-r1",
+    "Les-Sables-Dolonne/Carrefour-Market/p-r5",
+    "Les-Sables-Dolonne/Super-U/p-r8",
+    "La-Roche-sur-Yon/Super-U/p-r8",
+    "La-Roche-sur-Yon/Hyper-U/p-r62",
+    "La-Roche-sur-Yon/U-Express/p-r165",
+    "La-Roche-sur-Yon/E-Leclerc/p-r140",
+    "La-Roche-sur-Yon/Intermarche/p-r3",
+    "La-Roche-sur-Yon/Lidl/p-r1",
+    "La-Roche-sur-Yon/Carrefour/p-r106",
+    "Challans/E-Leclerc/p-r140",
+    "Challans/Super-U/p-r8",
+    "Fontenay-le-Comte/Super-U/p-r8",
+    "Lucon/Super-U/p-r8",
+    "Les-Herbiers/Super-U/p-r8",
+    "Montaigu/Super-U/p-r8",
+    "Saint-Gilles-Croix-de-Vie/Super-U/p-r8",
+    "Saint-Jean-de-Monts/Super-U/p-r8",
+    "Chantonnay/Super-U/p-r8",
+    "Pouzauges/Super-U/p-r8",
+    "Saint-Hilaire-de-Riez/Super-U/p-r8",
+    "La-Tranche-sur-Mer/Super-U/p-r8"
+  ],
+  "anticrise": {
+    "superu": {
+      "motif": "catalogue-super-u-du-[^\"'#?]+"
     },
-    {
-      "id": "leclerc",
-      "nom": "E.Leclerc",
-      "actif": true,
-      "bonial": {
-        "ville": "Olonne-sur-Mer",
-        "page": "E-Leclerc/p-r140"
-      },
-      "anticrise": {
-        "motif": "catalogue-leclerc-du-[^\"'#?]+centre-ouest",
-        "secours": "catalogue-leclerc-du-[^\"'#?]+"
-      }
+    "hyperu": {
+      "motif": "catalogue-hyper-u-du-[^\"'#?]+"
     },
-    {
-      "id": "intermarche",
-      "nom": "Intermarché",
-      "actif": true,
-      "anticrise": {
-        "motif": "catalogue-intermarche-du-[^\"'#?]+version-super",
-        "secours": "catalogue-intermarche-du-[^\"'#?]+"
-      }
+    "leclerc": {
+      "motif": "catalogue-leclerc-du-[^\"'#?]+centre-ouest",
+      "secours": "catalogue-leclerc-du-[^\"'#?]+"
     },
-    {
-      "id": "lidl",
-      "nom": "Lidl",
-      "actif": true,
-      "bonial": {
-        "ville": "Olonne-sur-Mer",
-        "page": "Lidl/p-r1"
-      },
-      "anticrise": {
-        "motif": "catalogue-lidl-du-[^\"'#?]+"
-      }
+    "intermarche": {
+      "motif": "catalogue-intermarche-du-[^\"'#?]+version-super",
+      "secours": "catalogue-intermarche-du-[^\"'#?]+"
     },
-    {
-      "id": "carrefour",
-      "nom": "Carrefour Market",
-      "actif": true,
-      "bonial": {
-        "ville": "Les-Sables-Dolonne",
-        "page": "Carrefour-Market/p-r5"
-      },
-      "anticrise": {
-        "motif": "catalogue-carrefour-market-du-[^\"'#?]+"
-      }
+    "lidl": {
+      "motif": "catalogue-lidl-du-[^\"'#?]+"
     },
-    {
-      "id": "grandfrais",
-      "nom": "Grand Frais",
-      "actif": false,
-      "bonial": {
-        "ville": "Olonne-sur-Mer",
-        "page": "Grand-Frais/p-r57"
-      }
+    "carrefourmarket": {
+      "motif": "catalogue-carrefour-market-du-[^\"'#?]+"
     },
-    {
-      "id": "picard",
-      "nom": "Picard",
-      "actif": false,
-      "bonial": {
-        "ville": "Olonne-sur-Mer",
-        "page": "Picard/p-r143"
-      }
+    "carrefour": {
+      "motif": "catalogue-carrefour-du-[^\"'#?]+"
     }
-  ]
+  }
 }
