@@ -1,0 +1,21 @@
+name: Diagnostic des sources
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: "Adresses à tester (séparées par des espaces)"
+        required: true
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Tester les adresses
+        env:
+          URLS: ${{ github.event.inputs.urls }}
+        run: python diag.py $URLS
