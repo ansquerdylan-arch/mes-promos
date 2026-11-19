@@ -662,6 +662,7 @@ dialog .row { min-width: 0; }
       var mes = [], parK = {};
       OFFRES.forEach(function (o) {
         if (o.chaine !== m.chaine || !(o.cat === "*" || ok[o.cat])) return;
+        if (o.fin && o.fin < auj) return;  // terminée (même si la mise à jour du matin n'est pas encore passée)
         var deja = parK[o.k];
         if (deja) { if ((o.prix || 9e9) < (deja.prix || 9e9)) mes[mes.indexOf(deja)] = parK[o.k] = o; return; }  // même produit dans 2 catalogues
         parK[o.k] = o; mes.push(o);
