@@ -367,7 +367,7 @@ def propre_detail(lignes, nom, unite, drapeaux):
             n = norm(x.replace("’", "'"))
             if not n or "€" in x or x == unite:
                 continue
-            if len(re.sub(r"\b(le|la|les|l|de|du)\b|[^a-z]", "", n)) <= 2:
+            if re.match(r"(?i)^(le|la|les)?\s*[,.]\d", x) or not re.sub(r"\b(le|la|les|l|de|du)\b|[^a-z]", "", n):
                 continue  # « Le ,99 » : morceau de prix
             if RE_PORTEURS.search(n) and len(n) < 70:
                 drapeaux.add("carte")
@@ -522,6 +522,17 @@ def offre_bonial(o):
             if rem and abs((it["avant"] - it["prix"]) - rem * f) < 0.02 * f:
                 it["prix"], it["avant"] = round(it["prix"] / f, 2), round(it["avant"] / f, 2)
                 break
+    if it["prix"] and it["avant"] and it["bon_plan"]:
+        # « -58 % » ou « -40 € » répètent ce que l'étiquette de prix montre déjà
+        rem, ecart = round((1 - it["prix"] / it["avant"]) * 100), it["avant"] - it["prix"]
+        garde = []
+        for x in it["bon_plan"].split(" · "):
+            m1 = re.fullmatch(r"(?i)(?:promo\s*:\s*)?-?\s*(\d+)\s*%", x.strip())
+            m2 = re.fullmatch(r"-?\s*(\d+(?:[.,]\d+)?)\s*€", x.strip())
+            if (m1 and abs(int(m1.group(1)) - rem) <= 1) or (m2 and abs(float(m2.group(1).replace(",", ".")) - ecart) < 0.02):
+                continue
+            garde.append(x)
+        it["bon_plan"] = " · ".join(garde)
     it["nom"] = propre_nom(it["nom"])
     if it["prix"] is None and not it["bon_plan"]:
         it["bon_plan"] = "Promo"
