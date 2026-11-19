@@ -113,8 +113,8 @@ def telecharger(url, log, entetes=None, binaire=False):
 # --------------------------------------------------------------------------- rayons
 RAYONS = {
     "High-tech & électroménager": "smartphone, tablette tactile, galaxy tab, ipad, telephone, telephone portable, aspirateur, balai aspirateur, lave linge, seche linge, lave vaisselle, refrigerateur, congelateur, airfryer, friteuse, expresso, cafetiere, senseo, machine a cafe, imprimante, casque, ecouteurs, enceinte, television, tv, console, jeu video, electromenager, multimedia, ordinateur, pc portable, souris, clavier, disque dur, cle usb, robot, blender, mixeur, bouilloire, grille pain, micro ondes, four multifonction, mini four, plancha, radiateur, chauffage, seche cheveux, lisseur, boucleur, montre connectee, trottinette electrique, smartwatch, barre de son, appareil a raclette, appareil raclette, gaufrier, crepiere, fondue electrique, air fryer, appareil a raclette, raclette electrique, nettoyeur vapeur, aspirateur laveur",
-    "Jouets & culture": "jouet, jouets, lego, playmobil, peluche, poupee, puzzle, jeu de societe, jeu de cartes, livre, livres, manga, bd, tome, roman, coloriage, feutres, stylos, cartable, nerf, beyblade, figurine, voiture radiocommandee, circuit, pokemon, pokedex, autocollants, papeterie, peluches, poupees, jeu de construction",
-    "Mode & sport": "t shirt, tee shirt, pull, chaussures, baskets, chaussettes, pyjama, veste, pantalon, jean, sweat, collant, collants, slip, slips, boxer, boxers, soutien gorge, legging, bonnet, gants, echarpe, manteau, doudoune, sac a main, sac a dos, bague, collier, bracelet, pendentif, boucles d oreilles, montre, lingerie, chemise, robe, jupe, peignoir, chaussons, brassiere, vetement, ski, debardeur, valise, bagagerie, combinaison, body, grenouillere",
+    "Jouets & culture": "jouet, jouets, lego, playmobil, peluche, poupee, puzzle, jeu de societe, jeu de cartes, livre, livres, manga, bd, tome, roman, coloriage, feutres, stylos, cartable, nerf, beyblade, figurine, voiture radiocommandee, circuit, pokemon, pokedex, autocollants, papeterie, peluches, poupees, jeu de construction, editions, edition, roman policier, thriller",
+    "Mode & sport": "t shirt, tee shirt, pull, chaussures, baskets, chaussettes, pyjama, veste, pantalon, jean, sweat, collant, collants, slip, slips, boxer, boxers, soutien gorge, legging, bonnet, gants, echarpe, manteau, doudoune, sac a main, sac a dos, bague, collier, bracelet, pendentif, boucles d oreilles, montre, lingerie, chemise, robe, jupe, peignoir, chaussons, brassiere, vetement, ski, debardeur, valise, bagagerie, combinaison, body, grenouillere, creoles, boucles d oreilles, chaine",
     "Maison & déco": "couette, oreiller, drap, housse de couette, plaid, sapin, guirlande, decoration, boule, suspension, bougie, bouquet, tulipes, fleurs, vaisselle, poele, casserole, sauteuse, faitout, torchons, torchon, lampe, coussin, rideau, tapis, cadre, vase, creche, papier cadeau, sac cadeau, nappe, serviettes, verres, assiettes, couverts, boite de rangement, lanterne, scene de noel, figurine de noel, calendrier de l avent decoratif, cheminee, photophore, bougies, allumettes, cuiseur, cuiseur camembert, cuiseur a camembert, moules a gateau, moule a gateau, moules a muffins, moule a muffins, moules en silicone, sacs cadeaux, sac cadeaux",
     "Jardin & bricolage": "perceuse, visseuse, outil, outils, combustible, petrole, granules, granule bois, bois de chauffage, taille haies, tondeuse, plante, plantes, poinsettia en pot, cactus, orchidee, terreau, bouteille de gaz, batterie, ampoule, ampoules, rallonge, multiprise, prises, bloc prises, pneu, essuie glace, lave glace, antigel, nettoyeur haute pression, buches de bois, bois densifie, buches",
     "Hygiène & beauté": "shampoing, gel douche, deodorant, dentifrice, brosse a dents, rasoir, maquillage, creme visage, creme mains, lingettes, demaquillant, savon, parfum, couches, culottes, protege slip, serviettes hygieniques, coton, vernis, apres shampoing, soin, mouchoirs, coloration, visage",
@@ -315,6 +315,12 @@ def propre_plan(plan, nom, drapeaux):
             continue  # « Le 2e à » sans le prix
         if " " not in n and not re.search(r"\d", n) and n not in ("offert", "gratuit", "promo"):
             continue  # « Gourde », « Bouteille »
+        x = re.sub(r"(?i),?\s*(le|la|les)\s+(produit|pi[eè]ce|unit[ée]|lot)s?(\s+au\s+choix)?\s*$", "", x).strip()
+        n = norm(x)
+        if not n:
+            continue
+        if not RE_DEAL.search(x) and not RE_PORTEURS.search(n) and set(n.split()) & set(norm(nom).split()):
+            continue  # une variante du produit, pas une promo
         x = re.sub(r"\bma\s+€\s+carte\b", "ma carte", x, flags=re.I)
         m = RE_DEAL.search(x)
         if m and m.start() > 0:
@@ -361,6 +367,8 @@ def propre_detail(lignes, nom, unite, drapeaux):
             n = norm(x.replace("’", "'"))
             if not n or "€" in x or x == unite:
                 continue
+            if len(re.sub(r"\b(le|la|les|l|de|du)\b|[^a-z]", "", n)) <= 2:
+                continue  # « Le ,99 » : morceau de prix
             if RE_PORTEURS.search(n) and len(n) < 70:
                 drapeaux.add("carte")
                 continue
