@@ -8,7 +8,9 @@ Mise à jour des promos — sans Claude, sans clé, sans compte.
      dates exactes) ;
   3. pour les opérations publiées en images (Jeudis Plus U, etc.), garde les images et, si le
      logiciel Tesseract est installé, lit le texte (34 % sur les chocolats de Noël, jour exact…) ;
-  4. complète avec les tableaux d'anti-crise.fr.
+  4. complète avec les tableaux d'anti-crise.fr ;
+  5. E.Leclerc : bonial n'a pas les produits de ses catalogues, on les lit sur le catalogue en ligne
+     officiel (nos-catalogues-promos-v2.e.leclerc), avec les « offres de la semaine » d'e.leclerc.
 Écrit promos.json, rappels.ics (calendrier) et historique.json (prix vus au fil des semaines).
 
 Utilisation :
@@ -124,14 +126,14 @@ RAYONS = {
     "Boissons": "biere, vin, rose, champagne, cremant, whisky, rhum, vodka, gin, jus, soda, coca, pepsi, eau minerale, eau gazeuse, sirop, ice tea, cafe, cafe grains, capsules cafe, dosettes, infusion, beaujolais, mousseux, martini, porto, ron, rhum arrange, arranges, liqueur, cognac, armagnac, calvados, pastis, ricard, cidre, nescafe, ricore, chicoree, bieres, jus d orange, pur jus, jus de pomme, jus de raisin, sirop, teisseire, oasis, ice tea, jus de fruits, capri sun, whiskey, electrolytes, bordeaux, bourgogne, brouilly, chablis, medoc, cotes du rhone, cotes de provence, saint emilion, muscadet, sancerre, chinon, saumur, cuvee, chateau, domaine, vin rouge, vin blanc, vin rose, aop rouge, aop blanc, aop rose, igp rouge, igp blanc, igp rose, pays d oc, vacqueyras, gigondas, cahors, madiran, bergerac, pomerol, margaux, pauillac, riesling, gewurztraminer, prosecco, cava, lambrusco, energy drink, red bull, punch, planteur, arrange, arranges, smoothie, smoothies, nectar, nectars, limonade, fanta, orangina, schweppes, sprite, seven up, perrier, evian, vittel, badoit, volvic, cristaline, san pellegrino, eau aromatisee, eaux aromatisees, pulp, lipton, the noir, the vert, tisane, tisanes, cocktail, cocktails, spritz, sangria, kir, liqueur, creme de cassis, pineau, muscat, cidre, bieres, biere blonde, tropicana, innocent, pur jus, jus de, punch, planteur, the noir, the vert, the rouge, the glace, the menthe, the a la menthe, the earl grey, the english breakfast, sachets de the, twinings, tetley, kusmi, elephant, monster energy, canettes, canette, capsules cafe, capsules espresso, capsules compatibles",
     "Poisson & mer": "saumon, cabillaud, crevette, crevettes, thon, sardine, maquereau, moules, huitres, coquilles saint jacques, coquilles, colin, merlu, bar, dorade, poisson, surimi, crabe, langoustine, truite, rillettes de thon, calamar, seiche, delpierre, petit navire, poissons, limande, sole, lieu noir, filet de lieu, dos de lieu, merlan, eglefin, fletan, blinis, saint jacques, noix de saint jacques, brandade",
     "Volaille": "poulet, dinde, pintade, canard, magret, caille, chapon, volaille, cordon bleu, cordons bleus, nuggets, aiguillettes, maitre coq, loue, tenders, nuggets, cordon bleu, aiguillettes, grignottes, pilon, pilons, cuisse de canard, cuisses de canard, confit de canard, magret",
-    "Charcuterie": "jambon, saucisson, lardons, rillettes, pate, terrine, chorizo, bacon, knacki, saucisse de strasbourg, foie gras, andouille, andouillette, boudin, fleury michon, fuet, rosette, charcuterie, mortadelle, boudins, boudin noir, boudin blanc, boudins blancs, terrine de campagne",
-    "Viande": "boeuf, veau, porc, agneau, steak, steaks haches, hache, entrecote, cote, roti, filet mignon, echine, saucisse, saucisses, merguez, chipolatas, paupiette, paupiettes, rognons, foie de boeuf, langue, osso bucco, bavette, charal, viande, boulettes",
+    "Charcuterie": "jambon, saucisson, tripes, lardons, rillettes, pate, terrine, chorizo, bacon, knacki, saucisse de strasbourg, foie gras, andouille, andouillette, boudin, fleury michon, fuet, rosette, charcuterie, mortadelle, boudins, boudin noir, boudin blanc, boudins blancs, terrine de campagne",
+    "Viande": "boeuf, veau, porc, agneau, lapin, steak, steaks haches, hache, entrecote, cote, roti, filet mignon, echine, saucisse, saucisses, merguez, chipolatas, paupiette, paupiettes, rognons, foie de boeuf, langue, osso bucco, bavette, charal, viande, boulettes",
     "Fromage": "fromage, camembert, emmental, comte, brie, raclette, mozzarella, cheddar, chevre, cabecou, crottin, roquefort, bleu d auvergne, reblochon, coulommiers, mimolette, parmesan, feta, tomme, madame loik, saint nectaire, tartiflette, buche aux laits, parmigiano, reggiano, tartiflette, rondele, tartare ail et fines herbes, boursin",
-    "Crèmerie & œufs": "yaourt, yaourts, creme fraiche, creme liquide, beurre, oeufs, oeuf, margarine, skyr, fromage blanc, dessert lacte, petits suisses, liegeois, danette, bridelice, desserts, creme legere, creme fouettee, petit pot de creme, lait, lait demi ecreme, lait entier, lait ecreme, activia, danone, yaourt brasse, yaourts brasses, riz au lait, creme dessert, cremes desserts, creme brulee, cremes brulees, flan nappe, flans nappes, ile flottante, iles flottantes, mousse au chocolat, mousses au chocolat, panna cotta",
+    "Crèmerie & œufs": "yaourt, yaourts, creme fraiche, creme liquide, beurre, beurrier, oeufs, oeuf, margarine, skyr, fromage blanc, dessert lacte, petits suisses, liegeois, danette, bridelice, desserts, creme legere, creme fouettee, petit pot de creme, lait, lait demi ecreme, lait entier, lait ecreme, activia, danone, yaourt brasse, yaourts brasses, riz au lait, creme dessert, cremes desserts, creme brulee, cremes brulees, flan nappe, flans nappes, ile flottante, iles flottantes, mousse au chocolat, mousses au chocolat, panna cotta",
     "Fruits & légumes": "pomme, pommes, poire, banane, orange, clementine, mandarine, kiwi, avocat, raisin, fraise, citron, ananas, mangue, tomate, tomates, carotte, carottes, courgette, poireau, oignon, echalote, ail, salade, concombre, poivron, champignon, champignons, chou, brocoli, epinards, haricots verts, patate douce, pomme de terre, pommes de terre, potiron, courge, navet, radis, endive, pak choi, betterave, mache, fruits, legumes, potimarron, marrons, chataignes, noix, morilles, cepes, girolles, corbeille de fruits secs",
     "Surgelés": "pommes de terre surgelees, legumes surgeles, poisson pane, poissons panes, frites surgelees, surgele, surgeles, surgelee, surgelees, glace, glaces, cone, cones, mccain, frites, pizza surgelee, poelee, pommes noisettes, picard, airfryer frite, frites surgelees, surgelee, surgelees, pommes duchesse, legumes bruts",
     "Boulangerie": "pain, baguette, brioche, viennoiserie, croissant, pain de mie, pains a burger, pain a burger, wraps, tortilla, harrys, jacquet, pains au chocolat, boules mais, flan, tarte, tartelettes, galette des rois, bande feuilletee, tarte fine, tarte aux pommes, chausson aux pommes, chaussons",
-    "Épicerie sucrée": "chocolat, chocolats, biscuit, biscuits, gateau, gateaux, bonbon, bonbons, confiture, pate a tartiner, nutella, cereales, granola, cacao, sucre, miel, compote, calendrier de l avent, ferrero, kinder, madeleine, panettone, milka, lindor, flocons d avoine, buche, canderel, delacre, deli choc, galettes, orangettes, barre, barres, barre tendre, pain d epices, marrons glaces, truffes, pralines, pandoro, papillotes, nesquik, poudre chocolatee, chocolatee, chocolatees, tablette de chocolat, tablettes de chocolat, chocolat lait, chocolat noir, chocolat au lait, chocolat blanc, noisettes grillees, sucres, decors sucres, pates de fruits, escargots praline, fourres, mini fourres, biscuits fourres, calissons, nougat, nougats, beignet, beignets, tiramisu, praline, boules praline, kit kat, compotes, gourde, gourdes, pom potes, cool fruits, petits pots, bledina, specialite de fruits, preparation de fruits, creme de marrons, cake, cakes, crumble, trompe l oeil, popcorn, pop corn, choco, daco bello, trompe loeil, palmiers, palmier, confitures, gourdes lactees",
+    "Épicerie sucrée": "chocolat, chocolats, biscuit, biscuits, gateau, gateaux, bonbon, bonbons, confiserie, gouter, gouters, fourre, confiture, pate a tartiner, nutella, cereales, granola, cacao, sucre, miel, compote, calendrier de l avent, ferrero, kinder, madeleine, panettone, milka, lindor, flocons d avoine, buche, canderel, delacre, deli choc, galettes, orangettes, barre, barres, barre tendre, pain d epices, marrons glaces, truffes, pralines, pandoro, papillotes, nesquik, poudre chocolatee, chocolatee, chocolatees, tablette de chocolat, tablettes de chocolat, chocolat lait, chocolat noir, chocolat au lait, chocolat blanc, noisettes grillees, sucres, decors sucres, pates de fruits, escargots praline, fourres, mini fourres, biscuits fourres, calissons, nougat, nougats, beignet, beignets, tiramisu, praline, boules praline, kit kat, compotes, gourde, gourdes, pom potes, cool fruits, petits pots, bledina, specialite de fruits, preparation de fruits, creme de marrons, cake, cakes, crumble, trompe l oeil, popcorn, pop corn, choco, daco bello, trompe loeil, palmiers, palmier, confitures, gourdes lactees",
     "Traiteur": "quiche, quiches, coeur de quiche, pizza, pizzas, lasagnes, lasagne, gratin, gratins, gratin dauphinois, hachis parmentier, parmentier, plat cuisine, plats cuisines, salade composee, salade de pates, taboule, paella, choucroute, choucroute garnie, croque monsieur, feuillete, feuilletes, friand, friands, bouchees a la reine, nems, samoussa, samoussas, sushi, sushis, sandwich, sandwichs, prefou, risotto, blanquette, bourguignon, tajine, couscous royal, pommes paillasson, tarte salee, tourte, wrap garni, farci, farcis, farcie, farcies, plat prepare, plats prepares, gnocchi a poeler, cordon bleu traiteur, burger, burgers, galette de ble noir, galettes de ble noir, crepe garnie, crepes garnies, tofu, plat vegetal, plats vegetaux, gougeres, pomme de terre farcie, pommes de terre farcies, tomate farcie, tomates farcies, rosti, rostis, rosti farci",
     "Épicerie salée": "pates, pates fraiches, pennette, spaghetti, riz, lentilles, semoule, couscous, quinoa, gnocchi, gnocchis, conserve, sauce, huile, vinaigre, moutarde, mayonnaise, ketchup, epices, sel, poivre, soupe, chips, chipster, aperitif, biscuits aperitifs, cacahuetes, olives, bouillon, farine, lustucru, panzani, barilla, rana, tuc, ravioli, raviolis, legumineuses, escargots, aligot, truffade, burgers aperitifs, pois chiches, escargots de bourgogne, soupes, soupe, tagliatelles, pates aux oeufs, pates, coquillettes, veloute, veloutes, mouline, potage, gazpacho, bouillon, croutons, chair de tomates, pulpe de tomates, puree de tomates, coulis de tomates, sauces, sauce tomate, lait de coco, bouquet garni, baked beans, puree, purees, mix bretzel, bretzels, haricots a la tomate, legumes cuisines, conserve de legumes, quinotto",
 }
@@ -1016,6 +1018,565 @@ def extraire_json(page):
     return trouves
 
 
+# --------------------------------------------------------------------------- E.Leclerc : site officiel
+# Bonial montre les pages des catalogues Leclerc mais pas leurs produits. Le catalogue en ligne d'E.Leclerc
+# (nos-catalogues-promos-v2.e.leclerc, celui des liens « Nos catalogues » de chaque magasin) les donne tous,
+# magasin par magasin : prix, mécanique de la promo, photo et code-barres. Les offres de quelques jours
+# (« -30 % sur les raclettes Entremont les 19 et 20 novembre ») sont sur la page « Les offres de la semaine »
+# d'e.leclerc, celles que les magasins reprennent sur leurs réseaux. On lit les deux comme le navigateur
+# le fait sur ces sites, une fois par jour.
+LEC_SITE = "https://nos-catalogues-promos-v2.e.leclerc"
+LEC_API = "https://nos-catalogues-promos-v2-api.e.leclerc"
+LEC_ENTETES = {"Accept": "application/json, text/plain, */*", "Origin": LEC_SITE, "Referer": LEC_SITE + "/"}
+LEC_SEMAINE = "https://www.e.leclerc/api/rest/live-api/category-details-by-code/EDITO_offres-de-la-semaine"
+LEC_SEMAINE_PAGE = "https://www.e.leclerc/e/offres-de-la-semaine"
+LEC_SEMAINE_ENTETES = {"Accept": "application/json, text/plain, */*", "Origin": "https://www.e.leclerc",
+                       "Referer": LEC_SEMAINE_PAGE}
+LEC_ETAT = os.path.join(DATA, "leclerc.json")
+LEC_GRAINES = ["26G095G"]  # un catalogue connu, pour demander la liste de ceux d'un magasin
+# pas des promos : guides, cartes traiteur (menus à commander), voyages, bijoux à l'année
+LEC_IGNORES = re.compile(r"^(guide|carte traiteur|voyages?|mariage|enfants|alliances)\b")
+# rayon du magasin (catégorie Leclerc) quand il ne laisse pas de doute : rayon() le lit comme « au rayon … »
+LEC_RAYON_MAGASIN = {"1001": "boulangerie", "1004": "surgele", "1005": "fruits et legumes", "1006": "boisson",
+                     "1008": "hygiene", "1009": "droguerie", "1022": "boisson", "1023": "cave"}
+# sinon son premier niveau, comme les catégories bonial (une peluche « ananas » n'est pas un fruit)
+LEC_HAUT = {"1010": "multimedia", "1011": "bebe et enfant", "1012": "mode", "1013": "maison et meubles",
+            "1014": "bricolage et jardin", "1015": "animaux", "1024": "sport et loisirs", "1025": "jeux et jouets",
+            "1026": "bricolage et jardin", "1028": "papeterie et articles de bureau", "1091": "multimedia"}
+for _c in range(1047, 1058):
+    LEC_HAUT[str(_c)] = "article culturel"
+for _c in range(1058, 1066):
+    LEC_HAUT[str(_c)] = "animaux"
+for _c in list(range(1066, 1073)) + list(range(1084, 1091)) + [1092, 1093]:
+    LEC_HAUT[str(_c)] = "bricolage et jardin"
+for _c in range(1073, 1084):
+    LEC_HAUT[str(_c)] = "cosmetiques"
+for _c in list(range(1029, 1047)) + list(range(1094, 1099)):
+    LEC_RAYON_MAGASIN[str(_c)] = "cave"
+# rayons possibles dans une catégorie Leclerc : si le nom mène ailleurs (« nouilles saveur poulet » en épicerie,
+# « bûche de chèvre » en crèmerie), on reste dans la catégorie ; le premier rayon sert si le nom ne dit rien
+LEC_RAYONS_OK = {"1002": ["Viande", "Volaille", "Poisson & mer", "Charcuterie"],
+                 "1007": ["Épicerie salée", "Épicerie sucrée", "Boissons"],
+                 "1016": ["Traiteur", "Charcuterie"],
+                 "1017": ["Fromage", "Crèmerie & œufs"],
+                 "1021": ["Hygiène & beauté", "Épicerie sucrée", "Épicerie salée", "Crèmerie & œufs", "Boissons"]}
+# catégories alimentaires (tout le catalogue compte) ; ailleurs (jouets, livres, mode…) seulement les vraies promos
+LEC_ALIM = {str(c) for c in list(range(1001, 1008)) + [1016, 1017, 1021, 1022, 1023] + list(range(1029, 1047)) + list(range(1094, 1099))}
+LEC_NOMS_CAT = {"1001": "pain viennoiserie patisserie", "1002": "viandes et poissons", "1004": "surgeles",
+                "1005": "fruits et legumes", "1007": "epicerie", "1008": "hygiene et beaute", "1009": "entretien",
+                "1016": "charcuterie traiteur", "1017": "cremerie fromagerie", "1022": "boissons", "1023": "boissons"}
+LEC_MOTS_VIDES = set("rue route avenue av boulevard bd bp place zone za zac zi d de du des la le les l et rond point "
+                     "cedex centre commercial parc espace activite activites sur sous en aux st ste".split())
+RE_LEC_GAMME = re.compile(r"(?i)^\s*sur\s+(?:les|tous les|toute la|la)\s+(?:produits|gamme)\b")
+RE_LEC_UNITE = re.compile(r"(?i)\ble\s+(kg|l|litre)\s*:\s*\d+(?:[.,]\d{1,2})?\s*€")
+RE_LEC_LOT = re.compile(r"(?i)\bpar\s+(\d+)\s*(?:\([^)]*\))?\s*:\s*(\d+(?:[.,]\d{1,2})?)\s*€")
+RE_LEC_BLABLA = re.compile(r"(?i)non cumulable|offre d.avantage|prix conseill|voir d[ée]tails|dans la limite|^par\s+\d+\s*\(")
+RE_LEC_JOURS = re.compile(r"\bles\s+(\d{1,2})(?:er)?\s+et\s+(\d{1,2})(?:er)?\s+(%s)\b" % "|".join(MOIS))
+RE_LEC_JOUR = re.compile(r"\b(\d{1,2})(?:er)?\s+(%s)\b" % "|".join(MOIS))
+
+
+def lec_json(url, log, entetes=None):
+    txt = telecharger(url, log, entetes or LEC_ENTETES)
+    if not txt:
+        return None
+    try:
+        return json.loads(txt)
+    except ValueError:
+        return None
+
+
+def _lec_date(v):
+    """« 2026-11-28T23:59:59Z » -> « 2026-11-28 » (le jour du catalogue)."""
+    m = re.match(r"(\d{4}-\d{2}-\d{2})", str(v or ""))
+    return m.group(1) if m else ""
+
+
+def _lec_nombre(v):
+    try:
+        f = float(str(v).replace(",", ".").strip())
+    except (TypeError, ValueError):
+        return None
+    return round(f, 2) if f > 0 else None
+
+
+def _lec_nb(x):
+    return ("%d" % x) if float(x).is_integer() else ("%.2f" % x).rstrip("0").replace(".", ",")
+
+
+def _lec_mots(t):
+    return {w for w in norm(t).split() if len(w) > 1 and w not in LEC_MOTS_VIDES and not w.isdigit()}
+
+
+def lec_magasins(dept, etat, log, aujourd):
+    """Magasins E.Leclerc du département sur le catalogue en ligne (code, adresse, page). Liste gardée une semaine."""
+    deja = etat.get("magasins") or []
+    try:
+        age = (aujourd - date.fromisoformat(etat.get("magasins_maj") or "2000-01-01")).days
+    except ValueError:
+        age = 999
+    if deja and age < 7:
+        return deja
+    lst = lec_json(LEC_API + "/shops", log)
+    if not isinstance(lst, list):
+        return deja
+    sortie = []
+    for x in lst:
+        ci = (x or {}).get("contact_info") or {}
+        cp = str(ci.get("location_code") or "")
+        if not x.get("code") or not cp.startswith(dept):
+            continue
+        ds = {e.get("name"): e.get("value") for e in x.get("dataset") or [] if isinstance(e, dict)}
+        sortie.append({"code": str(x["code"]), "nom": x.get("name") or "", "adresse": ci.get("address") or "", "cp": cp,
+                       "ville": re.sub(r"(?i)\s+cedex\b.*$", "", ci.get("city") or ""), "url": ds.get("sue_url") or ""})
+    if sortie:
+        etat["magasins"], etat["magasins_maj"] = sortie, aujourd.isoformat()
+    return sortie or deja
+
+
+def lec_associer(magasins, officiels):
+    """Magasin Leclerc de bonial -> le même magasin sur le catalogue en ligne (même ville, même adresse)."""
+    res = {}
+    for m in magasins.values():
+        if m.get("chaine") != "leclerc":
+            continue
+        adr, ville = _lec_mots(m.get("adresse")), _lec_mots(m.get("ville"))
+        best, score = None, 0
+        for o in officiels:
+            s = 2 * len(adr & _lec_mots(o["adresse"])) + (2 if ville & _lec_mots(o["ville"]) else 0) \
+                + (1 if str(o["cp"])[:4] == str(m.get("cp") or "")[:4] else 0)
+            if s > score:
+                best, score = o, s
+        if best and score >= 3:
+            res[m["id"]] = best
+    return res
+
+
+def lec_catalogues(mag, graines, log):
+    """Catalogues d'un magasin : la liste « autres catalogues » vue depuis un catalogue connu (une graine), plus la
+    graine si le magasin l'a. Si aucune graine ne répond (nouvelle année…) : les liens de sa page sur e.leclerc."""
+    code = mag["code"]
+    essais = list(dict.fromkeys(list(graines) + LEC_GRAINES))[:6]
+    for tour in range(2):
+        for g in essais:
+            lst = lec_json("%s/%s/%s/other_catalogs" % (LEC_API, g, code), log)
+            time.sleep(0.3)
+            if not isinstance(lst, list) or not lst:
+                continue
+            ops = {}
+            for x in lst:
+                if isinstance(x, dict) and x.get("operationCode") and x.get("uid"):
+                    ops[x["operationCode"]] = {"op": x["operationCode"], "nom": x.get("name") or "", "doc": x["uid"],
+                                               "debut": _lec_date(x.get("startDate")), "fin": _lec_date(x.get("endDate"))}
+            if g not in ops:
+                info = lec_json("%s/%s/%s" % (LEC_API, g, code), log)
+                if isinstance(info, dict) and info.get("documentUid"):
+                    ops[g] = {"op": g, "nom": info.get("name") or "", "doc": info["documentUid"],
+                              "debut": _lec_date(info.get("start_date")), "fin": _lec_date(info.get("end_date"))}
+            return list(ops.values())
+        if tour or not mag.get("url"):
+            break
+        url = urllib.parse.quote(mag["url"].replace("https://e.leclerc/", "https://www.e.leclerc/"), safe=":/")
+        page = telecharger(url, log) or ""
+        essais = list(dict.fromkeys(re.findall(r"nos-catalogues-promos-v2\.e\.leclerc/catalog/([A-Za-z0-9]+)/", page)))[:6]
+        if not essais:
+            break
+    return None
+
+
+def _lec_sans_marque(nom, marque):
+    """« FRITES POULET 800G MAITRE COQ » (marque Maître Coq) -> « FRITES POULET 800G »."""
+    nm = norm(marque).split()
+    mots = nom.split()
+    if nm and len(mots) > len(nm) and [norm(w) for w in mots[-len(nm):]] == nm:
+        return " ".join(mots[:-len(nm)])
+    return nom
+
+
+def offre_leclerc(p, op, est_alim):
+    """Un produit du catalogue en ligne Leclerc -> une offre (même forme que celles de bonial). None : à ignorer."""
+    nom = re.sub(r"\s+", " ", str(p.get("name") or "").replace("\n", " ")).strip(" *·-")
+    marque = re.sub(r"\s+", " ", str(p.get("brand") or "").replace("\n", " ")).strip(" *·-")
+    lab = str(p.get("discountLabel") or "").strip()
+    cats = [str(c) for c in p.get("categoriesParentUid") or []]
+    alim = (cats[0] in LEC_ALIM) if cats else est_alim  # la catégorie du produit fait foi (« is_food » vaut pour tout le catalogue)
+    if len(nom) < 2 or (not alim and lab in ("", "Prix simple")):
+        return None  # hors alimentaire : seulement les vraies promos (pas le prix d'un livre ou d'un jouet)
+    prix, avant = _lec_nombre(p.get("price")), _lec_nombre(p.get("priceWithoutDiscount"))
+    if prix and avant and avant <= prix + 0.005:
+        avant = None
+    x = _lec_nombre(p.get("discountAmount"))
+    en_euros = str(p.get("discountUnit") or "").upper() == "EURO"
+    qte = int(_lec_nombre(p.get("discountPriceQty")) or 2)
+    desc = [l.strip() for l in str(p.get("description") or "").replace("\r", "").split("\n") if l.strip()]
+    gamme = bool(RE_LEC_GAMME.match(nom))
+    if gamme:
+        # « SUR LES PRODUITS PRÉSENTS EN MAGASIN DE LA GAMME SOUPES DÉSHYDRATÉES "KNORR" » -> « Gamme soupes
+        # déshydratées » (Knorr) ; le prix et le poids sont ceux d'un produit parmi d'autres : on ne les garde pas
+        reste = re.sub(r"(?i)^\s*sur\s+(?:les|tous les|toute la|la)\s+produits?\s+(?:pr[ée]sents?\s+)?(?:en\s+magasin\s+)?"
+                       r"(?:de\s+)?(?:la\s+|l['’]\s*)?", "", nom)
+        hors = ""
+        m = re.search(r"(?i)[\s.*(]*\bhors\b.*$", reste)
+        if m:
+            hors, reste = reste[m.start():].strip(" .*()"), reste[:m.start()]
+        cite = re.findall(r'["“”«»]\s*([^"“”«»]+?)\s*["“”«»]', reste)
+        famille = re.sub(r'["“”«»][^"“”«»]*["“”«»]', " ", reste)
+        mot = "Sélection" if re.match(r"(?i)\s*s[ée]lection\b", famille) else "Gamme"
+        famille = re.sub(r"(?i)^\s*(gamme|s[ée]lection)\b", "", famille).strip(" .:-")
+        famille = re.sub(r"(?i)\s+(de|des|du|d['’])$", "", famille).strip(" .:-")
+        if not marque and cite:
+            marque = cite[0].title() if cite[0].isupper() else cite[0]
+        nom = mot + " " + (adoucir(famille, False) if famille else (marque.title() if marque.isupper() else marque))
+        prix = avant = None
+        desc = [adoucir(hors)] if hors else []
+    else:
+        nom = _lec_sans_marque(nom, marque)
+    plan, cond, r2, reff, carte = "", None, None, None, False
+    if lab in ("BRII %", "BRII EURO"):  # remise immédiate
+        if x and not (prix and avant):
+            plan = ("-%s immédiatement" % euro(x)) if en_euros else ("-%s %% immédiatement" % _lec_nb(x))
+            if not en_euros:
+                reff = int(round(x))
+    elif lab.startswith("-X%"):  # -X % sur le 2e (ou le 3e…)
+        if x and not en_euros:
+            if qte == 2 and prix:
+                p2 = _lec_nombre(p.get("discountedPriceSecondProduct"))
+                if not p2 or p2 >= prix:
+                    p2 = round(prix * (1 - x / 100), 2)
+                cond, r2 = "le 2e", int(round((1 - p2 / prix) * 100))
+                reff = int(round((1 - (prix + p2) / (2 * prix)) * 100))
+                avant, prix = prix, p2
+            else:
+                plan, reff = "-%s %% sur le %de" % (_lec_nb(x), qte), int(round(x / qte))
+    elif lab == "X+Y OFFERTS":
+        a, b = int(_lec_nombre(p.get("offertX")) or 2), int(_lec_nombre(p.get("offertY")) or 1)
+        plan = "%d acheté%s + %d offert%s" % (a, "s" if a > 1 else "", b, "s" if b > 1 else "")
+        lot = _lec_nombre(p.get("discountedPriceLot"))
+        if not lot:
+            m = RE_LEC_LOT.search(" ".join(desc))
+            lot = prix_float(m.group(2)) if m and int(m.group(1)) == a + b else None
+        if lot and prix:
+            plan += ", les %d : %s" % (a + b, euro(lot))
+        reff = int(round(b * 100 / (a + b)))
+    elif lab.upper().startswith("TEL") or "TICKET" in lab.upper():  # cagnotté en Ticket E.Leclerc (avec la carte)
+        carte = True
+        if x:
+            sur = (" sur le %de" % qte) if "XEME" in norm(lab).upper().replace(" ", "") else ""
+            plan = "%s en Ticket E.Leclerc%s" % (euro(x) if en_euros else ("%s %%" % _lec_nb(x)), sur)
+            if en_euros:
+                reff = int(round(x * 100 / prix)) if prix else None
+            else:
+                reff = int(round(x / (qte if sur else 1)))
+    mm = p.get("mechanicMentions") or {}
+    if isinstance(mm, dict) and mm.get("reservedForCardholders"):
+        carte = True
+    if isinstance(mm, dict) and mm.get("cheapestProduct") and plan:
+        plan += " (sur le moins cher)"
+    if prix is None and not plan:
+        return None
+    jointe = " ".join(desc)
+    mu = RE_LEC_UNITE.search(jointe)
+    unite = unite_et_poids(mu.group(0))[0] if mu else ""
+    if not unite and prix and norm(p.get("conditioning")) == "le kg":
+        unite = "%s le kg" % euro(avant if cond else prix)
+    lignes = []
+    for l in desc:
+        for y in re.split(r"(?<=\.)\s*(?=[A-ZÀ-ÖØ-Ý])", l):
+            y = y.strip()
+            if y and not RE_LEC_BLABLA.search(y) and not RE_LEC_UNITE.search(y):
+                lignes.append(y)
+    drapeaux = set()
+    nom_p = propre_nom(nom)
+    detail = propre_detail(lignes, nom_p, unite, drapeaux)
+    c0 = cats[0] if cats else ""
+    force = LEC_RAYON_MAGASIN.get(c0)
+    texte = ("au rayon %s" % force) if force else jointe[:200]
+    haut = LEC_HAUT.get(c0, "alimentation et boisson" if alim and c0 != "1021" else "")
+    r = rayon(nom_p, marque, "", haut, texte, unite)
+    permis = LEC_RAYONS_OK.get(c0)
+    if permis and r not in permis:
+        if c0 == "1016" and r == "Viande":
+            r = "Charcuterie"  # saucisses fumées, saucisson
+        elif c0 == "1007" and r == "Boulangerie":
+            r = "Épicerie sucrée"  # brioche, tartelettes en sachet
+        elif c0 == "1007" and r == "Fruits & légumes":
+            r = "Épicerie sucrée" if re.search(r"(?i)fraise|pomme|poire|abricot|cerise|framboise|p[eê]che|fruit|myrtille|figue|datte|pruneau",
+                                              nom_p) else "Épicerie salée"
+        elif c0 == "1017":
+            r = "Fromage" if re.search(r"(?i)mat\.?\s*gr|\d\s*%\s*m\.?\s*g\b|fromage|ch[eè]vre|brebis", nom_p + " " + jointe) \
+                else "Crèmerie & œufs"
+        else:
+            tr = [t for t in _mots_cles(norm(nom_p)) if t[2] in permis]
+            r = min(tr)[2] if tr else permis[0]
+    d1 = _lec_date(p.get("mandatStartDate")) or op["debut"]
+    d2 = _lec_date(p.get("mandatEndDate")) or op["fin"]
+    if d1 < op["debut"] or d1 > op["fin"]:
+        d1 = op["debut"]
+    if d2 > op["fin"] or d2 < d1:
+        d2 = op["fin"]
+    it = {"nom": nom_p, "marque": marque if len(marque) > 1 else "", "prix": prix, "avant": avant, "unite": unite,
+          "detail": detail, "debut": d1, "fin": d2, "bon_plan": plan, "rayon": r, "remise_effective": reff}
+    if cond:
+        it["condition"], it["remise_affichee"] = cond, r2
+    if carte:
+        it["carte"] = True
+    for dr in drapeaux:
+        it[dr] = True
+    imgs = [i for i in p.get("images") or [] if isinstance(i, dict) and i.get("url")]
+    img = next((i["url"] for i in imgs if i.get("type") == "packshot"), None) or (imgs[0]["url"] if imgs else None)
+    if img:
+        it["ph"] = img  # photo officielle (l'appli demande la taille voulue : ?g=300x300)
+    if re.fullmatch(r"\d{8,14}", str(p.get("ean") or "")):
+        it["ean"] = str(p["ean"])
+    return it
+
+
+def _lec_jours(a, b):
+    return (date.fromisoformat(a) - date.fromisoformat(b)).days
+
+
+def _lec_titre(info, nom):
+    t = (info.get("catch_phrase") or "").strip()
+    if not t:
+        t = re.sub(r"(?i)\s*(-\s*mixte|gsa)\s*$", "", nom or "").strip()
+        t = adoucir(t.title() if t.isupper() else t)
+    return t[:1].upper() + t[1:] if t else "Catalogue"
+
+
+def _lec_dates_texte(t, ref):
+    """« Les 19 et 20 novembre », « Du 1er au 30 novembre », « Le 21 novembre » -> (début, fin)."""
+    n = norm(t)
+    m = RE_DU_AU.search(n)
+    if m:
+        d2 = _date_fr(m.group(3), m.group(4), ref)
+        d1 = _date_fr(m.group(1), m.group(2) or m.group(4), ref)
+        if d1 and d2 and d1 <= d2:
+            return d1, d2
+    m = RE_LEC_JOURS.search(n)
+    if m:
+        d1, d2 = _date_fr(m.group(1), m.group(3), ref), _date_fr(m.group(2), m.group(3), ref)
+        if d1 and d2 and d1 <= d2:
+            return d1, d2
+    m = RE_LEC_JOUR.search(n)
+    if m:
+        d = _date_fr(m.group(1), m.group(2), ref)
+        if d:
+            return d, d
+    return None, None
+
+
+def lec_semaine(log, aujourd):
+    """« Les offres de la semaine » d'e.leclerc (nationales, magasins participants) -> {id catalogue: (catalogue, offres)},
+    une entrée d'agenda par période (les 19 et 20 novembre, le 21 novembre, tout le mois…)."""
+    d = lec_json(LEC_SEMAINE, log, LEC_SEMAINE_ENTETES)
+    page = (d or {}).get("page") or {}
+    jour, horizon = aujourd.isoformat(), (aujourd + timedelta(days=10)).isoformat()
+    par_periode = {}
+    for z in ((page.get("template") or {}).get("zones") or []):
+        for c in z.get("components") or []:
+            if not isinstance(c, dict) or c.get("type") != "IMAGE":
+                continue
+            if re.match(r"(header|teasing|renvoi)\b", norm(c.get("name"))):
+                continue  # titres de rubriques, annonces, liens
+            titre = re.sub(r"\s+", " ", c.get("seoTitle") or "").strip()
+            txt = re.sub(r"\s+", " ", c.get("description") or c.get("seoAlt") or titre).strip()
+            if not re.search(r"(?i)\d\s*%|\d\s*€|ticket|offert", txt):
+                continue
+            d1, d2 = _lec_dates_texte(txt, aujourd)
+            a1, a2 = _lec_date(c.get("startDate")), _lec_date(c.get("endDate"))
+            if not d1:
+                if not a2:
+                    continue  # avantage permanent (« chaque semaine… ») : pas une promo datée
+                d1, d2 = date.fromisoformat(a1 or jour), date.fromisoformat(a2)
+            if d2.isoformat() < jour or d1.isoformat() > horizon:
+                continue
+            nom = re.sub(r"(?i)^(les immanquables e\.?\s?leclerc\s+vu [àa] la t[ée]l[ée]|"
+                         r"offre(\s+rayon)?(\s+frais traditionnel)?(\s+immanquable)?(\s+e\.?\s?leclerc)?|"
+                         r"mardis? b[ée]b[ée] sur la marque)\s*:?\s*", "", titre).strip()
+            nom = re.sub(r"(?i)\s+[àa]\s+\d+(?:[.,]\d+)?\s*€.*$", "", nom).strip(" :")
+            if not nom or re.search(r"(?i)\b(du|le|les)\s+\d|%|ticket", nom) or re.match(r"(?i)mardis? b[ée]b[ée]", titre):
+                m = re.search(r"(?i)\bsur\s+(?:une\s+s[ée]lection\s+de\s+|la\s+marque\s+|la\s+gamme\s+|le\s+rayon\s+|des\s+)?"
+                              r"(.+?)(?:\s+de\s+marque\b.*|\s+(?:de la marque|des marques)\b.*|\s+[àa]\s+activer\b.*|[.,]|$)", txt)
+                if m:
+                    nom = ("Bébé : " if re.match(r"(?i)mardis? b[ée]b[ée]", titre) else "") + m.group(1).strip()
+            if not nom:
+                continue
+            nom = nom[:1].upper() + nom[1:]
+            mq = re.search(r"(?i)\b(?:de la marque|des marques)\s+(.+?)(?:\.|$)", txt)
+            marque = mq.group(1).strip() if mq else ""
+            carte = bool(re.search(r"(?i)porteurs?\s+de\s+la\s+carte|ticket|avec la carte|application mon e\.?\s?leclerc", txt))
+            plan, rem = "", None
+            m = re.search(r"(?i)(\d+(?:[.,]\d+)?)\s*%\s*en\s+tickets?", txt)
+            if m:
+                rem = int(float(m.group(1).replace(",", ".")))
+                plan = "%d %% en Ticket E.Leclerc" % rem
+            else:
+                m = re.search(r"-\s*(\d+(?:[.,]\d+)?)\s*%", txt) or re.search(r"(?i)moins\s+(\d+)\s*pour\s*cent", txt)
+                if m:
+                    rem = int(float(m.group(1).replace(",", ".")))
+                    plan = "-%d %%%s" % (rem, " avec la carte" if carte else "")
+            prix = avant = None
+            m = re.search(r"(\d+(?:[.,]\d{1,2})?)\s*€", txt)
+            if m and not plan:  # « 13,50€ la bourriche », « à 75€ au lieu de 99€ »
+                prix = prix_float(m.group(1))
+                m2 = re.search(r"(?i)au lieu de\s*(\d+(?:[.,]\d{1,2})?)\s*€", txt)
+                avant = prix_float(m2.group(1)) if m2 else None
+            if prix is None and not plan:
+                continue
+            m = re.search(r"(?i)(\d+(?:[.,]\d{1,2})?)\s*€\s*(?:le|la)\s*(kg|litre)\b", txt)
+            unite = ("%s € le %s" % (m.group(1).replace(".", ","), m.group(2).lower())) if m else ""
+            img = ((c.get("mobilePicture") or {}).get("url") or (c.get("desktopPicture") or {}).get("url") or "")
+            it = {"nom": couper(nom, 70), "marque": couper(marque, 40), "prix": prix, "avant": avant if avant and prix and avant > prix else None,
+                  "unite": unite, "detail": couper(txt + " Offre nationale E.Leclerc, dans les magasins participants.", 260),
+                  "debut": d1.isoformat(), "fin": d2.isoformat(), "bon_plan": plan, "remise_effective": rem if not prix else None,
+                  "op": True, "rayon": rayon(nom, marque, "", "", txt, unite)}
+            if img:
+                it["image"] = img
+            if carte:
+                it["carte"] = True
+            duree = (d2 - d1).days
+            groupe = (d1.isoformat(), d2.isoformat()) if duree <= 2 else ("s" if duree <= 10 else "m")
+            par_periode.setdefault(groupe, []).append(it)
+    sortie = {}
+    for groupe, items in par_periode.items():
+        a, b = min(i["debut"] for i in items), max(i["fin"] for i in items)
+        if groupe == "m":
+            titre, cid = "Offres du mois E.Leclerc", "lecsem-m-%s-%s" % (a.replace("-", ""), b.replace("-", "")[4:])
+        elif groupe == "s":
+            titre, cid = "Offres de la semaine E.Leclerc", "lecsem-s-%s-%s" % (a.replace("-", ""), b.replace("-", "")[4:])
+        else:
+            titre = "Offre du jour E.Leclerc" if a == b else "Offres de la semaine E.Leclerc"
+            cid = "lecsem-%s-%s" % (a.replace("-", ""), b.replace("-", "")[4:])
+        resume = " · ".join(dict.fromkeys(("%s %s" % (i["nom"], i["bon_plan"] or euro(i["prix"]))).strip() for i in items))
+        sortie[cid] = ({"chaine": "leclerc", "titre": titre, "debut": a, "fin": b, "pages": None, "operation": True,
+                        "type": "LECLERC", "src": "lec", "lien": LEC_SEMAINE_PAGE, "resume": couper(resume, 200),
+                        "images": [i["image"] for i in items if i.get("image")][:6]}, items)
+    return sortie
+
+
+def _lec_veille(ancien, cid, jour):
+    """Offres d'un catalogue Leclerc officiel d'hier (site injoignable aujourd'hui)."""
+    anc_cats = ancien.get("catalogues") or {}
+    if "_offres" not in ancien:
+        ancien["_offres"] = etendre(ancien.get("offres") or [], anc_cats)
+    return [dict(o, catalogue=cid, remise_effective=o.get("remise") if o.get("condition") or o.get("op") else None,
+                 remise_affichee=o.get("remise_2e")) for o in ancien["_offres"] if o["cat"] == cid and (o.get("fin") or "9") >= jour]
+
+
+def leclerc_officiel(magasins, zones, cats, brutes, cfg, log, aujourd, ancien=None):
+    """Ajoute les produits des catalogues Leclerc (site officiel) et les offres de la semaine.
+    Un catalogue que bonial a déjà (mêmes dates, même nombre de pages) garde son identifiant et ses pages,
+    et prend les produits officiels à la place des siens ; les autres deviennent des catalogues du magasin."""
+    jour, dans7 = aujourd.isoformat(), (aujourd + timedelta(days=7)).isoformat()
+    etat = charger_json(LEC_ETAT, {})
+    officiels = lec_magasins(str(cfg.get("departement", "85")), etat, log, aujourd)
+    lien = lec_associer(magasins, officiels)
+    graines = list(etat.get("graines") or [])
+    infos, produits, pages_doc, vus, remplaces, nouveaux = {}, {}, {}, [], set(), {}
+    ancien = ancien or {}
+    anc_cats = ancien.get("catalogues") or {}
+    anc_mags = {x["id"]: x for x in ancien.get("magasins") or []}
+    n_mag = 0
+    for sid, mo in sorted(lien.items()):
+        m = magasins[sid]
+        lst = lec_catalogues(mo, graines, log)
+        if lst is None:  # site injoignable : les catalogues de la veille pour ce magasin
+            m["catalogues"] = [c for c in (anc_mags.get(sid) or {}).get("catalogues") or []
+                               if (anc_cats.get(c) or {}).get("fin", "") >= jour]
+            for cid in m["catalogues"]:
+                if cid not in cats:
+                    cats[cid] = {k: v for k, v in anc_cats[cid].items() if k != "n"}
+                    nouveaux[cid] = _lec_veille(ancien, cid, jour)
+            continue
+        n_mag += 1
+        z = zones.get(m.get("zone")) or {}
+        m["catalogues"] = []
+        for x in sorted(lst, key=lambda y: y["op"]):
+            vus.append((x["fin"] or "", x["op"]))
+            if not x["debut"] or not x["fin"] or x["fin"] < jour or x["debut"] > dans7:
+                continue
+            if _lec_jours(x["fin"], x["debut"]) > 120 or LEC_IGNORES.search(norm(x["nom"])):
+                continue
+            cle = x["op"] + "|" + x["doc"]
+            if cle not in infos:
+                infos[cle] = lec_json("%s/%s/%s" % (LEC_API, x["op"], mo["code"]), log) or {}
+                time.sleep(0.3)
+            info = infos[cle]
+            pages = int(_lec_nombre(info.get("pageCount")) or 0)
+            titre = _lec_titre(info, x["nom"])
+            jumeau = None
+            for cid in z.get("catalogues", []):
+                c = cats.get(cid) or {}
+                if c.get("chaine") != "leclerc" or c.get("src") == "lec" or not c.get("debut"):
+                    continue
+                if abs(_lec_jours(c["debut"], x["debut"])) <= 1 and abs(_lec_jours(c["fin"], x["fin"])) <= 1 and \
+                        (not pages or not c.get("pages") or c.get("type") == "DYNAMIC" or abs(c["pages"] - pages) <= max(4, pages // 5)):
+                    jumeau = cid
+                    break
+            doc = x["doc"]
+            if doc not in produits:
+                pr = lec_json("%s/document/%s/products" % (LEC_API, doc), log)
+                produits[doc] = pr if isinstance(pr, list) else []
+                time.sleep(0.3)
+            est_alim = bool(info.get("is_food"))
+            items = [it for it in (offre_leclerc(p, x, est_alim) for p in produits[doc] if isinstance(p, dict)) if it]
+            lien_cat = "%s/catalog/%s/%s" % (LEC_SITE, x["op"], mo["code"])
+            if jumeau:
+                cats[jumeau].setdefault("lien", lien_cat)
+                if items and jumeau not in remplaces:
+                    remplaces.add(jumeau)
+                    nouveaux[jumeau] = items
+                continue
+            cid = "lec-%s-%s" % (x["op"].lower(), doc[:8])
+            if cid not in cats:
+                d1, d2 = date.fromisoformat(x["debut"]), date.fromisoformat(x["fin"])
+                cats[cid] = {"chaine": "leclerc", "titre": titre, "debut": x["debut"], "fin": x["fin"], "pages": pages or None,
+                             "operation": est_operation(titre, d1, d2), "type": "LECLERC", "src": "lec", "lien": lien_cat,
+                             "complet": True}
+                if doc not in pages_doc:
+                    pl = lec_json("%s/document/%s/pages" % (LEC_API, doc), log)
+                    pl = [y for y in pl if isinstance(y, dict) and y.get("source")] if isinstance(pl, list) else []
+                    pages_doc[doc] = [y["source"] for y in sorted(pl, key=lambda y: _lec_nombre(y.get("index")) or 0)]
+                    time.sleep(0.3)
+                if pages_doc[doc]:
+                    cats[cid]["_pages"] = pages_doc[doc]
+                nouveaux[cid] = items
+            if cid not in m["catalogues"]:
+                m["catalogues"].append(cid)
+    if remplaces:
+        brutes = [b for b in brutes if b.get("catalogue") not in remplaces]
+    total = 0
+    for cid, items in nouveaux.items():
+        for it in items:
+            it["chaine"], it["catalogue"] = "leclerc", cid
+        brutes += items
+        total += len(items)
+    # offres de la semaine : nationales, pour tous les magasins Leclerc
+    try:
+        sem = lec_semaine(log, aujourd)
+    except Exception as e:
+        log("   ! offres de la semaine E.Leclerc : %s" % e)
+        sem = {}
+    if not sem:  # page injoignable : celles de la veille encore valables
+        sem = {cid: ({k: v for k, v in c.items() if k != "n"}, _lec_veille(ancien, cid, jour))
+               for cid, c in anc_cats.items() if cid.startswith("lecsem-") and c.get("fin", "") >= jour}
+    for cid, (c, items) in sem.items():
+        cats[cid] = c
+        for it in items:
+            it["chaine"], it["catalogue"] = "leclerc", cid
+        brutes += items
+        for z in zones.values():
+            if z.get("chaine") == "leclerc" and cid not in z["catalogues"]:
+                z["catalogues"].append(cid)
+    if vus:  # graines pour demain : les catalogues qui durent le plus longtemps
+        etat["graines"] = [op for _, op in sorted(set(vus), reverse=True)][:6]
+    etat["maj"] = jour
+    ecrire_json(LEC_ETAT, etat)
+    log("E.Leclerc (site officiel) : %d/%d magasins, %d produits de catalogue (%d catalogues complétés, %d ajoutés), "
+        "%d offres de la semaine" % (n_mag, len(lien), total, len(remplaces), len(nouveaux) - len(remplaces),
+                                     sum(len(v[1]) for v in sem.values())))
+    return brutes
+
+
 # --------------------------------------------------------------------------- catalogues & calendrier
 MOTS_OPE = ("jeudi", "vendredi", "samedi", "week", "carte", "flash", "inratable", "prix bas", "black", "foire",
             "anniversaire", "jours", "%")
@@ -1391,7 +1952,7 @@ def construire_offres(brutes, aujourd):
              "debut": it.get("debut") or "", "fin": it.get("fin") or ""}
         if it.get("condition"):
             e["condition"], e["remise_2e"] = it["condition"], it.get("remise_affichee")
-        for x in ("carte", "des", "image", "op", "img", "en_ligne"):
+        for x in ("carte", "des", "image", "op", "img", "en_ligne", "ph", "ean"):
             if it.get(x):
                 e[x] = it[x]
         if isinstance(it.get("page"), int) and cat != "*":
@@ -1548,6 +2109,54 @@ def etendre(offres, cats):
     return sortie
 
 
+VIDES_SIG = set("de du des la le les l d au aux a et en avec pour x".split())
+
+
+def _signature(o):
+    mots = sorted(set(w for w in norm(re.sub(r"(?i)\(?\s*\"?\s*lot\s+de\s+\d+\s*\"?\s*\)?", " ", o.get("nom") or "")).split()
+                      if w not in VIDES_SIG))
+    return " ".join(mots) + "|" + norm(o.get("marque")).replace(" ", "")
+
+
+def _lot(o):
+    m = re.search(r"(?i)lot\s+de\s+(\d+)", o.get("nom") or "")
+    return max(1, int(m.group(1))) if m else 1
+
+
+def sans_doublons(liste):
+    """Une même offre une seule fois par magasin (même logique que l'appli) : même produit (mots du nom, marque),
+    mêmes jours, même prix à l'unité ; une ligne d'anti-crise (« lot de 2 ») cède la place au catalogue."""
+    par, garde = {}, []
+    for o in liste:
+        if o.get("op"):
+            garde.append(o)
+            continue
+        l = par.setdefault(_signature(o), [])
+        trouve = None
+        for i, x in enumerate(l):
+            if (x.get("fin") and o.get("debut") and o["debut"] > x["fin"]) or (o.get("fin") and x.get("debut") and x["debut"] > o["fin"]):
+                continue
+            if x.get("debut") and o.get("debut") and abs(_lec_jours(x["debut"], o["debut"])) > 3:
+                continue
+            p1 = x["prix"] / _lot(x) if x.get("prix") is not None else None
+            p2 = o["prix"] / _lot(o) if o.get("prix") is not None else None
+            meme = (p2 is None and norm(x.get("bon_plan")) == norm(o.get("bon_plan"))) if p1 is None else \
+                (p2 is not None and abs(p1 - p2) <= 0.02 * max(p1, p2) + 0.01)
+            if meme or x.get("cat") == "*" or o.get("cat") == "*":
+                trouve = i
+                break
+        if trouve is None:
+            l.append(o)
+            garde.append(o)
+            continue
+        a = l[trouve]
+        note = lambda p: (4 if p.get("cat") != "*" else 0) + (2 if p.get("img") or p.get("ph") else 0) + (1 if p.get("pg") is not None else 0) + (1 if _lot(p) == 1 else 0)
+        if note(o) > note(a):
+            l[trouve] = o
+            garde[garde.index(a)] = o
+    return garde
+
+
 def vue_magasins(donnees, ids):
     """Ce que voit l'appli pour une sélection de magasins : promos, enseignes, agenda.
     (même logique que dans la page, utilisée ici pour le calendrier et les alertes)"""
@@ -1561,7 +2170,7 @@ def vue_magasins(donnees, ids):
         if not m:
             continue
         z = zones.get(m.get("zone") or "", {})
-        ok = set(z.get("catalogues", []))
+        ok = set(z.get("catalogues", [])) | set(m.get("catalogues") or [])  # + catalogues propres au magasin
         nom = "%s %s" % (m["nom"], m["ville"])
         mes, vus = [], {}
         for o in toutes:
@@ -1574,6 +2183,7 @@ def vue_magasins(donnees, ids):
                 continue
             vus[o["k"]] = dict(o)
             mes.append(vus[o["k"]])
+        mes = sans_doublons(mes)
         for o in mes:
             q = dict(o, id=sid + "|" + o["k"], enseigne=sid,
                      validite=("du %s au %s" % (jj_mm(o["debut"]), jj_mm(o["fin"]))) if o.get("debut") and o.get("fin") else "")
@@ -1707,7 +2317,12 @@ def _off_meilleur(hits, mots, marque):
         cle = (round(commun, 2), 1 if ns else 0, h.get("unique_scans_n") or 0)
         if cle_best is None or cle > cle_best:
             best, cle_best = h, cle
-    if not best:
+    return _off_notes(best) if best else None
+
+
+def _off_notes(best):
+    """Fiche Open Food Facts -> {c, n, ns, nv, gs} (None sans Nutri-Score ni NOVA)."""
+    if not _note_valeur(best.get("nutriscore_grade"), ("a", "b", "c", "d", "e")) and best.get("nova_group") not in (1, 2, 3, 4):
         return None
     gs = str(best.get("ecoscore_grade") or "").lower()
     gs = "A+" if gs == "a-plus" else (gs.upper() if gs in ("a", "b", "c", "d", "e", "f") else None)
@@ -1722,6 +2337,27 @@ def _off_meilleur(hits, mots, marque):
     return e
 
 
+OFF_PRODUIT = ("https://world.openfoodfacts.org/api/v2/product/%s"
+               "?fields=code,product_name,product_name_fr,brands,nutriscore_grade,nova_group,ecoscore_grade")
+
+
+def _off_produit(ean):
+    """Produit Open Food Facts par son code-barres (offres Leclerc) : pas de doute sur le produit."""
+    req = urllib.request.Request(OFF_PRODUIT % ean, headers={"User-Agent": OFF_UA, "Accept": "application/json",
+                                                             "Accept-Encoding": "gzip"})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            brut = r.read()
+            if r.headers.get("Content-Encoding") == "gzip":
+                brut = gzip.decompress(brut)
+    except urllib.error.HTTPError as e:
+        if e.code == 404:  # pas dans la base
+            return None
+        raise
+    h = json.loads(brut.decode("utf-8")).get("product") or {}
+    return _off_notes(h) if h else None
+
+
 def noter_offres(offres, log, aujourd=None):
     """Ajoute aux offres alimentaires de marque : ns (Nutri-Score), nv (NOVA), gs (Green-Score), off (code), offn (produit)."""
     jour = (aujourd or date.today()).isoformat()
@@ -1731,12 +2367,20 @@ def noter_offres(offres, log, aujourd=None):
         if o.get("rayon") not in RAYONS_NOTES:
             continue
         marque, nom = (o.get("marque") or "").strip(), (o.get("nom") or "").strip()
-        if not marque or not nom or norm(nom) == norm(marque):
-            continue
-        if re.match(r"(?i)\s*(sur\s+)?(toute la gamme|toutes? les|tous les|tout le|toute la)\b", nom):
+        if not nom or re.match(r"(?i)\s*(sur\s+)?(toute la gamme|toutes? les|tous les|tout le|toute la|gamme)\b", nom) or o.get("op"):
             continue
         if o.get("rayon") == "Boissons" and RE_ALCOOL.search(norm(nom + " " + (o.get("detail") or "")) + " " + nom):
             continue  # pas de Nutri-Score pour l'alcool
+        if o.get("ean"):  # code-barres connu (catalogue Leclerc) : recherche directe
+            cle = "ean:" + o["ean"]
+            par_cle.setdefault(cle, []).append(o)
+            e = cache.get(cle)
+            age = (date.fromisoformat(jour) - date.fromisoformat(e["t"])).days if e and e.get("t") else 999
+            if (not e or age > (45 if e.get("ns") or e.get("nv") else 14)) and cle not in a_faire:
+                a_faire[cle] = ("ean", o["ean"])
+            continue
+        if not marque or norm(nom) == norm(marque):
+            continue
         mots = _off_mots(nom, marque)
         if not mots:
             continue
@@ -1745,14 +2389,31 @@ def noter_offres(offres, log, aujourd=None):
         e = cache.get(cle)
         age = (date.fromisoformat(jour) - date.fromisoformat(e["t"])).days if e and e.get("t") else 999
         if (not e or age > (45 if e.get("ns") or e.get("nv") else 14)) and cle not in a_faire:
-            a_faire[cle] = (mots, nom, marque)
-    faits, trouves, erreurs = 0, 0, 0
-    for cle, (mots, nom, marque) in a_faire.items():
+            a_faire[cle] = ("txt", mots, nom, marque)
+    faits, trouves, erreurs, n_ean, stop_ean = 0, 0, 0, 0, False
+    for cle, tache in a_faire.items():
         if faits >= NOTES_LIMITE or erreurs >= 6:
             break
+        if tache[0] == "ean" and (stop_ean or n_ean >= 300):
+            continue  # fiches par code-barres : 300 par jour au plus, la suite le lendemain
         try:
-            r = _off_meilleur(_off_chercher(mots, nom, marque, log), mots, marque)
+            if tache[0] == "ean":
+                n_ean += 1
+                r = _off_produit(tache[1])
+                time.sleep(0.75)  # fiche produit : 100 demandes par minute au plus chez Open Food Facts
+            else:
+                r = _off_meilleur(_off_chercher(tache[1], tache[2], tache[3], log), tache[1], tache[3])
             erreurs = 0
+        except urllib.error.HTTPError as ex:
+            if ex.code == 429 and tache[0] == "ean":
+                stop_ean = True  # trop de demandes : les codes-barres restants attendent demain
+                log("   ! Open Food Facts : trop de demandes, les fiches par code-barres restantes attendent demain")
+                continue
+            erreurs += 1
+            if erreurs == 1:
+                log("   ! Open Food Facts : %s" % ex)
+            time.sleep(2)
+            continue
         except Exception as ex:
             erreurs += 1
             if erreurs == 1:
@@ -1841,7 +2502,7 @@ def mettre_a_jour(debug=False, log=print, essai=False):
         for k, mg in {m["id"]: m for m in ancien.get("magasins", [])}.items():
             magasins.setdefault(k, mg)
         for k, c in (ancien.get("catalogues") or {}).items():
-            if c.get("fin", "") >= jour:
+            if c.get("fin", "") >= jour and c.get("src") != "lec":  # Leclerc officiel : relu plus bas
                 catalogues.setdefault(k, c)
         lus = {(o["chaine"], o.get("catalogue")) for o in brutes}
         for o in etendre(ancien.get("offres", []), ancien.get("catalogues") or {}):
@@ -1874,6 +2535,10 @@ def mettre_a_jour(debug=False, log=print, essai=False):
         z["catalogues"] = [c for c in z["catalogues"] if c in cats]
 
     brutes = lire_catalogues(cats, zones, ancien, brutes, cfg, log)
+    try:  # E.Leclerc : produits des catalogues et offres de la semaine, sur le site officiel
+        brutes = leclerc_officiel(magasins, zones, cats, brutes, cfg, log, aujourd, ancien)
+    except Exception as e:
+        log("E.Leclerc (site officiel) non lu : %s" % e)
 
     offres = construire_offres(brutes, aujourd)
     offres = [o for o in offres if o["cat"] == "*" or o["cat"] in cats]

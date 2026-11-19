@@ -762,7 +762,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     (d.magasins || []).forEach(function (m) { mags[m.id] = m; });
     S.sel.forEach(function (sid) {
       var m = mags[sid], z = m && (d.zones || {})[m.zone];
-      ((z && z.catalogues) || []).forEach(function (c) { var x = (d.catalogues || {})[c]; if (x && x.n) utiles[c] = 1; });
+      ((z && z.catalogues) || []).concat((m && m.catalogues) || []).forEach(function (c) { var x = (d.catalogues || {})[c]; if (x && x.n) utiles[c] = 1; });
     });
     return Object.keys(utiles);
   }
@@ -791,7 +791,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
       noms.forEach(function (n) {
         caches.open(n).then(function (c) {
           c.keys().then(function (cles) {
-            cles.forEach(function (k) { var m = /\/offres\/(\d+)\.json/.exec(k.url); if (m && !(d.catalogues || {})[m[1]]) c["delete"](k); });
+            cles.forEach(function (k) { var m = /\/offres\/([\w-]+)\.json/.exec(k.url); if (m && !(d.catalogues || {})[m[1]]) c["delete"](k); });
           });
         });
       });
@@ -828,6 +828,38 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
       return q;
     });
   }
+  // La même offre ne doit apparaître qu'une fois par magasin : un produit repris dans deux catalogues (nom écrit
+  // autrement : « Skye single malt » / « Single malt Skye »), ou recopié par anti-crise en « lot de 2 », « lot de 4 ».
+  var VIDES_SIG = { de: 1, du: 1, des: 1, la: 1, le: 1, les: 1, l: 1, d: 1, au: 1, aux: 1, a: 1, et: 1, en: 1, avec: 1, pour: 1, x: 1 };
+  function signature(o) {
+    var mots = norm(String(o.nom || "").replace(/\(?\s*"?\s*lot\s+de\s+\d+\s*"?\s*\)?/ig, " ")).split(" ")
+      .filter(function (w) { return w && !VIDES_SIG[w]; }).sort();
+    return mots.filter(function (w, i) { return w !== mots[i - 1]; }).join(" ") + "|" + norm(o.marque).replace(/ /g, "");
+  }
+  function lotDe(o) { var m = /lot\s+de\s+(\d+)/i.exec(o.nom || ""); return m ? +m[1] || 1 : 1; }
+  function memesJours(a, b) {
+    if (a.fin && b.debut && b.debut > a.fin) return false;
+    if (b.fin && a.debut && a.debut > b.fin) return false;
+    return !a.debut || !b.debut || Math.abs(new Date(a.debut) - new Date(b.debut)) <= 3 * 864e5;
+  }
+  function sansDoublons(liste) {
+    var parSig = {}, garde = [];
+    liste.forEach(function (o) {
+      if (o.op) { garde.push(o); return; }
+      var s = signature(o), l = parSig[s] || (parSig[s] = []), i, a = null;
+      for (i = 0; i < l.length; i++) {
+        var x = l[i];
+        if (!memesJours(x, o)) continue;
+        var px1 = x.prix != null ? x.prix / lotDe(x) : null, px2 = o.prix != null ? o.prix / lotDe(o) : null;
+        var memePrix = px1 == null ? px2 == null && norm(x.bon_plan) === norm(o.bon_plan) : px2 != null && Math.abs(px1 - px2) <= 0.02 * Math.max(px1, px2) + 0.01;
+        if (memePrix || x.cat === "*" || o.cat === "*") { a = x; break; }  // anti-crise : la même promo vue autrement
+      }
+      if (!a) { l.push(o); garde.push(o); return; }
+      var note = function (p) { return (p.cat !== "*" ? 4 : 0) + (photoDe(p) ? 2 : 0) + (p.pg != null ? 1 : 0) + (p.lot ? 0 : (lotDe(p) === 1 ? 1 : 0)); };
+      if (note(o) > note(a)) { l[i] = o; garde[garde.indexOf(a)] = o; }
+    });
+    return garde;
+  }
   function construireVue() {
     var d = S.brut, mags = {}, auj = isoJ(new Date());
     (d.magasins || []).forEach(function (m) { mags[m.id] = m; });
@@ -835,7 +867,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     S.sel.forEach(function (sid) {
       var m = mags[sid]; if (!m) return;
       var z = (d.zones || {})[m.zone] || {}, ok = {};
-      (z.catalogues || []).forEach(function (c) { ok[c] = 1; });
+      (z.catalogues || []).concat(m.catalogues || []).forEach(function (c) { ok[c] = 1; });
       var mes = [], parK = {};
       OFFRES.forEach(function (o) {
         if (o.chaine !== m.chaine || !(o.cat === "*" || ok[o.cat])) return;
@@ -844,6 +876,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
         if (deja) { if ((o.prix || 9e9) < (deja.prix || 9e9)) mes[mes.indexOf(deja)] = parK[o.k] = o; return; }  // même produit dans 2 catalogues
         parK[o.k] = o; mes.push(o);
       });
+      mes = sansDoublons(mes);
       mes.forEach(function (o) {
         var q = {}; Object.keys(o).forEach(function (k) { q[k] = o[k]; });
         q.id = sid + "|" + o.k; q.enseigne = sid; q.validite = o.debut && o.fin ? (o.debut === o.fin ? "le " + jjmm(o.debut) : "du " + jjmm(o.debut) + " au " + jjmm(o.fin)) : "";
@@ -967,7 +1000,11 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
     check: '<svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>'
   };
-  function photoDe(p) { return p.op && p.image ? p.image : (p.img ? "https://content-media.bonial.biz/" + p.img + "/main.jpg?impolicy=SEO-offer-normal" : ""); }
+  function photoDe(p, grand) {
+    if (p.op && p.image) return p.image;
+    if (p.ph) return p.ph + (p.ph.indexOf("?") < 0 ? (grand ? "?g=640x640" : "?g=300x300") : "");  // photo du catalogue officiel (Leclerc)
+    return p.img ? "https://content-media.bonial.biz/" + p.img + "/main.jpg?impolicy=SEO-offer-normal" : "";
+  }
   // nom court du magasin (« Super U »), avec la ville seulement si deux magasins de la même enseigne sont choisis
   function ensCourt(id) {
     var ens = S.data && S.data.enseignes, e = ens && ens[id]; if (!e) return id;
@@ -1065,6 +1102,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
   function lienCatalogue(p) {
     var c = p.cat && p.cat !== "*" && ((S.brut && S.brut.catalogues) || {})[p.cat];
     if (!c) return null;
+    if (!/^\d+$/.test(p.cat)) return { url: c.lien || "", site: "e.leclerc", txt: (c.titre || "catalogue") + (c.pages ? " (" + c.pages + " pages)" : "") };
     var dyn = c.type === "DYNAMIC";
     return { url: "https://www.bonial.fr/contentViewer/" + (dyn ? "dynamic/" : "static/") + p.cat + (!dyn && p.pg != null ? "?page=" + (p.pg + 1) : ""),
       txt: (!dyn && p.pg != null ? "Page " + (p.pg + 1) + " · " : "") + (c.titre || "catalogue") + (c.pages && !dyn ? " (" + c.pages + " pages)" : "") };
@@ -1084,7 +1122,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     var p = promoParId(id); if (!p) return;
     FICHE = id;
     var e = (S.data.enseignes || {})[p.enseigne] || {}, fam = familleDe(e.chaine || p.chaine), a = APPLIS[fam];
-    var terme = termeRecherche(p), q = encodeURIComponent(terme), photo = photoDe(p), fav = S.fav.indexOf(p.id) >= 0, dans = dansListe(p.id);
+    var terme = termeRecherche(p), q = encodeURIComponent(terme), photo = photoDe(p, true), fav = S.fav.indexOf(p.id) >= 0, dans = dansListe(p.id);
     var h = p.histo, deja = h && p.prix != null && p.prix > h.min + 0.005, badges = badgesHTML(p);
     var plan = p.bon_plan && norm(p.bon_plan) !== norm(p.nom) ? p.bon_plan : "";
     var meta = [];
@@ -1105,9 +1143,9 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     if (lc && catPeutFeuilleter(p.cat)) {
       liens += '<button class="go" type="button" data-catalogue="' + esc(p.cat) + '"' + (p.pg != null ? ' data-page="' + esc(p.pg) + '"' : '') + '><span class="gi">' + ICO.cat + '</span><span><b>Voir dans le catalogue</b>' +
         '<small>' + esc(lc.txt) + '</small></span>' + ICO.out + '</button>';
-    } else if (lc) {
+    } else if (lc && lc.url) {
       liens += '<a class="go" href="' + esc(lc.url) + '" target="_blank" rel="noopener"><span class="gi">' + ICO.cat + '</span><span><b>Voir dans le catalogue</b>' +
-        '<small>' + esc(lc.txt) + ', sur bonial.fr</small></span>' + ICO.out + '</a>';
+        '<small>' + esc(lc.txt) + ', sur ' + esc(lc.site || "bonial.fr") + '</small></span>' + ICO.out + '</a>';
     }
     if (p.off) {
       liens += '<a class="go" href="https://fr.openfoodfacts.org/produit/' + encodeURIComponent(p.off) + '" target="_blank" rel="noopener"><span class="gi off">' + ICO.leaf + '</span><span><b>Voir sur Open Food Facts</b>' +
@@ -1141,11 +1179,13 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
   var PAGES = {};
   function ouvrirCatalogue(cid, page) {
     var c = catInfo(cid); if (!c) return;
-    var dyn = c.type === "DYNAMIC", bonial = "https://www.bonial.fr/contentViewer/" + (dyn ? "dynamic/" : "static/") + cid;
+    var dyn = c.type === "DYNAMIC", officiel = !/^\d+$/.test(cid);
+    var bonial = officiel ? (c.lien || "") : "https://www.bonial.fr/contentViewer/" + (dyn ? "dynamic/" : "static/") + cid;
+    var ouvrir = bonial ? '<a href="' + esc(bonial) + '" target="_blank" rel="noopener">' + (officiel ? "Ouvrir sur e.leclerc" : "Ouvrir sur bonial.fr") + '</a>' : "";
     var ens = (S.data.evenements || []).find(function (x) { return x.cat === cid; });
     $("catTitre").textContent = joliTitre(c.titre || "Catalogue");
     $("catSous").innerHTML = esc((ens ? ens.nom + ", " : "") + (c.debut === c.fin ? "le " + jjmm(c.debut) : "du " + jjmm(c.debut) + " au " + jjmm(c.fin))) +
-      (c.vp ? ", " + c.vp + " pages" : "") + '. <a href="' + esc(bonial) + '" target="_blank" rel="noopener">Ouvrir sur bonial.fr</a>';
+      (c.vp ? ", " + c.vp + " pages" : "") + '. ' + ouvrir;
     $("catPages").innerHTML = '<p class="muted" style="margin:8px 4px">Chargement des pages…</p>';
     var d = $("catDlg");
     if (!d.open) { try { d.showModal(); } catch (er) { d.setAttribute("open", ""); } }
@@ -1156,8 +1196,9 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
         if (!u) return "";
         var base = /^https?:/.test(u) ? u : "https://content-media.bonial.biz/" + u + "/zoomlarge_page_" + i + ".jpg";
         var petit = /^https?:/.test(u) ? u : base + "?impolicy=768x1024", grand = /^https?:/.test(u) ? u : base + "?impolicy=large";
+        if (/e\.leclerc\/media\/[\w]+$/.test(u)) { petit = u + "?g=768x1086"; grand = u + "?g=1600x2263"; }  // pages du catalogue officiel
         return '<figure class="cpage' + (page === i ? ' cible' : '') + '" id="cpage-' + i + '"><img loading="' + (i < 2 || page === i ? 'eager' : 'lazy') + '" decoding="async" alt="' + mot + (i + 1) + '" src="' + esc(petit) + '" data-zoom="' + esc(grand) + '"><figcaption>' + mot + (i + 1) + '</figcaption></figure>';
-      }).join("") : '<p class="muted" style="margin:8px 4px">Les pages de ce catalogue ne sont pas disponibles ici. <a href="' + esc(bonial) + '" target="_blank" rel="noopener">Ouvrir sur bonial.fr</a></p>';
+      }).join("") : '<p class="muted" style="margin:8px 4px">Les pages de ce catalogue ne sont pas disponibles ici. ' + ouvrir + '</p>';
       $("catPages").innerHTML = html;
       if (page != null && $("cpage-" + page)) setTimeout(function () { $("cpage-" + page).scrollIntoView({ block: "start" }); }, 60);
     };
@@ -1278,7 +1319,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
       '<div class="mag-n"><button type="button" data-periode="cours"><b>' + cours + '</b><span>promos en cours</span></button><button type="button" data-periode="venir"><b>' + venir + '</b><span>à venir</span></button></div>' +
       (cats.length ? '<div class="mag-cats">' + cats.map(function (x) {
         var quand = x.debut > auj ? "à partir du " + jjmm(x.debut) : (x.fin === auj ? "dernier jour aujourd'hui" : "jusqu'au " + jjmm(x.fin));
-        var c = x.cat && catInfo(x.cat), bon = x.cat ? "https://www.bonial.fr/contentViewer/" + (c && c.type === "DYNAMIC" ? "dynamic/" : "static/") + x.cat : "";
+        var c = x.cat && catInfo(x.cat), bon = !x.cat ? "" : (/^\d+$/.test(x.cat) ? "https://www.bonial.fr/contentViewer/" + (c && c.type === "DYNAMIC" ? "dynamic/" : "static/") + x.cat : (c && c.lien) || "");
         var ouvre = x.cat && catPeutFeuilleter(x.cat) ? '<button type="button" class="mag-cat' + (c && c.vp ? '' : ' vis') + '" data-catalogue="' + esc(x.cat) + '">' : (bon ? '<a class="mag-cat" href="' + esc(bon) + '" target="_blank" rel="noopener">' : '<div class="mag-cat">');
         var ferme = x.cat && catPeutFeuilleter(x.cat) ? '</button>' : (bon ? '</a>' : '</div>');
         return ouvre + '<b>' + (x.operation ? "⚡ " : "") + esc(joliTitre(x.titre || "Catalogue")) + '</b><small>' + esc(quand) + (x.pages > 1 ? ", " + x.pages + " pages" : "") + '</small>' + ferme;

@@ -46,8 +46,8 @@ jobs:
             git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag-brut
           elif [ -n "$URLS" ]; then python diag.py $URLS --routes
           elif [ "${{ github.event.inputs.brut }}" = "essai" ]; then
-            mkdir -p essai && cp promos.json historique.json essai/ && cp -r offres essai/ 2>/dev/null || true
-            PROMOS_DATA=essai python maj_promos.py && PROMOS_DATA=essai python -c "import maj_promos as m, json; d=m.charger_donnees(); print('offres', len(d['offres']))"
+            mkdir -p essai && cp promos.json historique.json essai/ && cp -r offres pages essai/ 2>/dev/null; cp notes.json ocr.json leclerc.json essai/ 2>/dev/null || true
+            PROMOS_DATA=essai python maj_promos.py 2>&1 | tee essai/journal.txt && PROMOS_DATA=essai python -c "import maj_promos as m, json; d=m.charger_donnees(); print('offres', len(d['offres']))"
             cd essai && git init -q -b diag-brut && git add -A
             git -c user.name="diag" -c user.email="diag@users.noreply.github.com" commit -q -m "essai complet"
             git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag-brut

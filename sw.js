@@ -1,5 +1,5 @@
 // Garde l'appli et les dernières promos en mémoire pour l'ouvrir même sans réseau (en magasin).
-var CACHE = "mes-promos-v9";
+var CACHE = "mes-promos-v10";
 var BASE = ["./", "index.html", "recettes.json", "manifest.json", "icone-192.png", "icone-512.png", "icone-maskable-512.png",
   "polices/barlow-condensed-600.woff2", "polices/barlow-condensed-700.woff2", "polices/barlow-condensed-800.woff2"];
 self.addEventListener("install", function (e) { e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(BASE); })); self.skipWaiting(); });
@@ -13,7 +13,7 @@ self.addEventListener("fetch", function (e) {
   if (url.origin !== location.origin) return;
   // Toujours essayer le réseau d'abord (promos fraîches), sinon la copie gardée.
   // promos.json, offres/<catalogue>.json et pages/<catalogue>.json : une seule copie par fichier, quel que soit le ?v=
-  var cle = url.pathname.endsWith("promos.json") ? "promos.json" : (/\/(offres|pages)\/\d+\.json$/.test(url.pathname) ? url.origin + url.pathname : e.request);
+  var cle = url.pathname.endsWith("promos.json") ? "promos.json" : (/\/(offres|pages)\/[\w-]+\.json$/.test(url.pathname) ? url.origin + url.pathname : e.request);
   e.respondWith(fetch(e.request).then(function (r) {
     if (r.ok) { var copie = r.clone(); caches.open(CACHE).then(function (c) { c.put(cle, copie); }); }
     return r;
