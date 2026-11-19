@@ -26,6 +26,7 @@ import sys
 import time
 import unicodedata
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import date, datetime, timedelta
 from html.parser import HTMLParser
@@ -1580,6 +1581,197 @@ def vue_magasins(donnees, ids):
     return enseignes, promos, evts
 
 
+# --------------------------------------------------------------------------- notes produits (Open Food Facts)
+# Nutri-Score, groupe NOVA et Green-Score des produits alimentaires de marque, d'après Open Food Facts, la base
+# libre dont se sert Yuka pour l'alimentaire. Les offres n'ont pas de code-barres : on cherche « nom » chez la
+# marque et on ne garde le produit trouvé que si son nom colle (au moins 60 % des mots). Mémoire : notes.json.
+NOTES = os.path.join(DATA, "notes.json")
+OFF_URL = "https://search.openfoodfacts.org/search"
+OFF_UA = "MesPromos/1.0 (https://github.com/ansquerdylan-arch/mes-promos)"
+RAYONS_NOTES = {"Poisson & mer", "Volaille", "Charcuterie", "Viande", "Fromage", "Crèmerie & œufs", "Fruits & légumes",
+                "Traiteur", "Surgelés", "Boulangerie", "Épicerie sucrée", "Épicerie salée", "Boissons"}
+RE_ALCOOL = re.compile(r"\b(vins?|champagnes?|cremant|whiske?y|rhums?|vodka|gin|bieres?|cidres?|liqueurs?|porto|cognac|armagnac|"
+                       r"pastis|calvados|aoc|aop|igp|cuvee|chateau|domaine|beaujolais|bordeaux|bourgogne|muscadet|sauvignon|"
+                       r"chardonnay|merlot|pinot|cabernet|riesling|malbec|syrah|grenache|prosecco|cava|spritz|tequila|sake|"
+                       r"brut|aperitif|mousseux|sangria|punch|planteur|arrange|kir|pineau|muscat|ricard|martini|vermouth|baileys|"
+                       r"suze|picon|lillet|jagermeister|malibu|amaretto|limoncello|ouzo|absinthe|get 27|bianco|rosso|"
+                       r"hydromel|poire williams|eau de vie|marc|grappa|sake|soju|hard seltzer)\b|\d\s*°|\d\s*% ?vol")
+# mots qui changent la nature d'un produit : « oignon » n'est pas « oignons au vinaigre », ni un poulet cru un poulet rôti
+TRANSFO = set("vinaigre sauce soupe veloute puree compote jus chips sirop confiture pickles roti rotie roties rotis "
+              "poele poelee frit frite frites pane panee panes "
+              "beignet beignets biscuit biscuits gateau gateaux tarte pizza glace glacee rape rapee rapees".split())
+MOTS_VIDES = set("les des aux avec sans pour une par sur dans format familial maxi offre speciale lot pack edition "
+                 "gamme toute tous toutes nouveau nouvelle recette".split())
+# aliments « clés » : si le produit trouvé en a un que le nôtre n'a pas (homard / foie gras, poulet / jambon), ce n'est pas le même
+CLES = set("poulet dinde canard porc boeuf veau agneau lapin jambon saucisse saucisson lardon chorizo foie saumon thon cabillaud "
+           "colin lieu truite homard crevette moule hareng sardine maquereau surimi chevre brebis vache emmental comte "
+           "camembert roquefort raclette mozzarella fraise framboise orange citron pomme poire peche abricot cerise banane "
+           "mangue ananas coco noisette amande pistache cacahuete mais tomate oignon carotte champignon olive "
+           "chocolat vanille caramel miel menthe cassis".split())
+# noms trop vagues (« Soda », « Café moulu ») : il faut alors que la marque figure dans le nom du produit trouvé
+VAGUES = set("soda sodas jus sirop cafe moulu grain grains capsule capsules dosette dosettes the infusion eau eaux minerale "
+             "naturelle gazeuse petillante source boisson energisante fromage fromages chocolat chocolats biscuit biscuits "
+             "gateau gateaux bonbon bonbons confiserie yaourt yaourts dessert desserts glace glaces pate pates riz huile "
+             "sauce soupe nectar smoothie mini original classique regular nature assortiment coffret cola limonade "
+             "multifruits fruit fruits pur bio standard maxi giga special".split())
+NOTES_LIMITE = 900  # recherches au plus par mise à jour (les autres attendent le lendemain)
+
+
+def _off_mots(nom, marque):
+    t = re.sub(r"\([^)]*\)|[«»\"“”]", " ", nom or "")
+    t = re.sub(r"(?i)\b\d+(?:[.,]\d+)?\s*(?:g|kg|cl|ml|l|x|cm|mm|%)\b|\bx\s*\d+\b|\b\d+\s*x\b|\blot de \d+\b", " ", t)
+    m = set(norm(marque).split())
+    vus, mots = set(), []
+    for w in norm(t).split():
+        if len(w) > 2 and w not in MOTS_VIDES and w not in m and not w.isdigit() and w not in vus:
+            vus.add(w)
+            mots.append(w)
+    return mots
+
+
+def _racine(w):
+    return w[:-1] if len(w) > 3 and w[-1] in "sx" else w
+
+
+def _note_valeur(v, permis):
+    v = str(v or "").lower()
+    return v if v in permis else None
+
+
+def _off_chercher(mots, nom, marque, log):
+    gardes = []
+    for w in re.split(r"[^\w]+", (nom or "").lower()):
+        if w and norm(w) in mots and w not in gardes:
+            gardes.append(w)
+    q = " ".join(gardes[:8]) or " ".join(mots[:8])
+    q += ' brands:"%s"' % marque.replace('"', " ").strip()
+    url = OFF_URL + "?" + urllib.parse.urlencode({
+        "q": q, "langs": "fr", "page_size": 8,
+        "fields": "code,product_name,product_name_fr,generic_name_fr,brands,nutriscore_grade,nova_group,ecoscore_grade,unique_scans_n,quantity"})
+    req = urllib.request.Request(url, headers={"User-Agent": OFF_UA, "Accept": "application/json", "Accept-Encoding": "gzip"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        brut = r.read()
+        if r.headers.get("Content-Encoding") == "gzip":
+            brut = gzip.decompress(brut)
+    return json.loads(brut.decode("utf-8")).get("hits") or []
+
+
+def _off_compatible(nos, nom_h, nm, b0=None):
+    """Le produit trouvé est-il bien le nôtre ? Pas transformé autrement (oignon / oignons au vinaigre), pas un autre
+    aliment (homard / foie gras), au moins un mot du nom en commun, et pour un nom vague (« Nectar multifruits »)
+    la même marque principale. Un nom d'un seul mot vague (« Soda », « Jus ») désigne toute une gamme : pas de note."""
+    eux = {_racine(w) for w in norm(nom_h).split()}
+    if (TRANSFO & eux) - nos - {_racine(w) for w in TRANSFO if w in nos}:
+        return False
+    if not nos & eux:
+        return False
+    cles = {_racine(w) for w in CLES}
+    if (eux & cles) - nos and nos & cles:
+        return False
+    if nos <= {_racine(w) for w in VAGUES}:
+        if len(nos) == 1:
+            return False
+        if b0 is not None and nm and b0 != nm:
+            return False
+    return True
+
+
+def _off_meilleur(hits, mots, marque):
+    nm = norm(marque)
+    nos = {_racine(w) for w in mots}
+    best, cle_best = None, None
+    for h in hits:
+        b = h.get("brands") or []
+        b = norm(" ".join(b) if isinstance(b, list) else b)
+        if nm and nm not in b and not all(w in b.split() for w in nm.split()):
+            continue
+        nom_h = h.get("product_name_fr") or h.get("product_name") or ""
+        leurs = {_racine(w) for w in norm(nom_h + " " + (h.get("generic_name_fr") or "")).split()}
+        commun = len(nos & leurs) / max(1, len(nos))
+        premiere = h.get("brands") or []
+        premiere = norm(premiere[0] if isinstance(premiere, list) and premiere else str(premiere).split(",")[0])
+        if commun < 0.6 or not _off_compatible(nos, nom_h, nm, premiere):
+            continue
+        ns = _note_valeur(h.get("nutriscore_grade"), ("a", "b", "c", "d", "e"))
+        nv = h.get("nova_group") if h.get("nova_group") in (1, 2, 3, 4) else None
+        if not ns and not nv:
+            continue
+        cle = (round(commun, 2), 1 if ns else 0, h.get("unique_scans_n") or 0)
+        if cle_best is None or cle > cle_best:
+            best, cle_best = h, cle
+    if not best:
+        return None
+    gs = str(best.get("ecoscore_grade") or "").lower()
+    gs = "A+" if gs == "a-plus" else (gs.upper() if gs in ("a", "b", "c", "d", "e", "f") else None)
+    e = {"c": str(best.get("code") or ""), "n": (best.get("product_name_fr") or best.get("product_name") or "").strip()[:70]}
+    ns = _note_valeur(best.get("nutriscore_grade"), ("a", "b", "c", "d", "e"))
+    if ns:
+        e["ns"] = ns.upper()
+    if best.get("nova_group") in (1, 2, 3, 4):
+        e["nv"] = best["nova_group"]
+    if gs:
+        e["gs"] = gs
+    return e
+
+
+def noter_offres(offres, log, aujourd=None):
+    """Ajoute aux offres alimentaires de marque : ns (Nutri-Score), nv (NOVA), gs (Green-Score), off (code), offn (produit)."""
+    jour = (aujourd or date.today()).isoformat()
+    cache = charger_json(NOTES, {})
+    a_faire, par_cle = {}, {}
+    for o in offres:
+        if o.get("rayon") not in RAYONS_NOTES:
+            continue
+        marque, nom = (o.get("marque") or "").strip(), (o.get("nom") or "").strip()
+        if not marque or not nom or norm(nom) == norm(marque):
+            continue
+        if re.match(r"(?i)\s*(sur\s+)?(toute la gamme|toutes? les|tous les|tout le|toute la)\b", nom):
+            continue
+        if o.get("rayon") == "Boissons" and RE_ALCOOL.search(norm(nom + " " + (o.get("detail") or "")) + " " + nom):
+            continue  # pas de Nutri-Score pour l'alcool
+        mots = _off_mots(nom, marque)
+        if not mots:
+            continue
+        cle = norm(marque) + "|" + " ".join(mots)
+        par_cle.setdefault(cle, []).append(o)
+        e = cache.get(cle)
+        age = (date.fromisoformat(jour) - date.fromisoformat(e["t"])).days if e and e.get("t") else 999
+        if (not e or age > (45 if e.get("ns") or e.get("nv") else 14)) and cle not in a_faire:
+            a_faire[cle] = (mots, nom, marque)
+    faits, trouves, erreurs = 0, 0, 0
+    for cle, (mots, nom, marque) in a_faire.items():
+        if faits >= NOTES_LIMITE or erreurs >= 6:
+            break
+        try:
+            r = _off_meilleur(_off_chercher(mots, nom, marque, log), mots, marque)
+            erreurs = 0
+        except Exception as ex:
+            erreurs += 1
+            if erreurs == 1:
+                log("   ! Open Food Facts : %s" % ex)
+            time.sleep(2)
+            continue
+        faits += 1
+        cache[cle] = dict(r or {}, t=jour)
+        trouves += 1 if r else 0
+        time.sleep(0.3)
+    notes = 0
+    for cle, lst in par_cle.items():
+        e = cache.get(cle) or {}
+        if not (e.get("ns") or e.get("nv")):
+            continue
+        for o in lst:
+            for k_src, k_dst in (("ns", "ns"), ("nv", "nv"), ("gs", "gs"), ("c", "off"), ("n", "offn")):
+                if e.get(k_src):
+                    o[k_dst] = e[k_src]
+            notes += 1
+    limite = (date.fromisoformat(jour) - timedelta(days=120)).isoformat()
+    cache = {k: v for k, v in cache.items() if v.get("t", "") >= limite}
+    ecrire_json(NOTES, cache)
+    log("Notes produits : %d offres notées (%d recherches Open Food Facts aujourd'hui, %d trouvées, %d en attente)" % (
+        notes, faits, trouves, max(0, len(a_faire) - faits)))
+
+
 # --------------------------------------------------------------------------- historique des prix
 # --------------------------------------------------------------------------- historique des prix
 def mettre_historique(promos, aujourd):
@@ -1677,6 +1869,10 @@ def mettre_a_jour(debug=False, log=print, essai=False):
 
     offres = construire_offres(brutes, aujourd)
     offres = [o for o in offres if o["cat"] == "*" or o["cat"] in cats]
+    try:
+        noter_offres(offres, log, aujourd)
+    except Exception as e:
+        log("Notes produits non mises à jour : %s" % e)
 
     # magasins proposés par défaut : le plus proche de chez toi pour chaque enseigne de config
     dom = cfg.get("domicile") or {}

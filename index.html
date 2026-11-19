@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#14213d">
+<meta name="theme-color" content="#eef0f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
 <title>Mes promos</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icone-180.png">
@@ -11,305 +12,407 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mes promos">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="polices/barlow-condensed-800.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+@font-face { font-family: "Barlow Condensed"; font-style: normal; font-weight: 600; font-display: swap; src: url(polices/barlow-condensed-600.woff2) format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: normal; font-weight: 700; font-display: swap; src: url(polices/barlow-condensed-700.woff2) format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: normal; font-weight: 800; font-display: swap; src: url(polices/barlow-condensed-800.woff2) format("woff2"); }
 :root {
-  /* Étal de promos : étiquettes jaunes sur encre bleu nuit ; rails horizontaux à l'accueil, grille de fiches ailleurs ; barre d'onglets en bas comme une appli iPhone. */
-  --ink: #14213d;
-  --paper: #eef0f5;
-  --card: #ffffff;
-  --line: #dbe0ea;
-  --muted: #5c6578;
-  --tag: #ffd23f;
-  --tag-ink: #14213d;
-  --accent: #1f4fd1;
-  --good: #1b7f4b;
-  --bad: #c62828;
-  --warn: #b85c00;
-  --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
-  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* « L'étiquette » : une appli calme, tuiles blanches posées sur un rayonnage gris. Seul le prix parle fort,
+     en chiffres condensés comme une étiquette de rayon, avec la pastille rouge de la remise. Le jaune veut dire
+     « choisi » (onglet, filtre). La couleur d'une enseigne n'est qu'un point, jamais une bande. */
+  --shelf: #eef0f3;
+  --tile: #ffffff;
+  --ink: #18202c;
+  --muted: #5f6876;
+  --hair: #e1e4e9;
+  --sticker: #e5262f;
+  --label: #ffd84d;
+  --label-ink: #18202c;
+  --ok: #18864b;
+  --warn: #b55a00;
+  --info: #2457c5;
+  --violet: #6b4fd8;
+  --teal: #0f6e63;
+  --band: #18202c;
+  --hero: #18202c;
+  --hero-ink: #ffffff;
+  --glass: rgba(255, 255, 255, .8);
+  --float: 0 10px 30px rgba(24, 32, 44, .16), 0 2px 6px rgba(24, 32, 44, .08);
+  --font-num: "Barlow Condensed", "DIN Condensed", "Arial Narrow", sans-serif;
+  --font-ui: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, system-ui, sans-serif;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* anciens noms encore utilisés par le script */
+  --line: var(--hair); --paper: var(--shelf); --accent: var(--info); --bad: var(--sticker); --tag: var(--label);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --ink:#e8ecf5; --paper:#0d1322; --card:#172036; --line:#283352; --muted:#9aa4bb; --accent:#8fb0ff; --good:#5fd39a; --bad:#ff7b7b; --warn:#ffb15c; color-scheme: dark; }
+  :root:not([data-theme="light"]) { --shelf:#0e1116; --tile:#1a1f27; --ink:#eef1f5; --muted:#9aa3af; --hair:#2b323d; --sticker:#ff4b53; --ok:#4cc987; --warn:#ffb15c; --info:#8fb0ff; --violet:#b9a7ff; --teal:#5fd3c3; --band:#0e1116; --hero:#252c37; --hero-ink:#eef1f5; --glass:rgba(30,35,44,.78); --float:0 10px 30px rgba(0,0,0,.55); color-scheme: dark; }
 }
-:root[data-theme="dark"] { --ink:#e8ecf5; --paper:#0d1322; --card:#172036; --line:#283352; --muted:#9aa4bb; --accent:#8fb0ff; --good:#5fd39a; --bad:#ff7b7b; --warn:#ffb15c; color-scheme: dark; }
+:root[data-theme="dark"] { --shelf:#0e1116; --tile:#1a1f27; --ink:#eef1f5; --muted:#9aa3af; --hair:#2b323d; --sticker:#ff4b53; --ok:#4cc987; --warn:#ffb15c; --info:#8fb0ff; --violet:#b9a7ff; --teal:#5fd3c3; --band:#0e1116; --hero:#252c37; --hero-ink:#eef1f5; --glass:rgba(30,35,44,.78); --float:0 10px 30px rgba(0,0,0,.55); color-scheme: dark; }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; }
 html, body { margin: 0; }
-body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.4; padding-bottom: calc(76px + var(--safe-bottom)); }
+body { background: var(--shelf); color: var(--ink); font: 400 16px/1.42 var(--font-ui); padding-bottom: calc(104px + var(--safe-bottom)); -webkit-font-smoothing: antialiased; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--info); outline-offset: 2px; }
 [hidden] { display: none !important; }
+a { color: var(--info); }
+/* appli installée : l'heure et la batterie restent lisibles */
+.sb { position: fixed; top: 0; left: 0; right: 0; height: var(--safe-top); background: var(--band); z-index: 60; pointer-events: none; }
 
-/* barre du haut */
-.topbar { position: sticky; top: 0; z-index: 20; background: var(--ink); color: var(--paper); padding: calc(10px + var(--safe-top)) 16px 10px; display: flex; align-items: center; gap: 12px; }
-.topbar h1 { font-family: var(--font-display); font-size: 24px; line-height: 1; margin: 0; flex: 1; letter-spacing: -0.01em; }
-.topbar h1 small { display: block; font: 500 12px var(--font-body); opacity: .75; margin-top: 3px; letter-spacing: 0; }
-.tb-btn { background: transparent; border: 1.5px solid rgba(255,255,255,.35); color: inherit; border-radius: 10px; padding: 6px 10px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-:root[data-theme="dark"] .tb-btn { border-color: rgba(13,19,34,.35); }
-.tb-btn svg { width: 18px; height: 18px; }
+/* en-tête */
+.topbar { max-width: 1100px; margin: 0 auto; padding: calc(16px + var(--safe-top)) 16px 4px; display: flex; align-items: flex-start; gap: 8px; }
+.topbar .tt { flex: 1; min-width: 0; }
+.topbar h1 { font: 700 36px/1 var(--font-num); margin: 0; letter-spacing: -.005em; }
+#sub { margin: 6px 0 0; font-size: 13px; color: var(--muted); font-weight: 500; }
+.tb-btn { flex: none; height: 42px; min-width: 42px; border-radius: 21px; border: 0; background: var(--tile); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 11px; font-size: 13px; font-weight: 700; text-decoration: none; }
+.tb-btn svg { width: 20px; height: 20px; }
 
-.wrap { max-width: 1100px; margin: 0 auto; padding: 14px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 10px 16px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 26px; }
 .wrap > *, section { min-width: 0; }
-section { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-h2 { font-family: var(--font-display); font-size: 21px; margin: 0; line-height: 1.1; }
-h3 { font-size: 15.5px; margin: 0; line-height: 1.25; text-wrap: balance; }
+section { display: grid; grid-template-columns: minmax(0, 1fr); gap: 26px; }
+h2 { font: 700 25px/1.05 var(--font-num); margin: 0; letter-spacing: .003em; }
+h3 { font-size: 15px; margin: 0; line-height: 1.28; }
 .sec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.link { background: none; border: 0; color: var(--accent); font-weight: 600; font-size: 14px; padding: 0; }
+.link { background: none; border: 0; color: var(--info); font-weight: 600; font-size: 15px; padding: 2px 0; text-decoration: none; }
 .muted { color: var(--muted); font-size: 14px; }
-.err { color: var(--bad); }
+.err { color: var(--sticker); }
+.blk { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.card { background: var(--tile); border-radius: 22px; padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.empty { background: var(--tile); border-radius: 18px; padding: 18px; color: var(--muted); font-size: 14.5px; }
+.stale { background: var(--tile); border-radius: 18px; padding: 14px 16px; display: grid; gap: 4px; box-shadow: inset 0 0 0 2px var(--warn); }
 
-/* recherche */
+/* champs */
 .search { display: flex; gap: 8px; align-items: center; }
-.search input { flex: 1; min-width: 0; border: 1.5px solid var(--line); background: var(--card); border-radius: 12px; padding: 11px 14px; font-size: 16px; }
-.search select { flex: none; width: 128px; border: 1.5px solid var(--line); background: var(--card); border-radius: 12px; padding: 10px 8px; font-size: 14px; }
+input[type="search"] { -webkit-appearance: none; appearance: none; }
+input[type="search"]::-webkit-search-decoration { display: none; }
+.search input { flex: 1; min-width: 0; height: 46px; border: 0; border-radius: 15px; background: var(--tile) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a93a1' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat 14px 50% / 19px; padding: 0 14px 0 42px; font-size: 16px; box-shadow: inset 0 0 0 1px var(--hair); }
+.search input::placeholder, textarea::placeholder, .field::placeholder { color: var(--muted); opacity: .85; }
+.tri { flex: none; position: relative; width: 46px; height: 46px; border-radius: 15px; background: var(--tile); box-shadow: inset 0 0 0 1px var(--hair); display: grid; place-items: center; }
+.tri svg { width: 21px; height: 21px; pointer-events: none; }
+.tri select { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; -webkit-appearance: none; appearance: none; border: 0; font-size: 16px; }
+textarea, .field { width: 100%; border: 0; border-radius: 13px; padding: 11px 13px; background: var(--shelf); font-size: 16px; box-shadow: inset 0 0 0 1px var(--hair); }
+select.field { -webkit-appearance: none; appearance: none; padding-right: 34px; background: var(--shelf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a93a1' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center / 18px; }
+textarea { min-height: 66px; resize: vertical; }
+label { font-weight: 600; font-size: 14px; }
+.watch-add { display: flex; gap: 8px; }
+.watch-add input { flex: 1; min-width: 0; height: 46px; border: 0; border-radius: 14px; background: var(--shelf); padding: 0 14px; font-size: 16px; box-shadow: inset 0 0 0 1px var(--hair); }
+section > .watch-add input { background: var(--tile); }
 
-.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+/* boutons */
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.btn { border: 0; background: var(--shelf); color: var(--ink); border-radius: 14px; min-height: 44px; padding: 0 16px; font-weight: 650; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; text-decoration: none; box-shadow: inset 0 0 0 1px var(--hair); }
+.btn.primary { background: var(--ink); color: var(--tile); box-shadow: none; }
+.btn:disabled { opacity: .5; }
+.btn.more { width: 100%; background: var(--tile); }
+.icon { border: 0; background: var(--shelf); color: var(--ink); border-radius: 999px; min-height: 36px; padding: 0 13px; font-size: 13.5px; font-weight: 650; display: inline-flex; align-items: center; gap: 6px; box-shadow: inset 0 0 0 1px var(--hair); }
+.icon.on { background: var(--ok); color: #fff; box-shadow: none; }
+.star.on { background: var(--label); color: var(--label-ink); box-shadow: none; }
+.x { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--shelf); color: var(--muted); font-size: 15px; font-weight: 700; display: grid; place-items: center; }
+
+/* puces */
+.chips { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 1px 16px 3px; scrollbar-width: none; scroll-padding-inline: 16px; }
 .chips::-webkit-scrollbar, .rail::-webkit-scrollbar { display: none; }
-.chip { flex: none; border: 1.5px solid var(--line); background: var(--card); border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: 13px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
-.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.chip .n { opacity: .6; font-weight: 500; }
+.chips.wrapped { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
+.chip { flex: none; border: 0; background: var(--tile); color: var(--ink); box-shadow: inset 0 0 0 1px var(--hair); border-radius: 999px; height: 36px; padding: 0 14px; font-weight: 650; font-size: 14px; white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; }
+.chip[aria-pressed="true"] { background: var(--label); color: var(--label-ink); box-shadow: none; }
+.chip .n { opacity: .55; font-weight: 600; font-variant-numeric: tabular-nums; }
+.chip .e { font-size: 16px; line-height: 1; }
+.chip.x-on { background: var(--ink); color: var(--tile); box-shadow: none; }
 .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
-.toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; position: sticky; top: calc(52px + var(--safe-top)); z-index: 5; background: var(--paper); padding: 6px 0 8px; }
 
-/* fiche produit */
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-.p { background: var(--card); border: 1.5px solid var(--line); border-left: 5px solid var(--sc, var(--line)); border-radius: 14px; padding: 11px 11px 10px; display: grid; gap: 5px; align-content: start; }
-.p .top { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; color: var(--muted); font-weight: 600; }
-.p .brand { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+/* barre de recherche des promos : reste en haut en défilant */
+.toolbar { position: sticky; top: 0; z-index: 15; margin: -10px -16px 0; padding: calc(10px + var(--safe-top)) 16px 10px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; background: color-mix(in srgb, var(--shelf) 88%, transparent); -webkit-backdrop-filter: saturate(180%) blur(18px); backdrop-filter: saturate(180%) blur(18px); }
+.filtres { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: -14px; }
+.countline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+#v-promos { gap: 12px; }
+#v-promos .grid { margin-top: 2px; }
+
+/* tuile produit */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)); gap: 12px; }
+.p { position: relative; background: var(--tile); border-radius: 20px; padding: 7px 7px 12px; display: flex; flex-direction: column; gap: 3px; min-width: 0; cursor: pointer; }
+.p .ph-box { position: relative; aspect-ratio: 1 / .84; border-radius: 15px; background: #fff; display: grid; place-items: center; overflow: hidden; margin-bottom: 7px; }
+.p .ph-box.vide { background: color-mix(in srgb, var(--sc, var(--muted)) 9%, var(--tile)); }
+.p .ph { width: 100%; height: 100%; object-fit: contain; padding: 10px; display: block; }
+.p.op .ph { object-fit: cover; padding: 0; cursor: zoom-in; }
+.p .ph-vide { font-size: 42px; line-height: 1; }
+.ph-box:not(.vide) .ph-vide { display: none; }
+.p > :not(.ph-box) { margin-left: 5px; margin-right: 5px; }
+.stk { position: absolute; top: 7px; left: 7px; min-width: 50px; height: 50px; padding: 0 5px; border-radius: 50%; background: var(--sticker); color: #fff; display: grid; place-content: center; text-align: center; font: 800 20px/0.9 var(--font-num); letter-spacing: -.01em; transform: rotate(-9deg); box-shadow: 0 3px 8px rgba(229, 38, 47, .32); }
+.stk small { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0; margin-top: 1px; }
+.p .fav, .p .add { position: absolute; border: 0; border-radius: 50%; display: grid; place-items: center; padding: 0; }
+.p .fav { top: 6px; right: 6px; width: 36px; height: 36px; background: rgba(255, 255, 255, .92); color: #8a93a1; }
+.p .fav svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; }
+.p .fav.on { color: #e0a400; }
+.p .fav.on svg { fill: currentColor; }
+.p .add { right: 7px; bottom: 7px; width: 40px; height: 40px; background: var(--ink); color: var(--tile); box-shadow: 0 3px 10px rgba(24, 32, 44, .28); }
+.p .add svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.p .add.on { background: var(--ok); color: #fff; }
+.price { display: flex; align-items: baseline; gap: 2px 7px; flex-wrap: wrap; line-height: 1; }
+.px { font: 800 31px/0.95 var(--font-num); letter-spacing: -.012em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.px small { font-size: .5em; font-weight: 800; letter-spacing: 0; display: inline-block; transform: translateY(-.78em); margin-left: 1px; }
+.price s { color: var(--muted); font-size: 14px; font-weight: 500; }
+.cond { font: 700 16px/1 var(--font-num); color: var(--muted); }
+.pct { background: var(--sticker); color: #fff; font: 800 15px/1 var(--font-num); border-radius: 7px; padding: 3px 6px; }
+.p h3 { font-size: 14.5px; font-weight: 600; line-height: 1.28; margin-top: 3px; }
+.p h3 .nom { all: unset; cursor: pointer; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.p h3 .nom:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; border-radius: 4px; }
+.brand { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+.unit { font-size: 12.5px; color: var(--muted); }
+.plan { font-size: 13px; color: var(--ok); font-weight: 650; }
+.det { font-size: 13px; color: var(--muted); }
+.hist { font-size: 12.5px; color: var(--warn); font-weight: 650; }
+.p .ens { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); font-weight: 600; margin-top: auto; padding-top: 6px; min-width: 0; }
+.p .ens span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .badges { display: flex; flex-wrap: wrap; gap: 4px; }
-.b { font-size: 11px; font-weight: 700; border-radius: 6px; padding: 2px 6px; }
-.b.new { background: var(--accent); color: #fff; }
-.b.end { background: var(--warn); color: #fff; }
-.b.cheap { background: var(--good); color: #fff; }
-.b.watch { background: var(--tag); color: var(--tag-ink); }
-.price { display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap; }
-.price b { font: 700 24px var(--font-display); font-variant-numeric: tabular-nums; background: var(--tag); color: var(--tag-ink); padding: 0 8px 0 7px; border-radius: 4px 12px 12px 4px; }
-.price s { color: var(--muted); font-size: 13px; }
-.pct { background: var(--bad); color: #fff; font-weight: 700; font-size: 12px; border-radius: 6px; padding: 2px 6px; }
-.unit { font-size: 12px; color: var(--muted); }
-.plan { font-size: 13px; color: var(--good); font-weight: 600; }
-.cond { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
-.det { font-size: 12px; color: var(--muted); }
-.hist { font-size: 12px; color: var(--warn); font-weight: 600; }
-.b.low { background: var(--good); color: #fff; }
-.b.carte { background: #0f6e63; color: #fff; }
-.b.soon { background: #6b4fd8; color: #fff; }
-.b.web { background: #5b6472; color: #fff; }
-.b.op { background: var(--accent); color: #fff; }
-.p .ph { width: 100%; height: 96px; object-fit: contain; background: #fff; border-radius: 9px; }
-.p.op .ph { height: auto; max-height: 220px; object-fit: cover; cursor: zoom-in; }
-.rail .p .ph { height: 74px; }
-.btn.more { width: 100%; margin-top: 10px; }
-.ag .rs, .today .rs { font-size: 13.5px; font-weight: 600; color: var(--good); }
-.today .rs { color: inherit; opacity: .9; }
-.ag .vis { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-.ag .vis button { border: 0; padding: 0; background: none; border-radius: 8px; overflow: hidden; cursor: zoom-in; }
-.ag .vis img { display: block; height: 64px; width: auto; max-width: 120px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
-dialog.zoom { padding: 0; border: 0; border-radius: 14px; max-width: min(96vw, 720px); background: var(--card); }
-dialog.zoom img { display: block; width: 100%; height: auto; }
-dialog.zoom form { position: absolute; top: 8px; right: 8px; }
-dialog.zoom::backdrop { background: rgba(0,0,0,.6); }
-.p[data-pid] { cursor: pointer; }
-.p h3 .nom { all: unset; cursor: pointer; }
-.p h3 .nom:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
-/* fiche article */
-dialog.fiche { width: min(520px, calc(100vw - 20px)); }
-.fiche-in { padding: 14px 16px 16px; display: grid; gap: 9px; border-top: 6px solid var(--sc, var(--line)); }
-.fiche-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--muted); font-weight: 600; }
-.fiche-top button { flex: none; }
-.fiche .ph { width: 100%; height: auto; max-height: 230px; object-fit: contain; background: #fff; border-radius: 12px; border: 1px solid var(--line); }
-.fiche .ph.op { max-height: 320px; object-fit: cover; cursor: zoom-in; }
-.fiche .brand { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
-.fiche h2 { font-size: 20px; line-height: 1.25; margin: 0; }
-.fiche .price b { font-size: 28px; }
-.fiche .det { font-size: 13.5px; }
-.go-list { display: grid; gap: 8px; margin-top: 4px; }
-.go { display: grid; grid-template-columns: 38px minmax(0, 1fr) 14px; align-items: center; gap: 11px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 13px; text-decoration: none; color: var(--ink); background: var(--paper); }
-.go:active { transform: scale(.99); }
-.go .gi { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--sc, var(--ink)); color: var(--sc-ink, #fff); }
-.go .gi svg { width: 21px; height: 21px; }
-.go b { display: block; font-size: 15px; }
-.go small { display: block; color: var(--muted); font-size: 12px; line-height: 1.35; }
-.go > svg { width: 14px; height: 14px; color: var(--muted); }
-.go.app { border-color: var(--sc, var(--line)); }
-.fiche .acts { margin-top: 2px; flex-wrap: wrap; }
-.stale { background: var(--card); border: 1.5px solid var(--warn); border-left: 5px solid var(--warn); border-radius: 14px; padding: 12px 14px; display: grid; gap: 6px; }
-.store a { color: var(--accent); font-size: 12px; font-weight: 600; text-decoration: none; }
-.acts { display: flex; gap: 6px; margin-top: 3px; }
-.icon { border: 1.5px solid var(--line); background: transparent; border-radius: 10px; padding: 7px 10px; font-size: 13px; font-weight: 600; }
-.icon.on { background: var(--good); border-color: var(--good); color: #fff; }
-.star.on { background: var(--tag); border-color: var(--tag); color: var(--tag-ink); }
+.p .badges { margin-top: 3px; }
+.p .badges .b:nth-child(n+3) { display: none; }
+.b { --c: var(--muted); font-size: 11.5px; font-weight: 700; border-radius: 7px; padding: 3px 7px; line-height: 1.2; color: var(--c); background: color-mix(in srgb, var(--c) 13%, transparent); }
+.b.new { --c: var(--info); } .b.end { --c: var(--warn); } .b.cheap, .b.low { --c: var(--ok); } .b.carte { --c: var(--teal); }
+.b.soon { --c: var(--violet); } .b.web { --c: var(--muted); } .b.op { --c: var(--sticker); }
+.b.watch { background: var(--label); color: var(--label-ink); }
+/* Nutri-Score en miniature, sur la photo */
+.nsm { position: absolute; left: 7px; bottom: 8px; display: flex; align-items: center; gap: 1px; padding: 2px; border-radius: 6px; background: rgba(255, 255, 255, .95); box-shadow: 0 1px 3px rgba(24, 32, 44, .18); }
+.nsm i { font: 800 9px/14px var(--font-ui); font-style: normal; width: 11px; height: 14px; text-align: center; color: #fff; border-radius: 2px; opacity: .5; }
+.nsm i.on { width: 17px; height: 20px; line-height: 20px; font-size: 12px; opacity: 1; border-radius: 4px; box-shadow: 0 0 0 1.5px #fff; }
+.ns-A { background: #038141; } .ns-B { background: #85bb2f; } .ns-C { background: #fecb02; } .ns-D { background: #ee8100; } .ns-E { background: #e63e11; }
+.nsm i.ns-C { color: #3d3000; }
 
 /* accueil */
-.rail { display: grid; grid-auto-flow: column; grid-auto-columns: 168px; gap: 10px; overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x mandatory; }
+.rail { display: grid; grid-auto-flow: column; grid-auto-columns: 158px; gap: 10px; overflow-x: auto; margin: 0 -16px; padding: 1px 16px 4px; scroll-padding-inline: 16px; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .rail > * { scroll-snap-align: start; }
-.rail .p h3 { font-size: 14px; }
-.rail .price b { font-size: 21px; }
-.hero { background: var(--ink); color: var(--paper); border-radius: 16px; padding: 14px; display: grid; gap: 10px; }
-.hero .search input { border-color: transparent; }
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.stat { background: rgba(255,255,255,.08); border-radius: 12px; padding: 8px 10px; text-align: left; border: 0; color: inherit; }
-:root[data-theme="dark"] .stat { background: rgba(13,19,34,.12); }
-.stat b { display: block; font: 700 22px var(--font-display); font-variant-numeric: tabular-nums; }
-.stat span { font-size: 12px; opacity: .8; }
-.stores { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
-.store { background: var(--card); border: 1.5px solid var(--line); border-top: 4px solid var(--sc); border-radius: 12px; padding: 9px 11px; text-align: left; display: grid; gap: 2px; }
-.store b { font-size: 14px; }
-.store span { font-size: 12px; color: var(--muted); }
-.store .old { color: var(--bad); }
-.card { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
-.blk { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
-.watch-add { display: flex; gap: 8px; }
-.watch-add input { flex: 1; min-width: 0; border: 1.5px solid var(--line); background: var(--paper); border-radius: 10px; padding: 9px 12px; font-size: 16px; }
-.wchip { display: inline-flex; align-items: center; gap: 6px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 4px 6px 4px 11px; font-size: 13px; font-weight: 600; }
-.wchip button { border: 0; background: var(--line); border-radius: 50%; width: 20px; height: 20px; line-height: 18px; font-size: 13px; padding: 0; }
+.rail .px { font-size: 27px; }
+.rail .stk { min-width: 44px; height: 44px; font-size: 18px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stat { background: var(--tile); border: 0; border-radius: 18px; padding: 12px 12px 11px; text-align: left; display: grid; align-content: start; gap: 4px; color: var(--ink); }
+.stat b { display: block; font: 800 32px/0.95 var(--font-num); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12.5px; color: var(--muted); line-height: 1.25; }
+.hbudget { font-size: 14px; color: var(--muted); }
+.hbudget b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.today { background: var(--hero); color: var(--hero-ink); border-radius: 22px; padding: 16px 18px; display: grid; gap: 5px; }
+.today > span:not(.rs) { font: 700 13px/1.3 var(--font-ui); color: var(--label); margin-top: 6px; }
+.today > span:first-child { margin-top: 0; }
+.today b { font: 700 22px/1.08 var(--font-num); letter-spacing: .003em; }
+.today .rs { font-size: 14px; opacity: .78; font-weight: 500; margin-bottom: 2px; }
+.stores { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.stores > div { display: grid; gap: 6px; align-content: start; }
+.store { width: 100%; background: var(--tile); border: 0; border-radius: 18px; padding: 13px 14px; text-align: left; display: grid; gap: 3px; color: var(--ink); }
+.store b { font-size: 15px; display: flex; align-items: center; gap: 7px; }
+.store b::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--sc); flex: none; }
+.store span { font-size: 12.5px; color: var(--muted); }
+.store .old { color: var(--sticker); }
+.store .open, .mrow .open { color: var(--ok); font-weight: 650; }
+.store .closed, .mrow .closed { color: var(--sticker); font-weight: 650; }
+.itin { font-size: 13px; font-weight: 650; color: var(--info); text-decoration: none; padding-left: 4px; }
+.wchip { display: inline-flex; align-items: center; gap: 6px; background: var(--shelf); border-radius: 999px; padding: 5px 6px 5px 12px; font-size: 13.5px; font-weight: 650; box-shadow: inset 0 0 0 1px var(--hair); }
+.wchip button { border: 0; background: var(--hair); color: var(--ink); border-radius: 50%; width: 22px; height: 22px; line-height: 20px; font-size: 14px; padding: 0; }
+.ag .vis { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; }
+.ag .vis button { border: 0; padding: 0; background: none; border-radius: 9px; overflow: hidden; cursor: zoom-in; }
+.ag .vis img { display: block; height: 64px; width: auto; max-width: 120px; object-fit: cover; border-radius: 9px; }
 
 /* agenda */
-.today { background: var(--tag); color: var(--tag-ink); border-radius: 14px; padding: 12px 14px; font-weight: 600; display: grid; gap: 4px; }
-.today b { font: 700 18px var(--font-display); }
-.ag { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 10px 0 10px 12px; border-top: 1px solid var(--line); border-left: 4px solid var(--sc, var(--line)); }
-.ag:first-of-type { border-top: 0; }
-.ag .tt { font-weight: 600; font-size: 15px; }
-.ag .dd { font-size: 13px; color: var(--muted); }
-.ag .st { font-size: 11.5px; font-weight: 700; border-radius: 6px; padding: 2px 7px; white-space: nowrap; justify-self: end; }
-.st.now { background: var(--good); color: #fff; }
-.st.soon { background: var(--accent); color: #fff; }
-.st.last { background: var(--bad); color: #fff; }
-.st.later { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
-.ag .bell { grid-column: 2; justify-self: end; border: 1.5px solid var(--line); background: transparent; border-radius: 9px; padding: 4px 8px; font-size: 12px; font-weight: 600; }
-.daysel { display: flex; gap: 4px; flex-wrap: wrap; }
+.ag { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px 10px; align-items: start; padding: 12px 0; border-top: 1px solid var(--hair); }
+.ag:first-child { border-top: 0; padding-top: 2px; }
+.ag .tt { font-weight: 650; font-size: 15.5px; display: flex; align-items: baseline; gap: 8px; }
+.ag .tt::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--sc); flex: none; transform: translateY(-1px); }
+.ag .rs { font-size: 14px; font-weight: 600; color: var(--ok); padding-left: 17px; }
+.ag .dd { font-size: 13px; color: var(--muted); padding-left: 17px; }
+.ag .vis { padding-left: 17px; }
+.ag .st { --c: var(--muted); font-size: 12px; font-weight: 700; border-radius: 8px; padding: 4px 8px; white-space: nowrap; justify-self: end; color: var(--c); background: color-mix(in srgb, var(--c) 13%, transparent); }
+.st.now { --c: var(--ok); } .st.soon { --c: var(--info); } .st.last { --c: var(--sticker); }
+.ag .bell { grid-column: 2; justify-self: end; border: 0; background: var(--shelf); border-radius: 999px; padding: 6px 10px; font-size: 12.5px; font-weight: 650; box-shadow: inset 0 0 0 1px var(--hair); }
+.daysel { display: flex; gap: 5px; flex-wrap: wrap; }
 .daysel label { display: inline-flex; }
 .daysel input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.daysel span { border: 1.5px solid var(--line); border-radius: 8px; padding: 5px 8px; font-size: 13px; font-weight: 600; }
-.daysel input:checked + span { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.daysel input:focus-visible + span { outline: 3px solid var(--accent); }
+.daysel span { background: var(--shelf); box-shadow: inset 0 0 0 1px var(--hair); border-radius: 10px; padding: 7px 10px; font-size: 13.5px; font-weight: 650; }
+.daysel input:checked + span { background: var(--label); color: var(--label-ink); box-shadow: none; }
+.daysel input:focus-visible + span { outline: 3px solid var(--info); }
 
 /* plats */
-.recipes { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 10px; }
-.r { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 13px; display: grid; gap: 8px; align-content: start; }
-.r .head { display: flex; justify-content: space-between; gap: 8px; }
-.r .time { font: 700 13px var(--font-display); color: var(--muted); white-space: nowrap; }
-.r.day { border-top: 4px solid var(--tag); }
-.r .dayname { font: 700 12px var(--font-body); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-.tags { display: flex; flex-wrap: wrap; gap: 5px; }
-.pt { background: var(--tag); color: var(--tag-ink); font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 4px 10px 10px 4px; display: inline-flex; gap: 5px; align-items: center; }
-.t { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
-.why { font-size: 14px; color: var(--muted); margin: 0; }
-details summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; }
-details ul, details ol { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 3px; font-size: 14px; }
-textarea, .field { width: 100%; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--paper); font-size: 16px; }
-textarea { min-height: 64px; resize: vertical; }
-.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.btn { border: 1.5px solid var(--ink); background: transparent; border-radius: 10px; padding: 9px 13px; font-weight: 600; font-size: 14px; }
-.btn.primary { background: var(--ink); color: var(--paper); }
-.btn:disabled { opacity: .5; }
-label { font-weight: 600; font-size: 14px; }
+.recipes { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.r { background: var(--tile); border-radius: 22px; padding: 16px; display: grid; gap: 11px; align-content: start; }
+.r .head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.r h3 { font: 700 23px/1.05 var(--font-num); letter-spacing: .003em; }
+.r .time { font-size: 12.5px; font-weight: 650; color: var(--muted); white-space: nowrap; background: var(--shelf); border-radius: 999px; padding: 4px 9px; }
+.r .dayname { justify-self: start; background: var(--label); color: var(--label-ink); font-size: 12.5px; font-weight: 700; border-radius: 8px; padding: 3px 9px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.t { font-size: 12.5px; color: var(--muted); background: var(--shelf); border-radius: 999px; padding: 3px 9px; }
+.why { font-size: 14.5px; color: var(--muted); margin: 0; }
+.pts { list-style: none; margin: 0; padding: 0; display: grid; }
+.pts li { display: grid; grid-template-columns: 9px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--hair); font-size: 14.5px; }
+.pts li:first-child { border-top: 0; padding-top: 2px; }
+.pts .pr { font: 800 19px/1 var(--font-num); font-variant-numeric: tabular-nums; }
+details summary { cursor: pointer; color: var(--info); font-weight: 650; font-size: 14.5px; }
+details ul, details ol { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14.5px; }
 
 /* liste */
-.summary { background: var(--ink); color: var(--paper); border-radius: 16px; padding: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.summary div b { display: block; font: 700 22px var(--font-display); font-variant-numeric: tabular-nums; }
-.summary div span { font-size: 12px; opacity: .8; }
-.lstore { background: var(--card); border: 1.5px solid var(--line); border-left: 5px solid var(--sc, var(--line)); border-radius: 14px; overflow: hidden; }
-.lstore h2 { display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; font-size: 18px; border-bottom: 1px solid var(--line); }
-.lstore h2 span { font: 600 14px var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; }
-.lray { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; padding: 8px 14px 2px; }
-.li { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; padding: 9px 14px; }
-.li input { width: 22px; height: 22px; accent-color: var(--good); }
-.li .n { font-weight: 500; }
+.syncline { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: var(--tile); border-radius: 16px; padding: 10px 14px; font-size: 14px; }
+.syncline .ok { color: var(--ok); font-weight: 650; }
+.syncline .ko { color: var(--sticker); font-weight: 650; }
+.summary { background: var(--tile); border-radius: 22px; padding: 16px 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.summary div { display: grid; gap: 3px; }
+.summary div + div { border-left: 1px solid var(--hair); padding-left: 12px; }
+.summary div b { font: 800 30px/0.95 var(--font-num); font-variant-numeric: tabular-nums; }
+.summary div span { font-size: 12.5px; color: var(--muted); }
+.listacts { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 1px 16px 3px; scrollbar-width: none; }
+.listacts::-webkit-scrollbar { display: none; }
+.listacts .btn { flex: none; min-height: 40px; font-size: 14px; background: var(--tile); }
+.listacts .btn.primary { background: var(--ink); }
+.lstore { background: var(--tile); border-radius: 22px; overflow: hidden; }
+.lstore h2 { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px 16px 6px; font-size: 22px; }
+.lstore h2 > span:first-child { display: flex; align-items: center; gap: 9px; }
+.lstore h2 > span:first-child::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--sc); flex: none; }
+.lstore h2 > span:last-child { font: 700 18px var(--font-num); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lray { font-size: 13px; color: var(--muted); font-weight: 700; padding: 10px 16px 0; }
+.li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 10px 12px 10px 16px; }
+.li + .li { border-top: 1px solid var(--hair); }
+.li input { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; margin: 0; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--hair); background: var(--tile); display: grid; place-items: center; cursor: pointer; }
+.li input:checked { background: var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") no-repeat center / 16px; box-shadow: none; }
+.li .n { font-weight: 500; font-size: 15.5px; }
 .li.done .n { text-decoration: line-through; color: var(--muted); }
-.li .pr { font-variant-numeric: tabular-nums; font-weight: 600; }
-.li .del { border: 0; background: transparent; color: var(--muted); font-size: 20px; padding: 0 4px; }
-body.shop .li { padding: 14px; }
-body.shop .li .n { font-size: 20px; }
-body.shop .li input { width: 30px; height: 30px; }
-body.shop .li .pr { font-size: 18px; }
-
-/* choix des magasins */
-.mrow { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; border: 1.5px solid var(--line); border-left: 5px solid var(--sc, var(--line)); border-radius: 12px; padding: 8px 10px; background: var(--card); }
-.mrow b { font-size: 14.5px; }
-.mrow .sub { font-size: 12.5px; color: var(--muted); grid-column: 1; }
-.mrow .open { color: var(--good); font-weight: 600; }
-.mrow .closed { color: var(--bad); font-weight: 600; }
-.mrow button { grid-row: 1 / span 2; grid-column: 2; }
-.store .open { color: var(--good); font-weight: 600; }
-.store .closed { color: var(--bad); font-weight: 600; }
-
-/* partage, budget */
-.syncline { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 9px 12px; font-size: 14px; }
-.syncline .ok { color: var(--good); font-weight: 600; }
-.syncline .ko { color: var(--bad); font-weight: 600; }
-.budget { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 14px; display: grid; gap: 9px; }
+.li .pr { font: 700 18px var(--font-num); font-variant-numeric: tabular-nums; }
+.li .pr button { border: 0; background: var(--shelf); border-radius: 8px; padding: 3px 8px; color: var(--muted); font: 600 13px var(--font-ui); box-shadow: inset 0 0 0 1px var(--hair); }
+.li .del { border: 0; background: transparent; color: var(--muted); font-size: 22px; line-height: 1; width: 32px; height: 32px; border-radius: 50%; }
+.li .par { font-size: 12px; color: var(--muted); font-weight: 500; }
+body.shop .li { padding: 15px 14px 15px 18px; }
+body.shop .li .n { font-size: 21px; }
+body.shop .li input { width: 34px; height: 34px; }
+body.shop .li .pr { font-size: 22px; }
+.budget { background: var(--tile); border-radius: 22px; padding: 16px; display: grid; gap: 10px; }
 .budget .head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.budget .big { font: 700 24px var(--font-display); font-variant-numeric: tabular-nums; }
-.bar { height: 12px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); overflow: hidden; display: flex; }
+.budget .big { font: 800 32px/1 var(--font-num); font-variant-numeric: tabular-nums; }
+.bar { height: 12px; border-radius: 999px; background: var(--shelf); overflow: hidden; display: flex; }
 .bar i { display: block; height: 100%; }
 .bar .paye { background: var(--ink); }
-.bar .prevu { background: var(--tag); }
-.bar.over { border-color: var(--bad); }
+.bar .prevu { background: var(--label); }
+.bar.over { box-shadow: inset 0 0 0 2px var(--sticker); }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .legend b { color: var(--ink); }
-.dep { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 14px; border-top: 1px solid var(--line); padding-top: 6px; }
+.dep { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 14px; border-top: 1px solid var(--hair); padding-top: 8px; }
 .dep button { border: 0; background: transparent; color: var(--muted); font-size: 18px; }
-.payform { display: grid; gap: 8px; border-top: 1px dashed var(--line); padding-top: 9px; }
-.payform .row input[type="number"] { width: 120px; }
-.li .pr button { border: 1px dashed var(--line); background: transparent; border-radius: 8px; padding: 1px 7px; color: var(--muted); font-size: 13px; }
-.li .par { font-size: 11.5px; color: var(--muted); font-weight: 500; }
-.hbudget { font-size: 13px; opacity: .85; }
-.hbudget b { font-variant-numeric: tabular-nums; }
-.step { display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: start; font-size: 14px; }
-.step > span:first-child { background: var(--ink); color: var(--paper); border-radius: 50%; width: 22px; height: 22px; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
-code.topic { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; font-size: 13px; user-select: all; }
+.payform { display: grid; gap: 10px; border-top: 1px solid var(--hair); padding-top: 10px; }
+.payform .row input[type="number"] { width: 140px; }
 
-/* onglets */
-nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1.5px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); z-index: 30; padding-bottom: var(--safe-bottom); }
-nav.tabs button { border: 0; background: transparent; padding: 9px 4px 10px; font-weight: 700; font-size: 12px; color: var(--muted); display: grid; justify-items: center; gap: 3px; position: relative; }
-nav.tabs svg { width: 23px; height: 23px; }
-nav.tabs button[aria-selected="true"] { color: var(--ink); }
-nav.tabs button[aria-selected="true"]::before { content: ""; position: absolute; top: 0; left: 28%; right: 28%; height: 3px; background: var(--tag); border-radius: 0 0 3px 3px; }
-.nb { position: absolute; top: 4px; left: calc(50% + 7px); background: var(--bad); color: #fff; font-size: 11px; border-radius: 999px; padding: 0 5px; min-width: 18px; }
+/* choix des magasins (réglages) */
+.mrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; align-items: center; border-radius: 14px; padding: 10px 12px; background: var(--shelf); }
+.mrow b { font-size: 14.5px; display: flex; align-items: center; gap: 7px; }
+.mrow b::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--sc); flex: none; }
+.mrow .sub { font-size: 12.5px; color: var(--muted); grid-column: 1; }
+.mrow button { grid-row: 1 / span 2; grid-column: 2; background: var(--tile); }
+
+/* barre d'onglets flottante */
+nav.tabs { position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); bottom: calc(10px + var(--safe-bottom)); width: min(420px, calc(100% - 24px)); display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; padding: 6px; border-radius: 30px; background: var(--glass); -webkit-backdrop-filter: saturate(180%) blur(22px); backdrop-filter: saturate(180%) blur(22px); box-shadow: var(--float); }
+nav.tabs button { border: 0; background: transparent; height: 56px; border-radius: 24px; font-size: 11.5px; font-weight: 650; color: var(--muted); display: grid; justify-items: center; align-content: center; gap: 2px; position: relative; }
+nav.tabs svg { width: 24px; height: 24px; }
+nav.tabs button[aria-selected="true"] { background: var(--label); color: var(--label-ink); }
+.nb { position: absolute; top: 5px; left: calc(50% + 6px); background: var(--sticker); color: #fff; font-size: 11px; font-weight: 700; line-height: 18px; border-radius: 999px; padding: 0 5px; min-width: 18px; text-align: center; }
+
+/* feuilles qui montent du bas (fiche, réglages) */
+dialog { border: 0; padding: 0; color: var(--ink); background: var(--tile); width: min(560px, calc(100vw - 32px)); max-width: none; max-height: 86vh; border-radius: 26px; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; }
+dialog::backdrop { background: rgba(14, 17, 22, .45); }
+.grab { width: 40px; height: 5px; border-radius: 3px; background: var(--hair); margin: 0 auto; }
+@media (max-width: 699px) {
+  dialog.sheet { margin: auto 0 0; width: 100%; max-height: calc(100dvh - 44px - var(--safe-top)); border-radius: 26px 26px 0 0; padding-bottom: var(--safe-bottom); }
+  dialog.sheet[open] { animation: monte .3s cubic-bezier(.2, .85, .25, 1); }
+  dialog.sheet[open]::backdrop { animation: fond .3s ease; }
+}
+@keyframes monte { from { transform: translateY(100%); } }
+@keyframes fond { from { opacity: 0; } }
+dialog.zoom { padding: 0; width: auto; max-width: min(96vw, 720px); background: var(--tile); border-radius: 18px; }
+dialog.zoom img { display: block; width: 100%; height: auto; }
+dialog.zoom form { position: absolute; top: 8px; right: 8px; }
+dialog.zoom::backdrop { background: rgba(0, 0, 0, .7); }
+
+/* fiche article */
+.fiche-in { padding: 10px 18px 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.fiche-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13.5px; color: var(--muted); font-weight: 650; }
+.fiche-top .ens { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.fiche-top .ens::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--sc); flex: none; }
+.fiche .ph-box { position: relative; border-radius: 18px; background: #fff; display: grid; place-items: center; overflow: hidden; min-height: 120px; }
+.fiche .ph-box.vide { background: color-mix(in srgb, var(--sc, var(--muted)) 9%, var(--tile)); min-height: 110px; }
+.fiche .ph { width: 100%; max-height: 240px; object-fit: contain; padding: 14px; display: block; }
+.fiche .ph.op { max-height: 340px; object-fit: cover; padding: 0; cursor: zoom-in; }
+.fiche .ph-vide { font-size: 54px; }
+.fiche .stk { top: 12px; left: 12px; min-width: 62px; height: 62px; font-size: 25px; }
+.fiche h2 { font: 650 21px/1.22 var(--font-ui); letter-spacing: 0; }
+.fiche .px { font-size: 44px; }
+.fiche .price s { font-size: 16px; }
+.fiche .det { font-size: 14px; }
+.meta { margin: 0; display: grid; }
+.meta div { display: flex; justify-content: space-between; gap: 14px; padding: 10px 0; border-top: 1px solid var(--hair); font-size: 14.5px; }
+.meta div:last-child { border-bottom: 1px solid var(--hair); }
+.meta dt { color: var(--muted); }
+.meta dd { margin: 0; font-weight: 600; text-align: right; }
+.notes { display: grid; gap: 2px; background: var(--shelf); border-radius: 18px; padding: 6px 14px 12px; }
+.note { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; }
+.note + .note { border-top: 1px solid var(--hair); }
+.note b { display: block; font-size: 15px; }
+.note small { display: block; font-size: 12.5px; color: var(--muted); }
+.nsl { display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 9px; background: #fff; box-shadow: 0 0 0 1px var(--hair); }
+.nsl i { font: 800 12px/22px var(--font-ui); font-style: normal; width: 17px; height: 22px; text-align: center; color: #fff; border-radius: 3px; opacity: .45; }
+.nsl i.on { width: 26px; height: 32px; line-height: 32px; font-size: 17px; opacity: 1; border-radius: 6px; box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(0, 0, 0, .25); }
+.nsl i.ns-C { color: #3d3000; }
+.nova, .gs { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; font: 800 21px/1 var(--font-num); color: #fff; }
+.nova.n1 { background: #038141; } .nova.n2 { background: #85bb2f; } .nova.n3 { background: #ee8100; } .nova.n4 { background: #e63e11; }
+.gs.g-Ap, .gs.g-A { background: #038141; } .gs.g-B { background: #5fa03b; } .gs.g-C { background: #c9a800; } .gs.g-D { background: #ee8100; } .gs.g-E { background: #e63e11; } .gs.g-F { background: #a01e0c; }
+.notes .src { font-size: 12.5px; color: var(--muted); padding-top: 6px; border-top: 1px solid var(--hair); }
+.go-list { display: grid; gap: 8px; margin-top: 2px; }
+.go { display: grid; grid-template-columns: 40px minmax(0, 1fr) 14px; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 16px; text-decoration: none; color: var(--ink); background: var(--shelf); }
+.go:active { transform: scale(.99); }
+.go .gi { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--sc, var(--ink)); color: var(--sc-ink, #fff); }
+.go .gi svg { width: 21px; height: 21px; }
+.go .gi.off { background: #ff8714; }
+.go b { display: block; font-size: 15px; }
+.go small { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.35; }
+.go > svg { width: 14px; height: 14px; color: var(--muted); }
+.fiche .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.fiche .acts .icon { min-height: 44px; padding: 0 16px; font-size: 14.5px; }
+.fiche .acts .icon.big { flex: 1; justify-content: center; background: var(--ink); color: var(--tile); box-shadow: none; }
+.fiche .acts .icon.big.on { background: var(--ok); color: #fff; }
 
 /* réglages */
-dialog { border: 0; border-radius: 18px; padding: 0; width: min(560px, calc(100vw - 24px)); max-height: 86vh; background: var(--card); color: var(--ink); }
-dialog::backdrop { background: rgba(10, 15, 30, .5); }
-.dlg { padding: 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-.dlg > div:not(.dlg-head) { min-width: 0; grid-template-columns: minmax(0, 1fr); }
-dialog { overflow-x: hidden; }
-dialog [style*="display:grid"], dialog form, #ghBox, #rdvList, #selStores, #storeRes { grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.dlg { padding: 10px 16px 22px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+dialog#settings { background: var(--shelf); }
+.dlg-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.grp { background: var(--tile); border-radius: 20px; padding: 14px 16px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; min-width: 0; }
+.grp > b:first-child { font: 700 21px/1.1 var(--font-num); }
 dialog .field, dialog input, dialog select { max-width: 100%; min-width: 0; }
 dialog .opt > span, dialog .step > span, dialog .muted { min-width: 0; overflow-wrap: anywhere; }
 dialog .row { min-width: 0; }
-.dlg-head { display: flex; justify-content: space-between; align-items: center; }
-.opt { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
-.opt:first-of-type { border-top: 0; }
-.opt input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--good); }
-.seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; }
-.seg button { border: 0; background: transparent; padding: 8px; font-weight: 600; font-size: 14px; }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-.journal { font: 12px ui-monospace, Consolas, monospace; color: var(--muted); background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; white-space: pre-wrap; max-height: 150px; overflow: auto; }
-.empty { background: var(--card); border: 1.5px dashed var(--line); border-radius: 14px; padding: 18px; color: var(--muted); font-size: 14px; }
-.toast { position: fixed; left: 50%; bottom: calc(86px + var(--safe-bottom)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 9px 14px; border-radius: 10px; font-weight: 600; font-size: 14px; z-index: 40; max-width: calc(100vw - 32px); }
+#selStores, #storeRes, #rdvList, #ghBox, #rdvForm { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; }
+.opt { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--hair); }
+.opt:first-child { border-top: 0; padding-top: 2px; }
+.opt input[type="checkbox"] { width: 24px; height: 24px; accent-color: var(--ok); flex: none; }
+.seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: var(--shelf); }
+.seg button { border: 0; background: transparent; border-radius: 10px; padding: 9px 6px; font-weight: 650; font-size: 14px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--tile); color: var(--ink); box-shadow: 0 1px 3px rgba(24, 32, 44, .14); }
+.step { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 14px; }
+.step > span:first-child { background: var(--label); color: var(--label-ink); border-radius: 50%; width: 24px; height: 24px; display: grid; place-items: center; font-size: 12.5px; font-weight: 800; }
+code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; font-size: 13px; user-select: all; }
+.journal { font: 12px ui-monospace, Consolas, monospace; color: var(--muted); background: var(--tile); border-radius: 12px; padding: 8px 10px; white-space: pre-wrap; max-height: 150px; overflow: auto; }
+.toast { position: fixed; left: 50%; bottom: calc(96px + var(--safe-bottom)); transform: translateX(-50%); background: var(--ink); color: var(--tile); padding: 11px 16px; border-radius: 14px; font-weight: 650; font-size: 14.5px; z-index: 70; max-width: calc(100vw - 32px); box-shadow: var(--float); }
 
 @media (max-width: 480px) {
-  .grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .p { padding: 9px 9px 8px; }
-  .price b { font-size: 21px; }
-  .acts .icon { padding: 6px 8px; font-size: 12px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .px { font-size: 29px; }
 }
-@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+@media (min-width: 900px) {
+  .topbar h1 { font-size: 42px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
+<div class="sb" aria-hidden="true"></div>
 <header class="topbar">
-  <h1>Mes promos<small id="sub">Chargement…</small></h1>
-  <a class="tb-btn" id="btnMaj" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><span>MAJ</span></a>
-  <button class="tb-btn" id="btnSettings" type="button" aria-label="Réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+  <div class="tt"><h1 id="titre">Mes promos</h1><p id="sub">Chargement…</p></div>
+  <a class="tb-btn" id="btnMaj" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><span>MAJ</span></a>
+  <button class="tb-btn" id="btnSettings" type="button" aria-label="Réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
 </header>
 
 <div class="wrap">
@@ -318,7 +421,9 @@ dialog .row { min-width: 0; }
   <!-- ACCUEIL -->
   <section id="v-accueil">
     <div class="hero">
-      <form class="search" id="homeSearch"><input id="homeQ" type="search" placeholder="Chercher une promo : poulet, raclette…" aria-label="Chercher une promo" autocomplete="off"></form>
+      <form class="search" id="homeSearch" role="search"><input id="homeQ" type="search" placeholder="Chercher une promo : poulet, raclette…" aria-label="Chercher une promo" autocomplete="off" enterkeyhint="search"></form>
+      <div class="stale" id="staleBox" hidden></div>
+      <div id="todayBox" hidden></div>
       <div class="stats">
         <button class="stat" type="button" data-goto="promos" data-preset="alim"><b id="stAlim">–</b><span>promos alimentaires</span></button>
         <button class="stat" type="button" data-goto="promos" data-preset="new"><b id="stNew">–</b><span>nouvelles depuis ta visite</span></button>
@@ -326,17 +431,7 @@ dialog .row { min-width: 0; }
       </div>
       <div class="hbudget" id="homeBudget" hidden></div>
     </div>
-
-    <div class="stale" id="staleBox" hidden></div>
     <div class="card" id="installBox" hidden></div>
-    <div id="todayBox" hidden></div>
-    <div class="card" id="agendaCard">
-      <div class="sec-head"><h2>Agenda des promos</h2><button class="link" type="button" id="agToggle">Tout voir</button></div>
-      <div id="agenda"></div>
-      <div class="row"><a class="btn primary" id="btnSubscribe" href="#" style="text-decoration:none">Recevoir les rappels dans mon calendrier</a></div>
-    </div>
-
-    <div id="homeWatch" class="card"></div>
 
     <div class="blk">
       <div class="sec-head"><h2>Meilleures remises</h2><button class="link" data-goto="promos" data-preset="remise" type="button">Tout voir</button></div>
@@ -348,44 +443,53 @@ dialog .row { min-width: 0; }
       <div class="rail" id="railEnd"></div>
     </div>
 
+    <div id="homeWatch" class="card"></div>
+
     <div class="blk">
       <div class="sec-head"><h2>Idée pour ce soir</h2><button class="link" data-goto="plats" type="button">Plus de plats</button></div>
       <div id="homeDish"></div>
     </div>
 
+    <div class="card" id="agendaCard">
+      <div class="sec-head"><h2>Agenda des promos</h2><button class="link" type="button" id="agToggle">Tout voir</button></div>
+      <div id="agenda"></div>
+      <div class="row"><a class="btn primary" id="btnSubscribe" href="#">Recevoir les rappels dans mon calendrier</a></div>
+    </div>
+
     <div class="blk">
-      <div class="sec-head"><h2>Mes magasins</h2><button class="link" id="openStores" type="button">Changer / ajouter</button></div>
+      <div class="sec-head"><h2>Mes magasins</h2><button class="link" id="openStores" type="button">Changer</button></div>
       <div class="stores" id="homeStores"></div>
     </div>
-    <p class="muted" style="margin:0">Prix relevés dans les catalogues publiés. Ils peuvent varier un peu selon le magasin.</p>
+    <p class="muted" style="margin:0">Prix relevés dans les catalogues publiés : ils peuvent varier un peu selon le magasin. Notes alimentaires d'après Open Food Facts, base libre et gratuite.</p>
   </section>
 
   <!-- PROMOS -->
   <section id="v-promos" hidden>
     <div class="toolbar">
       <div class="search">
-        <input id="q" type="search" placeholder="Rechercher : poulet, raclette, Barilla…" autocomplete="off" aria-label="Rechercher une promo">
-        <select id="tri" aria-label="Trier">
+        <input id="q" type="search" placeholder="Rechercher : poulet, raclette, Barilla…" autocomplete="off" aria-label="Rechercher une promo" enterkeyhint="search">
+        <label class="tri" title="Trier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M3.5 16.5 7 20l3.5-3.5M17 20V4m-3.5 3.5L17 4l3.5 3.5"/></svg><select id="tri" aria-label="Trier">
           <option value="remise">Meilleure remise</option>
           <option value="prix">Prix croissant</option>
           <option value="prix-desc">Prix décroissant</option>
           <option value="fin">Finit bientôt</option>
           <option value="nom">De A à Z</option>
           <option value="enseigne">Par magasin</option>
-        </select>
+        </select></label>
       </div>
-      <div class="chips" id="storeChips" aria-label="Magasins"></div>
       <div class="chips" id="rayons" aria-label="Rayons"></div>
-      <div class="chips">
-        <button class="chip" data-f="alim" aria-pressed="false" type="button">Alimentaire</button>
-        <button class="chip" data-f="new" aria-pressed="false" type="button">Nouveau</button>
-        <button class="chip" data-f="end" aria-pressed="false" type="button">Finit bientôt</button>
-        <button class="chip" data-f="barre" aria-pressed="false" type="button">Prix barré</button>
-        <button class="chip" data-f="plan" aria-pressed="false" type="button">Bons plans</button>
-        <button class="chip" data-f="fav" aria-pressed="false" type="button">★ Favoris</button>
-      </div>
-      <div class="muted" id="count"></div>
     </div>
+    <div class="chips" id="storeChips" aria-label="Magasins"></div>
+    <div class="chips" aria-label="Filtres">
+      <button class="chip" data-f="alim" aria-pressed="false" type="button">Alimentaire</button>
+      <button class="chip" data-f="new" aria-pressed="false" type="button">Nouveau</button>
+      <button class="chip" data-f="end" aria-pressed="false" type="button">Finit bientôt</button>
+      <button class="chip" data-f="barre" aria-pressed="false" type="button">Prix barré</button>
+      <button class="chip" data-f="plan" aria-pressed="false" type="button">Bons plans</button>
+      <button class="chip" data-f="note" aria-pressed="false" type="button">Nutri-Score A ou B</button>
+      <button class="chip" data-f="fav" aria-pressed="false" type="button">★ Favoris</button>
+    </div>
+    <div class="countline"><span class="muted" id="count"></span></div>
     <div class="grid" id="grid"></div>
     <button class="btn more" type="button" id="gridMore" hidden></button>
   </section>
@@ -393,8 +497,8 @@ dialog .row { min-width: 0; }
   <!-- PLATS -->
   <section id="v-plats" hidden>
     <form class="card" id="envieForm">
-      <label for="envie">De quoi as-tu envie ?</label>
-      <textarea id="envie" placeholder="Ex. : poulet, fromage, rapide, pas cher, poisson, léger…"></textarea>
+      <label for="envie" style="font:700 23px/1.05 var(--font-num)">De quoi as-tu envie ?</label>
+      <textarea id="envie" rows="2" placeholder="Ex. : poulet, fromage, rapide, pas cher, poisson, léger…"></textarea>
       <div class="chips" id="quick">
         <button type="button" class="chip" data-q="réconfortant">Réconfortant</button>
         <button type="button" class="chip" data-q="léger">Léger</button>
@@ -405,7 +509,7 @@ dialog .row { min-width: 0; }
         <button type="button" class="chip" data-q="à partager">Entre potes</button>
       </div>
       <div class="row">
-        <select id="tmax" class="field" style="width:auto" aria-label="Temps maximum"><option value="0">Temps : peu importe</option><option value="20">20 min max</option><option value="40">40 min max</option><option value="90">1 h 30 max</option></select>
+        <select id="tmax" class="field" style="width:auto;min-height:44px" aria-label="Temps maximum"><option value="0">Temps : peu importe</option><option value="20">20 min max</option><option value="40">40 min max</option><option value="90">1 h 30 max</option></select>
         <button class="btn primary" type="submit">Trouver</button>
         <button class="btn" type="button" id="btnIA" hidden>Demander à l'IA</button>
         <button class="btn" type="button" id="btnMenu">Menu de la semaine</button>
@@ -413,8 +517,10 @@ dialog .row { min-width: 0; }
       <p class="muted" id="envieStatus" style="margin:0" role="status"></p>
     </form>
     <div class="recipes" id="envieOut"></div>
-    <div class="sec-head"><h2 id="platTitle">Faisables avec les promos</h2></div>
-    <div class="chips" id="platTags"></div>
+    <div class="blk">
+      <div class="sec-head"><h2 id="platTitle">Faisables avec les promos</h2></div>
+      <div class="chips" id="platTags"></div>
+    </div>
     <div class="recipes" id="recipes"></div>
   </section>
 
@@ -423,10 +529,10 @@ dialog .row { min-width: 0; }
     <div class="syncline" id="syncLine"></div>
     <div class="summary" id="listSummary"></div>
     <form class="watch-add" id="addForm">
-      <input id="addTxt" placeholder="Ajouter un article (ex. : pain, lait)" aria-label="Ajouter un article">
-      <button class="btn" type="submit">Ajouter</button>
+      <input id="addTxt" placeholder="Ajouter un article : pain, lait…" aria-label="Ajouter un article" enterkeyhint="done">
+      <button class="btn primary" type="submit">Ajouter</button>
     </form>
-    <div class="row">
+    <div class="row listacts">
       <button class="btn" id="btnShop" type="button">Mode magasin</button>
       <button class="btn" id="btnShare" type="button">Envoyer en texte</button>
       <button class="btn" id="clearDone" type="button">Retirer les cochés</button>
@@ -438,33 +544,34 @@ dialog .row { min-width: 0; }
 </div>
 
 <nav class="tabs" role="tablist" aria-label="Sections">
-  <button role="tab" data-v="accueil" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg>Accueil</button>
-  <button role="tab" data-v="promos" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Promos</button>
-  <button role="tab" data-v="plats" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="7"/><path d="M3 3v6a2 2 0 0 0 2 2M5 3v18M21 3c-2 1-3 3-3 6s1 3 3 3v9"/></svg>Plats</button>
-  <button role="tab" data-v="liste" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>Liste<span class="nb" id="nbList" hidden></span></button>
+  <button role="tab" data-v="accueil" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.8l8.5 6.7"/><path d="M5.5 9.2V20h13V9.2"/><path d="M10 20v-5.5h4V20"/></svg>Accueil</button>
+  <button role="tab" data-v="promos" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Promos</button>
+  <button role="tab" data-v="plats" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7"/><path d="M3 3v6a2 2 0 0 0 2 2M5 3v18M21 3c-2 1-3 3-3 6s1 3 3 3v9"/></svg>Plats</button>
+  <button role="tab" data-v="liste" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>Liste<span class="nb" id="nbList" hidden></span></button>
 </nav>
 
-<dialog id="fiche" class="fiche" aria-labelledby="ficheNom"><div id="ficheCorps"></div></dialog>
-<dialog id="zoomDlg" class="zoom" aria-label="Image de l'opération"><form method="dialog"><button class="icon" type="submit" aria-label="Fermer">✕</button></form><img id="zoomImg" alt="Visuel de l'opération"></dialog>
-<dialog id="settings" aria-labelledby="setTitle">
+<dialog id="fiche" class="fiche sheet" aria-labelledby="ficheNom"><div id="ficheCorps"></div></dialog>
+<dialog id="zoomDlg" class="zoom" aria-label="Image de l'opération"><form method="dialog"><button class="x" type="submit" aria-label="Fermer">✕</button></form><img id="zoomImg" alt="Visuel de l'opération"></dialog>
+<dialog id="settings" class="sheet" aria-labelledby="setTitle">
   <div class="dlg">
-    <div class="dlg-head"><h2 id="setTitle">Réglages</h2><button class="btn" type="button" id="closeSettings">Fermer</button></div>
-    <div style="display:grid;gap:8px" id="magSection">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="dlg-head"><h2 id="setTitle" style="font-size:32px">Réglages</h2><button class="btn" type="button" id="closeSettings">Fermer</button></div>
+    <div class="grp" id="magSection">
       <b>Mes magasins</b>
       <span class="muted">Choisis tes magasins parmi tous ceux de Vendée. Toute l'appli suit ton choix : promos, plats, agenda, alertes.</span>
-      <div id="selStores" style="display:grid;gap:6px"></div>
-      <b style="font-size:14px;margin-top:4px">Ajouter un magasin</b>
+      <div id="selStores"></div>
+      <b style="font-size:15px;margin-top:4px">Ajouter un magasin</b>
       <div class="watch-add"><input id="storeQ" type="search" placeholder="Ville, code postal ou enseigne" aria-label="Chercher un magasin" autocomplete="off"><button class="btn" type="button" id="btnPres">Autour de moi</button></div>
       <div class="chips" id="storeFam"></div>
-      <div id="storeRes" style="display:grid;gap:6px;max-height:360px;overflow:auto"></div>
+      <div id="storeRes" style="max-height:360px;overflow:auto"></div>
     </div>
-    <div style="display:grid;gap:8px">
+    <div class="grp">
       <b>Produits surveillés</b>
       <span class="muted">L'accueil te les montre dès qu'ils sont en promo.</span>
       <form class="watch-add" id="watchForm2"><input id="watchTxt2" placeholder="Ex. : raclette, coca, lessive" aria-label="Produit à surveiller"><button class="btn" type="submit">Ajouter</button></form>
       <div class="row" id="watchList2"></div>
     </div>
-    <div style="display:grid;gap:8px">
+    <div class="grp">
       <b>Mes rendez-vous promo</b>
       <span class="muted">Les offres qui reviennent : « 10 % sur la carte U le vendredi et samedi », « les mardis -10 % produits U »… Elles s'affichent dans l'agenda et tu peux les mettre dans ton calendrier.</span>
       <form id="rdvForm" style="display:grid;gap:8px">
@@ -473,26 +580,26 @@ dialog .row { min-width: 0; }
         <div class="daysel" id="rdvDays" role="group" aria-label="Jours"></div>
         <div class="row"><label for="rdvWeeks" class="muted" style="font-weight:500">Répéter</label><select class="field" id="rdvWeeks" style="width:auto"><option value="1">cette semaine seulement</option><option value="0">toutes les semaines</option></select><button class="btn" type="submit">Ajouter</button></div>
       </form>
-      <div id="rdvList" style="display:grid;gap:6px"></div>
+      <div id="rdvList"></div>
     </div>
-    <div style="display:grid;gap:8px">
+    <div class="grp">
       <b>Budget courses</b>
       <div class="row"><input class="field" id="budgetIn" type="number" inputmode="decimal" min="0" step="5" placeholder="Ex. : 80" style="width:130px" aria-label="Budget par semaine en euros"><span class="muted">€ par semaine</span></div>
       <div class="row"><input class="field" id="prenomIn" placeholder="Ton prénom (affiché dans la liste partagée)" aria-label="Ton prénom" style="max-width:320px"></div>
     </div>
-    <div style="display:grid;gap:8px" id="ghSection">
+    <div class="grp" id="ghSection">
       <b>Liste partagée et alertes</b>
-      <div id="ghBox" style="display:grid;gap:10px"></div>
+      <div id="ghBox"></div>
     </div>
-    <div style="display:grid;gap:8px">
+    <div class="grp">
       <b>Thème</b>
       <div class="seg" id="themeSeg"><button type="button" data-theme-set="auto">Auto</button><button type="button" data-theme-set="light">Clair</button><button type="button" data-theme-set="dark">Sombre</button></div>
     </div>
-    <div style="display:grid;gap:8px">
+    <div class="grp">
       <b>Photos des produits</b>
-      <div class="seg" id="photoSeg"><button type="button" data-photos="1">Afficher</button><button type="button" data-photos="0">Masquer (économise les données)</button></div>
+      <div class="seg" id="photoSeg"><button type="button" data-photos="1">Afficher</button><button type="button" data-photos="0">Masquer (moins de données)</button></div>
     </div>
-    <div style="display:grid;gap:8px">
+    <div class="grp">
       <b>Données</b>
       <span class="muted" id="setInfo"></span>
       <div class="row"><button class="btn" type="button" id="resetAll">Tout remettre à zéro</button></div>
@@ -799,51 +906,80 @@ dialog .row { min-width: 0; }
   function tout() {
     var d = S.data, dt = d.maj ? new Date(d.maj) : null;
     afficherFraicheur();
-    $("sub").textContent = (d.ville || "") + (dt ? " · à jour le " + dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " " + dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "") +
-      (S.manquants ? " · " + S.manquants + " catalogue" + (S.manquants > 1 ? "s" : "") + " non chargé" + (S.manquants > 1 ? "s" : "") + " (réseau)" : "");
+    $("sub").textContent = (d.ville || "") + (dt ? ", à jour le " + dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " à " + dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "") +
+      (S.manquants ? ". " + S.manquants + " catalogue" + (S.manquants > 1 ? "s" : "") + " non chargé" + (S.manquants > 1 ? "s" : "") + " (réseau)" : "");
     afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); afficherReglages(); afficherRdv(); afficherAgenda(); afficherInstall();
   }
 
   // ---------- carte produit
+  var EMO = { "Poisson & mer": "🐟", "Volaille": "🍗", "Charcuterie": "🥓", "Viande": "🥩", "Fromage": "🧀", "Crèmerie & œufs": "🥚", "Fruits & légumes": "🥕",
+    "Traiteur": "🍕", "Surgelés": "🧊", "Boulangerie": "🥖", "Épicerie sucrée": "🍫", "Épicerie salée": "🥫", "Boissons": "🥤", "Hygiène & beauté": "🧴",
+    "Entretien": "🧽", "Animaux": "🐾", "Maison & déco": "🛋️", "High-tech & électroménager": "📺", "Jouets & culture": "🧸", "Mode & sport": "👕",
+    "Jardin & bricolage": "🪴", "Maison & loisirs": "🏠", "Autres": "🛒" };
+  var SVG = {
+    star: '<svg viewBox="0 0 24 24" stroke-linejoin="round"><path d="m12 3.2 2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z"/></svg>',
+    plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+    check: '<svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>'
+  };
   function photoDe(p) { return p.op && p.image ? p.image : (p.img ? "https://content-media.bonial.biz/" + p.img + "/main.jpg?impolicy=SEO-offer-normal" : ""); }
-  function carte(p, opts) {
+  // nom court du magasin (« Super U »), avec la ville seulement si deux magasins de la même enseigne sont choisis
+  function ensCourt(id) {
+    var ens = S.data && S.data.enseignes, e = ens && ens[id]; if (!e) return id;
+    var c = e.court || e.nom;
+    var double = Object.keys(ens).some(function (k) { return k !== id && S.hidden.indexOf(k) < 0 && (ens[k].court || ens[k].nom) === c; });
+    return double ? c + " " + (e.ville || "") : c;
+  }
+  // prix façon étiquette : gros euros, centimes en exposant
+  function px(x) { var t = x.toFixed(2).split("."); return '<b class="px">' + t[0] + '<small>,' + t[1] + ' €</small></b>'; }
+  function deuxieme(p) { return p.condition === "le 2e" && p.prix != null && p.avant; }
+  function prixHTML(p) {
+    if (p.prix == null) return "";
+    if (deuxieme(p)) return '<div class="price"><span class="cond">Le 2e à</span>' + px(p.prix) + '</div><div class="unit">1er à ' + euro(p.avant) + ', les 2 : ' + euro(p.avant + p.prix) + ' (-' + p.remise + ' % au total)</div>';
+    return '<div class="price">' + (p.des ? '<span class="cond">Dès</span>' : '') + px(p.prix) + (p.avant ? '<s>' + euro(p.avant) + '</s>' : '') + '</div>';
+  }
+  function pastille(p) {
+    if (deuxieme(p) && p.remise_2e) return '<span class="stk">-' + p.remise_2e + '%<small>le 2e</small></span>';
+    return p.remise ? '<span class="stk">-' + p.remise + '%</span>' : '';
+  }
+  function badgesHTML(p, opts) {
     opts = opts || {};
-    var fav = S.fav.indexOf(p.id) >= 0, dans = dansListe(p.id), j = joursRestants(p);
-    var badges = "";
-    if (opts.cheap) badges += '<span class="b cheap">Le moins cher</span>';
-    if (S.nouveaux[p.id]) badges += '<span class="b new">Nouveau</span>';
+    var j = joursRestants(p), b = "";
+    if (opts.cheap) b += '<span class="b cheap">Le moins cher</span>';
     if (pasCommencee(p)) {
       var dem = new Date(); dem.setDate(dem.getDate() + 1);
-      badges += '<span class="b soon">' + (p.debut === isoJ(dem) ? (p.fin === p.debut ? "Demain seulement" : "À partir de demain") : "À partir du " + jjmm(p.debut)) + '</span>';
-    } else if (finitBientot(p)) badges += '<span class="b end">' + (j === 0 ? (p.debut === p.fin ? "Aujourd'hui seulement" : "Dernier jour") : "Finit dans " + j + " j") + '</span>';
-    if (p.en_ligne) badges += '<span class="b web">En ligne seulement</span>';
-    if (surveille(p)) badges += '<span class="b watch">Surveillé</span>';
-    var h = p.histo, bas = h && p.prix != null && p.prix <= h.min - 0.005, deja = h && p.prix != null && p.prix > h.min + 0.005;
-    if (bas) badges += '<span class="b low">Plus bas prix vu</span>';
-    if (p.carte) badges += '<span class="b carte">Avec la carte</span>';
-    if (p.op) badges += '<span class="b op">⚡ Opération' + (p.debut && p.debut === p.fin && !pasCommencee(p) && p.debut !== isoJ(new Date()) ? ' le ' + jjmm(p.debut) : '') + '</span>';
-    var deux = p.condition === "le 2e" && p.prix != null && p.avant;
-    var bloc = "";
-    if (p.prix != null) {
-      bloc = deux
-        ? '<div class="price"><span class="cond">Le 2e à</span><b>' + euro(p.prix) + '</b>' + (p.remise_2e ? '<span class="pct">-' + p.remise_2e + '% le 2e</span>' : '') + '</div><div class="unit">1er à ' + euro(p.avant) + ' · les 2 : ' + euro(p.avant + p.prix) + ' (-' + p.remise + '% au total)</div>'
-        : '<div class="price">' + (p.des ? '<span class="cond">Dès</span>' : '') + '<b>' + euro(p.prix) + '</b>' + (p.avant ? '<s>' + euro(p.avant) + '</s>' : '') + (p.remise ? '<span class="pct">-' + p.remise + '%</span>' : '') + '</div>';
-    }
-    var photo = photoDe(p);
+      b += '<span class="b soon">' + (p.debut === isoJ(dem) ? (p.fin === p.debut ? "Demain seulement" : "À partir de demain") : "À partir du " + jjmm(p.debut)) + '</span>';
+    } else if (finitBientot(p)) b += '<span class="b end">' + (j === 0 ? (p.debut === p.fin ? "Aujourd'hui seulement" : "Dernier jour") : "Finit dans " + j + " j") + '</span>';
+    if (p.op) b += '<span class="b op">⚡ Opération' + (p.debut && p.debut === p.fin && !pasCommencee(p) && p.debut !== isoJ(new Date()) ? ' le ' + jjmm(p.debut) : '') + '</span>';
+    if (surveille(p)) b += '<span class="b watch">Surveillé</span>';
+    if (S.nouveaux[p.id]) b += '<span class="b new">Nouveau</span>';
+    var h = p.histo;
+    if (h && p.prix != null && p.prix <= h.min - 0.005) b += '<span class="b low">Plus bas prix vu</span>';
+    if (p.carte) b += '<span class="b carte">Avec la carte</span>';
+    if (p.en_ligne) b += '<span class="b web">En ligne seulement</span>';
+    return b;
+  }
+  function nutriMini(p) {
+    if (!p.ns) return "";
+    return '<span class="nsm" role="img" aria-label="Nutri-Score ' + esc(p.ns) + '">' + "ABCDE".split("").map(function (l) { return '<i class="ns-' + l + (l === p.ns ? ' on' : '') + '">' + l + '</i>'; }).join("") + '</span>';
+  }
+  function carte(p, opts) {
+    opts = opts || {};
+    var fav = S.fav.indexOf(p.id) >= 0, dans = dansListe(p.id), photo = S.photos ? photoDe(p) : "", badges = badgesHTML(p, opts);
+    var plan = p.bon_plan && norm(p.bon_plan) !== norm(p.nom) ? p.bon_plan : (p.bon_plan && p.prix == null ? "Bon plan" : "");
     return '<article class="p' + (p.op ? ' op' : '') + '" data-pid="' + esc(p.id) + '" style="--sc:' + coul(p.enseigne) + '">' +
-      '<div class="top"><span>' + esc(nomEns(p.enseigne)) + '</span>' + (opts.compact ? '' : '<span>' + esc(p.rayon) + '</span>') + '</div>' +
-      (photo && S.photos ? '<img class="ph" loading="lazy" decoding="async" alt="" src="' + esc(photo) + '"' + (p.op ? ' data-zoom="' + esc(p.image) + '"' : '') + ' onerror="this.remove()">' : '') +
-      (badges ? '<div class="badges">' + badges + '</div>' : '') +
-      (p.marque ? '<div class="brand">' + esc(p.marque) + '</div>' : '') +
+      '<div class="ph-box' + (photo ? '' : ' vide') + '">' +
+        (photo ? '<img class="ph" loading="lazy" decoding="async" alt="" src="' + esc(photo) + '"' + (p.op ? ' data-zoom="' + esc(p.image) + '"' : '') + ' onerror="this.parentNode.classList.add(\'vide\');this.remove()">' : '') +
+        '<span class="ph-vide" aria-hidden="true">' + (EMO[p.rayon] || "🛒") + '</span>' + pastille(p) + nutriMini(p) +
+        '<button class="fav' + (fav ? ' on' : '') + '" type="button" data-fav="' + esc(p.id) + '" aria-label="Favori">' + SVG.star + '</button>' +
+        '<button class="add' + (dans ? ' on' : '') + '" type="button" data-add="' + esc(p.id) + '" aria-label="' + (dans ? 'Retirer de la liste' : 'Ajouter à la liste') + '">' + (dans ? SVG.check : SVG.plus) + '</button>' +
+      '</div>' +
+      prixHTML(p) +
       '<h3><button class="nom" type="button" data-fiche="' + esc(p.id) + '">' + esc(p.nom) + '</button></h3>' +
-      bloc +
-      (!opts.compact && p.detail ? '<div class="det">' + esc(p.detail) + '</div>' : '') +
-      (p.unite ? '<div class="unit">' + esc(p.unite) + '</div>' : '') +
-      (p.bon_plan && norm(p.bon_plan) !== norm(p.nom) ? '<div class="plan">' + esc(p.bon_plan) + '</div>' : (p.bon_plan && p.prix == null ? '<div class="plan">Bon plan</div>' : '')) +
-      (!opts.compact && deja ? '<div class="hist">Déjà vu à ' + euro(h.min) + ' le ' + h.min_date.slice(8, 10) + '/' + h.min_date.slice(5, 7) + '</div>' : '') +
-      (!opts.compact && p.validite ? '<div class="unit">Valable ' + esc(p.validite) + '</div>' : '') +
-      '<div class="acts"><button class="icon star' + (fav ? ' on' : '') + '" data-fav="' + esc(p.id) + '" aria-label="Favori" type="button">★</button>' +
-      '<button class="icon' + (dans ? ' on' : '') + '" data-add="' + esc(p.id) + '" type="button">' + (dans ? '✓ Liste' : '+ Liste') + '</button></div>' +
+      (p.marque ? '<div class="brand">' + esc(p.marque) + '</div>' : '') +
+      (plan ? '<div class="plan">' + esc(plan) + '</div>' : '') +
+      (!opts.compact && p.unite ? '<div class="unit">' + esc(p.unite) + '</div>' : '') +
+      (badges ? '<div class="badges">' + badges + '</div>' : '') +
+      '<div class="ens"><span class="dot" style="background:' + coul(p.enseigne) + '"></span><span>' + esc(ensCourt(p.enseigne)) + '</span></div>' +
     '</article>';
   }
 
@@ -866,7 +1002,8 @@ dialog .row { min-width: 0; }
     app: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>',
     web: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>',
     cat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></svg>',
-    out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg>'
+    out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg>',
+    leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-13 15-14-1 10-6 15-14 15"/><path d="M5 19c3-4 6-6 10-8"/></svg>'
   };
   var FICHE = null;
   // ce qu'on cherche sur le site / dans l'appli : la marque + le nom, sans « Toute la gamme »
@@ -885,13 +1022,28 @@ dialog .row { min-width: 0; }
     return { url: "https://www.bonial.fr/contentViewer/" + (dyn ? "dynamic/" : "static/") + p.cat + (!dyn && p.pg != null ? "?page=" + (p.pg + 1) : ""),
       txt: (!dyn && p.pg != null ? "Page " + (p.pg + 1) + " · " : "") + (c.titre || "catalogue") + (c.pages && !dyn ? " (" + c.pages + " pages)" : "") };
   }
+  var NS_TXT = { A: "Meilleure qualité nutritionnelle", B: "Bonne qualité nutritionnelle", C: "Qualité nutritionnelle moyenne", D: "Qualité nutritionnelle faible", E: "Moins bonne qualité nutritionnelle" };
+  var NOVA_TXT = { 1: "Aliment pas ou peu transformé", 2: "Ingrédient culinaire transformé", 3: "Aliment transformé", 4: "Aliment ultra-transformé" };
+  var GS_TXT = { "A+": "très faible", A: "très faible", B: "faible", C: "modéré", D: "élevé", E: "très élevé", F: "très élevé" };
+  function notesHTML(p) {
+    if (!p.ns && !p.nv) return "";
+    var h = '<div class="notes">';
+    if (p.ns) h += '<div class="note"><span class="nsl" role="img" aria-label="Nutri-Score ' + esc(p.ns) + '">' + "ABCDE".split("").map(function (l) { return '<i class="ns-' + l + (l === p.ns ? ' on' : '') + '">' + l + '</i>'; }).join("") + '</span><span><b>Nutri-Score ' + esc(p.ns) + '</b><small>' + (NS_TXT[p.ns] || "") + '</small></span></div>';
+    if (p.nv) h += '<div class="note"><span class="nova n' + esc(p.nv) + '">' + esc(p.nv) + '</span><span><b>NOVA ' + esc(p.nv) + '</b><small>' + (NOVA_TXT[p.nv] || "") + '</small></span></div>';
+    if (p.gs) h += '<div class="note"><span class="gs g-' + (p.gs === "A+" ? "Ap" : esc(p.gs)) + '">' + esc(p.gs) + '</span><span><b>Green-Score ' + esc(p.gs) + '</b><small>Impact sur l\'environnement ' + (GS_TXT[p.gs] || "") + '</small></span></div>';
+    return h + '<div class="src">D\'après Open Food Facts, produit trouvé : « ' + esc(p.offn || p.nom) + ' ». Vérifie que c\'est bien le même.</div></div>';
+  }
   function ouvrirFiche(id) {
     var p = promoParId(id); if (!p) return;
     FICHE = id;
     var e = (S.data.enseignes || {})[p.enseigne] || {}, fam = familleDe(e.chaine || p.chaine), a = APPLIS[fam];
     var terme = termeRecherche(p), q = encodeURIComponent(terme), photo = photoDe(p), fav = S.fav.indexOf(p.id) >= 0, dans = dansListe(p.id);
-    var c = carte(p), b = c.match(/<div class="badges">[\s\S]*?<\/div>/), pr = c.match(/<div class="price">[\s\S]*?<\/div>(<div class="unit">1er[\s\S]*?<\/div>)?/);
-    var h = p.histo, deja = h && p.prix != null && p.prix > h.min + 0.005;
+    var h = p.histo, deja = h && p.prix != null && p.prix > h.min + 0.005, badges = badgesHTML(p);
+    var plan = p.bon_plan && norm(p.bon_plan) !== norm(p.nom) ? p.bon_plan : "";
+    var meta = [];
+    if (p.validite) meta.push(["Valable", p.validite]);
+    if (p.unite) meta.push(["Prix à l'unité", p.unite]);
+    if (p.rayon) meta.push(["Rayon", (EMO[p.rayon] ? EMO[p.rayon] + " " : "") + p.rayon]);
     var liens = "";
     if (a && (IOS || ANDROID)) {
       liens += '<a class="go app" href="' + (IOS ? "https://apps.apple.com/fr/app/id" + a.ios : "https://play.google.com/store/apps/details?id=" + a.android) +
@@ -905,28 +1057,33 @@ dialog .row { min-width: 0; }
     var lc = lienCatalogue(p);
     if (lc) {
       liens += '<a class="go" href="' + esc(lc.url) + '" target="_blank" rel="noopener"><span class="gi">' + ICO.cat + '</span><span><b>Voir dans le catalogue</b>' +
-        '<small>' + esc(lc.txt) + ' · bonial.fr</small></span>' + ICO.out + '</a>';
+        '<small>' + esc(lc.txt) + ', sur bonial.fr</small></span>' + ICO.out + '</a>';
+    }
+    if (p.off) {
+      liens += '<a class="go" href="https://fr.openfoodfacts.org/produit/' + encodeURIComponent(p.off) + '" target="_blank" rel="noopener"><span class="gi off">' + ICO.leaf + '</span><span><b>Voir sur Open Food Facts</b>' +
+        '<small>Ingrédients, additifs, allergènes : base libre et gratuite.</small></span>' + ICO.out + '</a>';
     }
     var lu = a && fam === "lidl";
-    $("ficheCorps").innerHTML = '<div class="fiche-in" style="--sc:' + coul(p.enseigne) + ';--sc-ink:' + (lu ? "#14213d" : "#fff") + '">' +
-      '<div class="fiche-top"><span>' + esc(nomEns(p.enseigne)) + (p.rayon ? ' · ' + esc(p.rayon) : '') + '</span><button class="icon" type="button" data-fermerfiche="1" aria-label="Fermer">✕</button></div>' +
-      (photo ? '<img class="ph' + (p.op ? ' op' : '') + '" alt="" src="' + esc(photo) + '"' + (p.op ? ' data-zoom="' + esc(p.image) + '"' : '') + ' onerror="this.remove()">' : '') +
-      (b ? b[0] : '') +
-      (p.marque ? '<div class="brand">' + esc(p.marque) + '</div>' : '') +
-      '<h2 id="ficheNom">' + esc(p.nom) + '</h2>' +
-      (pr ? pr[0] : '') +
-      (p.detail ? '<div class="det">' + esc(p.detail) + '</div>' : '') +
-      (p.unite ? '<div class="unit">' + esc(p.unite) + '</div>' : '') +
-      (p.bon_plan && norm(p.bon_plan) !== norm(p.nom) ? '<div class="plan">' + esc(p.bon_plan) + '</div>' : '') +
+    $("ficheCorps").innerHTML = '<div class="fiche-in" style="--sc:' + coul(p.enseigne) + ';--sc-ink:' + (lu ? "#18202c" : "#fff") + '">' +
+      '<div class="grab" aria-hidden="true"></div>' +
+      '<div class="fiche-top"><span class="ens">' + esc(nomEns(p.enseigne)) + '</span><button class="x" type="button" data-fermerfiche="1" aria-label="Fermer">✕</button></div>' +
+      '<div class="ph-box' + (photo ? '' : ' vide') + '">' + (photo ? '<img class="ph' + (p.op ? ' op' : '') + '" alt="" src="' + esc(photo) + '"' + (p.op ? ' data-zoom="' + esc(p.image) + '"' : '') + ' onerror="this.parentNode.classList.add(\'vide\');this.remove()">' : '') +
+        '<span class="ph-vide" aria-hidden="true">' + (EMO[p.rayon] || "🛒") + '</span>' + pastille(p) + '</div>' +
+      (badges ? '<div class="badges">' + badges + '</div>' : '') +
+      '<div><h2 id="ficheNom">' + esc(p.nom) + '</h2>' + (p.marque ? '<div class="brand" style="font-size:14px;margin-top:3px">' + esc(p.marque) + '</div>' : '') + '</div>' +
+      prixHTML(p) +
+      (plan ? '<div class="plan" style="font-size:15px">' + esc(plan) + '</div>' : '') +
       (deja ? '<div class="hist">Déjà vu à ' + euro(h.min) + ' le ' + h.min_date.slice(8, 10) + '/' + h.min_date.slice(5, 7) + '</div>' : '') +
-      (p.validite ? '<div class="unit">Valable ' + esc(p.validite) + '</div>' : '') +
-      (liens ? '<div class="go-list">' + liens + '</div>' : '') +
-      '<div class="acts"><button class="icon star' + (fav ? ' on' : '') + '" data-fav="' + esc(p.id) + '" type="button">★ ' + (fav ? 'Favori' : 'Mettre en favori') + '</button>' +
-      '<button class="icon' + (dans ? ' on' : '') + '" data-add="' + esc(p.id) + '" type="button">' + (dans ? '✓ Dans la liste' : '+ Liste') + '</button>' +
+      '<div class="acts"><button class="icon big' + (dans ? ' on' : '') + '" data-add="' + esc(p.id) + '" type="button">' + (dans ? '✓ Dans ta liste' : '+ Ajouter à la liste') + '</button>' +
+      '<button class="icon star' + (fav ? ' on' : '') + '" data-fav="' + esc(p.id) + '" type="button" aria-label="Favori">★</button>' +
       (navigator.share ? '<button class="icon" type="button" data-partager="' + esc(p.id) + '">Partager</button>' : '') + '</div>' +
+      (meta.length ? '<dl class="meta">' + meta.map(function (m) { return '<div><dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd></div>'; }).join("") + '</dl>' : '') +
+      (p.detail ? '<div class="det">' + esc(p.detail) + '</div>' : '') +
+      notesHTML(p) +
+      (liens ? '<div class="go-list">' + liens + '</div>' : '') +
     '</div>';
     var d = $("fiche");
-    if (!d.open) { try { d.showModal(); } catch (er) { d.setAttribute("open", ""); } }
+    if (!d.open) { try { d.showModal(); } catch (er) { d.setAttribute("open", ""); } d.scrollTop = 0; }
   }
   function fermerFiche() { var d = $("fiche"); FICHE = null; if (d.open) { try { d.close(); } catch (er) { d.removeAttribute("open"); } } }
   function partager(p) {
@@ -969,7 +1126,7 @@ dialog .row { min-width: 0; }
     html += '<form class="watch-add" id="watchForm"><input id="watchTxt" placeholder="Ajoute un produit : raclette, coca…" aria-label="Produit à surveiller"><button class="btn" type="submit">Surveiller</button></form>';
     html += (SYNC && SYNC.role === "proprio")
       ? '<span class="muted" style="font-size:13px">🔔 Alertes actives même appli fermée' + (SYNC.ntfy ? " (notifications + calendrier)" : " (calendrier)") + '</span>'
-      : '<button class="link" type="button" data-opensettings="gh" style="text-align:left">🔔 Être prévenu même quand l\'appli est fermée →</button>';
+      : '<button class="link" type="button" data-opensettings="gh" style="text-align:left">🔔 Être prévenu même quand l\'appli est fermée</button>';
     if (w.length) html += '<div class="rail">' + w.slice(0, 20).map(function (p) { return carte(p, { compact: true }); }).join("") + '</div>';
     else if (S.watch.length) html += '<p class="muted" style="margin:0">Aucun de tes produits n\'est en promo en ce moment.</p>';
     $("homeWatch").innerHTML = html;
@@ -986,9 +1143,9 @@ dialog .row { min-width: 0; }
 
     $("homeStores").innerHTML = Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0; }).map(function (k) {
       var e = S.data.enseignes[k], o = ouverture(e.horaires);
-      return '<div style="display:grid;gap:4px"><button class="store" type="button" data-gostore="' + esc(k) + '" style="--sc:' + coul(k) + '"><b>' + esc(e.court || e.nom) + '</b><span>' + esc(e.ville || "") + '</span><span>' + e.nb + ' promos' + (e.validite ? ' · ' + esc(e.validite) : '') + '</span>' +
+      return '<div><button class="store" type="button" data-gostore="' + esc(k) + '" style="--sc:' + coul(k) + '"><b>' + esc(e.court || e.nom) + '</b><span>' + esc(e.ville || "") + '</span><span>' + e.nb + ' promos' + (e.validite ? ', ' + esc(e.validite) : '') + '</span>' +
         (o ? '<span class="' + (o.ouvert ? "open" : "closed") + '">' + esc(o.txt) + '</span>' : '') + (e.ancien ? '<span class="old">pas de nouveau catalogue</span>' : '') + '</button>' +
-        (e.adresse ? '<a href="' + itineraire(e) + '" target="_blank" rel="noopener" style="font-size:12px;font-weight:600;color:var(--accent);text-decoration:none">Itinéraire →</a>' : '') + '</div>';
+        (e.adresse ? '<a class="itin" href="' + itineraire(e) + '" target="_blank" rel="noopener">Itinéraire</a>' : '') + '</div>';
     }).join("");
   }
 
@@ -996,13 +1153,13 @@ dialog .row { min-width: 0; }
   function afficherFiltres() {
     var ens = Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0 && S.data.enseignes[k].nb > 0; });
     if (S.store !== "all" && ens.indexOf(S.store) < 0) S.store = "all";
-    $("storeChips").innerHTML = '<button class="chip" type="button" data-store="all" aria-pressed="' + (S.store === "all") + '">Tous</button>' + ens.map(function (k) {
-      return '<button class="chip" type="button" data-store="' + esc(k) + '" aria-pressed="' + (S.store === k) + '">' + dot(k) + esc(nomEns(k)) + '</button>';
+    $("storeChips").innerHTML = '<button class="chip" type="button" data-store="all" aria-pressed="' + (S.store === "all") + '">Tous les magasins</button>' + ens.map(function (k) {
+      return '<button class="chip" type="button" data-store="' + esc(k) + '" aria-pressed="' + (S.store === k) + '">' + dot(k) + esc(ensCourt(k)) + '</button>';
     }).join("");
     var cnt = {};
     visibles().forEach(function (p) { if (S.store === "all" || p.enseigne === S.store) cnt[p.rayon] = (cnt[p.rayon] || 0) + 1; });
     $("rayons").innerHTML = ["Tous"].concat(ORDRE_RAYONS.filter(function (r) { return cnt[r]; })).map(function (r) {
-      return '<button class="chip" type="button" data-rayon="' + esc(r) + '" aria-pressed="' + (S.rayon === r) + '">' + esc(r) + (r !== "Tous" ? ' <span class="n">' + cnt[r] + '</span>' : '') + '</button>';
+      return '<button class="chip" type="button" data-rayon="' + esc(r) + '" aria-pressed="' + (S.rayon === r) + '">' + (EMO[r] ? '<span class="e" aria-hidden="true">' + EMO[r] + '</span>' : '') + esc(r === "Tous" ? "Tous les rayons" : r) + (r !== "Tous" ? ' <span class="n">' + cnt[r] + '</span>' : '') + '</button>';
     }).join("");
     document.querySelectorAll("[data-f]").forEach(function (b) { b.setAttribute("aria-pressed", S.f[b.dataset.f] ? "true" : "false"); });
   }
@@ -1016,6 +1173,7 @@ dialog .row { min-width: 0; }
       if (S.f.barre && !p.avant) return false;
       if (S.f.plan && !p.bon_plan) return false;
       if (S.f.fav && S.fav.indexOf(p.id) < 0) return false;
+      if (S.f.note && p.ns !== "A" && p.ns !== "B") return false;
       if (S.f["new"] && !S.nouveaux[p.id]) return false;
       if (S.f.end && !finitBientot(p)) return false;
       if (mots.length) {
@@ -1051,12 +1209,13 @@ dialog .row { min-width: 0; }
       var mags = {}; grp.forEach(function (p) { mags[p.enseigne] = 1; });
       if (grp.length > 1 && Object.keys(mags).length > 1) cheapId = grp.reduce(function (m, p) { return !m || p.prix < m.prix ? p : m; }, null).id;
     }
-    $("count").textContent = l.length + (l.length > 1 ? " promos" : " promo") + (cheapId ? " · le moins cher est marqué en vert" : "");
+    $("count").textContent = l.length + (l.length > 1 ? " promos" : " promo") + ", " + (TRI_TXT[S.tri] || "") + (cheapId ? ". Le moins cher est marqué en vert." : "");
     LISTE_AFF = { l: l, cheap: cheapId, n: Math.min(PAQUET, l.length) };
     $("grid").innerHTML = l.length ? l.slice(0, LISTE_AFF.n).map(function (p) { return carte(p, { cheap: p.id === cheapId }); }).join("") : '<div class="empty">Aucune promo ne correspond. Essaie un autre mot ou enlève un filtre.</div>';
     boutonPlus();
   }
   var PAQUET = 90, LISTE_AFF = { l: [], n: 0 };
+  var TRI_TXT = { remise: "meilleures remises d'abord", prix: "du moins cher au plus cher", "prix-desc": "du plus cher au moins cher", fin: "celles qui finissent d'abord", nom: "de A à Z", enseigne: "par magasin" };
   function boutonPlus() {
     var reste = LISTE_AFF.l.length - LISTE_AFF.n;
     $("gridMore").hidden = reste <= 0;
@@ -1119,7 +1278,7 @@ dialog .row { min-width: 0; }
     return '<article class="r' + (jour ? ' day' : '') + '">' + (jour ? '<div class="dayname">' + esc(jour) + '</div>' : '') +
       '<div class="head"><h3>' + esc(r.nom) + '</h3>' + (r.temps ? '<span class="time">' + esc(r.temps) + ' min</span>' : '') + '</div>' +
       (r.pourquoi ? '<p class="why">' + esc(r.pourquoi) + '</p>' : '') +
-      '<div class="tags">' + promos.map(function (p) { return '<span class="pt">' + dot(p.enseigne) + esc(p.nom) + ' · ' + euro(p.prix) + '</span>'; }).join("") + '</div>' +
+      (promos.length ? '<ul class="pts">' + promos.map(function (p) { return '<li>' + dot(p.enseigne) + '<span>' + esc(p.nom) + '</span><span class="pr">' + euro(p.prix) + '</span></li>'; }).join("") + '</ul>' : '') +
       ((r.tags || []).length ? '<div class="tags">' + r.tags.map(function (t) { return '<span class="t">' + esc(t) + '</span>'; }).join("") + '</div>' : '') +
       '<details><summary>Voir la recette</summary><b style="font-size:14px">Ingrédients</b><ul>' + (r.ingredients || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>' +
       '<b style="font-size:14px;display:block;margin-top:8px">Étapes</b><ol>' + (r.etapes || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ol></details>' +
@@ -1295,7 +1454,7 @@ dialog .row { min-width: 0; }
         lignes += '<div class="li' + (x.fait ? ' done' : '') + '"><input type="checkbox" id="' + idh + '" data-done="' + esc(x.id) + '"' + (x.fait ? ' checked' : '') + '><label class="n" for="' + idh + '">' + esc(x.nom) +
           (x.par && x.par !== S.prenom ? ' <span class="par">· ' + esc(x.par) + '</span>' : '') + '</label><span class="pr">' + prix + '</span><button class="del" type="button" data-del="' + esc(x.id) + '" aria-label="Retirer">×</button></div>';
       });
-      return '<div class="lstore" style="--sc:' + (k !== "autre" ? coul(k) : "var(--line)") + '"><h2><span style="font:inherit;color:inherit">' + (k !== "autre" ? esc(nomEns(k)) : "Autres articles") + '</span><span>' + (st ? "≈ " + euro(st) : "") + '</span></h2>' + lignes + '</div>';
+      return '<div class="lstore" style="--sc:' + (k !== "autre" ? coul(k) : "var(--line)") + '"><h2><span>' + (k !== "autre" ? esc(nomEns(k)) : "Autres articles") + '</span><span>' + (st ? "≈ " + euro(st) : "") + '</span></h2>' + lignes + '</div>';
     }).join("");
   }
   function texteListe() {
@@ -1604,7 +1763,7 @@ dialog .row { min-width: 0; }
     var dates = +e.d1 === +e.d2 ? fmtJ(e.d1) : (e.d1 <= jour0(new Date()) ? "jusqu'au " + fmtJ(e.d2) : "du " + fmtJ(e.d1) + " au " + fmtJ(e.d2));
     return '<div class="ag" style="--sc:' + (e.enseigne ? coul(e.enseigne) : "var(--tag)") + '"><div><div class="tt">' + (e.operation ? "⚡ " : "") + esc(e.titre) + '</div>' +
       (e.resume ? '<div class="rs">' + esc(e.resume) + '</div>' : '') +
-      '<div class="dd">' + esc(e.nom) + ' · ' + dates + (e.pages && e.pages > 1 ? ' · ' + e.pages + ' p.' : '') + '</div>' +
+      '<div class="dd">' + esc(e.nom) + ', ' + dates + (e.pages && e.pages > 1 ? ', ' + e.pages + ' pages' : '') + '</div>' +
       ((e.images || []).length ? '<div class="vis">' + e.images.slice(0, 4).map(function (u) { return '<button type="button" data-zoom="' + esc(u) + '" aria-label="Voir le visuel"><img loading="lazy" alt="" src="' + esc(u) + '"></button>'; }).join("") + '</div>' : '') +
       '</div>' +
       '<span class="st ' + st.c + '">' + st.t + '</span>' +
@@ -1617,7 +1776,7 @@ dialog .row { min-width: 0; }
     var duJour = EVTS.filter(function (e) { return e.operation && e.d1 <= auj; });
     var dem = new Date(auj); dem.setDate(dem.getDate() + 1);
     var demain = EVTS.filter(function (e) { return e.operation && +e.d1 === +dem; });
-    function ligneOp(e) { return '<b>⚡ ' + esc(e.titre) + ' · ' + esc(e.nom) + '</b>' + (e.resume ? '<span class="rs">' + esc(e.resume) + '</span>' : ''); }
+    function ligneOp(e) { return '<b>⚡ ' + esc(e.titre) + '</b><span class="rs">' + esc(e.nom) + (e.resume ? '. ' + esc(e.resume) : '') + '</span>'; }
     $("todayBox").hidden = !duJour.length && !demain.length;
     $("todayBox").className = "today";
     $("todayBox").innerHTML = (duJour.length ? '<span>Aujourd\'hui</span>' + duJour.slice(0, 3).map(ligneOp).join("") + (duJour.some(function (e) { return +e.d2 === +auj; }) ? '<span>Certaines finissent ce soir.</span>' : '') : "") +
@@ -1738,6 +1897,7 @@ dialog .row { min-width: 0; }
     S.vue = v;
     if (v === "liste") syncListe();
     ["accueil", "promos", "plats", "liste"].forEach(function (x) { $("v-" + x).hidden = x !== v; });
+    $("titre").textContent = { accueil: "Mes promos", promos: "Promos", plats: "Plats", liste: "Ma liste" }[v] || "Mes promos";
     document.querySelectorAll("nav.tabs button").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.v === v ? "true" : "false"); });
     window.scrollTo(0, 0);
   }
@@ -1786,6 +1946,8 @@ dialog .row { min-width: 0; }
   $("btnSettings").addEventListener("click", function () { afficherReglages(); try { $("settings").showModal(); } catch (e) { $("settings").setAttribute("open", ""); } });
   $("openStores").addEventListener("click", function () { ouvrirReglages("magasins"); });
   $("closeSettings").addEventListener("click", function () { $("settings").close(); });
+  // toucher le fond grisé ferme les réglages (comme la fiche)
+  $("settings").addEventListener("click", function (ev) { if (ev.target === this) this.close(); });
   $("watchForm2").addEventListener("submit", function (ev) { ev.preventDefault(); ajouterSurveille($("watchTxt2").value); $("watchTxt2").value = ""; });
   $("resetAll").addEventListener("click", function () {
     SYNC = null; ecrire("sync", null);  // ne touche pas à la liste partagée des autres

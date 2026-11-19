@@ -1,6 +1,7 @@
 // Garde l'appli et les dernières promos en mémoire pour l'ouvrir même sans réseau (en magasin).
-var CACHE = "mes-promos-v7";
-var BASE = ["./", "index.html", "recettes.json", "manifest.json", "icone-192.png", "icone-512.png", "icone-maskable-512.png"];
+var CACHE = "mes-promos-v8";
+var BASE = ["./", "index.html", "recettes.json", "manifest.json", "icone-192.png", "icone-512.png", "icone-maskable-512.png",
+  "polices/barlow-condensed-600.woff2", "polices/barlow-condensed-700.woff2", "polices/barlow-condensed-800.woff2"];
 self.addEventListener("install", function (e) { e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(BASE); })); self.skipWaiting(); });
 self.addEventListener("activate", function (e) {
   // anciennes versions du cache : on les supprime
