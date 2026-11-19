@@ -829,33 +829,43 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     });
   }
   // La même offre ne doit apparaître qu'une fois par magasin : un produit repris dans deux catalogues (nom écrit
-  // autrement : « Skye single malt » / « Single malt Skye »), ou recopié par anti-crise en « lot de 2 », « lot de 4 ».
+  // autrement : « Skye single malt » / « Single malt Skye », marque absente ou écrite autrement : « Clément » /
+  // « Clément 40 »), ou recopié par anti-crise en « lot de 2 », « lot de 4 ».
   var VIDES_SIG = { de: 1, du: 1, des: 1, la: 1, le: 1, les: 1, l: 1, d: 1, au: 1, aux: 1, a: 1, et: 1, en: 1, avec: 1, pour: 1, x: 1 };
   function signature(o) {
     var mots = norm(String(o.nom || "").replace(/\(?\s*"?\s*lot\s+de\s+\d+\s*"?\s*\)?/ig, " ")).split(" ")
       .filter(function (w) { return w && !VIDES_SIG[w]; }).sort();
-    return mots.filter(function (w, i) { return w !== mots[i - 1]; }).join(" ") + "|" + norm(o.marque).replace(/ /g, "");
+    return mots.filter(function (w, i) { return w !== mots[i - 1]; }).join(" ");
+  }
+  function motsMarque(o) { return norm(o.marque).split(" ").filter(function (w) { return w && !/^\d+$/.test(w) && w !== "et"; }); }
+  function marquesCompatibles(a, b) {
+    var x = motsMarque(a), y = motsMarque(b);
+    if (!x.length || !y.length) return true;  // marque absente d'un côté
+    var dans = function (p, q) { return p.every(function (w) { return q.indexOf(w) >= 0; }); };
+    var jx = x.join(""), jy = y.join("");  // « Silvercrest » / « Silver Crest »
+    return dans(x, y) || dans(y, x) || jx.indexOf(jy) >= 0 || jy.indexOf(jx) >= 0;
   }
   function lotDe(o) { var m = /lot\s+de\s+(\d+)/i.exec(o.nom || ""); return m ? +m[1] || 1 : 1; }
-  function memesJours(a, b) {
-    if (a.fin && b.debut && b.debut > a.fin) return false;
-    if (b.fin && a.debut && a.debut > b.fin) return false;
-    return !a.debut || !b.debut || Math.abs(new Date(a.debut) - new Date(b.debut)) <= 3 * 864e5;
-  }
-  function sansDoublons(liste) {
+  function chevauchent(a, b) { return !(a.fin && b.debut && b.debut > a.fin) && !(b.fin && a.debut && a.debut > b.fin); }
+  function procheDebut(a, b) { return !a.debut || !b.debut || Math.abs(new Date(a.debut) - new Date(b.debut)) <= 3 * 864e5; }
+  function sansDoublons(liste, auj) {
     var parSig = {}, garde = [];
+    var note = function (p) {
+      return ((!p.debut || p.debut <= auj) ? 8 : 0) + (p.cat !== "*" ? 4 : 0) + (photoDe(p) ? 2 : 0) + (p.pg != null ? 1 : 0) +
+        (lotDe(p) === 1 ? 1 : 0) + (p.marque ? 1 : 0);
+    };
     liste.forEach(function (o) {
       if (o.op) { garde.push(o); return; }
       var s = signature(o), l = parSig[s] || (parSig[s] = []), i, a = null;
       for (i = 0; i < l.length; i++) {
         var x = l[i];
-        if (!memesJours(x, o)) continue;
+        if (!chevauchent(x, o) || !marquesCompatibles(x, o)) continue;
+        if (x.cat === "*" || o.cat === "*") { if (procheDebut(x, o)) { a = x; break; } continue; }  // anti-crise : la même promo vue autrement
         var px1 = x.prix != null ? x.prix / lotDe(x) : null, px2 = o.prix != null ? o.prix / lotDe(o) : null;
         var memePrix = px1 == null ? px2 == null && norm(x.bon_plan) === norm(o.bon_plan) : px2 != null && Math.abs(px1 - px2) <= 0.02 * Math.max(px1, px2) + 0.01;
-        if (memePrix || x.cat === "*" || o.cat === "*") { a = x; break; }  // anti-crise : la même promo vue autrement
+        if (memePrix) { a = x; break; }
       }
       if (!a) { l.push(o); garde.push(o); return; }
-      var note = function (p) { return (p.cat !== "*" ? 4 : 0) + (photoDe(p) ? 2 : 0) + (p.pg != null ? 1 : 0) + (p.lot ? 0 : (lotDe(p) === 1 ? 1 : 0)); };
       if (note(o) > note(a)) { l[i] = o; garde[garde.indexOf(a)] = o; }
     });
     return garde;
@@ -876,7 +886,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
         if (deja) { if ((o.prix || 9e9) < (deja.prix || 9e9)) mes[mes.indexOf(deja)] = parK[o.k] = o; return; }  // même produit dans 2 catalogues
         parK[o.k] = o; mes.push(o);
       });
-      mes = sansDoublons(mes);
+      mes = sansDoublons(mes, auj);
       mes.forEach(function (o) {
         var q = {}; Object.keys(o).forEach(function (k) { q[k] = o[k]; });
         q.id = sid + "|" + o.k; q.enseigne = sid; q.validite = o.debut && o.fin ? (o.debut === o.fin ? "le " + jjmm(o.debut) : "du " + jjmm(o.debut) + " au " + jjmm(o.fin)) : "";

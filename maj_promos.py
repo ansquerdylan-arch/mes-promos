@@ -1365,8 +1365,8 @@ def _lec_dates_texte(t, ref):
 
 
 def lec_semaine(log, aujourd):
-    """« Les offres de la semaine » d'e.leclerc (nationales, magasins participants) -> {id catalogue: (catalogue, offres)},
-    une entrée d'agenda par période (les 19 et 20 novembre, le 21 novembre, tout le mois…)."""
+    """« Les offres de la semaine » d'e.leclerc (nationales, magasins participants) -> {id catalogue: (catalogue, offres)} :
+    une seule entrée d'agenda, chaque offre avec ses jours (les 19 et 20 novembre, le 21 novembre, tout le mois…)."""
     d = lec_json(LEC_SEMAINE, log, LEC_SEMAINE_ENTETES)
     page = (d or {}).get("page") or {}
     jour, horizon = aujourd.isoformat(), (aujourd + timedelta(days=10)).isoformat()
@@ -1433,23 +1433,23 @@ def lec_semaine(log, aujourd):
                 it["image"] = img
             if carte:
                 it["carte"] = True
-            duree = (d2 - d1).days
-            groupe = (d1.isoformat(), d2.isoformat()) if duree <= 2 else ("s" if duree <= 10 else "m")
-            par_periode.setdefault(groupe, []).append(it)
-    sortie = {}
-    for groupe, items in par_periode.items():
-        a, b = min(i["debut"] for i in items), max(i["fin"] for i in items)
-        if groupe == "m":
-            titre, cid = "Offres du mois E.Leclerc", "lecsem-m-%s-%s" % (a.replace("-", ""), b.replace("-", "")[4:])
-        elif groupe == "s":
-            titre, cid = "Offres de la semaine E.Leclerc", "lecsem-s-%s-%s" % (a.replace("-", ""), b.replace("-", "")[4:])
-        else:
-            titre = "Offre du jour E.Leclerc" if a == b else "Offres de la semaine E.Leclerc"
-            cid = "lecsem-%s-%s" % (a.replace("-", ""), b.replace("-", "")[4:])
-        resume = " · ".join(dict.fromkeys(("%s %s" % (i["nom"], i["bon_plan"] or euro(i["prix"]))).strip() for i in items))
-        sortie[cid] = ({"chaine": "leclerc", "titre": titre, "debut": a, "fin": b, "pages": None, "operation": True,
-                        "type": "LECLERC", "src": "lec", "lien": LEC_SEMAINE_PAGE, "resume": couper(resume, 200),
-                        "images": [i["image"] for i in items if i.get("image")][:6]}, items)
+            par_periode.setdefault("tout", []).append(it)
+    items = sorted(par_periode.get("tout", []), key=lambda i: (i["debut"], i["fin"]))
+    if not items:
+        return {}
+    # une seule entrée « Offres de la semaine » (pas une par période : elles se répétaient dans l'agenda),
+    # chaque offre garde ses jours ; le résumé commence par celles d'aujourd'hui
+    a, b = min(i["debut"] for i in items), max(i["fin"] for i in items)
+    def quand(i):
+        if i["debut"] <= jour:
+            return "jusqu'au %s" % date.fromisoformat(i["fin"]).strftime("%d/%m")
+        return "dès le %s" % date.fromisoformat(i["debut"]).strftime("%d/%m")
+    ordre = sorted(items, key=lambda i: (i["debut"] > jour, _lec_jours(i["fin"], i["debut"]) > 10, i["fin"], i["debut"]))
+    resume = " · ".join(dict.fromkeys("%s %s (%s)" % (i["nom"], i["bon_plan"] or euro(i["prix"]), quand(i)) for i in ordre))
+    cid = "lecsem-%s-%s" % (a.replace("-", ""), b.replace("-", "")[4:])
+    sortie = {cid: ({"chaine": "leclerc", "titre": "Offres de la semaine E.Leclerc", "debut": a, "fin": b, "pages": None,
+                     "operation": True, "type": "LECLERC", "src": "lec", "lien": LEC_SEMAINE_PAGE, "resume": couper(resume, 220),
+                     "images": [i["image"] for i in ordre if i.get("image")][:6]}, items)}
     return sortie
 
 
@@ -2115,7 +2115,14 @@ VIDES_SIG = set("de du des la le les l d au aux a et en avec pour x".split())
 def _signature(o):
     mots = sorted(set(w for w in norm(re.sub(r"(?i)\(?\s*\"?\s*lot\s+de\s+\d+\s*\"?\s*\)?", " ", o.get("nom") or "")).split()
                       if w not in VIDES_SIG))
-    return " ".join(mots) + "|" + norm(o.get("marque")).replace(" ", "")
+    return " ".join(mots)
+
+
+def _marques_compatibles(a, b):
+    x = [w for w in norm(a.get("marque")).split() if not w.isdigit() and w != "et"]
+    y = [w for w in norm(b.get("marque")).split() if not w.isdigit() and w != "et"]
+    jx, jy = "".join(x), "".join(y)  # « Silvercrest » / « Silver Crest »
+    return not x or not y or set(x) <= set(y) or set(y) <= set(x) or jx in jy or jy in jx  # absente d'un côté, « Clément 40 »
 
 
 def _lot(o):
@@ -2123,9 +2130,14 @@ def _lot(o):
     return max(1, int(m.group(1))) if m else 1
 
 
-def sans_doublons(liste):
-    """Une même offre une seule fois par magasin (même logique que l'appli) : même produit (mots du nom, marque),
-    mêmes jours, même prix à l'unité ; une ligne d'anti-crise (« lot de 2 ») cède la place au catalogue."""
+def sans_doublons(liste, jour=None):
+    """Une même offre une seule fois par magasin (même logique que l'appli) : même produit (mots du nom), marque
+    identique ou absente d'un côté, jours communs, même prix à l'unité ; une ligne d'anti-crise (« lot de 2 »)
+    commencée à quelques jours près cède la place au catalogue."""
+    jour = jour or date.today().isoformat()
+    note = lambda p: (8 if (p.get("debut") or "") <= jour else 0) + (4 if p.get("cat") != "*" else 0) + \
+        (2 if p.get("img") or p.get("ph") else 0) + (1 if p.get("pg") is not None else 0) + (1 if _lot(p) == 1 else 0) + \
+        (1 if p.get("marque") else 0)
     par, garde = {}, []
     for o in liste:
         if o.get("op"):
@@ -2136,13 +2148,17 @@ def sans_doublons(liste):
         for i, x in enumerate(l):
             if (x.get("fin") and o.get("debut") and o["debut"] > x["fin"]) or (o.get("fin") and x.get("debut") and x["debut"] > o["fin"]):
                 continue
-            if x.get("debut") and o.get("debut") and abs(_lec_jours(x["debut"], o["debut"])) > 3:
+            if not _marques_compatibles(x, o):
+                continue
+            if x.get("cat") == "*" or o.get("cat") == "*":
+                if not x.get("debut") or not o.get("debut") or abs(_lec_jours(x["debut"], o["debut"])) <= 3:
+                    trouve = i
+                    break
                 continue
             p1 = x["prix"] / _lot(x) if x.get("prix") is not None else None
             p2 = o["prix"] / _lot(o) if o.get("prix") is not None else None
-            meme = (p2 is None and norm(x.get("bon_plan")) == norm(o.get("bon_plan"))) if p1 is None else \
-                (p2 is not None and abs(p1 - p2) <= 0.02 * max(p1, p2) + 0.01)
-            if meme or x.get("cat") == "*" or o.get("cat") == "*":
+            if (p2 is None and norm(x.get("bon_plan")) == norm(o.get("bon_plan"))) if p1 is None else \
+                    (p2 is not None and abs(p1 - p2) <= 0.02 * max(p1, p2) + 0.01):
                 trouve = i
                 break
         if trouve is None:
@@ -2150,7 +2166,6 @@ def sans_doublons(liste):
             garde.append(o)
             continue
         a = l[trouve]
-        note = lambda p: (4 if p.get("cat") != "*" else 0) + (2 if p.get("img") or p.get("ph") else 0) + (1 if p.get("pg") is not None else 0) + (1 if _lot(p) == 1 else 0)
         if note(o) > note(a):
             l[trouve] = o
             garde[garde.index(a)] = o
@@ -2183,7 +2198,7 @@ def vue_magasins(donnees, ids):
                 continue
             vus[o["k"]] = dict(o)
             mes.append(vus[o["k"]])
-        mes = sans_doublons(mes)
+        mes = sans_doublons(mes, aujourd)
         for o in mes:
             q = dict(o, id=sid + "|" + o["k"], enseigne=sid,
                      validite=("du %s au %s" % (jj_mm(o["debut"]), jj_mm(o["fin"]))) if o.get("debut") and o.get("fin") else "")
