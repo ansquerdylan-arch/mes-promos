@@ -116,6 +116,30 @@ dialog.zoom { padding: 0; border: 0; border-radius: 14px; max-width: min(96vw, 7
 dialog.zoom img { display: block; width: 100%; height: auto; }
 dialog.zoom form { position: absolute; top: 8px; right: 8px; }
 dialog.zoom::backdrop { background: rgba(0,0,0,.6); }
+.p[data-pid] { cursor: pointer; }
+.p h3 .nom { all: unset; cursor: pointer; }
+.p h3 .nom:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+/* fiche article */
+dialog.fiche { width: min(520px, calc(100vw - 20px)); }
+.fiche-in { padding: 14px 16px 16px; display: grid; gap: 9px; border-top: 6px solid var(--sc, var(--line)); }
+.fiche-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.fiche-top button { flex: none; }
+.fiche .ph { width: 100%; height: auto; max-height: 230px; object-fit: contain; background: #fff; border-radius: 12px; border: 1px solid var(--line); }
+.fiche .ph.op { max-height: 320px; object-fit: cover; cursor: zoom-in; }
+.fiche .brand { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.fiche h2 { font-size: 20px; line-height: 1.25; margin: 0; }
+.fiche .price b { font-size: 28px; }
+.fiche .det { font-size: 13.5px; }
+.go-list { display: grid; gap: 8px; margin-top: 4px; }
+.go { display: grid; grid-template-columns: 38px minmax(0, 1fr) 14px; align-items: center; gap: 11px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 13px; text-decoration: none; color: var(--ink); background: var(--paper); }
+.go:active { transform: scale(.99); }
+.go .gi { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--sc, var(--ink)); color: var(--sc-ink, #fff); }
+.go .gi svg { width: 21px; height: 21px; }
+.go b { display: block; font-size: 15px; }
+.go small { display: block; color: var(--muted); font-size: 12px; line-height: 1.35; }
+.go > svg { width: 14px; height: 14px; color: var(--muted); }
+.go.app { border-color: var(--sc, var(--line)); }
+.fiche .acts { margin-top: 2px; flex-wrap: wrap; }
 .stale { background: var(--card); border: 1.5px solid var(--warn); border-left: 5px solid var(--warn); border-radius: 14px; padding: 12px 14px; display: grid; gap: 6px; }
 .store a { color: var(--accent); font-size: 12px; font-weight: 600; text-decoration: none; }
 .acts { display: flex; gap: 6px; margin-top: 3px; }
@@ -420,6 +444,7 @@ dialog .row { min-width: 0; }
   <button role="tab" data-v="liste" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>Liste<span class="nb" id="nbList" hidden></span></button>
 </nav>
 
+<dialog id="fiche" class="fiche" aria-labelledby="ficheNom"><div id="ficheCorps"></div></dialog>
 <dialog id="zoomDlg" class="zoom" aria-label="Image de l'opération"><form method="dialog"><button class="icon" type="submit" aria-label="Fermer">✕</button></form><img id="zoomImg" alt="Visuel de l'opération"></dialog>
 <dialog id="settings" aria-labelledby="setTitle">
   <div class="dlg">
@@ -483,7 +508,7 @@ dialog .row { min-width: 0; }
   var COULEURS = { u: "#d7262e", leclerc: "#0066b3", intermarche: "#e2001a", lidl: "#f5c400", carrefour: "#1e5bc6", auchan: "#e2001a", aldi: "#00a0e1" };
   var FAMILLES = [["u", "Système U"], ["leclerc", "E.Leclerc"], ["intermarche", "Intermarché"], ["lidl", "Lidl"], ["carrefour", "Carrefour"]];
   function familleDe(ch) { ch = ch || ""; if (/^(superu|hyperu|uexpress|marcheu)/.test(ch)) return "u"; if (/^intermarche/.test(ch)) return "intermarche"; if (/^carrefour/.test(ch)) return "carrefour"; return ch; }
-  var ALIM = ["Poisson & mer", "Volaille", "Charcuterie", "Viande", "Fromage", "Crèmerie & œufs", "Fruits & légumes", "Surgelés", "Boulangerie", "Épicerie sucrée", "Épicerie salée"];
+  var ALIM = ["Poisson & mer", "Volaille", "Charcuterie", "Viande", "Fromage", "Crèmerie & œufs", "Fruits & légumes", "Traiteur", "Surgelés", "Boulangerie", "Épicerie sucrée", "Épicerie salée"];
   var ORDRE_RAYONS = ALIM.concat(["Boissons", "Hygiène & beauté", "Entretien", "Animaux", "Maison & déco", "High-tech & électroménager", "Jouets & culture", "Mode & sport", "Jardin & bricolage", "Maison & loisirs", "Autres"]);
   var JOURS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 
@@ -779,7 +804,8 @@ dialog .row { min-width: 0; }
     afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); afficherReglages(); afficherRdv(); afficherAgenda(); afficherInstall();
   }
 
-  // ---------- fiche produit
+  // ---------- carte produit
+  function photoDe(p) { return p.op && p.image ? p.image : (p.img ? "https://content-media.bonial.biz/" + p.img + "/main.jpg?impolicy=SEO-offer-normal" : ""); }
   function carte(p, opts) {
     opts = opts || {};
     var fav = S.fav.indexOf(p.id) >= 0, dans = dansListe(p.id), j = joursRestants(p);
@@ -803,13 +829,13 @@ dialog .row { min-width: 0; }
         ? '<div class="price"><span class="cond">Le 2e à</span><b>' + euro(p.prix) + '</b>' + (p.remise_2e ? '<span class="pct">-' + p.remise_2e + '% le 2e</span>' : '') + '</div><div class="unit">1er à ' + euro(p.avant) + ' · les 2 : ' + euro(p.avant + p.prix) + ' (-' + p.remise + '% au total)</div>'
         : '<div class="price">' + (p.des ? '<span class="cond">Dès</span>' : '') + '<b>' + euro(p.prix) + '</b>' + (p.avant ? '<s>' + euro(p.avant) + '</s>' : '') + (p.remise ? '<span class="pct">-' + p.remise + '%</span>' : '') + '</div>';
     }
-    var photo = p.op && p.image ? p.image : (p.img ? "https://content-media.bonial.biz/" + p.img + "/main.jpg?impolicy=SEO-offer-normal" : "");
-    return '<article class="p' + (p.op ? ' op' : '') + '" style="--sc:' + coul(p.enseigne) + '">' +
+    var photo = photoDe(p);
+    return '<article class="p' + (p.op ? ' op' : '') + '" data-pid="' + esc(p.id) + '" style="--sc:' + coul(p.enseigne) + '">' +
       '<div class="top"><span>' + esc(nomEns(p.enseigne)) + '</span>' + (opts.compact ? '' : '<span>' + esc(p.rayon) + '</span>') + '</div>' +
       (photo && S.photos ? '<img class="ph" loading="lazy" decoding="async" alt="" src="' + esc(photo) + '"' + (p.op ? ' data-zoom="' + esc(p.image) + '"' : '') + ' onerror="this.remove()">' : '') +
       (badges ? '<div class="badges">' + badges + '</div>' : '') +
       (p.marque ? '<div class="brand">' + esc(p.marque) + '</div>' : '') +
-      '<h3>' + esc(p.nom) + '</h3>' +
+      '<h3><button class="nom" type="button" data-fiche="' + esc(p.id) + '">' + esc(p.nom) + '</button></h3>' +
       bloc +
       (!opts.compact && p.detail ? '<div class="det">' + esc(p.detail) + '</div>' : '') +
       (p.unite ? '<div class="unit">' + esc(p.unite) + '</div>' : '') +
@@ -820,6 +846,113 @@ dialog .row { min-width: 0; }
       '<button class="icon' + (dans ? ' on' : '') + '" data-add="' + esc(p.id) + '" type="button">' + (dans ? '✓ Liste' : '+ Liste') + '</button></div>' +
     '</article>';
   }
+
+  // ---------- fiche article : appli de l'enseigne, site web, page du catalogue
+  // (les applis ne savent pas s'ouvrir directement sur un produit : on ouvre leur page dans l'App Store / Play Store,
+  //  qui montre « Ouvrir » quand l'appli est installée, et on copie le nom du produit pour le coller dans leur recherche)
+  var APPLIS = {
+    u: { ens: "Système U", appli: "Mon Magasin U", ios: "479847099", android: "fr.magasinsu.app", site: "coursesu.com",
+      web: function (q) { return "https://www.coursesu.com/recherche?q=" + q; } },
+    leclerc: { ens: "E.Leclerc", appli: "Mon E.Leclerc", ios: "756693888", android: "com.infomil.bill", site: "e.leclerc",
+      web: function (q) { return "https://www.e.leclerc/recherche?q=" + q; } },
+    intermarche: { ens: "Intermarché", appli: "Intermarché", ios: "605305737", android: "fr.stime.mcommerce", site: "intermarche.com",
+      web: function (q) { return "https://www.intermarche.com/recherche/" + q; } },
+    lidl: { ens: "Lidl", appli: "Lidl Plus", ios: "1238611143", android: "com.lidl.eci.lidlplus", site: "lidl.fr",
+      web: function (q) { return "https://www.lidl.fr/q/search?q=" + q; } },
+    carrefour: { ens: "Carrefour", appli: "Carrefour", ios: "378305156", android: "com.carrefour.fid.android", site: "carrefour.fr",
+      web: function (q) { return "https://www.carrefour.fr/s?q=" + q; } }
+  };
+  var ICO = {
+    app: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>',
+    web: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>',
+    cat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></svg>',
+    out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg>'
+  };
+  var FICHE = null;
+  // ce qu'on cherche sur le site / dans l'appli : la marque + le nom, sans « Toute la gamme »
+  function termeRecherche(p) {
+    var n = String(p.nom || "").replace(/[«»"“”]/g, " ").replace(/\([^)]*\)/g, " ")
+      .replace(/^\s*(sur\s+)?(toute la gamme|toutes? les|tous les|tout le|toute la)\s*/i, "")
+      .split(/\s+ou\s+|,|\s+-\s+|\s+\/\s+/)[0].trim();  // « X ou Y » : on garde X
+    var m = String(p.marque || "").trim();
+    if (m && norm(n).indexOf(norm(m)) < 0) n = m + " " + n;
+    return n.replace(/\s+/g, " ").trim().split(" ").slice(0, 7).join(" ");
+  }
+  function lienCatalogue(p) {
+    var c = p.cat && p.cat !== "*" && ((S.brut && S.brut.catalogues) || {})[p.cat];
+    if (!c) return null;
+    var dyn = c.type === "DYNAMIC";
+    return { url: "https://www.bonial.fr/contentViewer/" + (dyn ? "dynamic/" : "static/") + p.cat + (!dyn && p.pg != null ? "?page=" + (p.pg + 1) : ""),
+      txt: (!dyn && p.pg != null ? "Page " + (p.pg + 1) + " · " : "") + (c.titre || "catalogue") + (c.pages && !dyn ? " (" + c.pages + " pages)" : "") };
+  }
+  function ouvrirFiche(id) {
+    var p = promoParId(id); if (!p) return;
+    FICHE = id;
+    var e = (S.data.enseignes || {})[p.enseigne] || {}, fam = familleDe(e.chaine || p.chaine), a = APPLIS[fam];
+    var terme = termeRecherche(p), q = encodeURIComponent(terme), photo = photoDe(p), fav = S.fav.indexOf(p.id) >= 0, dans = dansListe(p.id);
+    var c = carte(p), b = c.match(/<div class="badges">[\s\S]*?<\/div>/), pr = c.match(/<div class="price">[\s\S]*?<\/div>(<div class="unit">1er[\s\S]*?<\/div>)?/);
+    var h = p.histo, deja = h && p.prix != null && p.prix > h.min + 0.005;
+    var liens = "";
+    if (a && (IOS || ANDROID)) {
+      liens += '<a class="go app" href="' + (IOS ? "https://apps.apple.com/fr/app/id" + a.ios : "https://play.google.com/store/apps/details?id=" + a.android) +
+        '" target="_blank" rel="noopener" data-copie="' + esc(terme) + '"><span class="gi">' + ICO.app + '</span><span><b>Ouvrir l\'appli ' + esc(a.appli) + '</b>' +
+        '<small>Via ' + (IOS ? "l'App Store" : "le Play Store") + ' : touche « Ouvrir ». Le nom est copié, colle-le dans la recherche de l\'appli.</small></span>' + ICO.out + '</a>';
+    }
+    if (a && terme) {
+      liens += '<a class="go" href="' + esc(a.web(q)) + '" target="_blank" rel="noopener"><span class="gi">' + ICO.web + '</span><span><b>Voir sur ' + esc(a.site) + '</b>' +
+        '<small>Recherche « ' + esc(terme) + ' ». Le prix en ligne peut différer de celui du magasin.</small></span>' + ICO.out + '</a>';
+    }
+    var lc = lienCatalogue(p);
+    if (lc) {
+      liens += '<a class="go" href="' + esc(lc.url) + '" target="_blank" rel="noopener"><span class="gi">' + ICO.cat + '</span><span><b>Voir dans le catalogue</b>' +
+        '<small>' + esc(lc.txt) + ' · bonial.fr</small></span>' + ICO.out + '</a>';
+    }
+    var lu = a && fam === "lidl";
+    $("ficheCorps").innerHTML = '<div class="fiche-in" style="--sc:' + coul(p.enseigne) + ';--sc-ink:' + (lu ? "#14213d" : "#fff") + '">' +
+      '<div class="fiche-top"><span>' + esc(nomEns(p.enseigne)) + (p.rayon ? ' · ' + esc(p.rayon) : '') + '</span><button class="icon" type="button" data-fermerfiche="1" aria-label="Fermer">✕</button></div>' +
+      (photo ? '<img class="ph' + (p.op ? ' op' : '') + '" alt="" src="' + esc(photo) + '"' + (p.op ? ' data-zoom="' + esc(p.image) + '"' : '') + ' onerror="this.remove()">' : '') +
+      (b ? b[0] : '') +
+      (p.marque ? '<div class="brand">' + esc(p.marque) + '</div>' : '') +
+      '<h2 id="ficheNom">' + esc(p.nom) + '</h2>' +
+      (pr ? pr[0] : '') +
+      (p.detail ? '<div class="det">' + esc(p.detail) + '</div>' : '') +
+      (p.unite ? '<div class="unit">' + esc(p.unite) + '</div>' : '') +
+      (p.bon_plan && norm(p.bon_plan) !== norm(p.nom) ? '<div class="plan">' + esc(p.bon_plan) + '</div>' : '') +
+      (deja ? '<div class="hist">Déjà vu à ' + euro(h.min) + ' le ' + h.min_date.slice(8, 10) + '/' + h.min_date.slice(5, 7) + '</div>' : '') +
+      (p.validite ? '<div class="unit">Valable ' + esc(p.validite) + '</div>' : '') +
+      (liens ? '<div class="go-list">' + liens + '</div>' : '') +
+      '<div class="acts"><button class="icon star' + (fav ? ' on' : '') + '" data-fav="' + esc(p.id) + '" type="button">★ ' + (fav ? 'Favori' : 'Mettre en favori') + '</button>' +
+      '<button class="icon' + (dans ? ' on' : '') + '" data-add="' + esc(p.id) + '" type="button">' + (dans ? '✓ Dans la liste' : '+ Liste') + '</button>' +
+      (navigator.share ? '<button class="icon" type="button" data-partager="' + esc(p.id) + '">Partager</button>' : '') + '</div>' +
+    '</div>';
+    var d = $("fiche");
+    if (!d.open) { try { d.showModal(); } catch (er) { d.setAttribute("open", ""); } }
+  }
+  function fermerFiche() { var d = $("fiche"); FICHE = null; if (d.open) { try { d.close(); } catch (er) { d.removeAttribute("open"); } } }
+  function partager(p) {
+    var t = p.nom + (p.marque && norm(p.nom).indexOf(norm(p.marque)) < 0 ? " " + p.marque : "") + (p.prix != null ? " à " + euro(p.prix) : "") +
+      (p.bon_plan && norm(p.bon_plan) !== norm(p.nom) ? " (" + p.bon_plan + ")" : "") + " chez " + nomEns(p.enseigne) + (p.validite ? ", " + p.validite : "");
+    var lc = lienCatalogue(p);
+    navigator.share({ title: p.nom, text: t, url: lc ? lc.url : location.href }).catch(function () {});
+  }
+  // toucher une carte (ailleurs que sur ses boutons) ouvre la fiche
+  document.addEventListener("click", function (ev) {
+    var t = ev.target;
+    if (!t.closest) return;
+    if (t.closest("dialog#fiche")) {
+      if (t === $("fiche")) { fermerFiche(); return; }  // toucher le fond
+      if (t.closest("[data-fermerfiche]")) { fermerFiche(); return; }
+      var cp = t.closest("a[data-copie]");
+      if (cp && navigator.clipboard) { try { navigator.clipboard.writeText(cp.dataset.copie).catch(function () {}); } catch (er) {} }
+      return;
+    }
+    var nb = t.closest("button[data-fiche]");
+    if (nb) { ouvrirFiche(nb.dataset.fiche); return; }
+    if (t.closest("button, a, input, select, textarea, label, img[data-zoom]")) return;
+    var art = t.closest("article.p[data-pid]");
+    if (art) ouvrirFiche(art.dataset.pid);
+  });
+  $("fiche").addEventListener("close", function () { FICHE = null; });
 
   // ---------- accueil
   function afficherAccueil() {
@@ -947,7 +1080,7 @@ dialog .row { min-width: 0; }
     var cle = S.data ? S.data.promos.length + "|" + S.hidden.join(",") + "|" + S.sel.join(",") : "";
     if (CAND.cle === cle && CAND.data === S.data) return CAND.l;
     CAND = { cle: cle, data: S.data, l: visibles().filter(function (p) {
-      if (ALIM.indexOf(p.rayon) < 0 || p.rayon === "Épicerie sucrée" || p.prix == null) return false;
+      if (ALIM.indexOf(p.rayon) < 0 || p.rayon === "Épicerie sucrée" || p.rayon === "Traiteur" || p.prix == null) return false;
       p._n = p._n || " " + norm(p.nom + " " + p.marque) + " ";
       return !SUCRE.test(p._n);
     }) };
@@ -1711,8 +1844,9 @@ dialog .row { min-width: 0; }
     if (b.id === "gridMore") { afficherPlus(); return; }
     if (ds.zoom) { zoom(ds.zoom); return; }
     if (ds.unwatch != null) { S.watch.splice(+ds.unwatch, 1); ecrire("watch", S.watch); afficherAccueil(); afficherReglages(); afficherPromos(); syncAlertes(); return; }
-    if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else { S.fav.push(ds.fav); toast("Ajouté aux favoris"); } ecrire("fav", S.fav); b.classList.toggle("on"); return; }
-    if (ds.add) { var p = promoParId(ds.add); if (p) { var avant = dansListe(p.id); ajouter(p); toast(avant ? "Retiré de la liste" : "Ajouté à la liste"); rafraichir(); } return; }
+    if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else { S.fav.push(ds.fav); toast("Ajouté aux favoris"); } ecrire("fav", S.fav); b.classList.toggle("on"); if (FICHE) { ouvrirFiche(FICHE); document.querySelectorAll('[data-fav="' + CSS.escape(ds.fav) + '"]').forEach(function (x) { x.classList.toggle("on", S.fav.indexOf(ds.fav) >= 0); }); } return; }
+    if (ds.add) { var p = promoParId(ds.add); if (p) { var avant = dansListe(p.id); ajouter(p); toast(avant ? "Retiré de la liste" : "Ajouté à la liste"); rafraichir(); if (FICHE) ouvrirFiche(FICHE); } return; }
+    if (ds.partager) { var pp = promoParId(ds.partager); if (pp && navigator.share) partager(pp); return; }
     if (ds.addmany) {
       var ps = ds.addmany.split(",").map(promoParId).filter(Boolean);
       var toutes = ps.every(function (x) { return dansListe(x.id); });
