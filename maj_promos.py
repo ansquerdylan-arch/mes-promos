@@ -112,26 +112,26 @@ def telecharger(url, log, entetes=None, binaire=False):
 
 # --------------------------------------------------------------------------- rayons
 RAYONS = {
-    "High-tech & électroménager": "smartphone, tablette tactile, galaxy tab, ipad, telephone, telephone portable, aspirateur, balai aspirateur, lave linge, seche linge, lave vaisselle, refrigerateur, congelateur, airfryer, friteuse, expresso, cafetiere, senseo, machine a cafe, imprimante, casque, ecouteurs, enceinte, television, tv, console, jeu video, electromenager, multimedia, ordinateur, pc portable, souris, clavier, disque dur, cle usb, robot, blender, mixeur, bouilloire, grille pain, micro ondes, four multifonction, mini four, plancha, radiateur, chauffage, seche cheveux, lisseur, boucleur, montre connectee, trottinette electrique, smartwatch, barre de son, appareil a raclette, appareil raclette, gaufrier, crepiere, fondue electrique, air fryer",
-    "Jouets & culture": "jouet, jouets, lego, playmobil, peluche, poupee, puzzle, jeu de societe, jeu de cartes, livre, livres, manga, bd, tome, roman, coloriage, feutres, stylos, cartable, nerf, beyblade, figurine, voiture radiocommandee, circuit, pokemon, pokedex, autocollants, papeterie",
-    "Mode & sport": "t shirt, tee shirt, pull, chaussures, baskets, chaussettes, pyjama, veste, pantalon, jean, sweat, collant, collants, slip, slips, boxer, boxers, soutien gorge, legging, bonnet, gants, echarpe, manteau, doudoune, sac a main, sac a dos, bague, collier, bracelet, pendentif, boucles d oreilles, montre, lingerie, chemise, robe, jupe, peignoir, chaussons, brassiere, vetement, ski, debardeur, valise, bagagerie",
-    "Maison & déco": "couette, oreiller, drap, housse de couette, plaid, sapin, guirlande, decoration, boule, suspension, bougie, bouquet, tulipes, fleurs, vaisselle, poele, casserole, sauteuse, faitout, torchons, torchon, lampe, coussin, rideau, tapis, cadre, vase, creche, papier cadeau, sac cadeau, nappe, serviettes, verres, assiettes, couverts, boite de rangement, lanterne, scene de noel, figurine de noel, calendrier de l avent decoratif, cheminee, photophore, bougies, allumettes",
-    "Jardin & bricolage": "perceuse, visseuse, outil, outils, combustible, petrole, granules, granule bois, bois de chauffage, taille haies, tondeuse, plante, plantes, poinsettia, cactus, orchidee, terreau, bouteille de gaz, batterie, ampoule, ampoules, rallonge, multiprise, prises, bloc prises, pneu, essuie glace, lave glace, antigel",
+    "High-tech & électroménager": "smartphone, tablette tactile, galaxy tab, ipad, telephone, telephone portable, aspirateur, balai aspirateur, lave linge, seche linge, lave vaisselle, refrigerateur, congelateur, airfryer, friteuse, expresso, cafetiere, senseo, machine a cafe, imprimante, casque, ecouteurs, enceinte, television, tv, console, jeu video, electromenager, multimedia, ordinateur, pc portable, souris, clavier, disque dur, cle usb, robot, blender, mixeur, bouilloire, grille pain, micro ondes, four multifonction, mini four, plancha, radiateur, chauffage, seche cheveux, lisseur, boucleur, montre connectee, trottinette electrique, smartwatch, barre de son, appareil a raclette, appareil raclette, gaufrier, crepiere, fondue electrique, air fryer, appareil a raclette, raclette electrique, nettoyeur vapeur, aspirateur laveur",
+    "Jouets & culture": "jouet, jouets, lego, playmobil, peluche, poupee, puzzle, jeu de societe, jeu de cartes, livre, livres, manga, bd, tome, roman, coloriage, feutres, stylos, cartable, nerf, beyblade, figurine, voiture radiocommandee, circuit, pokemon, pokedex, autocollants, papeterie, peluches, poupees, jeu de construction",
+    "Mode & sport": "t shirt, tee shirt, pull, chaussures, baskets, chaussettes, pyjama, veste, pantalon, jean, sweat, collant, collants, slip, slips, boxer, boxers, soutien gorge, legging, bonnet, gants, echarpe, manteau, doudoune, sac a main, sac a dos, bague, collier, bracelet, pendentif, boucles d oreilles, montre, lingerie, chemise, robe, jupe, peignoir, chaussons, brassiere, vetement, ski, debardeur, valise, bagagerie, combinaison, body, grenouillere",
+    "Maison & déco": "couette, oreiller, drap, housse de couette, plaid, sapin, guirlande, decoration, boule, suspension, bougie, bouquet, tulipes, fleurs, vaisselle, poele, casserole, sauteuse, faitout, torchons, torchon, lampe, coussin, rideau, tapis, cadre, vase, creche, papier cadeau, sac cadeau, nappe, serviettes, verres, assiettes, couverts, boite de rangement, lanterne, scene de noel, figurine de noel, calendrier de l avent decoratif, cheminee, photophore, bougies, allumettes, cuiseur, cuiseur camembert, cuiseur a camembert",
+    "Jardin & bricolage": "perceuse, visseuse, outil, outils, combustible, petrole, granules, granule bois, bois de chauffage, taille haies, tondeuse, plante, plantes, poinsettia en pot, cactus, orchidee, terreau, bouteille de gaz, batterie, ampoule, ampoules, rallonge, multiprise, prises, bloc prises, pneu, essuie glace, lave glace, antigel",
     "Hygiène & beauté": "shampoing, gel douche, deodorant, dentifrice, brosse a dents, rasoir, maquillage, creme visage, creme mains, lingettes, demaquillant, savon, parfum, couches, culottes, protege slip, serviettes hygieniques, coton, vernis, apres shampoing, soin, mouchoirs, coloration, visage",
-    "Entretien": "lessive, adoucissant, liquide vaisselle, pastilles lave, eponge, nettoyant, javel, essuie tout, papier toilette, sacs poubelle, desodorisant, capsules de lessive, vinaigre d alcool, papier hygienique",
+    "Entretien": "lessive, adoucissant, liquide vaisselle, pastilles lave, eponge, nettoyant, javel, essuie tout, papier toilette, sacs poubelle, desodorisant, capsules de lessive, vinaigre d alcool, papier hygienique, lessive pods, capsules de lessive, lessive liquide, pods",
     "Animaux": "chat, chien, croquettes, patee, litiere, sheba, felix, whiskas, pedigree, friskies, ultima, a macher, batonnets a macher",
-    "Boissons": "biere, vin, rose, champagne, cremant, whisky, rhum, vodka, gin, jus, soda, coca, pepsi, eau minerale, eau gazeuse, sirop, ice tea, cafe, cafe grains, capsules cafe, dosettes, the, infusion, lait, beaujolais, aop, igp, mousseux, boisson, martini, porto, ron, rhum arrange, arranges, liqueur, cognac, armagnac, calvados, pastis, ricard, cidre, nescafe, ricore, chicoree, bieres, jus d orange, pur jus, jus de pomme, jus de raisin",
+    "Boissons": "biere, vin, rose, champagne, cremant, whisky, rhum, vodka, gin, jus, soda, coca, pepsi, eau minerale, eau gazeuse, sirop, ice tea, cafe, cafe grains, capsules cafe, dosettes, the, infusion, lait, beaujolais, aop, igp, mousseux, boisson, martini, porto, ron, rhum arrange, arranges, liqueur, cognac, armagnac, calvados, pastis, ricard, cidre, nescafe, ricore, chicoree, bieres, jus d orange, pur jus, jus de pomme, jus de raisin, sirop, teisseire, oasis, ice tea, jus de fruits",
     "Poisson & mer": "saumon, cabillaud, crevette, crevettes, thon, sardine, maquereau, moules, huitres, coquilles saint jacques, coquilles, colin, merlu, bar, dorade, poisson, surimi, crabe, langoustine, truite, rillettes de thon, calamar, seiche, delpierre, petit navire, poissons, limande, sole, lieu, merlan, eglefin, fletan, blinis, saint jacques, noix de saint jacques, brandade",
-    "Volaille": "poulet, dinde, pintade, canard, magret, caille, chapon, volaille, cordon bleu, cordons bleus, nuggets, aiguillettes, maitre coq, loue",
+    "Volaille": "poulet, dinde, pintade, canard, magret, caille, chapon, volaille, cordon bleu, cordons bleus, nuggets, aiguillettes, maitre coq, loue, tenders, nuggets, cordon bleu, aiguillettes, grignottes, pilon, pilons, cuisse de canard, cuisses de canard, confit de canard, magret",
     "Charcuterie": "jambon, saucisson, lardons, rillettes, pate, terrine, chorizo, bacon, knacki, saucisse de strasbourg, foie gras, andouille, andouillette, boudin, fleury michon, fuet, rosette, charcuterie",
     "Viande": "boeuf, veau, porc, agneau, steak, steaks haches, hache, entrecote, cote, roti, filet mignon, echine, saucisse, saucisses, merguez, chipolatas, paupiette, paupiettes, rognons, foie de boeuf, langue, osso bucco, bavette, charal, viande, boulettes",
-    "Fromage": "fromage, camembert, emmental, comte, brie, raclette, mozzarella, cheddar, chevre, cabecou, crottin, roquefort, bleu d auvergne, reblochon, coulommiers, mimolette, parmesan, feta, tomme, madame loik, saint nectaire, tartiflette, buche aux laits",
+    "Fromage": "fromage, camembert, emmental, comte, brie, raclette, mozzarella, cheddar, chevre, cabecou, crottin, roquefort, bleu d auvergne, reblochon, coulommiers, mimolette, parmesan, feta, tomme, madame loik, saint nectaire, tartiflette, buche aux laits, parmigiano, reggiano, tartiflette",
     "Crèmerie & œufs": "yaourt, yaourts, creme fraiche, creme liquide, beurre, oeufs, oeuf, margarine, skyr, fromage blanc, dessert lacte, petits suisses, liegeois, danette, bridelice, desserts, creme legere, creme fouettee, petit pot de creme",
-    "Fruits & légumes": "pomme, pommes, poire, banane, orange, clementine, mandarine, kiwi, avocat, raisin, fraise, citron, ananas, mangue, tomate, tomates, carotte, carottes, courgette, poireau, oignon, echalote, ail, salade, concombre, poivron, champignon, champignons, chou, brocoli, epinards, haricots verts, patate douce, pomme de terre, pommes de terre, potiron, courge, navet, radis, endive, pak choi, betterave, mache, fruits, legumes, potimarron, marrons, chataignes, noix",
-    "Surgelés": "pommes de terre surgelees, legumes surgeles, poisson pane, poissons panes, frites surgelees, surgele, surgeles, surgelee, surgelees, glace, glaces, cone, cones, mccain, frites, pizza surgelee, poelee, pommes noisettes, picard",
+    "Fruits & légumes": "pomme, pommes, poire, banane, orange, clementine, mandarine, kiwi, avocat, raisin, fraise, citron, ananas, mangue, tomate, tomates, carotte, carottes, courgette, poireau, oignon, echalote, ail, salade, concombre, poivron, champignon, champignons, chou, brocoli, epinards, haricots verts, patate douce, pomme de terre, pommes de terre, potiron, courge, navet, radis, endive, pak choi, betterave, mache, fruits, legumes, potimarron, marrons, chataignes, noix, morilles, champignons, cepes, girolles, patate douce",
+    "Surgelés": "pommes de terre surgelees, legumes surgeles, poisson pane, poissons panes, frites surgelees, surgele, surgeles, surgelee, surgelees, glace, glaces, cone, cones, mccain, frites, pizza surgelee, poelee, pommes noisettes, picard, airfryer frite, frites surgelees, surgelee, surgelees",
     "Boulangerie": "pain, baguette, brioche, viennoiserie, croissant, pain de mie, pains a burger, pain a burger, wraps, tortilla, harrys, jacquet, pains au chocolat, boules mais, flan, tarte, tartelettes, galette des rois",
-    "Épicerie sucrée": "chocolat, chocolats, biscuit, biscuits, gateau, gateaux, bonbon, bonbons, confiture, pate a tartiner, nutella, cereales, granola, cacao, sucre, miel, compote, calendrier de l avent, ferrero, kinder, madeleine, panettone, milka, lindor, flocons d avoine, buche, canderel, delacre, deli choc, galettes, orangettes, barre, barres, barre tendre, pain d epices, marrons glaces, truffes, pralines, pandoro, papillotes, nesquik, poudre chocolatee, chocolatee, chocolatees, tablette de chocolat, tablettes de chocolat, chocolat lait, chocolat noir, chocolat au lait, chocolat blanc, noisettes grillees",
-    "Épicerie salée": "pates, pates fraiches, pennette, spaghetti, riz, lentilles, semoule, couscous, quinoa, gnocchi, gnocchis, conserve, sauce, huile, vinaigre, moutarde, mayonnaise, ketchup, epices, sel, poivre, soupe, chips, chipster, aperitif, biscuits aperitifs, cacahuetes, olives, bouillon, farine, plat cuisine, paella, lasagnes, lustucru, panzani, barilla, rana, tuc, ravioli, raviolis",
+    "Épicerie sucrée": "chocolat, chocolats, biscuit, biscuits, gateau, gateaux, bonbon, bonbons, confiture, pate a tartiner, nutella, cereales, granola, cacao, sucre, miel, compote, calendrier de l avent, ferrero, kinder, madeleine, panettone, milka, lindor, flocons d avoine, buche, canderel, delacre, deli choc, galettes, orangettes, barre, barres, barre tendre, pain d epices, marrons glaces, truffes, pralines, pandoro, papillotes, nesquik, poudre chocolatee, chocolatee, chocolatees, tablette de chocolat, tablettes de chocolat, chocolat lait, chocolat noir, chocolat au lait, chocolat blanc, noisettes grillees, sucres, decors sucres, pates de fruits, escargots praline",
+    "Épicerie salée": "pates, pates fraiches, pennette, spaghetti, riz, lentilles, semoule, couscous, quinoa, gnocchi, gnocchis, conserve, sauce, huile, vinaigre, moutarde, mayonnaise, ketchup, epices, sel, poivre, soupe, chips, chipster, aperitif, biscuits aperitifs, cacahuetes, olives, bouillon, farine, plat cuisine, paella, lasagnes, lustucru, panzani, barilla, rana, tuc, ravioli, raviolis, legumineuses, escargots, plat cuisine, plats cuisines",
 }
 RAYONS_ALIMENTAIRES = {"Poisson & mer", "Volaille", "Charcuterie", "Viande", "Fromage", "Crèmerie & œufs",
                        "Fruits & légumes", "Surgelés", "Boulangerie", "Épicerie sucrée", "Épicerie salée"}
@@ -158,30 +158,50 @@ _HAUT = {"article culturel": "Jouets & culture", "jeux et jouets": "Jouets & cul
          "alimentation et boisson": "Épicerie salée"}
 
 
-def rayon(nom, marque="", categories="", haut=""):
-    """Rayon le plus probable : le mot-clé le plus long trouvé gagne ("fromage blanc" bat "fromage").
-    haut : premier niveau de catégorie bonial (« Article culturel », « Mode »…)."""
-    t = " " + norm((nom or "") + " " + (marque or "")) + " "
-    meilleur, long_ = "Autres", 0
+RAYONS_MANGER = {"Fruits & légumes", "Viande", "Volaille", "Poisson & mer", "Charcuterie", "Fromage", "Crèmerie & œufs",
+                 "Boulangerie", "Épicerie salée", "Épicerie sucrée", "Surgelés", "Boissons"}
+
+
+# mots qui sont aussi des couleurs, parfums ou motifs (« mules rose », « bougie vanille »)
+AMBIGUS = {"rose", "raclette", "orange", "citron", "vanille", "cerise", "fraise", "framboise", "chocolat", "caramel", "miel",
+           "pomme", "olive", "cafe", "the", "menthe", "coco", "noix de coco", "peche", "lavande", "cannelle", "prune", "abricot",
+           "cassis", "myrtille", "pistache", "praline", "creme", "lait", "beurre", "vin", "champagne", "biere", "sapin", "fromage",
+           "pizza", "burger", "donut", "glace", "sucre", "bonbon", "bonbons", "frites", "avocat", "ananas", "banane", "cookie"}
+
+
+def _mot_cle(texte):
+    t = " " + norm(texte) + " "
+    meilleur, long_, mot = "Autres", 0, ""
     for r, cles in _RAYONS:
         for k in cles:
             if (" " + k + " ") in t and len(k) > long_:
-                meilleur, long_ = r, len(k)
-    if meilleur == "Autres" and categories:
-        c = " " + norm(categories) + " "
-        for r, cles in _RAYONS:  # d'abord les mots-clés dans les catégories
-            for k in cles:
-                if (" " + k + " ") in c and len(k) > long_:
-                    meilleur, long_ = r, len(k)
-        if meilleur == "Autres" and haut and norm(haut) in _HAUT:
-            return _HAUT[norm(haut)]
-        if meilleur == "Autres":
-            for mot, r in _CATS:
-                if mot in c:
-                    return r
-    if meilleur == "Autres" and haut and norm(haut) in _HAUT:
-        return _HAUT[norm(haut)]
-    return meilleur
+                meilleur, long_, mot = r, len(k), k
+    return meilleur, mot
+
+
+def rayon(nom, marque="", categories="", haut="", texte=""):
+    """Rayon le plus probable : le mot-clé le plus long trouvé gagne ("fromage blanc" bat "fromage").
+    haut : premier niveau de catégorie bonial (« Mode », « Alimentation et boisson »…) ; il évite les
+    contresens (des mules « rose » ne sont pas du vin, un appareil à raclette n'est pas un fromage)."""
+    h = norm(haut)
+    r_haut = _HAUT.get(h)
+    non_alim = bool(r_haut) and h != "alimentation et boisson"
+    for source in (nom + " " + marque, texte, categories):
+        if not source.strip():
+            continue
+        r, mot = _mot_cle(source)
+        if r == "Autres":
+            continue
+        if non_alim and r in RAYONS_MANGER and (mot in AMBIGUS or source is not categories and source == texte):
+            return r_haut
+        return r
+    if r_haut:
+        return r_haut
+    c = " " + norm(categories) + " "
+    for mot, r in _CATS:
+        if mot in c:
+            return r
+    return "Autres"
 
 
 # --------------------------------------------------------------------------- bonial : données structurées
@@ -205,13 +225,177 @@ def _date_locale(iso, fin=False):
 
 
 RE_2E = re.compile(r"\b(2\s*(e|eme|ème|nd)|deuxi[eè]me|second)\b", re.I)
-RE_UTILE = re.compile(r"%|offert|gratuit|remise|carte|achat|achete|2\s*(e|eme|nd)|3\s*(e|eme)|deuxieme|troisieme|lot de|\+|€|euro")
+RE_UTILE = re.compile(r"%|offert|gratuit|remise|carte|achat|achete|2\s*(e|eme|nd)|3\s*(e|eme)|deuxieme|troisieme|\+|€|euro")
 
 
 def condition_banale(c):
-    """« Le sachet de 500 g », « LE PRODUIT », « La pièce » : description du produit, pas une condition."""
-    n = norm(c)
+    """« Le sachet de 500 g », « LE PRODUIT », « L’unité » : description du produit, pas une condition."""
+    n = norm(c.replace("’", "'"))
     return bool(re.match(r"(le|la|les|l)\s", n + " ")) and not RE_UTILE.search(n) and "€" not in c
+
+
+# --------------------------------------------------------------------------- textes propres
+SIGLES = {"aop", "aoc", "igp", "uht", "led", "ssd", "tv", "usb", "hd", "4k", "xs", "xl", "xxl", "xxxl", "bio", "pc", "ps4",
+          "ps5", "nfc", "dvd", "asc", "msc", "gps", "hdmi", "rgb", "mg", "vtt", "u", "lcd", "oled", "qled", "dab", "wifi",
+          "jbl", "lg", "hp", "abs", "vsop", "xo", "ipa", "ddp", "bbq", "diy", "sav", "cb", "nba", "nfl", "ufc", "dc", "u.h.t",
+          "a.o.p", "i.g.p", "a.o.c"}
+NOMS_PROPRES = {"france": "France", "noel": "Noël", "norvege": "Norvège", "espagne": "Espagne", "italie": "Italie",
+                "ecosse": "Écosse", "irlande": "Irlande", "bretagne": "Bretagne", "vendee": "Vendée", "europe": "Europe",
+                "belgique": "Belgique", "allemagne": "Allemagne", "chili": "Chili", "perou": "Pérou", "maroc": "Maroc",
+                "egypte": "Égypte", "bordeaux": "Bordeaux", "bourgogne": "Bourgogne", "alsace": "Alsace", "savoie": "Savoie",
+                "lidl": "Lidl", "carrefour": "Carrefour", "intermarche": "Intermarché", "leclerc": "Leclerc", "paques": "Pâques"}
+RE_MOT_MAJ = re.compile(r"^[^a-zà-ÿ]*[A-ZÀ-ÖØ-Ý][^a-zà-ÿ]*$")
+
+
+def _est_maj(mot):
+    return sum(ch.isalpha() for ch in mot) >= 2 and bool(RE_MOT_MAJ.match(mot))
+
+
+def adoucir(t, phrase=True):
+    """Les passages en MAJUSCULES (2 mots et plus, ou tout le texte) passent en minuscules, sauf les sigles."""
+    if not t:
+        return t
+    mots = t.split(" ")
+    tout_maj = sum(_est_maj(m) for m in mots if m) >= max(1, len([m for m in mots if sum(ch.isalpha() for ch in m) >= 2]))
+    sortie = []
+    for i, m in enumerate(mots):
+        voisin = (i > 0 and _est_maj(mots[i - 1])) or (i + 1 < len(mots) and _est_maj(mots[i + 1]))
+        if _est_maj(m) and (tout_maj or voisin or len(m) >= 7):
+            n = norm(m)
+            if n in SIGLES or n.replace(" ", ".") in SIGLES:
+                sortie.append(m)
+            elif n in NOMS_PROPRES:
+                sortie.append(NOMS_PROPRES[n] + m[len(m.rstrip(".,;:!?)»\"")):] if m[-1:] in ".,;:!?)»\"" else NOMS_PROPRES[n])
+            else:
+                sortie.append(m.lower())
+        else:
+            sortie.append(m)
+    t = " ".join(sortie)
+    t = re.sub(r"\bcarte u\b", "Carte U", t, flags=re.I)
+    t = re.sub(r"\blidl plus\b", "Lidl Plus", t, flags=re.I)
+    t = re.sub(r"(\d)\s*(?:ème|eme|EME|ÈME)\b", r"\1e", t)
+    if phrase and t:
+        t = t[0].upper() + t[1:]
+    return t
+
+
+def couper(t, n):
+    t = t.strip()
+    if len(t) <= n:
+        return t
+    return t[:n].rsplit(" ", 1)[0].rstrip(" ,;·:-") + "…"
+
+
+RE_DEAL = re.compile(r"[-+]?\s?\d+(?:[.,]\d+)?\s*(?:%|€)|\b\d\s*\+\s*\d\b|\ble\s+\d\s*(?:e|eme|ème|nd)\b|\boffert|\bgratuit|\bremise|\bpromo", re.I)
+RE_LABEL_PRIX = re.compile(r"deduit|^soit\b|^(le|la|les|l)\s.*\b(avec|sur)\s+(ma|la|votre)\s+carte\b|^(le|la|les|l)\s+\d+\s+produits?\s*$|^prix\s+(carte|avec)")
+RE_PORTEURS = re.compile(r"offre reservee aux (porteurs|clients|titulaires)|avec (ma|la|votre) carte|carte (u|fidelite|carrefour|intermarche|leclerc|e leclerc)|lidl plus|cagnott")
+
+
+def propre_plan(plan, nom, drapeaux):
+    """Bon plan lisible : sans étiquettes de prix, sans le nom du produit répété, en minuscules."""
+    morceaux = []
+    for x in re.split(r"\s+·\s+", plan or ""):
+        x = re.sub(r"^[\s·*–]+|[\s·*–-]+$", "", x)
+        x = re.sub(r"^-\s+(?!\d)", "", x)
+        n = norm(x.replace("’", "'"))
+        if not n or n == norm(nom):
+            continue
+        if re.match(r"(a partir de|des)\b", n):
+            drapeaux.add("des")
+            x = re.sub(r"^\s*(à|a)\s+partir\s+de\s*,?\s*(le produit|la piece|l'unite)?\s*|^\s*dès\s*", "", x, flags=re.I).strip()
+            if not x or condition_banale(x):
+                continue
+            n = norm(x)
+        if RE_PORTEURS.search(n):
+            drapeaux.add("carte")
+        if RE_LABEL_PRIX.search(n) or condition_banale(x) or re.fullmatch(r"\d+([.,]\d+)?\s*(kg|g|l|cl|ml)", n):
+            continue
+        if re.search(r"\b(a|de|du|des|pour|sur|le|la|les)$", n) and len(n) < 25:
+            continue  # « Le 2e à » sans le prix
+        x = re.sub(r"\bma\s+€\s+carte\b", "ma carte", x, flags=re.I)
+        m = RE_DEAL.search(x)
+        if m and m.start() > 0:
+            avant = norm(x[:m.start()])
+            mots_nom = set(norm(nom).split())
+            if avant and len(set(avant.split()) & mots_nom) >= max(1, len(avant.split()) // 2):
+                x = x[m.start():].strip()  # « Bloc 6 prises -50 % sur le 2e » -> « -50 % sur le 2e »
+        x = adoucir(x)
+        if norm(x) not in [norm(y) for y in morceaux]:
+            morceaux.append(x)
+    return couper(" · ".join(morceaux), 120)
+
+
+RE_BLABLA = re.compile(r"^(voir prix|produits? dangereux|respectez les precautions|photo non contractuelle|visuel non contractuel|"
+                       r"offre reservee aux (porteurs|clients|titulaires)|dans la limite des stocks|existe aussi en|selon arrivage|"
+                       r"offre valable sur d ?autres varietes|du \d{1,2}(er)? (au|jusqu) |a paraitre)|deduit")
+RE_DATES = re.compile(r"\s*\b(du|le)\s+(?:(?:lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\s+)?\d{1,2}(?:er)?\s*(?:au|jusqu.au)\s+(?:(?:lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\s+)?\d{1,2}(?:er)?\s+(?:janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[uû]t|septembre|octobre|novembre|d[ée]cembre)\b", re.I)
+
+
+def propre_detail(lignes, nom, unite, drapeaux):
+    """Détail du produit : lignes utiles recollées, sans références, mentions légales ni MAJUSCULES."""
+    sortie = []
+    saute = False  # suite d'une mention légale coupée sur plusieurs lignes
+    for l in lignes:
+        l = l.replace("•", " · ").replace(" ", " ")
+        for x in re.split(r"\s+·\s+", l):
+            if saute:
+                saute = not x.rstrip().endswith(".")
+                continue
+            x = re.sub(r"\[[A-Z]\]\s*", "", x)
+            x = re.sub(r"\b(?:r[ée]f(?:[ée]rence)?\.?\s*:?\s*[A-Za-z0-9][A-Za-z0-9/._\-]{3,})\.?", "", x, flags=re.I)
+            x = re.sub(r"\b(?:n[o°º])\s?\d{4,}\b", "", x, flags=re.I)
+            x = RE_DATES.sub("", x)
+            x = re.sub(r"\s+", " ", x).strip(" *·-–;")
+            n = norm(x.replace("’", "'"))
+            if not n or "€" in x or x == unite:
+                continue
+            if RE_PORTEURS.search(n) and len(n) < 70:
+                drapeaux.add("carte")
+                continue
+            if "uniquement en ligne" in n or "disponible uniquement sur" in n:
+                drapeaux.add("en_ligne")
+                continue
+            if RE_BLABLA.search(n):
+                saute = not x.rstrip().endswith(".") and not n.startswith("deduit")
+                continue
+            if n in ("les 2 produits", "le produit", "les 3 produits", "au choix") or (condition_banale(x) and not re.search(r"\d", x)):
+                continue
+            if n == norm(nom):
+                continue
+            if sortie and re.search(r"(\b(de|du|des|d|à|a|en|et|ou|pour|avec|sans|au|aux|par)|[:,(/-])$", sortie[-1].strip(), re.I):
+                sortie[-1] = sortie[-1].rstrip() + " " + x
+            else:
+                sortie.append(x)
+    sortie = [re.sub(r"\s*:\s*$", "", adoucir(x)) for x in sortie]
+    sortie = [x for x in sortie if x and norm(x) not in ("le produit de", "les 2 produits")]
+    return couper(" · ".join(dict.fromkeys(sortie)), 150)
+
+
+def propre_nom(nom):
+    nom = re.sub(r"\s+", " ", (nom or "").replace(" ", " ")).strip(" *·-")
+    m = re.match(r"(?i)^sur\s+(tous les|toutes les|tout le|toute la|les|la gamme|le rayon|l'ensemble des)\s+(.+)$", nom)
+    if m:
+        quoi = m.group(1).lower()
+        quoi = {"les": "tous les", "la gamme": "toute la gamme", "le rayon": "tout le rayon", "l'ensemble des": "tous les"}.get(quoi, quoi)
+        nom = quoi + " " + m.group(2)
+    return adoucir(nom)
+
+
+def unite_propre(u):
+    u = (u or "").strip().rstrip(".; ")
+    if u.startswith("(") and u.endswith(")"):
+        u = u[1:-1]
+    elif u.startswith("(") and ")" not in u:
+        u = u[1:]
+    elif u.endswith(")") and "(" not in u:
+        u = u[:-1]
+    u = re.sub(r"(?i)^soit\s+", "", u)
+    u = re.sub(r"/\s*KG\b", "/ kg", u)
+    u = re.sub(r"(\d+)\.(\d{1,2})\s*€", lambda m: "%s,%s €" % (m.group(1), m.group(2).ljust(2, "0")), u)
+    u = re.sub(r"(?i)^\(?\s*1\s*kg\s*=\s*([\d.,]+\s*€)\s*\)?$", r"Le kg : \1", u)
+    u = re.sub(r"(?i)^(le|la)\s+l\s*:", "Le litre :", u)
+    u = re.sub(r"(?i)^le\s+kg\s*:", "Le kg :", u)
+    return u
 
 
 def offre_bonial(o):
@@ -228,21 +412,30 @@ def offre_bonial(o):
             conds += [str(v) for v in c.values() if isinstance(v, (str, int, float)) and str(v).strip()]
         elif isinstance(c, str):
             conds.append(c)
+    drapeaux = set()
     conds = [c for c in conds if not condition_banale(c)]
     texte_prix = (pr.get("description") or "").strip()
     desc = [l.strip() for l in (o.get("description") or "").splitlines() if l.strip()]
-    unite = next((l for l in desc if re.search(r"\b(kg|litre|le l|la piece)\b", norm(l)) and "€" in l), "")
-    detail = " · ".join(l for l in desc[:2] if l != unite and "€" not in l)[:110]
+    unite = (pr.get("unitPrice") or "").strip() or next((l for l in desc if re.search(r"\b(kg|litre|le l|la piece)\b", norm(l)) and "€" in l), "")
+    detail = propre_detail(desc[:4], titre, unite, drapeaux)
+    unite = unite_propre(unite)
     d1, d2 = _date_locale(o.get("validFrom")), _date_locale(o.get("validUntil"), fin=True)
-    chemins = [p for p in (o.get("categoryPaths") or []) if p]
-    cats = " ".join(n.get("name", "") for path in chemins for n in path[-3:])
-    cats += " " + " ".join(o.get("categories") or [])
-    haut = (chemins[0][0].get("name") or "") if chemins and chemins[0] and isinstance(chemins[0][0], dict) else ""
+    chemins = [p for p in (o.get("categoryPaths") or []) if p and isinstance(p[0], dict)]
+    haut = (chemins[0][0].get("name") or "") if chemins else ""
+    utiles = []
+    for path in chemins:
+        if len(path) > 1 and norm(path[1].get("name")) == "marque":
+            continue  # Alimentation et boisson > Marque > Père Dodu : rien sur le produit
+        utiles += [n.get("name", "") for n in path[1:] if norm(n.get("name")) not in ("produits", "produit")][-3:]
+    cats = " ".join(utiles) + " " + " ".join(o.get("categories") or [])
+    if p1 and p2 and p2 > 5 * p1:  # erreur de saisie dans le catalogue (10,30 € écrit 1030)
+        p2 = p2 / 100 if p1 < p2 / 100 < 3 * p1 else None
     it = {
         "nom": titre, "marque": (o.get("brand") or "").strip() if len((o.get("brand") or "").strip()) > 1 else "", "prix": p1,
         "avant": p2 if (p1 and p2 and p2 > p1) else None, "unite": unite, "detail": detail,
         "debut": d1.isoformat() if d1 else "", "fin": d2.isoformat() if d2 else "",
-        "categories": cats, "haut": haut, "catalogue": str((o.get("parentContent") or {}).get("legacyId") or ""),
+        "categories": cats, "haut": haut, "texte": " ".join(desc[:2])[:200],
+        "catalogue": str((o.get("parentContent") or {}).get("legacyId") or ""),
         "page": ((o.get("parentContent") or {}).get("page") or {}).get("number"),
     }
     tout_cond = " ".join(conds + [texte_prix])
@@ -261,8 +454,16 @@ def offre_bonial(o):
         it["bon_plan"] = texte_prix
     if conds and not it.get("condition"):
         c = " · ".join(dict.fromkeys(conds))
-        if len(c) < 80 and norm(c) not in norm(it.get("bon_plan", "")):
+        if len(c) < 120 and norm(c) not in norm(it.get("bon_plan", "")):
             it["bon_plan"] = (it.get("bon_plan", "") + " · " + c).strip(" ·")
+    elif conds:
+        propre_plan(" · ".join(conds), titre, drapeaux)  # seulement pour repérer « avec la carte »
+    it["bon_plan"] = propre_plan(it.get("bon_plan", ""), it["nom"], drapeaux)
+    it["nom"] = propre_nom(it["nom"])
+    if it["prix"] is None and not it["bon_plan"]:
+        it["bon_plan"] = "Promo"
+    for d in drapeaux:
+        it[d] = True
     return it
 
 
@@ -356,7 +557,7 @@ def offre_visionneuse(c):
     o = {"title": p.get("name"), "brand": p.get("brandName") or "", "description": desc, "categoryPaths": cats,
          "categories": [], "validFrom": val.get("startDate"), "validUntil": val.get("endDate"),
          "prices": {"mainPrice": _prix_deal(princ), "secondaryPrice": _prix_deal(second), "conditions": conds,
-                    "description": princ.get("description") or ""},
+                    "description": princ.get("description") or "", "unitPrice": princ.get("priceByBaseUnit") or ""},
          "parentContent": {"legacyId": pc.get("legacyId"), "page": {"number": (pc.get("page") or {}).get("number")}}}
     it = offre_bonial(o)
     if not it:
@@ -984,11 +1185,11 @@ def construire_offres(brutes, aujourd):
         e = {"k": "%s-%s%s" % (it["chaine"], slug(nom)[:55], ("-" + slug(marque)[:18]) if marque else ""),
              "chaine": it["chaine"], "cat": cat, "nom": nom, "marque": marque, "prix": p, "avant": av, "remise": rem,
              "unite": it.get("unite") or "", "detail": it.get("detail") or "", "bon_plan": it.get("bon_plan") or "",
-             "rayon": it.get("rayon") or rayon(nom, marque, it.get("categories", ""), it.get("haut", "")),
+             "rayon": it.get("rayon") or rayon(nom, marque, it.get("categories", ""), it.get("haut", ""), it.get("texte", "")),
              "debut": it.get("debut") or "", "fin": it.get("fin") or ""}
         if it.get("condition"):
             e["condition"], e["remise_2e"] = it["condition"], it.get("remise_affichee")
-        for x in ("carte", "des", "image", "op", "img"):
+        for x in ("carte", "des", "image", "op", "img", "en_ligne"):
             if it.get(x):
                 e[x] = it[x]
         vus[cle] = e
@@ -1073,7 +1274,7 @@ def lire_catalogues(cats, zones, ancien, brutes, cfg, log):
             d1, d2 = min(o["debut"] for o in ops), max(o["fin"] for o in ops)
             if c.get("type") == "DYNAMIC" and (d1, d2) != (c["debut"], c["fin"]):
                 c["debut"], c["fin"], c["op_debut"], c["op_fin"] = d1, d2, d1, d2
-            c["resume"] = " · ".join(dict.fromkeys("%s : %s" % (o["bon_plan"], o["nom"]) for o in ops))[:200]
+            c["resume"] = " · ".join(dict.fromkeys("%s — %s" % (o["nom"], o["bon_plan"]) for o in ops))[:200]
             c["operation"] = True
     for cid, c in cats.items():
         if garde.get(cid):

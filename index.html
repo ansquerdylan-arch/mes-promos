@@ -101,6 +101,7 @@ h3 { font-size: 15.5px; margin: 0; line-height: 1.25; text-wrap: balance; }
 .b.low { background: var(--good); color: #fff; }
 .b.carte { background: #0f6e63; color: #fff; }
 .b.soon { background: #6b4fd8; color: #fff; }
+.b.web { background: #5b6472; color: #fff; }
 .b.op { background: var(--accent); color: #fff; }
 .p .ph { width: 100%; height: 96px; object-fit: contain; background: #fff; border-radius: 9px; }
 .p.op .ph { height: auto; max-height: 220px; object-fit: cover; cursor: zoom-in; }
@@ -786,13 +787,14 @@ dialog .row { min-width: 0; }
     if (S.nouveaux[p.id]) badges += '<span class="b new">Nouveau</span>';
     if (pasCommencee(p)) {
       var dem = new Date(); dem.setDate(dem.getDate() + 1);
-      badges += '<span class="b soon">' + (p.debut === isoJ(dem) ? "À partir de demain" : "À partir du " + jjmm(p.debut)) + '</span>';
-    } else if (finitBientot(p)) badges += '<span class="b end">' + (j === 0 ? "Dernier jour" : "Finit dans " + j + " j") + '</span>';
+      badges += '<span class="b soon">' + (p.debut === isoJ(dem) ? (p.fin === p.debut ? "Demain seulement" : "À partir de demain") : "À partir du " + jjmm(p.debut)) + '</span>';
+    } else if (finitBientot(p)) badges += '<span class="b end">' + (j === 0 ? (p.debut === p.fin ? "Aujourd'hui seulement" : "Dernier jour") : "Finit dans " + j + " j") + '</span>';
+    if (p.en_ligne) badges += '<span class="b web">En ligne seulement</span>';
     if (surveille(p)) badges += '<span class="b watch">Surveillé</span>';
     var h = p.histo, bas = h && p.prix != null && p.prix <= h.min - 0.005, deja = h && p.prix != null && p.prix > h.min + 0.005;
     if (bas) badges += '<span class="b low">Plus bas prix vu</span>';
     if (p.carte) badges += '<span class="b carte">Avec la carte</span>';
-    if (p.op) badges += '<span class="b op">⚡ Opération' + (p.debut && p.debut === p.fin ? ' le ' + jjmm(p.debut) : '') + '</span>';
+    if (p.op) badges += '<span class="b op">⚡ Opération' + (p.debut && p.debut === p.fin && !pasCommencee(p) && p.debut !== isoJ(new Date()) ? ' le ' + jjmm(p.debut) : '') + '</span>';
     var deux = p.condition === "le 2e" && p.prix != null && p.avant;
     var bloc = "";
     if (p.prix != null) {
