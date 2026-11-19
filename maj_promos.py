@@ -770,21 +770,27 @@ def offre_visionneuse(c):
     return it
 
 
+RE_PAGE_IMG = re.compile(r"content-media\.bonial\.biz/([0-9a-f-]{36})/")
+
+
 def catalogue_complet(cid, typ, pos, log, pause=0.6):
-    """-> (offres, images de bannières) ou None si la visionneuse n'a pas répondu."""
-    offres, images = [], []
+    """-> (offres, images de bannières, pages) ou None si la visionneuse n'a pas répondu.
+    pages : identifiant de l'image de chaque page (pour feuilleter le catalogue dans l'appli)."""
+    offres, images, pages = [], [], []
     if typ != "DYNAMIC":
         d = visionneuse("/brochures/%s/pages" % cid, pos, log)
         time.sleep(pause)
         if d is None:
             return None
         for pg in d.get("contents") or []:
+            m = next((RE_PAGE_IMG.search(im.get("url") or "") for im in pg.get("images") or [] if RE_PAGE_IMG.search(im.get("url") or "")), None)
+            pages.append(m.group(1) if m else "")
             for o in pg.get("offers") or []:
                 it = offre_visionneuse(o.get("content") or {})
                 if it:
                     offres.append(it)
         if d.get("contents") or typ == "BROCHURE":
-            return offres, images
+            return offres, images, pages
     # catalogue « dynamique » : des sections avec des offres et/ou des images
     meta = visionneuse("/brochures/%s" % cid, pos, log)
     time.sleep(pause)
@@ -802,7 +808,7 @@ def catalogue_complet(cid, typ, pos, log, pause=0.6):
                         offres.append(it)
                 elif cc.get("type") == "image_banner" and cc.get("image"):
                     images.append(cc["image"])
-    return offres, images
+    return offres, images, pages
 
 
 # --------------------------------------------------------------------------- opérations en images (OCR)
@@ -1418,13 +1424,15 @@ def lire_catalogues(cats, zones, ancien, brutes, cfg, log):
             if (anciens.get(cid) or {}).get("complet"):
                 par_cat[cid] = [dict(o, catalogue=cid, remise_effective=o.get("remise") if o.get("condition") else None,
                                      remise_affichee=o.get("remise_2e")) for o in vieilles if o["cat"] == cid]
-                for k in ("complet", "images", "resume"):
+                for k in ("complet", "images", "resume", "vp"):
                     if anciens[cid].get(k):
                         c[k] = anciens[cid][k]
                 if anciens[cid].get("op_debut"):
                     c["debut"], c["fin"] = anciens[cid]["op_debut"], anciens[cid]["op_fin"]
             continue
-        offres, images = res
+        offres, images, pages = res
+        if any(pages):
+            c["_pages"] = pages
         for it in offres:
             it["chaine"], it["catalogue"] = c["chaine"], cid
         if offres:
@@ -1928,6 +1936,19 @@ def mettre_a_jour(debug=False, log=print, essai=False):
     for f in os.listdir(dossier):  # catalogues terminés
         if f.endswith(".json") and not cats.get(f[:-5], {}).get("n"):
             os.remove(os.path.join(dossier, f))
+    # pages de chaque catalogue (images) : l'appli les feuillette, même quand bonial n'en donne pas les produits
+    dpages = os.path.join(DATA, "pages")
+    os.makedirs(dpages, exist_ok=True)
+    for cid, c in cats.items():
+        pg = c.pop("_pages", None)
+        if pg:
+            ecrire_json(os.path.join(dpages, cid + ".json"), pg)
+            c["vp"] = len(pg)
+        elif c.get("vp") and not os.path.exists(os.path.join(dpages, cid + ".json")):
+            c.pop("vp", None)
+    for f in os.listdir(dpages):
+        if f.endswith(".json") and not cats.get(f[:-5], {}).get("vp"):
+            os.remove(os.path.join(dpages, f))
     ecrire_json(FICHIER, resultat)
     log("Terminé : %d magasins, %d catalogues, %d offres (promos.json %d Ko + offres %d Ko)" % (
         len(magasins), len(cats), len(offres), os.path.getsize(FICHIER) // 1024, total // 1024))

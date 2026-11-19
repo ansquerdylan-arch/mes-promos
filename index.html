@@ -128,6 +128,43 @@ section > .watch-add input { background: var(--tile); }
 /* barre de recherche des promos : reste en haut en défilant */
 .toolbar { position: sticky; top: 0; z-index: 15; margin: -10px -16px 0; padding: calc(10px + var(--safe-top)) 16px 10px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; background: color-mix(in srgb, var(--shelf) 88%, transparent); -webkit-backdrop-filter: saturate(180%) blur(18px); backdrop-filter: saturate(180%) blur(18px); }
 .filtres { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: -14px; }
+.seg.periode { background: var(--tile); box-shadow: inset 0 0 0 1px var(--hair); }
+.seg.periode button[aria-pressed="true"] { background: var(--label); color: var(--label-ink); box-shadow: none; }
+.seg .n { opacity: .6; font-weight: 600; font-variant-numeric: tabular-nums; }
+.magcard { gap: 10px; }
+.mag-h { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+.mag-h::before { content: ""; width: 11px; height: 11px; border-radius: 50%; background: var(--sc); align-self: center; }
+.mag-h b { font: 700 26px/1 var(--font-num); }
+.mag-h span { color: var(--muted); font-size: 14px; font-weight: 600; }
+.mag-st { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13.5px; color: var(--muted); align-items: baseline; }
+.mag-st .open { color: var(--ok); font-weight: 650; } .mag-st .closed { color: var(--sticker); font-weight: 650; }
+.mag-n { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mag-n button { border: 0; background: var(--shelf); border-radius: 14px; padding: 10px 12px; text-align: left; display: grid; gap: 2px; color: var(--ink); }
+.mag-n b { font: 800 28px/1 var(--font-num); font-variant-numeric: tabular-nums; }
+.mag-n span { font-size: 12.5px; color: var(--muted); }
+.mag-cats { display: grid; gap: 6px; }
+.mag-cat { display: grid; gap: 1px; padding: 9px 12px; border-radius: 12px; background: var(--shelf); color: var(--ink); text-decoration: none; }
+.mag-cat b { font-size: 14.5px; font-weight: 650; }
+.mag-cat small { font-size: 12.5px; color: var(--muted); }
+a.mag-cat::after { content: "Voir le catalogue"; font-size: 12.5px; font-weight: 650; color: var(--info); margin-top: 2px; }
+.r .btn.marmiton { justify-self: start; background: var(--ink); color: var(--tile); box-shadow: none; }
+.btn svg { width: 18px; height: 18px; flex: none; }
+dialog.catdlg { background: var(--shelf); padding: 0; }
+@media (max-width: 699px) { dialog.catdlg { max-height: calc(100dvh - 20px - var(--safe-top)); height: calc(100dvh - 20px - var(--safe-top)); } }
+@media (min-width: 700px) { dialog.catdlg { width: min(820px, calc(100vw - 32px)); height: 92vh; max-height: 92vh; } }
+.cat-top { position: sticky; top: 0; z-index: 2; padding: 10px 16px 10px; background: color-mix(in srgb, var(--shelf) 90%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); display: grid; gap: 8px; }
+.cat-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.cat-h b { display: block; font: 700 23px/1.05 var(--font-num); }
+.cat-h small { display: block; font-size: 13px; color: var(--muted); margin-top: 3px; }
+.cat-h small a { font-weight: 650; text-decoration: none; }
+.cat-pages { display: grid; gap: 14px; padding: 4px 12px 30px; }
+.cpage { margin: 0; background: #fff; border-radius: 12px; overflow: hidden; position: relative; min-height: 200px; }
+.cpage img { display: block; width: 100%; height: auto; cursor: zoom-in; }
+.cpage figcaption { position: absolute; left: 8px; bottom: 8px; background: rgba(24, 32, 44, .75); color: #fff; font-size: 12px; font-weight: 700; border-radius: 8px; padding: 3px 8px; }
+.cpage.cible { box-shadow: 0 0 0 3px var(--label); }
+.ag .feuil { grid-column: 1 / -1; justify-self: start; margin-left: 17px; border: 0; background: var(--shelf); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 650; color: var(--ink); box-shadow: inset 0 0 0 1px var(--hair); }
+button.mag-cat { border: 0; text-align: left; font: inherit; cursor: pointer; width: 100%; }
+button.mag-cat::after { content: "Feuilleter le catalogue"; font-size: 12.5px; font-weight: 650; color: var(--info); margin-top: 2px; }
 .countline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
 #v-promos { gap: 12px; }
 #v-promos .grid { margin-top: 2px; }
@@ -362,6 +399,7 @@ dialog.zoom::backdrop { background: rgba(0, 0, 0, .7); }
 .gs.g-Ap, .gs.g-A { background: #038141; } .gs.g-B { background: #5fa03b; } .gs.g-C { background: #c9a800; } .gs.g-D { background: #ee8100; } .gs.g-E { background: #e63e11; } .gs.g-F { background: #a01e0c; }
 .notes .src { font-size: 12.5px; color: var(--muted); padding-top: 6px; border-top: 1px solid var(--hair); }
 .go-list { display: grid; gap: 8px; margin-top: 2px; }
+button.go { border: 0; font: inherit; text-align: left; width: 100%; cursor: pointer; }
 .go { display: grid; grid-template-columns: 40px minmax(0, 1fr) 14px; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 16px; text-decoration: none; color: var(--ink); background: var(--shelf); }
 .go:active { transform: scale(.99); }
 .go .gi { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--sc, var(--ink)); color: var(--sc-ink, #fff); }
@@ -479,7 +517,9 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
       </div>
       <div class="chips" id="rayons" aria-label="Rayons"></div>
     </div>
+    <div class="seg periode" id="periodeSeg" role="group" aria-label="Période"></div>
     <div class="chips" id="storeChips" aria-label="Magasins"></div>
+    <div class="card magcard" id="storeCard" hidden></div>
     <div class="chips" aria-label="Filtres">
       <button class="chip" data-f="alim" aria-pressed="false" type="button">Alimentaire</button>
       <button class="chip" data-f="new" aria-pressed="false" type="button">Nouveau</button>
@@ -551,6 +591,10 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
 </nav>
 
 <dialog id="fiche" class="fiche sheet" aria-labelledby="ficheNom"><div id="ficheCorps"></div></dialog>
+<dialog id="catDlg" class="sheet catdlg" aria-labelledby="catTitre">
+  <div class="cat-top"><div class="grab" aria-hidden="true"></div><div class="cat-h"><div><b id="catTitre">Catalogue</b><small id="catSous"></small></div><button class="x" type="button" data-fermercat="1" aria-label="Fermer">✕</button></div></div>
+  <div class="cat-pages" id="catPages"></div>
+</dialog>
 <dialog id="zoomDlg" class="zoom" aria-label="Image de l'opération"><form method="dialog"><button class="x" type="submit" aria-label="Fermer">✕</button></form><img id="zoomImg" alt="Visuel de l'opération"></dialog>
 <dialog id="settings" class="sheet" aria-labelledby="setTitle">
   <div class="dlg">
@@ -626,7 +670,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     fav: lire("fav", []), liste: lire("liste", []), watch: lire("watch", []),
     hidden: lire("hiddenStores", []), theme: lire("theme", "auto"),
     vusAvant: lire("vus3", []), nouveaux: {}, rdv: lire("rdv", []), agAll: false, prenom: lire("prenom", ""), vue: "accueil",
-    photos: lire("photos", true)
+    photos: lire("photos", true), periode: lire("periode", "cours")
   };
 
   // ---------- utilitaires
@@ -809,8 +853,9 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
         var x = (d.catalogues || {})[c]; if (!x || x.fin < auj) return;
         if (x.debut <= auj && (!princ || (x.pages || 0) > (princ.pages || 0))) princ = x;
         var cle = m.chaine + "|" + c;
-        if (!evts[cle]) evts[cle] = { enseigne: sid, villes: [], base: m.nom, titre: x.titre, pages: x.pages, debut: x.debut, fin: x.fin, operation: x.operation, resume: x.resume || "", images: x.images || [] };
+        if (!evts[cle]) evts[cle] = { enseigne: sid, sids: [], cat: c, villes: [], base: m.nom, titre: x.titre, pages: x.pages, debut: x.debut, fin: x.fin, operation: x.operation, resume: x.resume || "", images: x.images || [] };
         if (evts[cle].villes.indexOf(m.ville) < 0) evts[cle].villes.push(m.ville);
+        if (evts[cle].sids.indexOf(sid) < 0) evts[cle].sids.push(sid);
       });
       ens[sid] = { nom: m.nom + " " + m.ville, court: m.nom, ville: m.ville, chaine: m.chaine, nb: mes.length, adresse: m.adresse, cp: m.cp,
         lat: m.lat, lng: m.lng, horaires: m.horaires || [], validite: princ ? "du " + jjmm(princ.debut) + " au " + jjmm(princ.fin) : "" };
@@ -1003,6 +1048,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     web: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>',
     cat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></svg>',
     out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg>',
+    book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2v.5z"/><path d="M4 19.5A2 2 0 0 0 6 21.5h13v-3.5"/><path d="M9 7h6"/></svg>',
     leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-13 15-14-1 10-6 15-14 15"/><path d="M5 19c3-4 6-6 10-8"/></svg>'
   };
   var FICHE = null;
@@ -1055,7 +1101,10 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
         '<small>Recherche « ' + esc(terme) + ' ». Le prix en ligne peut différer de celui du magasin.</small></span>' + ICO.out + '</a>';
     }
     var lc = lienCatalogue(p);
-    if (lc) {
+    if (lc && catPeutFeuilleter(p.cat)) {
+      liens += '<button class="go" type="button" data-catalogue="' + esc(p.cat) + '"' + (p.pg != null ? ' data-page="' + esc(p.pg) + '"' : '') + '><span class="gi">' + ICO.cat + '</span><span><b>Voir dans le catalogue</b>' +
+        '<small>' + esc(lc.txt) + '</small></span>' + ICO.out + '</button>';
+    } else if (lc) {
       liens += '<a class="go" href="' + esc(lc.url) + '" target="_blank" rel="noopener"><span class="gi">' + ICO.cat + '</span><span><b>Voir dans le catalogue</b>' +
         '<small>' + esc(lc.txt) + ', sur bonial.fr</small></span>' + ICO.out + '</a>';
     }
@@ -1085,6 +1134,45 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     var d = $("fiche");
     if (!d.open) { try { d.showModal(); } catch (er) { d.setAttribute("open", ""); } d.scrollTop = 0; }
   }
+  // ---------- catalogues complets : toutes les pages, dans l'appli
+  function catInfo(cid) { return ((S.brut && S.brut.catalogues) || {})[cid] || null; }
+  function catPeutFeuilleter(cid) { var c = catInfo(cid); return !!(c && (c.vp || (c.images || []).length)); }
+  var PAGES = {};
+  function ouvrirCatalogue(cid, page) {
+    var c = catInfo(cid); if (!c) return;
+    var dyn = c.type === "DYNAMIC", bonial = "https://www.bonial.fr/contentViewer/" + (dyn ? "dynamic/" : "static/") + cid;
+    var ens = (S.data.evenements || []).find(function (x) { return x.cat === cid; });
+    $("catTitre").textContent = joliTitre(c.titre || "Catalogue");
+    $("catSous").innerHTML = esc((ens ? ens.nom + ", " : "") + (c.debut === c.fin ? "le " + jjmm(c.debut) : "du " + jjmm(c.debut) + " au " + jjmm(c.fin))) +
+      (c.vp ? ", " + c.vp + " pages" : "") + '. <a href="' + esc(bonial) + '" target="_blank" rel="noopener">Ouvrir sur bonial.fr</a>';
+    $("catPages").innerHTML = '<p class="muted" style="margin:8px 4px">Chargement des pages…</p>';
+    var d = $("catDlg");
+    if (!d.open) { try { d.showModal(); } catch (er) { d.setAttribute("open", ""); } }
+    d.scrollTop = 0;
+    var afficher = function (ids) {
+      var html = ids.length ? ids.map(function (u, i) {
+        if (!u) return "";
+        var base = /^https?:/.test(u) ? u : "https://content-media.bonial.biz/" + u + "/zoomlarge_page_" + i + ".jpg";
+        var petit = /^https?:/.test(u) ? u : base + "?impolicy=768x1024", grand = /^https?:/.test(u) ? u : base + "?impolicy=large";
+        return '<figure class="cpage' + (page === i ? ' cible' : '') + '" id="cpage-' + i + '"><img loading="' + (i < 2 || page === i ? 'eager' : 'lazy') + '" decoding="async" alt="Page ' + (i + 1) + '" src="' + esc(petit) + '" data-zoom="' + esc(grand) + '"><figcaption>Page ' + (i + 1) + '</figcaption></figure>';
+      }).join("") : '<p class="muted" style="margin:8px 4px">Les pages de ce catalogue ne sont pas disponibles ici. <a href="' + esc(bonial) + '" target="_blank" rel="noopener">Ouvrir sur bonial.fr</a></p>';
+      $("catPages").innerHTML = html;
+      if (page != null && $("cpage-" + page)) setTimeout(function () { $("cpage-" + page).scrollIntoView({ block: "start" }); }, 60);
+    };
+    if (!c.vp) { afficher(c.images || []); return; }
+    if (PAGES[cid]) { afficher(PAGES[cid]); return; }
+    fetch((S.mode === "pc" ? "/pages/" : "pages/") + cid + ".json?v=" + encodeURIComponent(S.brut.maj || ""), { cache: "no-cache" })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (l) { PAGES[cid] = l; afficher(l); })
+      .catch(function () { afficher(c.images || []); });
+  }
+  document.addEventListener("click", function (ev) {
+    var t = ev.target; if (!t.closest) return;
+    var b = t.closest("[data-catalogue]");
+    if (b) { ev.preventDefault(); ouvrirCatalogue(b.dataset.catalogue, b.dataset.page != null && b.dataset.page !== "" ? +b.dataset.page : null); return; }
+    if (t.closest("[data-fermercat]") || t === $("catDlg")) { $("catDlg").close(); }
+  });
+
   function fermerFiche() { var d = $("fiche"); FICHE = null; if (d.open) { try { d.close(); } catch (er) { d.removeAttribute("open"); } } }
   function partager(p) {
     var t = p.nom + (p.marque && norm(p.nom).indexOf(norm(p.marque)) < 0 ? " " + p.marque : "") + (p.prix != null ? " à " + euro(p.prix) : "") +
@@ -1114,7 +1202,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
   // ---------- accueil
   function afficherAccueil() {
     if (!S.data) return;
-    var v = visibles(), alim = v.filter(function (p) { return ALIM.indexOf(p.rayon) >= 0; });
+    var v = visibles(), alim = v.filter(function (p) { return ALIM.indexOf(p.rayon) >= 0 && !pasCommencee(p); });
     $("stAlim").textContent = alim.length;
     $("stNew").textContent = S.vusAvant.length ? Object.keys(S.nouveaux).length : "–";
     $("stList").textContent = vivants().filter(function (x) { return !x.fait; }).length;
@@ -1143,7 +1231,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
 
     $("homeStores").innerHTML = Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0; }).map(function (k) {
       var e = S.data.enseignes[k], o = ouverture(e.horaires);
-      return '<div><button class="store" type="button" data-gostore="' + esc(k) + '" style="--sc:' + coul(k) + '"><b>' + esc(e.court || e.nom) + '</b><span>' + esc(e.ville || "") + '</span><span>' + e.nb + ' promos' + (e.validite ? ', ' + esc(e.validite) : '') + '</span>' +
+      return '<div><button class="store" type="button" data-gostore="' + esc(k) + '" style="--sc:' + coul(k) + '"><b>' + esc(e.court || e.nom) + '</b><span>' + esc(e.ville || "") + '</span><span>' + v.filter(function (p) { return p.enseigne === k && !pasCommencee(p); }).length + ' promos en cours</span>' +
         (o ? '<span class="' + (o.ouvert ? "open" : "closed") + '">' + esc(o.txt) + '</span>' : '') + (e.ancien ? '<span class="old">pas de nouveau catalogue</span>' : '') + '</button>' +
         (e.adresse ? '<a class="itin" href="' + itineraire(e) + '" target="_blank" rel="noopener">Itinéraire</a>' : '') + '</div>';
     }).join("");
@@ -1153,8 +1241,17 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
   function afficherFiltres() {
     var ens = Object.keys(S.data.enseignes).filter(function (k) { return S.hidden.indexOf(k) < 0 && S.data.enseignes[k].nb > 0; });
     if (S.store !== "all" && ens.indexOf(S.store) < 0) S.store = "all";
+    var nb = {}, nCours = 0, nVenir = 0;
+    visibles().forEach(function (p) {
+      var venir = pasCommencee(p);
+      if (S.store === "all" || p.enseigne === S.store) { if (venir) nVenir++; else nCours++; }
+      if (S.periode === "tout" || (S.periode === "venir") === venir) nb[p.enseigne] = (nb[p.enseigne] || 0) + 1;
+    });
+    $("periodeSeg").innerHTML = [["cours", "En cours", nCours], ["venir", "À venir", nVenir], ["tout", "Tout", nCours + nVenir]].map(function (x) {
+      return '<button type="button" data-periode="' + x[0] + '" aria-pressed="' + (S.periode === x[0]) + '">' + x[1] + ' <span class="n">' + x[2] + '</span></button>';
+    }).join("");
     $("storeChips").innerHTML = '<button class="chip" type="button" data-store="all" aria-pressed="' + (S.store === "all") + '">Tous les magasins</button>' + ens.map(function (k) {
-      return '<button class="chip" type="button" data-store="' + esc(k) + '" aria-pressed="' + (S.store === k) + '">' + dot(k) + esc(ensCourt(k)) + '</button>';
+      return '<button class="chip" type="button" data-store="' + esc(k) + '" aria-pressed="' + (S.store === k) + '">' + dot(k) + esc(ensCourt(k)) + ' <span class="n">' + (nb[k] || 0) + '</span></button>';
     }).join("");
     var cnt = {};
     visibles().forEach(function (p) { if (S.store === "all" || p.enseigne === S.store) cnt[p.rayon] = (cnt[p.rayon] || 0) + 1; });
@@ -1162,12 +1259,37 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
       return '<button class="chip" type="button" data-rayon="' + esc(r) + '" aria-pressed="' + (S.rayon === r) + '">' + (EMO[r] ? '<span class="e" aria-hidden="true">' + EMO[r] + '</span>' : '') + esc(r === "Tous" ? "Tous les rayons" : r) + (r !== "Tous" ? ' <span class="n">' + cnt[r] + '</span>' : '') + '</button>';
     }).join("");
     document.querySelectorAll("[data-f]").forEach(function (b) { b.setAttribute("aria-pressed", S.f[b.dataset.f] ? "true" : "false"); });
+    afficherMagasin();
+  }
+  // le magasin choisi : horaires, adresse, promos en cours et à venir, catalogues du moment
+  function afficherMagasin() {
+    var box = $("storeCard"), k = S.store, e = k !== "all" && S.data.enseignes[k];
+    if (!e) { box.hidden = true; return; }
+    var o = ouverture(e.horaires), auj = isoJ(new Date()), v = visibles().filter(function (p) { return p.enseigne === k; });
+    var venir = v.filter(pasCommencee).length, cours = v.length - venir;
+    var cats = (S.data.evenements || []).filter(function (x) { return (x.sids || [x.enseigne]).indexOf(k) >= 0 && x.fin >= auj; })
+      .sort(function (a, b) { return (a.debut > auj) - (b.debut > auj) || (a.fin < b.fin ? -1 : 1); });
+    box.style.setProperty("--sc", coul(k));
+    box.innerHTML = '<div class="mag-h"><b>' + esc(e.court || e.nom) + '</b><span>' + esc(e.ville || "") + '</span></div>' +
+      '<div class="mag-st">' + (o ? '<span class="' + (o.ouvert ? "open" : "closed") + '">' + esc(o.txt) + '</span>' : '') +
+        (e.adresse ? '<span>' + esc([e.adresse, e.cp].filter(Boolean).join(", ")) + '</span><a class="itin" href="' + itineraire(e) + '" target="_blank" rel="noopener">Itinéraire</a>' : '') + '</div>' +
+      '<div class="mag-n"><button type="button" data-periode="cours"><b>' + cours + '</b><span>promos en cours</span></button><button type="button" data-periode="venir"><b>' + venir + '</b><span>à venir</span></button></div>' +
+      (cats.length ? '<div class="mag-cats">' + cats.map(function (x) {
+        var quand = x.debut > auj ? "à partir du " + jjmm(x.debut) : (x.fin === auj ? "dernier jour aujourd'hui" : "jusqu'au " + jjmm(x.fin));
+        var c = x.cat && catInfo(x.cat), bon = x.cat ? "https://www.bonial.fr/contentViewer/" + (c && c.type === "DYNAMIC" ? "dynamic/" : "static/") + x.cat : "";
+        var ouvre = x.cat && catPeutFeuilleter(x.cat) ? '<button type="button" class="mag-cat" data-catalogue="' + esc(x.cat) + '">' : (bon ? '<a class="mag-cat" href="' + esc(bon) + '" target="_blank" rel="noopener">' : '<div class="mag-cat">');
+        var ferme = x.cat && catPeutFeuilleter(x.cat) ? '</button>' : (bon ? '</a>' : '</div>');
+        return ouvre + '<b>' + (x.operation ? "⚡ " : "") + esc(joliTitre(x.titre || "Catalogue")) + '</b><small>' + esc(quand) + (x.pages > 1 ? ", " + x.pages + " pages" : "") + '</small>' + ferme;
+      }).join("") + '</div>' : '');
+    box.hidden = false;
   }
 
   function filtrer() {
     var mots = norm(S.q).split(" ").filter(Boolean);
     var l = visibles().filter(function (p) {
       if (S.store !== "all" && p.enseigne !== S.store) return false;
+      if (S.periode === "cours" && pasCommencee(p)) return false;
+      if (S.periode === "venir" && !pasCommencee(p)) return false;
       if (S.rayon !== "Tous" && p.rayon !== S.rayon) return false;
       if (S.f.alim && ALIM.indexOf(p.rayon) < 0) return false;
       if (S.f.barre && !p.avant) return false;
@@ -1209,7 +1331,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
       var mags = {}; grp.forEach(function (p) { mags[p.enseigne] = 1; });
       if (grp.length > 1 && Object.keys(mags).length > 1) cheapId = grp.reduce(function (m, p) { return !m || p.prix < m.prix ? p : m; }, null).id;
     }
-    $("count").textContent = l.length + (l.length > 1 ? " promos" : " promo") + ", " + (TRI_TXT[S.tri] || "") + (cheapId ? ". Le moins cher est marqué en vert." : "");
+    $("count").textContent = l.length + (l.length > 1 ? " promos" : " promo") + (S.periode === "cours" ? " en cours" : S.periode === "venir" ? " à venir" : "") + ", " + (TRI_TXT[S.tri] || "") + (cheapId ? ". Le moins cher est marqué en vert." : "");
     LISTE_AFF = { l: l, cheap: cheapId, n: Math.min(PAQUET, l.length) };
     $("grid").innerHTML = l.length ? l.slice(0, LISTE_AFF.n).map(function (p) { return carte(p, { cheap: p.id === cheapId }); }).join("") : '<div class="empty">Aucune promo ne correspond. Essaie un autre mot ou enlève un filtre.</div>';
     boutonPlus();
@@ -1229,17 +1351,45 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
 
   // ---------- plats
   var SUCRE = / (dessert|desserts|glace|glacee|glaces|chocolat|vanille|caramel|tartiner|bonbon|biscuit|biscuits|gateau|gateaux|yaourt|yaourts|visage|mains|corps|liegeois) /;
-  function motPresent(t, alt) {
-    var a = alt;
-    return t.indexOf(" " + a + " ") >= 0 || t.indexOf(" " + a + "s ") >= 0 || t.indexOf(" " + a + "x ") >= 0;
+  // Un plat n'est proposé que si son ingrédient principal est en promo. Une clé décrit le début du nom du produit
+  // (« pave de saumon »), « +mot » : le nom contient aussi ce mot, « !mot » : le nom ne contient pas ce mot.
+  // Un produit déjà cuisiné (sauce, farci, pané, terrine…) ne compte pas, sauf si la clé le demande.
+  function racine(w) { return w.length > 3 ? w.replace(/[sx]$/, "") : w; }
+  var PREPA = {};
+  ("sauce cuisine cuisinee cuisines cuisinees plat plats farci farcie farcis farcies pane panee panes panees tikka massala " +
+   "nuggets nugget tenders cordon cordons box soupe veloute terrine rillettes mousse gratin gratine lasagne lasagnes hachis " +
+   "parmentier aligot cassoulet rougail paella quiche pizza tarte croque feuillete feuilletes bouchee bouchees nems samoussa " +
+   "beignet beignets cassolette cassolettes chips biscuit biscuits facon kebab").split(" ").forEach(function (w) { PREPA[racine(w)] = 1; });
+  var BRUIT = { lot: 1, de: 1, x: 1, le: 1, la: 1, les: 1, l: 1, un: 1, une: 1, offre: 1, speciale: 1, barquette: 1, sachet: 1, pack: 1, maxi: 1, format: 1 };
+  function tete(p) {
+    if (p._t) return p._t;
+    var w = norm(p.nom).split(" ").filter(Boolean);
+    while (w.length && (/^\d/.test(w[0]) || BRUIT[w[0]])) w.shift();
+    return (p._t = w.map(racine));
   }
-  // candidats des plats : calculés une fois par vue (des milliers d'offres)
+  var CLES_C = {};
+  function cleCompilee(c) {
+    if (CLES_C[c]) return CLES_C[c];
+    var parts = c.split("!"), t = parts[0], plus = "", i = t.indexOf("+");
+    if (i >= 0) { plus = t.slice(i + 1); t = t.slice(0, i); }
+    return (CLES_C[c] = { t: norm(t).split(" ").filter(Boolean).map(racine), plus: plus ? norm(plus).split(" ").filter(Boolean).map(racine) : [], sauf: parts.slice(1).map(norm).filter(Boolean) });
+  }
+  function colle(p, c) {
+    var k = cleCompilee(c), w = tete(p), i;
+    if (w.length < k.t.length) return false;
+    for (i = 0; i < k.t.length; i++) if (w[i] !== k.t[i]) return false;
+    for (i = 0; i < k.plus.length; i++) if (w.indexOf(k.plus[i]) < 0) return false;
+    for (i = 0; i < k.sauf.length; i++) if (p._n.indexOf(" " + k.sauf[i]) >= 0) return false;
+    for (i = 0; i < w.length; i++) if (PREPA[w[i]] && k.t.indexOf(w[i]) < 0 && k.plus.indexOf(w[i]) < 0) return false;
+    return true;
+  }
+  // candidats des plats : promos alimentaires valables aujourd'hui (calculés une fois par vue)
   var CAND = { cle: null, l: [] };
   function candidatsPlats() {
-    var cle = S.data ? S.data.promos.length + "|" + S.hidden.join(",") + "|" + S.sel.join(",") : "";
+    var cle = S.data ? S.data.promos.length + "|" + S.hidden.join(",") + "|" + (S.sel || []).join(",") + "|" + isoJ(new Date()) : "";
     if (CAND.cle === cle && CAND.data === S.data) return CAND.l;
     CAND = { cle: cle, data: S.data, l: visibles().filter(function (p) {
-      if (ALIM.indexOf(p.rayon) < 0 || p.rayon === "Épicerie sucrée" || p.rayon === "Traiteur" || p.prix == null) return false;
+      if (ALIM.indexOf(p.rayon) < 0 || p.rayon === "Épicerie sucrée" || p.rayon === "Traiteur" || p.prix == null || pasCommencee(p)) return false;
       p._n = p._n || " " + norm(p.nom + " " + p.marque) + " ";
       return !SUCRE.test(p._n);
     }) };
@@ -1247,28 +1397,23 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
   }
   function trouverPromo(alternatives, ens, exclure) {
     var best = null;
-    var alts = alternatives.map(norm);
     candidatsPlats().forEach(function (p) {
       if (ens && ens !== "all" && p.enseigne !== ens) return;
       if (exclure && exclure[p.id]) return;
-      var t = p._n;
-      for (var i = 0; i < alts.length; i++) {
-        var alt = alts[i];
-        if ((alt === "pomme" || alt === "pommes") && / (terre|noisette|noisettes|frites|dauphine|dauphines) /.test(t)) continue;
-        if (/pommes? de terre/.test(alt) && / (surgele|surgeles|surgelee|surgelees|noisette|noisettes|frites|dauphines) /.test(t)) continue;
-        if (motPresent(t, alt)) { if (!best || (p.remise || 0) > (best.remise || 0)) best = p; return; }
+      for (var i = 0; i < alternatives.length; i++) {
+        if (colle(p, alternatives[i])) { if (!best || (p.remise || 0) > (best.remise || 0)) best = p; return; }
       }
     });
     return best;
   }
   function platsDuMoment(ens) {
     return S.recettes.map(function (r) {
-      var trouves = [];
-      r.cles.forEach(function (alts) { var p = trouverPromo(alts, ens); if (p && trouves.indexOf(p) < 0) trouves.push(p); });
-      return { r: r, promos: trouves };
-    }).filter(function (x) { return x.promos.length; }).sort(function (a, b) {
-      return (b.promos.length / b.r.cles.length) - (a.promos.length / a.r.cles.length) || b.promos.length - a.promos.length;
-    });
+      var princ = r.principal ? trouverPromo(r.principal, ens) : null;
+      if (!princ) return null;
+      var trouves = [princ];
+      (r.cles || []).forEach(function (alts) { var p = trouverPromo(alts, ens); if (p && trouves.indexOf(p) < 0) trouves.push(p); });
+      return { r: r, promos: trouves, sc: trouves.length / (1 + (r.cles || []).length) + (princ.remise || 0) / 300 };
+    }).filter(Boolean).sort(function (a, b) { return b.sc - a.sc; });
   }
   var RECS = [];
   function carteRecette(r, promos, jour) {
@@ -1280,8 +1425,9 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
       (r.pourquoi ? '<p class="why">' + esc(r.pourquoi) + '</p>' : '') +
       (promos.length ? '<ul class="pts">' + promos.map(function (p) { return '<li>' + dot(p.enseigne) + '<span>' + esc(p.nom) + '</span><span class="pr">' + euro(p.prix) + '</span></li>'; }).join("") + '</ul>' : '') +
       ((r.tags || []).length ? '<div class="tags">' + r.tags.map(function (t) { return '<span class="t">' + esc(t) + '</span>'; }).join("") + '</div>' : '') +
-      '<details><summary>Voir la recette</summary><b style="font-size:14px">Ingrédients</b><ul>' + (r.ingredients || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>' +
-      '<b style="font-size:14px;display:block;margin-top:8px">Étapes</b><ol>' + (r.etapes || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ol></details>' +
+      ((r.ingredients || []).length ? '<details><summary>Ingrédients pour 4</summary><ul>' + r.ingredients.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>' +
+        ((r.etapes || []).length ? '<b style="font-size:14px;display:block;margin-top:8px">Étapes</b><ol>' + r.etapes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ol>' : '') + '</details>' : '') +
+      (r.marmiton ? '<a class="btn marmiton" href="' + esc(r.marmiton) + '" target="_blank" rel="noopener">' + ICO.book + (/recherche/.test(r.marmiton) ? 'Les recettes sur Marmiton' : 'La recette sur Marmiton') + '</a>' : '') +
       '<div class="row">' + (promos.length ? '<button class="icon' + (toutes ? ' on' : '') + '" type="button" data-addmany="' + esc(ids) + '">' + (toutes ? '✓ Promos dans la liste' : '+ Les promos') + '</button>' : '') +
       '<button class="icon" type="button" data-addall="' + rk + '">+ Tous les ingrédients</button></div>' +
     '</article>';
@@ -1767,7 +1913,8 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
       ((e.images || []).length ? '<div class="vis">' + e.images.slice(0, 4).map(function (u) { return '<button type="button" data-zoom="' + esc(u) + '" aria-label="Voir le visuel"><img loading="lazy" alt="" src="' + esc(u) + '"></button>'; }).join("") + '</div>' : '') +
       '</div>' +
       '<span class="st ' + st.c + '">' + st.t + '</span>' +
-      (st.c !== "now" && st.c !== "last" ? '<button class="bell" type="button" data-remind="' + i + '">🔔 Me le rappeler</button>' : '') + '</div>';
+      (st.c !== "now" && st.c !== "last" ? '<button class="bell" type="button" data-remind="' + i + '">🔔 Me le rappeler</button>' : '') +
+      (e.cat && catPeutFeuilleter(e.cat) ? '<button class="feuil" type="button" data-catalogue="' + esc(e.cat) + '">Feuilleter le catalogue</button>' : '') + '</div>';
   }
   var EVTS = [];
   function afficherAgenda() {
@@ -1904,7 +2051,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
   function preset(p) {
     S.f = {}; S.rayon = "Tous"; S.store = "all";
     if (p === "alim") S.f.alim = true;
-    if (p === "new") S.f["new"] = true;
+    if (p === "new") { S.f["new"] = true; S.periode = "tout"; }
     if (p === "end") S.f.end = true;
     if (p === "remise") { S.f.alim = true; S.tri = "remise"; $("tri").value = "remise"; }
     afficherFiltres(); afficherPromos();
@@ -1995,8 +2142,9 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     var ds = b.dataset;
     if (ds.v) return vue(ds.v);
     if (ds["goto"]) { if (ds.preset) preset(ds.preset); return vue(ds["goto"]); }
-    if (ds.gostore) { preset(); S.store = ds.gostore; afficherFiltres(); afficherPromos(); return vue("promos"); }
+    if (ds.gostore) { preset(); S.store = ds.gostore; S.periode = "cours"; ecrire("periode", "cours"); afficherFiltres(); afficherPromos(); return vue("promos"); }
     if (ds.store) { S.store = ds.store; S.rayon = "Tous"; afficherFiltres(); afficherPromos(); return; }
+    if (ds.periode) { S.periode = ds.periode; ecrire("periode", S.periode); afficherFiltres(); afficherPromos(); return; }
     if (ds.rayon) { S.rayon = ds.rayon; afficherFiltres(); afficherPromos(); return; }
     if (ds.f) { S.f[ds.f] = !S.f[ds.f]; afficherFiltres(); afficherPromos(); return; }
     if (ds.ptag) { S.platTag = ds.ptag; afficherPlats(); return; }

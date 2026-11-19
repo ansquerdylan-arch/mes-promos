@@ -17,6 +17,8 @@ Promos et bons plans des supermarchés de toute la Vendée (Super U, Hyper U, U 
 - **Forcer une mise à jour** : onglet *Actions* → *Mise à jour des promos* → *Run workflow* (ou le bouton MAJ dans l'appli).
 - **Si un site change** : onglet *Actions* → *Diagnostic des sources* → coller une adresse → le détail de ce que le script y lit s'affiche (`diag.py`).
 - **Changer de magasins ou de villes voisines** : `config.json`.
-- **Plats** : `recettes.json` (54 recettes, chacune liée aux produits en promo).
+- **Plats** : `recettes.json` (74 plats). Un plat n'est proposé que si son ingrédient principal (`principal`) est en promo aujourd'hui ; `cles` = autres promos utiles. Une clé décrit le début du nom du produit (« pave de saumon »), `+mot` = le nom contient aussi ce mot, `!mot` = le nom ne le contient pas. Chaque plat renvoie vers sa recette sur Marmiton (lien `marmiton`), la liste des ingrédients sert à la liste de courses.
+- **Catalogues complets** : la mise à jour garde l'image de chaque page (`pages/<catalogue>.json`) ; l'appli les feuillette (fiche du magasin dans Promos, agenda, « Voir dans le catalogue » d'un article). Les catalogues E.Leclerc n'ont pas de liste de produits sur bonial : ils ne se voient qu'en pages.
+- **Promos en cours / à venir** : choix dans l'onglet Promos (mémorisé), avec la fiche du magasin choisi (horaires, adresse, nombre de promos, catalogues).
 
 Si un matin rien n'est trouvé, les promos précédentes encore valables sont gardées, et l'appli affiche un bandeau si les données ont plus de 36 h.

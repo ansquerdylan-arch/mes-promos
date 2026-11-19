@@ -35,6 +35,7 @@ jobs:
           git config user.name "maj-promos"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A offres 2>/dev/null || true
+          git add -A pages 2>/dev/null || true
           git add promos.json rappels.ics historique.json alertes_envoyees.json
           git add ocr.json 2>/dev/null || true
           git add notes.json 2>/dev/null || true
