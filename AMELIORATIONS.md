@@ -25,10 +25,8 @@ Corrigé :
 
 1. **Alertes appli fermée** : `alertes.py` écrit « Pas de produits surveillés enregistrés ». Vérifier sur l'iPhone
    le jeton GitHub dans les réglages de Mogette et qu'au moins un produit est surveillé.
-2. **Leclerc anti-crise à 0 produit** dans le journal du matin : la page a dû changer. À revoir en respectant
-   robots.txt et sans contourner de protection.
-3. **Horaires** : 18 Carrefour Proximité sans horaires.
-4. **Promos sur une marque entière** (« Toute la gamme Blini », « Carrefour Bio ») : les montrer comme une
+2. **Horaires** : 18 Carrefour Proximité sans horaires.
+3. **Promos sur une marque entière** (« Toute la gamme Blini », « Carrefour Bio ») : les montrer comme une
    étiquette de marque plutôt qu'une fiche produit vide.
 
 ## Plus tard
@@ -47,5 +45,7 @@ Corrigé :
 
 - Bonial ou E.Leclerc changent leur site : regarder le journal de la mise à jour sur GitHub.
 - Open Food Facts limite les appels (429) : normal, ça reprend le lendemain.
+- Anti-crise E.Leclerc : 0 produit au passage du matin le 20/11, 17 l'après-midi. À revoir seulement si c'est vide
+  plusieurs jours de suite (en respectant robots.txt, sans contourner de protection).
 - Taille du dépôt : environ 1 Mo d'historique par jour (30 Mo le 20/11/2026). À 500 Mo, ranger les données à part.
 - Le lien d'invitation contient le jeton GitHub : ne le donner qu'à des proches.
