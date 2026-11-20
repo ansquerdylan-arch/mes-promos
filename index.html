@@ -460,7 +460,8 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
 .card, .p, .stat, .store, .r, .lstore, .budget, .summary, .syncline, .grp, .today, .empty { box-shadow: var(--case); }
 .stale { box-shadow: inset 0 0 0 2.5px var(--warn), 3px 3px 0 var(--outline); }
 .grid > .empty, .rail > .empty { grid-column: 1 / -1; }
-.empty { padding-left: 76px; min-height: 78px; background: var(--tile) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 100'%3E%3Cg transform='rotate(-14 64 56)'%3E%3Cpath d='M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z' fill='%23fff' stroke='%23000' stroke-width='5' stroke-linejoin='round'/%3E%3Cellipse cx='62' cy='57' rx='4.2' ry='6'/%3E%3Cellipse cx='82' cy='56' rx='4.2' ry='6'/%3E%3Cpath d='M65 66 Q72 72 80 65' fill='none' stroke='%23000' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='53' cy='65' r='5' fill='%23ff9aa2'/%3E%3Ccircle cx='93' cy='63' r='5' fill='%23ff9aa2'/%3E%3C/g%3E%3C/svg%3E") no-repeat 14px 50% / 50px auto; }
+.empty { position: relative; padding-left: 76px; min-height: 78px; }
+.empty::before { content: ""; position: absolute; left: 14px; top: 50%; width: 50px; height: 42px; margin-top: -21px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 100'%3E%3Cg transform='rotate(-14 64 56)'%3E%3Cpath d='M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z' fill='%23fff' stroke='%23000' stroke-width='5' stroke-linejoin='round'/%3E%3Cellipse cx='62' cy='57' rx='4.2' ry='6'/%3E%3Cellipse cx='82' cy='56' rx='4.2' ry='6'/%3E%3Cpath d='M65 66 Q72 72 80 65' fill='none' stroke='%23000' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='53' cy='65' r='5' fill='%23ff9aa2'/%3E%3Ccircle cx='93' cy='63' r='5' fill='%23ff9aa2'/%3E%3C/g%3E%3C/svg%3E") no-repeat center / contain; animation: non .9s ease .1s both; }
 .chip, .btn, .icon, .tri, .wchip, .x, .mag-cat, .go, .mag-n button, .ag .bell, .ag .feuil, .daysel span, .li .pr button, .seg { box-shadow: inset 0 0 0 2px var(--outline); }
 .search input, .watch-add input, textarea, .field { box-shadow: inset 0 0 0 2px var(--outline); }
 .chip[aria-pressed="true"], .daysel input:checked + span, .seg.periode button[aria-pressed="true"] { background: var(--label); color: var(--label-ink); box-shadow: inset 0 0 0 2px var(--outline), 2px 2px 0 var(--outline); }
@@ -499,6 +500,58 @@ dialog { box-shadow: inset 0 0 0 2.5px var(--outline); }
 .bulle p::before { content: ""; position: absolute; left: -9px; top: calc(50% - 9px); width: 18px; height: 18px; background: var(--tile); border-left: 2.5px solid var(--outline); border-bottom: 2.5px solid var(--outline); transform: rotate(45deg); }
 @keyframes hop { from { transform: translateY(14px) scale(.9); opacity: 0; } }
 
+/* ===== Les animations : la mascotte vit, les cases s'enfoncent quand on appuie, chaque geste montre
+   ce qu'il a fait. Rien ne bouge tout seul, sauf la mascotte qui cligne des yeux de temps en temps. ===== */
+.p, .stat, .store, .tb-btn, .btn, .chip, .icon, .go, .mag-cat, .p .add, .p .fav, .x, .wk-tf button, .bulle p { transition: transform .14s cubic-bezier(.3, .7, .4, 1), box-shadow .14s cubic-bezier(.3, .7, .4, 1); }
+.stat:active, .store:active, .tb-btn:active, .btn.primary:active, .fiche .acts .icon.big:active, .bulle:active p { transform: translate(2px, 2px); box-shadow: inset 0 0 0 2.5px var(--outline), 1px 1px 0 var(--outline); }
+.p:active:not(:has(button:active)) { transform: translate(2px, 2px); box-shadow: inset 0 0 0 2.5px var(--outline), 1px 1px 0 var(--outline); }
+.p .add:active { transform: translate(2px, 2px); box-shadow: inset 0 0 0 2px var(--outline); }
+.chip:active, .btn:not(.primary):active, .icon:not(.big):active, .go:active, .mag-cat:active, .x:active, .p .fav:active, .wk-tf button:active { transform: scale(.95); }
+nav.tabs svg { transition: transform .14s ease; }
+nav.tabs button:active svg { transform: scale(.85); }
+/* la mascotte cligne des yeux, cherche pendant le chargement, saute quand on change d'onglet */
+.yeux { transform-box: fill-box; transform-origin: center; animation: cligne 5.2s ease-in-out infinite; }
+.topbar .masc .yeux { animation-delay: 2.6s; }
+@keyframes cligne { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.12); } }
+.bulle .corps { transform-box: view-box; transform-origin: 64px 86px; }
+.bulle.cherche .corps { animation: fouille 1.2s ease-in-out infinite; }
+@keyframes fouille { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+.bulle .trois i { font-style: normal; animation: point 1.2s infinite both; }
+.bulle .trois i:nth-child(2) { animation-delay: .2s; }
+.bulle .trois i:nth-child(3) { animation-delay: .4s; }
+@keyframes point { 0%, 20% { opacity: 0; } 50%, 100% { opacity: 1; } }
+.bulle p { transform-origin: 0 50%; }
+.bulle.pop p { animation: bulle-pop .5s cubic-bezier(.3, 1.5, .5, 1) both; }
+@keyframes bulle-pop { from { transform: scale(.5); opacity: 0; } }
+.topbar .masc { transform-origin: 50% 100%; }
+.topbar .masc.saute { animation: saute .55s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes saute { 30% { transform: translateY(-8px) rotate(-8deg); } 65% { transform: translateY(0) scale(1.08, .9); } }
+@keyframes non { 0% { transform: scale(.5); opacity: 0; } 25% { transform: scale(1.05); opacity: 1; } 40% { transform: rotate(-12deg); } 55% { transform: rotate(10deg); } 70% { transform: rotate(-6deg); } 85% { transform: rotate(3deg); } 100% { transform: none; } }
+/* la pastille jaune glisse d'un onglet à l'autre, l'icône choisie fait un petit bond */
+.tab-pill { position: absolute; z-index: 0; top: 6px; left: 6px; height: 56px; width: calc((100% - 18px) / 4); border-radius: 24px; background: var(--label); box-shadow: inset 0 0 0 2px var(--outline); transform: translateX(calc(var(--i, 0) * (100% + 2px))); transition: transform .42s cubic-bezier(.3, 1.3, .5, 1); pointer-events: none; }
+nav.tabs button { z-index: 1; }
+nav.tabs button[aria-selected="true"] { background: transparent; box-shadow: none; color: var(--label-ink); }
+nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes icone { 40% { transform: translateY(-4px) scale(1.12); } }
+/* ajouter à la liste : une pastille vole jusqu'à l'onglet Liste, le bouton passe au vert d'un bond */
+.vol { position: fixed; z-index: 80; left: 0; top: 0; width: 24px; height: 24px; pointer-events: none; }
+.vol i { display: block; width: 24px; height: 24px; border-radius: 50%; background: var(--label); box-shadow: inset 0 0 0 2px var(--outline), 2px 2px 0 var(--outline); }
+.p .add.pop, .fiche .acts .icon.big.pop, .p .fav.pop svg, .star.pop, .nb.bump { animation: pop .45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes pop { 0% { transform: scale(.6); } 55% { transform: scale(1.18); } 100% { transform: scale(1); } }
+/* cocher un article : il se barre d'un trait, puis rejoint le bas de son magasin */
+.li .n .t { background: linear-gradient(currentColor, currentColor) no-repeat 0 62% / 0 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; transition: background-size .38s cubic-bezier(.5, 0, .3, 1); }
+.li.done.just .n { text-decoration: none; }
+.li.done.just .n .t { background-size: 100% 2px; }
+.li.just input:checked { animation: pop .4s cubic-bezier(.3, 1.6, .5, 1); }
+.li.arrive { animation: arrive .4s ease both; }
+@keyframes arrive { from { opacity: 0; transform: translateY(-8px); } }
+/* la fiche : l'étoile de la remise se pose comme un tampon */
+.fiche:not(.deja) .stk { animation: tampon .55s cubic-bezier(.3, 1.5, .5, 1) .12s both; }
+@keyframes tampon { from { transform: rotate(-50deg) scale(1.9); opacity: 0; } }
+/* les messages arrivent comme une bulle */
+.toast.pop { animation: toast-in .45s cubic-bezier(.3, 1.5, .5, 1); }
+@keyframes toast-in { from { transform: translateX(-50%) translateY(16px) scale(.8); opacity: 0; } }
+
 @media (max-width: 480px) {
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .px { font-size: 27px; }
@@ -512,7 +565,7 @@ dialog { box-shadow: inset 0 0 0 2.5px var(--outline); }
 <body>
 <div class="sb" aria-hidden="true"></div>
 <header class="topbar">
-  <svg viewBox="0 0 120 100" aria-hidden="true" class="masc"><g transform="rotate(-14 64 56)"><path d="M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z" fill="#fff" stroke="#000" stroke-width="5" stroke-linejoin="round"/><ellipse cx="62" cy="57" rx="4.2" ry="6"/><ellipse cx="82" cy="56" rx="4.2" ry="6"/><path d="M65 66 Q72 72 80 65" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/><circle cx="53" cy="65" r="5" fill="#ff9aa2"/><circle cx="93" cy="63" r="5" fill="#ff9aa2"/></g></svg>
+  <svg viewBox="0 0 120 100" aria-hidden="true" class="masc"><g transform="rotate(-14 64 56)"><path d="M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z" fill="#fff" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g class="yeux"><ellipse cx="62" cy="57" rx="4.2" ry="6"/><ellipse cx="82" cy="56" rx="4.2" ry="6"/></g><path d="M65 66 Q72 72 80 65" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/><circle cx="53" cy="65" r="5" fill="#ff9aa2"/><circle cx="93" cy="63" r="5" fill="#ff9aa2"/></g></svg>
   <div class="tt"><h1 id="titre">Mogette</h1><p id="sub">Chargement…</p></div>
   <a class="tb-btn" id="btnMaj" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><span>MAJ</span></a>
   <button class="tb-btn" id="btnSettings" type="button" aria-label="Réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
@@ -524,7 +577,7 @@ dialog { box-shadow: inset 0 0 0 2.5px var(--outline); }
   <!-- ACCUEIL -->
   <section id="v-accueil">
     <div class="hero">
-      <button class="bulle" type="button" id="bulle" data-wk="all" hidden><svg viewBox="0 0 120 100" aria-hidden="true"><g transform="rotate(-14 64 56)"><path d="M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z" fill="#fff" stroke="#000" stroke-width="4" stroke-linejoin="round"/><path d="M30 46 C34 40 40 38 46 39" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" opacity=".35"/><ellipse cx="62" cy="57" rx="3.6" ry="5"/><ellipse cx="82" cy="56" rx="3.6" ry="5"/><path d="M65 66 Q72 72 80 65" fill="none" stroke="#000" stroke-width="3.2" stroke-linecap="round"/><circle cx="53" cy="65" r="5" fill="#ff9aa2"/><circle cx="93" cy="63" r="5" fill="#ff9aa2"/></g></svg><p id="bulleTxt"></p></button>
+      <button class="bulle cherche pop" type="button" id="bulle" data-wk="all"><svg viewBox="0 0 120 100" aria-hidden="true"><g class="corps"><g transform="rotate(-14 64 56)"><path d="M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z" fill="#fff" stroke="#000" stroke-width="4" stroke-linejoin="round"/><path d="M30 46 C34 40 40 38 46 39" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" opacity=".35"/><g class="yeux"><ellipse cx="62" cy="57" rx="3.6" ry="5"/><ellipse cx="82" cy="56" rx="3.6" ry="5"/></g><path d="M65 66 Q72 72 80 65" fill="none" stroke="#000" stroke-width="3.2" stroke-linecap="round"/><circle cx="53" cy="65" r="5" fill="#ff9aa2"/><circle cx="93" cy="63" r="5" fill="#ff9aa2"/></g></g></svg><p id="bulleTxt">Je fouille les prospectus<span class="trois"><i>.</i><i>.</i><i>.</i></span></p></button>
       <form class="search" id="homeSearch" role="search"><input id="homeQ" type="search" placeholder="Chercher une promo : poulet, raclette…" aria-label="Chercher une promo" autocomplete="off" enterkeyhint="search"></form>
       <div class="stale" id="staleBox" hidden></div>
       <div id="todayBox" hidden></div>
@@ -652,6 +705,7 @@ dialog { box-shadow: inset 0 0 0 2.5px var(--outline); }
 </div>
 
 <nav class="tabs" role="tablist" aria-label="Sections">
+  <span class="tab-pill" id="tabPill" aria-hidden="true"></span>
   <button role="tab" data-v="accueil" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.8l8.5 6.7"/><path d="M5.5 9.2V20h13V9.2"/><path d="M10 20v-5.5h4V20"/></svg>Accueil</button>
   <button role="tab" data-v="promos" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Promos</button>
   <button role="tab" data-v="plats" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7"/><path d="M3 3v6a2 2 0 0 0 2 2M5 3v18M21 3c-2 1-3 3-3 6s1 3 3 3v9"/></svg>Plats</button>
@@ -753,8 +807,34 @@ dialog { box-shadow: inset 0 0 0 2.5px var(--outline); }
   function dot(id) { return '<span class="dot" style="background:' + coul(id) + '"></span>'; }
   function promoParId(id) { return S.data ? S.data.promos.find(function (p) { return p.id === id; }) : null; }
   function dansListe(id) { return S.liste.some(function (x) { return x.id === id && !x.suppr; }); }
-  var tTimer;
-  function toast(msg) { var t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(tTimer); tTimer = setTimeout(function () { t.hidden = true; }, 1800); }
+  var tTimer, tListe;
+  function reduit() { return !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); }
+  function rejouer(el, cls) { if (!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+  // la mascotte parle : nouvelle phrase, nouvelle bulle
+  function bulleDit(txt) {
+    var b = $("bulle"), p = $("bulleTxt"); if (!b || !p) return;
+    b.hidden = false; b.classList.remove("cherche");
+    if (p.textContent === txt) return;
+    p.textContent = txt; rejouer(b, "pop");
+  }
+  // une pastille jaune vole du bouton jusqu'à l'onglet Liste
+  function voler(depuis) {
+    var cible = document.querySelector('nav.tabs [data-v="liste"] svg');
+    if (reduit() || !depuis || !cible || !document.body.animate) return;
+    var a = depuis.getBoundingClientRect(), z = cible.getBoundingClientRect();
+    var dx = z.left + z.width / 2 - (a.left + a.width / 2), dy = z.top + z.height / 2 - (a.top + a.height / 2);
+    var v = document.createElement("div"); v.className = "vol"; v.innerHTML = "<i></i>";
+    v.style.left = (a.left + a.width / 2 - 12) + "px"; v.style.top = (a.top + a.height / 2 - 12) + "px";
+    document.body.appendChild(v);
+    var haut = Math.min(-50, dy * 0.25 - 70), duree = 640;
+    v.animate([{ transform: "translateX(0)" }, { transform: "translateX(" + dx + "px)" }], { duration: duree, easing: "cubic-bezier(.35, 0, .65, 1)" });
+    var i = v.firstChild.animate([
+      { transform: "translateY(0) scale(1)", easing: "cubic-bezier(.2, .6, .4, 1)" },
+      { transform: "translateY(" + haut + "px) scale(1.15)", offset: 0.38, easing: "cubic-bezier(.6, 0, .8, .4)" },
+      { transform: "translateY(" + dy + "px) scale(.5)" }], { duration: duree });
+    i.onfinish = function () { v.remove(); rejouer($("nbList"), "bump"); rejouer(cible.closest("button").querySelector("svg"), "pop"); };
+  }
+  function toast(msg) { var t = $("toast"); t.textContent = msg; t.hidden = false; rejouer(t, "pop"); clearTimeout(tTimer); tTimer = setTimeout(function () { t.hidden = true; }, 1800); }
 
   // fin de validité : "du 17/11 au 29/11" -> Date
   function finValidite(v) {
@@ -820,7 +900,7 @@ dialog { box-shadow: inset 0 0 0 2.5px var(--outline); }
       S.data = d;
       marquerNouveaux();
       tout();
-    }).catch(function () { $("sub").innerHTML = '<span class="err">Promos introuvables, vérifie ta connexion</span>'; });
+    }).catch(function () { $("sub").innerHTML = '<span class="err">Promos introuvables, vérifie ta connexion</span>'; bulleDit("Oups, je n'arrive pas à lire les promos. Vérifie ta connexion."); });
   }
   // les offres sont rangées par catalogue (offres/<id>.json) : on ne charge que celles des magasins choisis
   var CATS = {};
@@ -1197,6 +1277,7 @@ dialog { box-shadow: inset 0 0 0 2.5px var(--outline); }
   }
   function ouvrirFiche(id) {
     var p = promoParId(id); if (!p) return;
+    $("fiche").classList.toggle("deja", FICHE === id);
     FICHE = id;
     var e = (S.data.enseignes || {})[p.enseigne] || {}, fam = familleDe(e.chaine || p.chaine), a = APPLIS[fam];
     var terme = termeRecherche(p), q = encodeURIComponent(terme), photo = photoDe(p, true), fav = S.fav.indexOf(p.id) >= 0, dans = dansListe(p.id);
@@ -1387,10 +1468,9 @@ dialog { box-shadow: inset 0 0 0 2.5px var(--outline); }
     var neuves = v.filter(deLaSemaine);
     SEM_TOP = {};
     var psst = "Psst" + (S.prenom ? ", " + S.prenom : "") + "\u00a0! ";  // espace insécable classique : la police de la bulle n'a pas l'espace fine
-    $("bulleTxt").textContent = neuves.length
+    bulleDit(neuves.length
       ? psst + "J'ai trouvé " + neuves.length.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0") + " nouvelle" + (neuves.length > 1 ? "s" : "") + " promo" + (neuves.length > 1 ? "s" : "") + " depuis " + JLONG[dIso(depuis).getDay()] + "."
-      : psst + "Rien de neuf depuis " + JLONG[dIso(depuis).getDay()] + " pour l'instant. Je repasse demain matin.";
-    $("bulle").hidden = !(S.data && S.data.promos && S.data.promos.length);
+      : psst + "Rien de neuf depuis " + JLONG[dIso(depuis).getDay()] + " pour l'instant. Je repasse demain matin.");
     box.hidden = !neuves.length;
     if (!neuves.length) { box.innerHTML = ""; return; }
 
@@ -1835,7 +1915,7 @@ dialog { box-shadow: inset 0 0 0 2.5px var(--outline); }
         var idh = "li-" + esc(x.id);
         var prix = x.prix != null ? euro(x.prix) : (!x.enseigne ? '<button type="button" data-editprix="' + esc(x.id) + '" aria-label="Indiquer le prix">+ prix</button>' : "");
         if (x.prix != null && !x.enseigne) prix = '<button type="button" data-editprix="' + esc(x.id) + '" aria-label="Modifier le prix" style="border:0;padding:0;color:inherit;font:inherit">' + euro(x.prix) + '</button>';
-        lignes += '<div class="li' + (x.fait ? ' done' : '') + '"><input type="checkbox" id="' + idh + '" data-done="' + esc(x.id) + '"' + (x.fait ? ' checked' : '') + '><label class="n" for="' + idh + '">' + esc(x.nom) +
+        lignes += '<div class="li' + (x.fait ? ' done' : '') + '"><input type="checkbox" id="' + idh + '" data-done="' + esc(x.id) + '"' + (x.fait ? ' checked' : '') + '><label class="n" for="' + idh + '"><span class="t">' + esc(x.nom) + '</span>' +
           (x.par && x.par !== S.prenom ? ' <span class="par">· ' + esc(x.par) + '</span>' : '') + '</label><span class="pr">' + prix + '</span><button class="del" type="button" data-del="' + esc(x.id) + '" aria-label="Retirer">×</button></div>';
       });
       return '<div class="lstore" style="--sc:' + (k !== "autre" ? coul(k) : "var(--line)") + '"><h2><span>' + (k !== "autre" ? esc(nomEns(k)) : "Autres articles") + '</span><span>' + (st ? "≈ " + euro(st) : "") + '</span></h2>' + lignes + '</div>';
@@ -2289,7 +2369,10 @@ dialog { box-shadow: inset 0 0 0 2.5px var(--outline); }
 
   // ---------- navigation
   function vue(v) {
+    var avant = S.vue;
     S.vue = v;
+    $("tabPill").style.setProperty("--i", Math.max(0, ["accueil", "promos", "plats", "liste"].indexOf(v)));
+    if (avant !== v && !reduit()) rejouer(document.querySelector(".topbar .masc"), "saute");
     if (v === "liste") syncListe();
     ["accueil", "promos", "plats", "liste"].forEach(function (x) { $("v-" + x).hidden = x !== v; });
     $("titre").textContent = { accueil: "Mogette", promos: "Promos", plats: "Plats", liste: "Ma liste" }[v] || "Mogette";
@@ -2371,9 +2454,23 @@ dialog { box-shadow: inset 0 0 0 2.5px var(--outline); }
       toast("Dépense enregistrée : " + euro(Math.round(v * 100) / 100));
     }
   });
+  document.addEventListener("touchstart", function () {}, { passive: true });  // pour que :active marche sur iPhone
   document.addEventListener("change", function (ev) {
     var d = ev.target.dataset || {};
-    if (d.done != null) { var it = S.liste.find(function (x) { return x.id === d.done; }); if (it) { it.fait = ev.target.checked; toucher(it); sauverListe(); afficherListe(); afficherAccueil(); } }
+    if (d.done != null) {
+      var it = S.liste.find(function (x) { return x.id === d.done; });
+      if (it) {
+        it.fait = ev.target.checked; toucher(it); sauverListe();
+        // on laisse le trait se dessiner, puis l'article rejoint sa place
+        var li = ev.target.closest(".li"); if (li) { li.classList.toggle("done", it.fait); li.classList.add("just"); }
+        var idf = it.id; clearTimeout(tListe);
+        tListe = setTimeout(function () {
+          afficherListe(); afficherAccueil();
+          var el = document.querySelector('[data-done="' + CSS.escape(idf) + '"]');
+          if (el && !reduit()) el.closest(".li").classList.add("arrive");
+        }, reduit() ? 0 : 650);
+      }
+    }
     if (ev.target.id === "optNtfy") { SYNC.ntfy = ev.target.checked; ecrire("sync", SYNC); syncAlertes(); afficherGh(); }
     if (ev.target.id === "optOps") { SYNC.ops = ev.target.checked; ecrire("sync", SYNC); syncAlertes(); }
     if (ev.target.id === "budgetIn") { var v = parseFloat(String(ev.target.value).replace(",", ".")); P.budget = { montant: isNaN(v) ? 0 : v, maj: Date.now() }; sauverPartage(); afficherBudget(); }
@@ -2403,8 +2500,17 @@ dialog { box-shadow: inset 0 0 0 2.5px var(--outline); }
     if (b.id === "gridMore") { afficherPlus(); return; }
     if (ds.zoom) { zoom(ds.zoom); return; }
     if (ds.unwatch != null) { S.watch.splice(+ds.unwatch, 1); ecrire("watch", S.watch); afficherAccueil(); afficherReglages(); afficherPromos(); syncAlertes(); return; }
-    if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else { S.fav.push(ds.fav); toast("Ajouté aux favoris"); } ecrire("fav", S.fav); b.classList.toggle("on"); if (FICHE) { ouvrirFiche(FICHE); document.querySelectorAll('[data-fav="' + CSS.escape(ds.fav) + '"]').forEach(function (x) { x.classList.toggle("on", S.fav.indexOf(ds.fav) >= 0); }); } return; }
-    if (ds.add) { var p = promoParId(ds.add); if (p) { var avant = dansListe(p.id); ajouter(p); toast(avant ? "Retiré de la liste" : "Ajouté à la liste"); rafraichir(); if (FICHE) ouvrirFiche(FICHE); } return; }
+    if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else { S.fav.push(ds.fav); toast("Ajouté aux favoris"); } ecrire("fav", S.fav); b.classList.toggle("on"); if (FICHE) { ouvrirFiche(FICHE); document.querySelectorAll('[data-fav="' + CSS.escape(ds.fav) + '"]').forEach(function (x) { x.classList.toggle("on", S.fav.indexOf(ds.fav) >= 0); }); } document.querySelectorAll('[data-fav="' + CSS.escape(ds.fav) + '"].on').forEach(function (x) { rejouer(x, "pop"); }); return; }
+    if (ds.add) {
+      var p = promoParId(ds.add);
+      if (p) {
+        var avant = dansListe(p.id);
+        if (!avant && !FICHE) voler(b);
+        ajouter(p); toast(avant ? "Retiré de la liste" : "Ajouté à la liste"); rafraichir(); if (FICHE) ouvrirFiche(FICHE);
+        if (!avant) document.querySelectorAll('[data-add="' + CSS.escape(p.id) + '"]').forEach(function (x) { rejouer(x, "pop"); });
+      }
+      return;
+    }
     if (ds.partager) { var pp = promoParId(ds.partager); if (pp && navigator.share) partager(pp); return; }
     if (ds.addmany) {
       var ps = ds.addmany.split(",").map(promoParId).filter(Boolean);
