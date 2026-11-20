@@ -1597,12 +1597,12 @@ def est_operation(titre, debut, fin):
     return duree <= 5 or "%" in titre or any(norm(k) in t for k in MOTS_OPE if k != "%")
 
 
-def ecrire_ics(evenements, chemin, nom_cal="Mes promos", extras=()):
+def ecrire_ics(evenements, chemin, nom_cal="Mogette", extras=()):
     """Calendrier à s'abonner sur le téléphone : un événement par catalogue / opération, avec alerte à 9 h.
     extras : événements en plus (alertes produits surveillés) : dicts uid, jour (date), resume, desc."""
     def e(t):
         return str(t).replace("\\", "\\\\").replace(",", "\\,").replace(";", "\\;")
-    lignes = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Mes promos//FR", "CALSCALE:GREGORIAN",
+    lignes = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Mogette//FR", "CALSCALE:GREGORIAN",
               "X-WR-CALNAME:" + nom_cal, "X-WR-TIMEZONE:Europe/Paris", "REFRESH-INTERVAL;VALUE=DURATION:PT12H",
               "X-PUBLISHED-TTL:PT12H"]
     stamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
@@ -1622,7 +1622,7 @@ def ecrire_ics(evenements, chemin, nom_cal="Mes promos", extras=()):
         if x.get("resume"):
             resume += " (" + x["resume"] + ")"
         quand = ("Le %s." % d1.strftime("%d/%m")) if d1 == d2 else ("Du %s au %s." % (d1.strftime("%d/%m"), d2.strftime("%d/%m")))
-        evt(uid, d1, resume, quand + " Ouvre l'appli Mes promos pour le détail.")
+        evt(uid, d1, resume, quand + " Ouvre l'appli Mogette pour le détail.")
         if x.get("operation") and (d2 - d1).days >= 1:
             evt("fin-" + uid, d2, "Dernier jour : " + resume)
     for x in extras:

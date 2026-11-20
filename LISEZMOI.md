@@ -1,8 +1,9 @@
-# Mes promos
+# Mogette
 
-Promos et bons plans des supermarchés de toute la Vendée (Super U, Hyper U, U Express, E.Leclerc, Intermarché, Lidl, Carrefour…), avec des idées de plats, un agenda des opérations et une liste de courses.
+La petite mogette qui trouve les promos. Promos et bons plans des supermarchés de toute la Vendée (Super U, Hyper U, U Express, E.Leclerc, Intermarché, Lidl, Carrefour…), avec des idées de plats, un agenda des opérations et une liste de courses.
 
 - **La page** : `index.html` (servie par GitHub Pages), installable sur iPhone et Android.
+- **Le style** (« la mascotte ») : ciel clair, cases de BD au trait noir avec une ombre franche, prix en Lilita One, remises dans une étoile jaune, et la mascotte qui parle en bulles (Patrick Hand) en haut de l'accueil. Les couleurs sont des variables CSS en tête de `index.html` (claires et sombres) ; les polices sont dans `polices/` avec leur licence OFL ; les icônes `icone-*.png` montrent la mascotte. Le dépôt et l'adresse gardent leur nom `mes-promos`, pour ne rien casser chez ceux qui ont déjà installé l'appli.
 - **Les promos** : mises à jour chaque matin par GitHub Actions (`.github/workflows/maj.yml`), qui lance `maj_promos.py`.
   - `promos.json` : magasins, horaires, catalogues en cours, offres nationales ; `offres/<catalogue>.json` : toutes les offres de chaque catalogue (l'appli ne charge que celles des magasins choisis).
   - Sources : les pages bonial.fr des enseignes (magasins, catalogues) puis la visionneuse publique de bonial, qui donne **toutes** les offres repérées dans chaque catalogue (prix, ancien prix, « le 2e à… », carte de fidélité, dates exactes, photo), plus les tableaux d'anti-crise.fr.

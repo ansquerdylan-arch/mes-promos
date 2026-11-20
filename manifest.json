@@ -1,12 +1,12 @@
 {
- "name": "Mes promos",
- "short_name": "Mes promos",
- "description": "Promos et bons plans des supermarchés autour d'Olonne-sur-Mer",
+ "name": "Mogette",
+ "short_name": "Mogette",
+ "description": "Les promos de Vendée, triées chaque matin par la petite mogette",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
- "background_color": "#eef0f5",
- "theme_color": "#14213d",
+ "background_color": "#cfeaf7",
+ "theme_color": "#cfeaf7",
  "lang": "fr",
  "icons": [
   {
