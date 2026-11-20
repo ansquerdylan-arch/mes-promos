@@ -247,6 +247,23 @@ button.mag-cat.vis::after { content: "Voir le visuel"; }
 .store .open, .mrow .open { color: var(--ok); font-weight: 650; }
 .store .closed, .mrow .closed { color: var(--sticker); font-weight: 650; }
 .itin { font-size: 13px; font-weight: 650; color: var(--info); text-decoration: none; padding-left: 4px; }
+/* la semaine en promos */
+.semaine { gap: 12px; }
+.wk-tete { border: 0; background: none; padding: 0; margin: 0; text-align: left; color: var(--ink); display: flex; align-items: baseline; gap: 10px; font: inherit; cursor: pointer; }
+.wk-tete b { font: 800 42px/0.9 var(--font-num); font-variant-numeric: tabular-nums; }
+.wk-tete span { font-size: 14.5px; color: var(--muted); line-height: 1.3; }
+.wk-h { font: 700 15.5px/1.2 var(--font-ui); margin: 6px 0 -4px; }
+.wk-tf { display: grid; }
+.wk-tf button { border: 0; background: none; font: inherit; color: var(--ink); text-align: left; padding: 10px 0 10px 18px; position: relative; display: grid; gap: 2px; border-top: 1px solid var(--hair); cursor: pointer; }
+.wk-tf button:first-child { border-top: 0; padding-top: 4px; }
+.wk-tf button::before { content: ""; position: absolute; left: 0; top: 16px; width: 9px; height: 9px; border-radius: 50%; background: var(--sc); }
+.wk-tf button:first-child::before { top: 10px; }
+.wk-tf b { font-size: 15.5px; font-weight: 700; line-height: 1.25; }
+.wk-tf span { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.wk-tf .l1 { display: flex; align-items: baseline; gap: 10px; color: var(--ink); font-size: 15.5px; line-height: 1.25; }
+.wk-tf .l1 b { flex: 1; }
+.wk-tf .l1 em { font: 800 18px/1 var(--font-num); font-style: normal; font-variant-numeric: tabular-nums; color: var(--ink); }
+.wk-tf .ev { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .wchip { display: inline-flex; align-items: center; gap: 6px; background: var(--shelf); border-radius: 999px; padding: 5px 6px 5px 12px; font-size: 13.5px; font-weight: 650; box-shadow: inset 0 0 0 1px var(--hair); }
 .wchip button { border: 0; background: var(--hair); color: var(--ink); border-radius: 50%; width: 22px; height: 22px; line-height: 20px; font-size: 14px; padding: 0; }
 .ag .vis { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; }
@@ -470,6 +487,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
       </div>
       <div class="hbudget" id="homeBudget" hidden></div>
     </div>
+    <div class="card semaine" id="weekCard" hidden></div>
     <div class="card" id="installBox" hidden></div>
 
     <div class="blk">
@@ -524,6 +542,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     <div class="chips" aria-label="Filtres">
       <button class="chip" data-f="alim" aria-pressed="false" type="button">Alimentaire</button>
       <button class="chip" data-f="new" aria-pressed="false" type="button">Nouveau</button>
+      <button class="chip" data-f="semaine" aria-pressed="false" type="button">Cette semaine</button>
       <button class="chip" data-f="end" aria-pressed="false" type="button">Finit bientôt</button>
       <button class="chip" data-f="barre" aria-pressed="false" type="button">Prix barré</button>
       <button class="chip" data-f="plan" aria-pressed="false" type="button">Bons plans</button>
@@ -1272,7 +1291,8 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     else if (S.watch.length) html += '<p class="muted" style="margin:0">Aucun de tes produits n\'est en promo en ce moment.</p>';
     $("homeWatch").innerHTML = html;
 
-    var top = alim.filter(function (p) { return p.remise; }).sort(function (a, b) { return b.remise - a.remise; }).slice(0, 15);
+    afficherSemaine(v);
+    var top = alim.filter(function (p) { return p.remise && !SEM_TOP[p.id]; }).sort(function (a, b) { return b.remise - a.remise; }).slice(0, 15);
     $("railTop").innerHTML = top.length ? top.map(function (p) { return carte(p, { compact: true }); }).join("") : '<div class="empty">Pas de remise chiffrée cette semaine.</div>';
 
     var fin = v.filter(finitBientot).sort(function (a, b) { return (b.remise || 0) - (a.remise || 0); }).slice(0, 15);
@@ -1288,6 +1308,118 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
         (o ? '<span class="' + (o.ouvert ? "open" : "closed") + '">' + esc(o.txt) + '</span>' : '') + (e.ancien ? '<span class="old">pas de nouveau catalogue</span>' : '') + '</button>' +
         (e.adresse ? '<a class="itin" href="' + itineraire(e) + '" target="_blank" rel="noopener">Itinéraire</a>' : '') + '</div>';
     }).join("");
+  }
+
+  // ---------- la semaine en promos : ce qui a commencé ces 7 derniers jours dans tes magasins
+  function debutSemaine() { var d = jour0(new Date()); d.setDate(d.getDate() - 6); return isoJ(d); }
+  function deLaSemaine(p) { return !p.op && !!p.debut && p.debut >= debutSemaine() && p.debut <= isoJ(new Date()); }
+  function prixKg(p) {  // « 26,74 € le kg », « 6 € le litre », « 13€59 le kg »
+    var m = /(\d+)(?:[.,](\d+))?\s*€\s*(\d\d)?\s*(?:le|la|du)\s*(kg|litre|l)\b/i.exec(p.unite || "");
+    return m ? { v: parseFloat(m[1] + "." + (m[2] || m[3] || "0")), u: /^k/i.test(m[4]) ? "kg" : "l" } : null;
+  }
+  function prixReel(p) { return deuxieme(p) ? (p.avant + p.prix) / 2 : p.prix; }  // « le 2e à » : prix moyen des deux
+  function economie(p) { return p.prix == null ? 0 : p.avant ? p.avant - p.prix : (p.remise ? p.prix * p.remise / (100 - p.remise) : 0); }
+  function abrege(t, n) { t = String(t || ""); return t.length > n ? t.slice(0, n - 1).replace(/[\s,·;:]+\S*$/, "") + "…" : t; }
+  var MOTS_FADES = { avec: 1, pour: 1, sans: 1, nature: 1, format: 1, mini: 1, maxi: 1, pack: 1, sachet: 1, boite: 1, bouteille: 1, classique: 1, original: 1, tranches: 1, assortiment: 1, assortis: 1, selection: 1 };
+  function motsCles(p) { return norm(p.nom).split(" ").filter(function (w) { return w.length >= 4 && !MOTS_FADES[w] && !/\d/.test(w); }); }
+  // titre d'un catalogue : « nouveau catalogue » quand il ne porte que le nom du magasin (SUPER U, CarrefourMarket_6147…)
+  function titreSemaine(e, k) {
+    var t = joliTitre(e.titre || ""), en = S.data.enseignes[k] || {}, a = norm(t).replace(/[^a-z]/g, "");
+    var nu = !a || [en.court, en.nom, en.chaine].some(function (x) {
+      var c = norm(x).replace(/[^a-z]/g, "");
+      return c && (a === c || c.indexOf(a) === 0 || (a.indexOf(c) === 0 && a.length <= c.length + 3));
+    });
+    return (e.operation ? "⚡ " : "") + (nu ? "nouveau catalogue" : t);
+  }
+  var SEM_TOP = {};  // cartes des « plus grosses économies », pas répétées dans « Meilleures remises »
+  function afficherSemaine(v) {
+    var box = $("weekCard"), auj = isoJ(new Date()), depuis = debutSemaine();
+    function decale(n) { var d = jour0(new Date()); d.setDate(d.getDate() + n); return isoJ(d); }
+    var hier = decale(-1), demain = decale(1), dans2 = decale(2);
+    var neuves = v.filter(deLaSemaine);
+    SEM_TOP = {};
+    box.hidden = !neuves.length;
+    if (!neuves.length) { box.innerHTML = ""; return; }
+
+    // par magasin : combien de nouvelles promos, et les catalogues ou opérations qui ont commencé (ou commencent d'ici 2 jours)
+    var parMag = {}, evMag = {};
+    neuves.forEach(function (p) { parMag[p.enseigne] = (parMag[p.enseigne] || 0) + 1; });
+    (S.data.evenements || []).forEach(function (e) {
+      if (!e.debut || e.debut < depuis || e.debut > dans2 || e.fin < auj) return;
+      (e.sids || [e.enseigne]).forEach(function (k) { if (S.hidden.indexOf(k) < 0 && S.data.enseignes[k]) (evMag[k] = evMag[k] || []).push(e); });
+    });
+    var mags = Object.keys(parMag);
+    Object.keys(evMag).forEach(function (k) { if (mags.indexOf(k) < 0) mags.push(k); });
+    mags.sort(function (a, b) { return (parMag[b] || 0) - (parMag[a] || 0); });
+    function quand(d) {
+      if (d > auj) return d === demain ? "Dès demain" : "Dès " + JLONG[dIso(d).getDay()];
+      return d === auj ? "Aujourd'hui" : d === hier ? "Depuis hier" : "Depuis " + JLONG[dIso(d).getDay()];
+    }
+    var h = '<div class="sec-head"><h2>Ta semaine en promos</h2><button class="link" type="button" data-wk="all">Tout voir</button></div>' +
+      '<button type="button" class="wk-tete" data-wk="all"><b>' + neuves.length + '</b><span>nouvelles promos depuis ' + fmtJ(dIso(depuis)) + ' dans tes magasins</span></button>' +
+      '<div class="wk-tf">' + mags.map(function (k) {
+        var jours = {};
+        (evMag[k] || []).forEach(function (e) { var t = titreSemaine(e, k), l = jours[e.debut] = jours[e.debut] || []; if (l.indexOf(t) < 0) l.push(t); });
+        var ev = Object.keys(jours).sort().reverse().map(function (d) { return quand(d) + " : " + jours[d].join(", "); }).join(" · ");
+        return '<button type="button" data-wk="' + esc(k) + '" style="--sc:' + coul(k) + '"><span class="l1"><b>' + esc(ensCourt(k)) + '</b>' +
+          (parMag[k] ? '<em>' + parMag[k] + '</em>' : '') + '</span>' + (ev ? '<span class="ev">' + esc(ev) + '</span>' : '') + '</button>';
+      }).join("") + '</div>';
+
+    // les plus grosses économies parmi les nouvelles promos alimentaires : les remises y sont plafonnées à 34 %,
+    // donc on prend les plus fortes (30 % et plus) et on les range par euros économisés, sur des produits du quotidien
+    function candidates(rmin, pmax) {
+      return neuves.filter(function (p) { return ALIM.indexOf(p.rayon) >= 0 && p.prix != null && p.remise >= rmin && prixReel(p) <= pmax && economie(p) > 0; });
+    }
+    var cand = candidates(30, 15);
+    if (cand.length < 6) cand = candidates(25, 25);
+    cand.sort(function (a, b) { return economie(b) - economie(a); });
+    var nMag = {}, nRay = {}, pris = {}, top = [];
+    cand.forEach(function (p) {
+      if (top.length >= 10 || (nMag[p.enseigne] || 0) >= 3 || (nRay[p.rayon] || 0) >= 2) return;
+      // pas deux fois le même produit ni la même marque (« Bloc de foie gras » puis « Le Divin… de foie gras »)
+      var mc = motsCles(p), mq = norm(p.marque);
+      if (mc.some(function (w) { return pris[w]; }) || (mq && pris["@" + mq])) return;
+      mc.slice(0, 3).forEach(function (w) { pris[w] = 1; }); if (mq) pris["@" + mq] = 1;
+      nMag[p.enseigne] = (nMag[p.enseigne] || 0) + 1; nRay[p.rayon] = (nRay[p.rayon] || 0) + 1;
+      top.push(p); SEM_TOP[p.id] = 1;
+    });
+    if (top.length >= 3) h += '<h3 class="wk-h">Les plus grosses économies</h3><div class="rail">' + top.map(function (p) { return carte(p, { compact: true }); }).join("") + '</div>';
+    else SEM_TOP = {};
+
+    // ce que tu surveilles : où c'est le moins cher en ce moment, au kilo ou au litre quand on peut comparer
+    if (S.watch.length) {
+      var lignes = S.watch.map(function (w) {
+        var nw = norm(w); if (!nw) return "";
+        var l = v.filter(function (p) { return !p.op && !pasCommencee(p) && p.prix != null && (p._n || " " + norm(p.nom + " " + p.marque) + " ").indexOf(" " + nw) >= 0; });
+        if (!l.length) return "";
+        // « pain au chocolat pur beurre » n'est pas du beurre : on écarte les parfums et ingrédients
+        var parfum = new RegExp(" (pur|au|aux|gout|saveur|parfum|facon|sauce|special|speciale|pour|aromatise|aromatisee|fourre|fourree|fourres|fourrees|a la|a l) " + nw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b");
+        var l2 = l.filter(function (p) { return !parfum.test(" " + norm(p.nom) + " "); });
+        if (l2.length) l = l2;
+        // et on garde le rayon où le produit est vraiment (fromage pour « raclette », pas l'appareil ni les pommes de terre)
+        var manger = l.filter(function (p) { return ALIM.indexOf(p.rayon) >= 0 || p.rayon === "Boissons"; });
+        if (manger.length) l = manger;
+        var nR = {}, rMax = null;
+        l.forEach(function (p) { nR[p.rayon] = (nR[p.rayon] || 0) + ((" " + norm(p.nom).replace(/^(le|la|les|l) /, "")).indexOf(" " + nw) === 0 ? 2 : 1); });
+        Object.keys(nR).forEach(function (r) { if (rMax == null || nR[r] > nR[rMax]) rMax = r; });
+        l = l.filter(function (p) { return String(p.rayon) === rMax; });
+        var parU = {};
+        l.forEach(function (p) { var k = prixKg(p); if (k) (parU[k.u] = parU[k.u] || []).push(p); });
+        var u = parU.kg && (!parU.l || parU.kg.length >= parU.l.length) ? "kg" : (parU.l ? "l" : null), best, prix;
+        if (u && parU[u].length >= 2 && parU[u].length * 2 >= l.length) {
+          best = parU[u].reduce(function (a, p) { return prixKg(p).v < prixKg(a).v ? p : a; });
+          prix = euro(prixKg(best).v) + (u === "l" ? " le litre" : " le kg");
+        } else {
+          best = l.reduce(function (a, p) { return prixReel(p) < prixReel(a) ? p : a; });
+          prix = "dès " + euro(prixReel(best)) + (deuxieme(best) ? " pièce, par 2" : "");
+        }
+        return '<button type="button" data-fiche="' + esc(best.id) + '" style="--sc:' + coul(best.enseigne) + '"><b>' + esc(w.charAt(0).toUpperCase() + w.slice(1)) + ' : ' + prix + '</b>' +
+          '<span class="ev">' + esc(ensCourt(best.enseigne)) + ' · ' + esc(abrege(best.nom, 60)) + ', ' + (deuxieme(best) ? "le 2e à " : "") + euro(best.prix) +
+          (l.length > 1 ? ' · ' + l.length + ' promos comparées' : '') + '</span></button>';
+      }).filter(Boolean);
+      if (lignes.length) h += '<h3 class="wk-h">Le moins cher pour ce que tu surveilles</h3><div class="wk-tf">' + lignes.slice(0, 5).join("") + '</div>';
+    }
+    box.innerHTML = h;
   }
 
   // ---------- promos
@@ -1350,6 +1482,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
       if (S.f.fav && S.fav.indexOf(p.id) < 0) return false;
       if (S.f.note && p.ns !== "A" && p.ns !== "B") return false;
       if (S.f["new"] && !S.nouveaux[p.id]) return false;
+      if (S.f.semaine && !deLaSemaine(p)) return false;
       if (S.f.end && !finitBientot(p)) return false;
       if (mots.length) {
         var t = (p._s || norm(p.nom + " " + p.marque + " " + p.rayon + " " + p.bon_plan)) + norm(nomEns(p.enseigne));
@@ -2195,6 +2328,7 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
     var ds = b.dataset;
     if (ds.v) return vue(ds.v);
     if (ds["goto"]) { if (ds.preset) preset(ds.preset); return vue(ds["goto"]); }
+    if (ds.wk) { S.q = ""; $("q").value = ""; preset(); S.f.semaine = true; S.periode = "cours"; ecrire("periode", "cours"); if (ds.wk !== "all") S.store = ds.wk; afficherFiltres(); afficherPromos(); return vue("promos"); }
     if (ds.gostore) { preset(); S.store = ds.gostore; S.periode = "cours"; ecrire("periode", "cours"); afficherFiltres(); afficherPromos(); return vue("promos"); }
     if (ds.store) { S.store = ds.store; S.rayon = "Tous"; afficherFiltres(); afficherPromos(); return; }
     if (ds.periode) { S.periode = ds.periode; ecrire("periode", S.periode); afficherFiltres(); afficherPromos(); return; }
