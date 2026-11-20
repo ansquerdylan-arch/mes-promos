@@ -2049,7 +2049,17 @@ code.topic { background: var(--shelf); border-radius: 6px; padding: 2px 6px; fon
   function jour0(d) { var x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
   function dIso(iso) { var p = iso.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
   function fmtJ(d) { return JSEM[d.getDay()] + " " + ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2); }
-  function joliTitre(t) { return t === t.toUpperCase() ? (t.charAt(0) + t.slice(1).toLowerCase()).replace(/\b(u|e)\b/g, function (x) { return x.toUpperCase(); }) : t; }
+  // titres en capitales (« BLACK FRIDAY À PRIX E.LECLERC ») : en minuscules, sauf les noms propres
+  var NOMS_PROPRES = [[/\be\.leclerc(?![a-z])/gi, "E.Leclerc"], [/\bblack friday(?![a-z])/gi, "Black Friday"], [/\bcyber monday(?![a-z])/gi, "Cyber Monday"],
+    [/\bno[eë]l(?![a-z])/gi, "Noël"], [/\b(super|hyper) u(?![a-z])/gi, function (x, y) { return y.charAt(0).toUpperCase() + y.slice(1) + " U"; }],
+    [/\bu express(?![a-z])/gi, "U Express"], [/\bintermarch[eé](?![a-z])/gi, "Intermarché"], [/\bcarrefour(?![a-z])/gi, "Carrefour"],
+    [/\blidl(?![a-z])/gi, "Lidl"], [/\bhalloween(?![a-z])/gi, "Halloween"], [/\bp[aâ]ques(?![a-z])/gi, "Pâques"], [/\bsaint[- ]valentin(?![a-z])/gi, "Saint-Valentin"]];
+  function joliTitre(t) {
+    if (!t || t !== t.toUpperCase()) return t;
+    t = t.charAt(0) + t.slice(1).toLowerCase();
+    NOMS_PROPRES.forEach(function (x) { t = t.replace(x[0], x[1]); });
+    return t.replace(/\b(u|e)\b/g, function (x) { return x.toUpperCase(); });
+  }
 
   // les rendez-vous perso deviennent des événements de la semaine en cours et de la suivante
   function evtsRdv() {
