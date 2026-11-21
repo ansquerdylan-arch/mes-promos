@@ -202,6 +202,12 @@ button.mag-cat.vis::after { content: "Voir le visuel"; }
 .li .moins { grid-column: 2 / -1; justify-self: start; margin-top: -4px; border: 0; border-radius: 9px; padding: 0 10px; min-height: 32px; background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ink); font: 600 13.5px var(--font-ui); text-align: left; }
 .li .moins b { font-weight: 800; }
 .compar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; background: var(--tile); border-radius: 18px; padding: 12px 16px; font-size: 14.5px; box-shadow: var(--case); }
+/* petite IA : raison d'un choix, goûts appris */
+.p .raison { font-size: 12.5px; font-weight: 700; color: var(--ink); background: color-mix(in srgb, var(--label) 55%, transparent); border-radius: 8px; padding: 3px 7px; margin: 0 0 6px; justify-self: start; width: fit-content; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-info { margin: -4px 0 8px; font-size: 13.5px; }
+.chips.gouts .chip { cursor: default; }
+.fiche .paspour { justify-self: start; font-size: 14px; color: var(--muted); }
+
 /* carte des magasins */
 .carte-ouvrir { display: inline-flex; align-items: center; gap: 8px; justify-self: start; }
 .carte-ouvrir svg { width: 20px; height: 20px; }
@@ -663,7 +669,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   <section id="v-accueil">
     <div class="hero">
       <button class="bulle cherche pop" type="button" id="bulle" data-wk="all"><svg viewBox="0 0 120 100" aria-hidden="true"><g class="corps"><g transform="rotate(-14 64 56)"><path d="M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z" fill="#fff" stroke="#000" stroke-width="4" stroke-linejoin="round"/><path d="M30 46 C34 40 40 38 46 39" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" opacity=".35"/><g class="yeux"><ellipse cx="62" cy="57" rx="3.6" ry="5"/><ellipse cx="82" cy="56" rx="3.6" ry="5"/></g><path d="M65 66 Q72 72 80 65" fill="none" stroke="#000" stroke-width="3.2" stroke-linecap="round"/><circle cx="53" cy="65" r="5" fill="#ff9aa2"/><circle cx="93" cy="63" r="5" fill="#ff9aa2"/><g class="deco"></g></g></g></svg><p id="bulleTxt">Je fouille les prospectus<span class="trois"><i>.</i><i>.</i><i>.</i></span></p></button>
-      <form class="search" id="homeSearch" role="search"><span class="champ"><input id="homeQ" type="search" placeholder="Chercher une promo : poulet, raclette…" aria-label="Chercher une promo" autocomplete="off" enterkeyhint="search"><button class="efface" type="button" data-efface="1" aria-label="Effacer la recherche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><button class="scan" type="button" data-scan="1" aria-label="Scanner un code-barres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16M8 8.5v7M11 8.5v7M13.5 8.5v7M16.5 8.5v7"/></svg></button></form>
+      <form class="search" id="homeSearch" role="search"><span class="champ"><input id="homeQ" type="search" placeholder="Cherche ou demande : raclette, apéro pas cher, idée repas…" aria-label="Chercher une promo ou demander à Mogette" autocomplete="off" enterkeyhint="search"><button class="efface" type="button" data-efface="1" aria-label="Effacer la recherche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><button class="scan" type="button" data-scan="1" aria-label="Scanner un code-barres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16M8 8.5v7M11 8.5v7M13.5 8.5v7M16.5 8.5v7"/></svg></button></form>
       <div class="stale" id="staleBox" hidden></div>
       <div id="todayBox" hidden></div>
       <div class="stats">
@@ -676,6 +682,15 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     <div class="card semaine" id="weekCard" hidden></div>
     <div class="card" id="installBox" hidden></div>
 
+    <div class="blk" id="blocSaison" hidden>
+      <div class="sec-head"><h2 id="saisonTitre"></h2><button class="link" data-goto="promos" data-preset="saison" type="button">Tout voir</button></div>
+      <div class="rail" id="railSaison"></div>
+    </div>
+    <div class="blk" id="blocPourToi">
+      <div class="sec-head"><h2>Pour toi</h2><button class="link" data-goto="promos" data-preset="pourtoi" type="button">Tout voir</button></div>
+      <p class="muted pt-info" id="ptInfo"></p>
+      <div class="rail" id="railPourToi"></div>
+    </div>
     <div class="blk">
       <div class="sec-head"><h2>Meilleures remises</h2><button class="link" data-goto="promos" data-preset="remise" type="button">Tout voir</button></div>
       <div class="rail" id="railTop"></div>
@@ -727,6 +742,9 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     <div class="chips" id="storeChips" aria-label="Magasins"></div>
     <div class="card magcard" id="storeCard" hidden></div>
     <div class="chips" aria-label="Filtres">
+      <button class="chip" data-f="ou" aria-pressed="true" type="button" id="chipOu" hidden></button>
+      <button class="chip" data-f="saison" aria-pressed="false" type="button" id="chipSaison" hidden></button>
+      <button class="chip" data-f="pourtoi" aria-pressed="false" type="button">Pour toi</button>
       <button class="chip" data-f="alim" aria-pressed="false" type="button">Alimentaire</button>
       <button class="chip" data-f="new" aria-pressed="false" type="button">Nouveau</button>
       <button class="chip" data-f="semaine" aria-pressed="false" type="button">Cette semaine</button>
@@ -845,6 +863,12 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       <b>Liste partagée et alertes</b>
       <div id="ghBox"></div>
     </div>
+    <div class="grp">
+      <b>Ce que Mogette a appris</b>
+      <span class="muted">Mogette retient les rayons, marques et produits que tu regardes, ajoutes, mets en favori ou scannes, pour te montrer d'abord ce qui te ressemble. Ça reste sur ton téléphone (et dans ta sauvegarde GitHub si elle est active).</span>
+      <div id="goutsBox"></div>
+      <div class="row"><button class="btn" type="button" data-oubliergouts="1">Tout oublier</button></div>
+    </div>
     <div class="grp" id="applisGrp">
       <b>Mogette en appli</b>
       <span class="muted" id="applisTxt"></span>
@@ -898,7 +922,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
 
   // ---------- utilitaires
   function lire(k, d) { try { var v = localStorage.getItem("mespromos-" + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
-  function ecrire(k, v) { try { localStorage.setItem("mespromos-" + k, JSON.stringify(v)); } catch (e) {} if (/^(magasins|hiddenStores|watch|fav|rdv|prenom|anniv|theme|photos|periode|liste|partage)$/.test(k)) sauverReglages(); }
+  function ecrire(k, v) { try { localStorage.setItem("mespromos-" + k, JSON.stringify(v)); } catch (e) {} if (/^(magasins|hiddenStores|watch|fav|rdv|prenom|anniv|theme|photos|periode|liste|partage|gouts)$/.test(k)) sauverReglages(); }
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function norm(t) { return String(t || "").toLowerCase().replace(/œ/g, "oe").replace(/æ/g, "ae").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim(); }
@@ -1505,6 +1529,200 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (gamme(p)) { var t = p.marque || titreOffre(p); return '<span class="ph-vide etiq' + (t.length > 16 ? ' long' : '') + '" aria-hidden="true">' + esc(t) + '</span>'; }
     return '<span class="ph-vide mog" aria-hidden="true"><svg viewBox="0 0 120 100"><use href="#mogMini"/></svg><i>' + (EMO[p.rayon] || "🛒") + '</i></span>';
   }
+  // ---------- petite IA de Mogette, tout sur le téléphone ----------
+  // 1. Les saisons : ce qui se vend à chaque moment de l'année (mots cherchés dans le nom et la marque, ou un rayon entier)
+  function paques(an) {  // dimanche de Pâques (Meeus)
+    var a = an % 19, b = Math.floor(an / 100), c = an % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
+      h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+    return new Date(an, Math.floor((h + l - 7 * m + 114) / 31) - 1, ((h + l - 7 * m + 114) % 31) + 1);
+  }
+  function dimanche(an, mois, n) {  // n-ième dimanche du mois, n = -1 : le dernier
+    if (n > 0) { var d = new Date(an, mois, 1); d.setDate(1 + (7 - d.getDay()) % 7 + 7 * (n - 1)); return d; }
+    var f = new Date(an, mois + 1, 0); f.setDate(f.getDate() - f.getDay()); return f;
+  }
+  function decale(d, j) { var x = new Date(d); x.setDate(x.getDate() + j); return x; }
+  function feteMeres(an) { var d = dimanche(an, 4, -1); return d.getTime() === decale(paques(an), 49).getTime() ? dimanche(an, 5, 1) : d; }  // sauf Pentecôte
+  var SAISONS = [
+    { id: "noel", titre: "Spécial Noël", pour: "pour Noël", emo: "🎄", poids: 3, rayons: ["Jouets & culture"], quand: function (an) { return [new Date(an, 10, 12), new Date(an, 11, 24)]; },
+      mots: "noel|foie gras|chocolats|ballotin|ballotins|pralines|truffe|truffes|papillote|papillotes|champagne|cremant|saumon fume|huitre|huitres|chapon|chapons|dinde|marrons|chataignes|buche|buches|calendrier de l avent|pain d epices|clementine|clementines|escargot|escargots|boudin blanc|boudins blancs|magret|blini|blinis|tarama|langouste|homard|saint jacques|noix de saint jacques|crevette|crevettes|nougat|panettone|marrons glaces|coffret|cadeau|cadeaux|jouet|jouets|peluche|poupee|lego|playmobil|jeu de societe|sapin|guirlande|guirlandes|boules de noel|decoration|chocolat chaud|whisky|cognac|liqueur|porto|vin chaud" },
+    { id: "nouvelan", titre: "Réveillon du Nouvel an", pour: "pour le réveillon", emo: "🥂", poids: 3, quand: function (an) { return [new Date(an, 11, 26), new Date(an, 11, 31)]; },
+      mots: "champagne|cremant|mousseux|foie gras|huitre|huitres|saumon fume|blini|blinis|tarama|caviar|homard|langouste|crevette|crevettes|saint jacques|cotillon|cotillons|toast|toasts|verrine|verrines|petits fours" },
+    { id: "galette", titre: "Galette des rois", pour: "pour la galette des rois", emo: "👑", poids: 2, quand: function (an) { return [new Date(an, 0, 1), new Date(an, 0, 31)]; },
+      mots: "galette|galettes des rois|frangipane|brioche des rois|couronne|cidre|pate feuilletee|poudre d amande" },
+    { id: "chandeleur", titre: "Chandeleur", pour: "pour la Chandeleur", emo: "🥞", poids: 2, quand: function (an) { return [new Date(an, 0, 24), new Date(an, 1, 2)]; },
+      mots: "crepe|crepes|farine|oeufs|lait|pate a tartiner|nutella|confiture|confitures|sucre|cidre|caramel|crepiere|bilig" },
+    { id: "valentin", titre: "Saint-Valentin", pour: "pour la Saint-Valentin", emo: "💝", poids: 2, quand: function (an) { return [new Date(an, 1, 1), new Date(an, 1, 14)]; },
+      mots: "chocolats|ballotin|pralines|champagne|rose|roses|fleur|fleurs|bouquet|parfum|bijou|bijoux|coeur|macarons" },
+    { id: "paques", titre: "Pâques", pour: "pour Pâques", emo: "🐣", poids: 3, quand: function (an) { var x = paques(an); return [decale(x, -16), decale(x, 1)]; },
+      mots: "chocolats|oeuf|oeufs|lapin|lapins|poule|cloche|cloches|friture|agneau|gigot|oeufs en chocolat" },
+    { id: "meres", titre: "Fête des mères", pour: "pour la fête des mères", emo: "💐", poids: 2, quand: function (an) { var x = feteMeres(an); return [decale(x, -12), x]; },
+      mots: "fleur|fleurs|bouquet|rose|roses|orchidee|parfum|bijou|bijoux|montre|chocolats|coffret|soin" },
+    { id: "peres", titre: "Fête des pères", pour: "pour la fête des pères", emo: "👔", poids: 2, quand: function (an) { var x = dimanche(an, 5, 3); return [decale(x, -12), x]; },
+      mots: "whisky|rhum|biere|bieres|barbecue|plancha|outil|outils|perceuse|visseuse|montre|rasoir|coffret|cave" },
+    { id: "ete", titre: "Barbecue et apéro d'été", pour: "pour le barbecue", emo: "🔥", poids: 1.5, quand: function (an) { return [new Date(an, 5, 10), new Date(an, 7, 31)]; },
+      mots: "barbecue|plancha|charbon|saucisse|saucisses|merguez|chipolata|chipolatas|brochette|brochettes|cote de boeuf|rose|biere|bieres|glace|glaces|sorbet|esquimau|pasteque|melon|chips|creme solaire" },
+    { id: "rentree", titre: "Rentrée", pour: "pour la rentrée", emo: "🎒", poids: 2, quand: function (an) { return [new Date(an, 7, 8), new Date(an, 8, 12)]; },
+      mots: "cahier|cahiers|stylo|stylos|crayon|crayons|cartable|sac a dos|trousse|classeur|classeurs|feutre|feutres|calculatrice|gouter|compote|compotes|biscuit|biscuits" },
+    { id: "halloween", titre: "Halloween", pour: "pour Halloween", emo: "🎃", poids: 2, quand: function (an) { return [new Date(an, 9, 15), new Date(an, 9, 31)]; },
+      mots: "halloween|bonbon|bonbons|citrouille|potiron|deguisement|deguisements|sorciere|maquillage|haribo" },
+    { id: "bf", titre: "Black Friday", pour: "pour le Black Friday", emo: "🏷️", poids: 1.5, rayons: ["High-tech & électroménager", "Jouets & culture", "Maison & déco"], mots: "",
+      quand: function (an) { var b = vendrediNoir(an); return [decale(b, -4), decale(b, 3)]; } },
+    { id: "hiver", titre: "Soirées d'hiver", pour: "pour les soirées d'hiver", emo: "🧀", poids: 1, quand: function (an) { return [new Date(an, 10, 1), new Date(an + 1, 1, 28)]; },
+      mots: "raclette|fondue|tartiflette|mont d or|reblochon|soupe|soupes|veloute|pot au feu|choucroute|vin chaud|chocolat chaud|tisane|plaid|bouillotte|radiateur" }
+  ];
+  function saisonsActives(d) {
+    d = jour0(d || new Date());
+    var an = d.getFullYear();
+    return SAISONS.filter(function (x) { return [an - 1, an].some(function (y) { var r = x.quand(y); return d >= jour0(r[0]) && d <= jour0(r[1]); }); })
+      .sort(function (a, b) { return b.poids - a.poids; });
+  }
+  function saisonDe(id) { return id === true ? saisonsActives()[0] : SAISONS.find(function (x) { return x.id === id; }); }
+  function deSaison(p, x) {
+    if (!x || p.op) return false;
+    if (x.rayons && x.rayons.indexOf(p.rayon) >= 0) return true;
+    if (x._re === undefined) x._re = x.mots ? new RegExp("(^| )(" + x.mots + ")( |$)") : null;
+    return !!(x._re && x._re.test(p._n || (p._n = norm(p.nom + " " + (p.marque || "")))));
+  }
+  // 2. Les goûts : chaque geste renforce les rayons, marques et mots du produit ; ça s'efface doucement (moitié en 45 jours)
+  var GOUTS = lire("gouts", null) || { v: 1, f: {}, n: 0, non: {} }, GOUTS_T = null, DEMI_VIE = 45 * 86400000;
+  if (!GOUTS.non) GOUTS.non = {};
+  var MOTS_VIDES = {};
+  "avec sans pour aux une lot pack sachet sachets boite boites bouteille format familial assortis assortiment assortiments offre gamme toute tous toutes differentes varietes variete nature classique maxi mini grand grande petit petite extra marque repere carrefour leclerc auchan lidl intermarche super hyper express classic bio personne personnes piece pieces tranche tranches portion portions unite unites environ recharge recharges saveur saveurs parfum gout ".split(" ").forEach(function (w) { if (w) MOTS_VIDES[w] = 1; });
+  function traitsDe(nom, marque, rayon) {
+    var t = [];
+    if (rayon && rayon !== "Autres") t.push("r:" + rayon);
+    var m = norm(marque); if (m.length > 1) t.push("m:" + m);
+    norm(nom).split(" ").filter(function (w) { return w.length >= 4 && !MOTS_VIDES[w] && !/\d/.test(w); }).slice(0, 4)
+      .forEach(function (w) { w = w.replace(/s$/, ""); if (t.indexOf("k:" + w) < 0) t.push("k:" + w); });
+    return t;
+  }
+  function traitsP(p) { return p._tr || (p._tr = traitsDe(p.nom, p.marque, p.rayon)); }
+  function poidsTrait(k, t) { var x = GOUTS.f[k]; return x ? x[0] * Math.pow(0.5, (t - x[1]) / DEMI_VIE) : 0; }
+  function apprendre(traits, delta) {
+    if (!traits || !traits.length) return;
+    var t = Date.now();
+    traits.forEach(function (k) { GOUTS.f[k] = [Math.round(Math.max(-8, Math.min(30, poidsTrait(k, t) + delta)) * 100) / 100, t]; });
+    GOUTS.n++;
+    var cles = Object.keys(GOUTS.f);
+    if (cles.length > 400) {  // profil léger : les 300 traits les plus marqués
+      cles.sort(function (a, b) { return Math.abs(poidsTrait(b, t)) - Math.abs(poidsTrait(a, t)); });
+      cles.slice(300).forEach(function (k) { delete GOUTS.f[k]; });
+    }
+    clearTimeout(GOUTS_T); GOUTS_T = setTimeout(function () { ecrire("gouts", GOUTS); }, 800);
+  }
+  function apprendreDe(p, delta) { if (p && !p.op) apprendre(traitsP(p), delta); }
+  // 3. Le choix : goûts + remise + prix le plus bas vu + saison + nouveauté, sans dix chocolats d'affilée
+  function raisonGout(k, p) {
+    var v = k.slice(2);
+    if (k[0] === "r") return "Ton rayon : " + v;
+    if (k[0] === "m") return "Tu aimes " + (p.marque || v);
+    var mot = (String(p.nom).split(/\s+/).find(function (w) { return norm(w).replace(/s$/, "") === v; }) || v).toLowerCase();
+    return "Tu cherches : " + mot;
+  }
+  function noter(p, saisons, t, sansSaison) {
+    var aff = 0, top = null;
+    traitsP(p).forEach(function (k) {
+      var w = poidsTrait(k, t) * (k[0] === "r" ? 0.35 : k[0] === "m" ? 0.8 : 1);
+      aff += w; if (w > 0.8 && (!top || w > top.w)) top = { k: k, w: w };
+    });
+    var a = 3 * Math.tanh(aff / 6), rem = p.remise || 0, bas = !!(p.histo && p.prix != null && p.prix <= p.histo.min + 0.005);
+    var x = null; for (var i = 0; i < saisons.length; i++) if (deSaison(p, saisons[i])) { x = saisons[i]; break; }
+    var sc = a + Math.min(2, rem / 22) + (bas ? 0.8 : 0) + (p.bon_plan && !rem ? 0.4 : 0) + (x ? x.poids * (sansSaison ? 0.8 : 0.35) : 0) + (deLaSemaine(p) ? 0.3 : 0)
+      - (gamme(p) ? 1 : 0) - (aff <= 0 && !x && ALIM.indexOf(p.rayon) < 0 ? 0.6 : 0);
+    var raison = top && a >= 1 ? raisonGout(top.k, p) : x && !sansSaison ? x.emo + " " + x.titre.replace(/^Spécial /, "") : bas ? "Prix le plus bas vu" : rem >= 30 ? "-" + rem + " %" : rem ? "Bonne remise" : "Bon plan";
+    return { sc: sc, raison: raison };
+  }
+  function choisirVaries(l, n, cle) {
+    var cand = l.slice().sort(function (a, b) { return b[cle].sc - a[cle].sc; }).slice(0, 220), pris = [], rayons = {}, marques = {}, mots = {};
+    function mot(p) { var k = traitsP(p).find(function (x) { return x[0] === "k"; }); return k || ""; }
+    while (pris.length < n && cand.length) {
+      var best = 0, bv = -1e9;
+      for (var i = 0; i < cand.length; i++) {
+        var q = cand[i], m = norm(q.marque), k = mot(q);
+        var v = q[cle].sc - (rayons[q.rayon] || 0) * 0.6 - (m ? (marques[m] || 0) * 1.5 : 0) - (k ? (mots[k] || 0) * 2.2 : 0);
+        if (v > bv) { bv = v; best = i; }
+      }
+      var c = cand.splice(best, 1)[0], cm = norm(c.marque), ck = mot(c);
+      pris.push(c); rayons[c.rayon] = (rayons[c.rayon] || 0) + 1; if (cm) marques[cm] = (marques[cm] || 0) + 1; if (ck) mots[ck] = (mots[ck] || 0) + 1;
+    }
+    return pris;
+  }
+  var PT_RANG = {};
+  function phraseSaison(v) {
+    var x = saisonsActives()[0]; if (!x) return "";
+    var n = v.filter(function (p) { return !pasCommencee(p) && deSaison(p, x); }).length;
+    return n ? " Et " + n.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0") + " " + x.pour + "\u00a0" + x.emo : "";
+  }
+  function afficherPourToi() {
+    var t = Date.now(), ss = saisonsActives(), x = ss[0];
+    var base = visibles().filter(function (p) { return !p.op && !pasCommencee(p) && !dansListe(p.id) && !GOUTS.non[p.id]; });
+    // la saison du moment en avant (Noël…), rangée selon tes goûts
+    var ls = x ? base.filter(function (p) { return deSaison(p, x); }) : [];
+    ls.forEach(function (p) { p._ps = noter(p, [x], t, true); });
+    $("blocSaison").hidden = !ls.length;
+    if (x) $("saisonTitre").textContent = x.titre + " " + x.emo;
+    var vitrine = choisirVaries(ls, 15, "_ps"), dejaVu = {};
+    vitrine.forEach(function (p) { dejaVu[p.id] = 1; });
+    $("railSaison").innerHTML = vitrine.map(function (p) { return carte(p, { compact: true, raison: p._ps.raison }); }).join("");
+    // pour toi
+    base.forEach(function (p) { p._pt = noter(p, ss, t); });
+    var l = choisirVaries(base.filter(function (p) { return !dejaVu[p.id]; }), 60, "_pt");
+    PT_RANG = {}; l.forEach(function (p, i) { PT_RANG[p.id] = i + 1; });
+    $("railPourToi").innerHTML = l.length ? l.slice(0, 15).map(function (p) { return carte(p, { compact: true, raison: p._pt.raison }); }).join("") : '<div class="empty">Pas encore de promos chargées.</div>';
+    $("ptInfo").textContent = GOUTS.n >= 3 ? "Choisies d'après ce que tu regardes, ajoutes et mets en favori." : "Mogette apprend tes goûts : plus tu regardes et ajoutes de promos, plus ce choix te ressemble.";
+  }
+  function afficherGouts() {
+    var box = $("goutsBox"); if (!box) return;
+    var t = Date.now(), l = Object.keys(GOUTS.f).map(function (k) { return [k, poidsTrait(k, t)]; }).filter(function (x) { return x[1] > 1; })
+      .sort(function (a, b) { return b[1] - a[1]; }).slice(0, 12);
+    box.innerHTML = l.length ? '<div class="chips gouts">' + l.map(function (x) {
+      var k = x[0], v = k.slice(2);
+      return '<span class="chip">' + (k[0] === "r" ? (EMO[v] ? EMO[v] + " " : "") + esc(v) : k[0] === "m" ? "Marque " + esc(v.replace(/^./, function (c) { return c.toUpperCase(); })) : "« " + esc(v) + " »") + '</span>';
+    }).join("") + '</div>' : '<span class="muted">Rien pour l\'instant : regarde, ajoute ou mets en favori quelques promos.</span>';
+  }
+  // 4. Demande à Mogette : la recherche de l'accueil comprend quelques demandes
+  var ENVIES = {
+    "apero": "chips|cacahuete|cacahuetes|saucisson|saucissons|olive|olives|biere|bieres|tapenade|houmous|crackers|toast|toasts|pistache|pistaches|tortilla|tortillas|guacamole",
+    "petit dejeuner": "cafe|the|cereales|confiture|brioche|jus|lait|beurre|pain de mie|biscotte|biscottes|pate a tartiner|nutella|muesli",
+    "petit dej": "cafe|the|cereales|confiture|brioche|jus|lait|beurre|pain de mie|biscotte|biscottes|pate a tartiner|nutella|muesli",
+    "gouter": "biscuit|biscuits|gateau|gateaux|compote|compotes|chocolat|brioche|pain au chocolat|madeleine|madeleines|cookie|cookies",
+    "bebe": "couche|couches|lingette|lingettes|lait infantile|petit pot|petits pots|bledina|pampers|huggies",
+    "menage": "lessive|liquide vaisselle|pastille|pastilles|nettoyant|eponge|eponges|essuie tout|papier toilette|javel|sopalin|tablettes lave vaisselle",
+    "hygiene": "shampooing|gel douche|dentifrice|deodorant|savon|rasoir|coton|dove|nivea|colgate",
+    "animaux": "croquettes|patee|litiere|chat|chien|friskies|purina|whiskas|felix",
+    "barbecue": "saucisse|saucisses|merguez|chipolata|chipolatas|brochette|brochettes|charbon|cote de boeuf"
+  };
+  function rechercherOu(nom, mots) { S.q = ""; $("q").value = ""; $("homeQ").value = ""; S.f = { ou: mots, ouNom: nom }; S.rayon = "Tous"; afficherFiltres(); afficherPromos(); vue("promos"); }
+  function demander(texte) {
+    var n = norm(texte); if (!n) return false;
+    var x = SAISONS.find(function (y) { return n.indexOf(norm(y.titre.replace(/^Spécial /, ""))) >= 0; });
+    if (x || /(^| )(fetes|fete|cadeau|cadeaux|reveillon)( |$)/.test(n)) {
+      x = x || saisonsActives()[0] || SAISONS[0];
+      $("homeQ").value = ""; S.q = ""; $("q").value = ""; S.f = { saison: x.id }; S.rayon = "Tous"; afficherFiltres(); afficherPromos(); vue("promos");
+      toast(x.emo + " " + filtrer().length + " promos " + x.pour); return true;
+    }
+    if (/(^| )(idee|idees|quoi manger|recette|recettes|repas|diner|dejeuner|ce soir|cuisiner|on mange)( |$)/.test(n)) { $("homeQ").value = ""; vue("plats"); toast("Des plats avec les promos du moment"); return true; }
+    if (/(^| )(pour moi|conseil|conseille|conseilles|recommande|suggestion|suggestions|surprends moi)( |$)/.test(n)) { $("homeQ").value = ""; preset("pourtoi"); vue("promos"); return true; }
+    if (/(^| )(finit|finissent|dernier jour|bientot fini|se termine|terminent)( |$)/.test(n)) { $("homeQ").value = ""; preset("end"); vue("promos"); return true; }
+    if (/(^| )(ouvert|ouverts|ouverte|horaire|horaires|ferme|fermes)( |$)/.test(n)) {
+      var mags = ((S.brut && S.brut.magasins) || []).filter(function (m) { return S.sel.indexOf(m.id) >= 0; }), ouv = [], fer = [];
+      mags.forEach(function (m) { var o = ouverture(m.horaires); if (o && o.ouvert) ouv.push(m.nom + " " + m.ville + " (" + o.txt.replace(/^Ouvert /, "") + ")"); else fer.push(m.nom + " " + m.ville); });
+      $("homeQ").value = "";
+      bulleDit(ouv.length ? "Ouverts maintenant : " + ouv.join(", ") + "." + (fer.length ? " Fermés : " + fer.join(", ") + "." : "") : "Tous tes magasins sont fermés en ce moment.");
+      return true;
+    }
+    if (/(^| )(ma liste|liste de courses|mes courses)( |$)/.test(n)) { $("homeQ").value = ""; vue("liste"); return true; }
+    var pasCher = /(^| )(moins cher|pas cher|meilleur prix|petit prix|bon marche)( |$)/.test(n);
+    var reste = n.replace(/(^| )(moins cher|pas cher|meilleur prix|petit prix|bon marche|le|la|les|du|de|des|un|une|en promo|promo|promos|je cherche|cherche|trouve moi|trouve|pour|l|d)(?= |$)/g, " ").replace(/\s+/g, " ").trim();
+    var envie = Object.keys(ENVIES).find(function (k) { return reste === k || (" " + reste + " ").indexOf(" " + k + " ") >= 0; });
+    if (envie) {
+      rechercherOu(envie, ENVIES[envie].split("|"));
+      if (pasCher) { S.tri = "prix"; $("tri").value = "prix"; afficherPromos(); }
+      toast(filtrer().length + " promos pour « " + texte.trim() + " »"); return true;
+    }
+    if (pasCher && reste) { rechercher(reste); S.tri = "prix"; $("tri").value = "prix"; afficherPromos(); toast("Du moins cher au plus cher"); return true; }
+    return false;
+  }
   function carte(p, opts) {
     opts = opts || {};
     var fav = S.fav.indexOf(p.id) >= 0, dans = dansListe(p.id), photo = S.photos ? photoDe(p) : "", badges = badgesHTML(p, opts);
@@ -1516,6 +1734,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
         '<button class="fav' + (fav ? ' on' : '') + '" type="button" data-fav="' + esc(p.id) + '" aria-label="Favori">' + SVG.star + '</button>' +
         '<button class="add' + (dans ? ' on' : '') + '" type="button" data-add="' + esc(p.id) + '" aria-label="' + (dans ? 'Retirer de la liste' : 'Ajouter à la liste') + '">' + (dans ? SVG.check : SVG.plus) + '</button>' +
       '</div>' +
+      (opts.raison ? '<div class="raison">' + esc(opts.raison) + '</div>' : '') +
       prixHTML(p) +
       '<h3><button class="nom" type="button" data-fiche="' + esc(p.id) + '">' + esc(titreOffre(p)) + '</button></h3>' +
       (marqueAAfficher(p) ? '<div class="brand">' + esc(marqueAAfficher(p)) + '</div>' : '') +
@@ -1653,6 +1872,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     toast("Je cherche ce produit…");
     Promise.all([infosOFF(code), chargerCodes(), chargerHisto()]).then(function (r) {
       SCAN = { code: String(code), off: r[0], codes: r[1] || {}, h: r[2] || {} };
+      var isc = infosScan(); apprendre(traitsDe(isc.nom, isc.marque, ""), 2);
       ouvrirScan();
     });
   }
@@ -1721,6 +1941,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   function ouvrirFiche(id) {
     if (String(id).indexOf("scan:") === 0) { ouvrirScan(); return; }
     var p = promoParId(id); if (!p) return;
+    if (FICHE !== id) apprendreDe(p, 1);  // ouvrir une fiche : petit signe d'intérêt
     RETOUR = String(FICHE || "").indexOf("scan:") === 0 ? FICHE : FICHE === id ? RETOUR : null;  // venu d'un article scanné
     $("fiche").classList.toggle("deja", FICHE === id);
     FICHE = id;
@@ -1770,6 +1991,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       '<div class="acts"><button class="icon big' + (dans ? ' on' : '') + '" data-add="' + esc(p.id) + '" type="button">' + (dans ? '✓ Dans ta liste' : '+ Ajouter à la liste') + '</button>' +
       '<button class="icon star' + (fav ? ' on' : '') + '" data-fav="' + esc(p.id) + '" type="button" aria-label="Favori">★</button>' +
       (navigator.share ? '<button class="icon" type="button" data-partager="' + esc(p.id) + '">Partager</button>' : '') + '</div>' +
+      '<button class="link paspour" type="button" data-paspourmoi="' + esc(p.id) + '">Pas pour moi : en montrer moins</button>' +
       (meta.length ? '<dl class="meta">' + meta.map(function (m) { return '<div><dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd></div>'; }).join("") + '</dl>' : '') +
       (p.detail ? '<div class="det">' + esc(p.detail) + '</div>' : '') +
       notesHTML(p) +
@@ -1875,6 +2097,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     $("homeWatch").innerHTML = html;
 
     afficherSemaine(v);
+    afficherPourToi();
     var top = alim.filter(function (p) { return p.remise && !SEM_TOP[p.id]; }).sort(function (a, b) { return b.remise - a.remise; }).slice(0, 15);
     $("railTop").innerHTML = top.length ? top.map(function (p) { return carte(p, { compact: true }); }).join("") : '<div class="empty">Pas de remise chiffrée cette semaine.</div>';
 
@@ -1928,7 +2151,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     SEM_TOP = {};
     var psst = salutFete() || "Psst" + (S.prenom ? ", " + S.prenom : "") + "\u00a0! ";  // espace insécable classique : la police de la bulle n'a pas l'espace fine
     bulleDit(neuves.length
-      ? psst + "J'ai trouvé " + neuves.length.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0") + " nouvelle" + (neuves.length > 1 ? "s" : "") + " promo" + (neuves.length > 1 ? "s" : "") + " depuis " + JLONG[dIso(depuis).getDay()] + "."
+      ? psst + "J'ai trouvé " + neuves.length.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0") + " nouvelle" + (neuves.length > 1 ? "s" : "") + " promo" + (neuves.length > 1 ? "s" : "") + " depuis " + JLONG[dIso(depuis).getDay()] + "." + phraseSaison(v)
       : psst + "Rien de neuf depuis " + JLONG[dIso(depuis).getDay()] + " pour l'instant. Je repasse demain matin.");
     box.hidden = !neuves.length;
     if (!neuves.length) { box.innerHTML = ""; return; }
@@ -2034,6 +2257,9 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     $("rayons").innerHTML = ["Tous"].concat(ORDRE_RAYONS.filter(function (r) { return cnt[r]; })).map(function (r) {
       return '<button class="chip" type="button" data-rayon="' + esc(r) + '" aria-pressed="' + (S.rayon === r) + '">' + (EMO[r] ? '<span class="e" aria-hidden="true">' + EMO[r] + '</span>' : '') + esc(r === "Tous" ? "Tous les rayons" : r) + (r !== "Tous" ? ' <span class="n">' + cnt[r] + '</span>' : '') + '</button>';
     }).join("");
+    var xs = saisonDe(S.f.saison || true);
+    $("chipSaison").hidden = !xs; if (xs) $("chipSaison").textContent = xs.emo + " " + xs.titre.replace(/^Spécial /, "");
+    $("chipOu").hidden = !S.f.ou; $("chipOu").textContent = S.f.ou ? "« " + (S.f.ouNom || "") + " » ✕" : "";
     document.querySelectorAll("[data-f]").forEach(function (b) { b.setAttribute("aria-pressed", S.f[b.dataset.f] ? "true" : "false"); });
     afficherMagasin();
   }
@@ -2077,6 +2303,9 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       if (S.f["new"] && !S.nouveaux[p.id]) return false;
       if (S.f.semaine && !deLaSemaine(p)) return false;
       if (S.f.end && !finitBientot(p)) return false;
+      if (S.f.saison && !deSaison(p, saisonDe(S.f.saison))) return false;
+      if (S.f.pourtoi && !PT_RANG[p.id]) return false;
+      if (S.f.ou) { var tou = " " + (p._s || norm(p.nom + " " + p.marque + " " + p.rayon + " " + p.bon_plan)) + " "; if (!S.f.ou.some(function (w) { return tou.indexOf(" " + w) >= 0; })) return false; }
       if (code) return codeProduit(p) === code;
       if (mots.length) {
         var t = (p._s || norm(p.nom + " " + p.marque + " " + p.rayon + " " + p.bon_plan)) + norm(nomEns(p.enseigne));
@@ -2089,6 +2318,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     });
     var tri = S.tri;
     l.sort(function (a, b) {
+      if (S.f.pourtoi && tri === "remise") return (PT_RANG[a.id] || 999) - (PT_RANG[b.id] || 999);  // « Pour toi » : dans l'ordre choisi
       if (tri === "prix") return (a.prix == null ? 1e9 : a.prix) - (b.prix == null ? 1e9 : b.prix);
       if (tri === "prix-desc") return (b.prix || 0) - (a.prix || 0);
       if (tri === "fin") { var ja = joursRestants(a), jb = joursRestants(b); return (ja == null ? 999 : ja) - (jb == null ? 999 : jb); }
@@ -2601,7 +2831,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   var SYNC = lire("sync", null);
   var SE = { etag: null, distant: null, enCours: false, derniere: 0, erreur: "", t: null, ta: null, alertesEnvoyees: lire("alertesEnvoyees", ""), alerteErreur: "",
     tr: null, reglagesEnvoyes: lire("reglagesEnvoyes", ""), reglagesQuand: lire("reglagesQuand", 0) };
-  var F_REGLAGES = "reglages-mes-promos.json", CLES_SAUVEES = ["magasins", "hiddenStores", "watch", "fav", "rdv", "prenom", "anniv", "theme", "photos", "periode", "liste", "partage"];
+  var F_REGLAGES = "reglages-mes-promos.json", CLES_SAUVEES = ["magasins", "hiddenStores", "watch", "fav", "rdv", "prenom", "anniv", "theme", "photos", "periode", "liste", "partage", "gouts"];
   function gh(methode, chemin, corps, entetes) {
     var h = { "Accept": "application/vnd.github+json", "Authorization": "token " + SYNC.token };
     Object.keys(entetes || {}).forEach(function (k) { h[k] = entetes[k]; });
@@ -3076,13 +3306,13 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
         .map(function (n, i) { return '<option value="' + ("0" + (i + 1)).slice(-2) + '">' + n + '</option>'; }).join("");
     }
     aj.value = S.anniv ? S.anniv.slice(3) : ""; am.value = S.anniv ? S.anniv.slice(0, 2) : "";
-    afficherApplis();
+    afficherApplis(); afficherGouts();
     afficherGh();
     $("setInfo").textContent = S.data.promos.length + " promos chargées · " + vivants().length + " articles dans ta liste · " + S.fav.length + " favoris. Tout reste sur ce téléphone.";
   }
   function ajouterSurveille(v) {
     v = (v || "").trim(); if (!v) return;
-    if (S.watch.map(norm).indexOf(norm(v)) < 0) S.watch.push(v);
+    if (S.watch.map(norm).indexOf(norm(v)) < 0) { S.watch.push(v); apprendre(traitsDe(v, "", ""), 4); }
     ecrire("watch", S.watch); afficherAccueil(); afficherReglages(); afficherPromos(); syncAlertes();
     var n = visibles().filter(surveille).length;
     toast(n ? n + " promo" + (n > 1 ? "s" : "") + " trouvée" + (n > 1 ? "s" : "") : "Surveillé : tu le verras dès qu'il est en promo");
@@ -3118,6 +3348,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (p === "new") { S.f["new"] = true; S.periode = "tout"; }
     if (p === "end") S.f.end = true;
     if (p === "remise") { S.f.alim = true; S.tri = "remise"; $("tri").value = "remise"; }
+    if (p === "pourtoi") { S.f.pourtoi = true; S.tri = "remise"; $("tri").value = "remise"; }
+    if (p === "saison") S.f.saison = (saisonsActives()[0] || {}).id || true;
     afficherFiltres(); afficherPromos();
   }
 
@@ -3127,7 +3359,12 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   // ---------- événements
   var tq;
   $("q").addEventListener("input", function () { clearTimeout(tq); var v = this.value; tq = setTimeout(function () { S.q = v; afficherPromos(); }, 120); });
-  $("homeSearch").addEventListener("submit", function (ev) { ev.preventDefault(); S.q = $("homeQ").value; $("q").value = S.q; S.f = {}; S.rayon = "Tous"; afficherFiltres(); afficherPromos(); vue("promos"); $("homeQ").blur(); });
+  $("q").addEventListener("change", function () { if (this.value.trim().length > 2) apprendre(traitsDe(this.value, "", ""), 0.7); });
+  $("homeSearch").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    if (demander($("homeQ").value)) { $("homeQ").blur(); return; }
+    if ($("homeQ").value.trim().length > 2) apprendre(traitsDe($("homeQ").value, "", ""), 0.7);
+    S.q = $("homeQ").value; $("q").value = S.q; S.f = {}; S.rayon = "Tous"; afficherFiltres(); afficherPromos(); vue("promos"); $("homeQ").blur(); });
   $("tri").addEventListener("change", function () { S.tri = this.value; afficherPromos(); });
   $("envieForm").addEventListener("submit", function (ev) { ev.preventDefault(); chercherEnvie(); });
   $("btnMenu").addEventListener("click", function () { faireMenu(false); });
@@ -3235,6 +3472,12 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (ds.scanliste) { var isc = infosScan(); mettre({ id: nouvelId(), nom: isc.nom || isc.terme || "Produit " + SCAN.code, enseigne: "", prix: null, rayon: "" }); sauverListe(); afficherListe(); afficherAccueil(); toast("Ajouté à la liste"); return; }
     if (ds.scanmarque) { var mq = infosScan().marque; fermerFiche(); rechercher(mq); return; }
     if (ds.retourscan) { ouvrirScan(); return; }
+    if (ds.paspourmoi) {
+      var pp = promoParId(ds.paspourmoi); apprendreDe(pp, -4); GOUTS.non[ds.paspourmoi] = Date.now();
+      var nn = Object.keys(GOUTS.non); if (nn.length > 300) nn.sort(function (a, b) { return GOUTS.non[a] - GOUTS.non[b]; }).slice(0, nn.length - 300).forEach(function (k) { delete GOUTS.non[k]; });
+      ecrire("gouts", GOUTS); fermerFiche(); afficherAccueil(); if (S.vue === "promos") afficherPromos(); toast("Compris, je t'en montrerai moins"); return;
+    }
+    if (ds.oubliergouts) { GOUTS = { v: 1, f: {}, n: 0, non: {} }; ecrire("gouts", GOUTS); afficherGouts(); afficherAccueil(); toast("C'est oublié : Mogette repart de zéro"); return; }
     if (ds.restaurer) { if (SE.sauvegarde) appliquerSauvegarde(SE.sauvegarde); return; }
     if (ds.garder) { SE.sauvegarde = null; ecrire("sauvegardeEnAttente", false); SE.reglagesEnvoyes = ""; sauverReglages(); afficherGh(); toast("Ce téléphone devient la sauvegarde"); return; }
     if (ds.swapall) { var g2 = 0; Object.keys(MOINS).forEach(function (k) { g2 += changerMagasin(k); }); afficherListe(); afficherPromos(); toast("Tout changé : " + euro(g2) + " de moins"); return; }
@@ -3254,11 +3497,12 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (b.id === "gridMore") { afficherPlus(); return; }
     if (ds.zoom) { zoom(ds.zoom); return; }
     if (ds.unwatch != null) { S.watch.splice(+ds.unwatch, 1); ecrire("watch", S.watch); afficherAccueil(); afficherReglages(); afficherPromos(); syncAlertes(); return; }
-    if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else { S.fav.push(ds.fav); toast("Ajouté aux favoris"); } ecrire("fav", S.fav); syncAlertes(); b.classList.toggle("on"); if (FICHE) { ouvrirFiche(FICHE); document.querySelectorAll('[data-fav="' + CSS.escape(ds.fav) + '"]').forEach(function (x) { x.classList.toggle("on", S.fav.indexOf(ds.fav) >= 0); }); } document.querySelectorAll('[data-fav="' + CSS.escape(ds.fav) + '"].on').forEach(function (x) { rejouer(x, "pop"); }); return; }
+    if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else { S.fav.push(ds.fav); apprendreDe(promoParId(ds.fav), 3); toast("Ajouté aux favoris"); } ecrire("fav", S.fav); syncAlertes(); b.classList.toggle("on"); if (FICHE) { ouvrirFiche(FICHE); document.querySelectorAll('[data-fav="' + CSS.escape(ds.fav) + '"]').forEach(function (x) { x.classList.toggle("on", S.fav.indexOf(ds.fav) >= 0); }); } document.querySelectorAll('[data-fav="' + CSS.escape(ds.fav) + '"].on').forEach(function (x) { rejouer(x, "pop"); }); return; }
     if (ds.add) {
       var p = promoParId(ds.add);
       if (p) {
         var avant = dansListe(p.id);
+        if (!avant) apprendreDe(p, 3);
         if (!avant && !FICHE) voler(b);
         ajouter(p); toast(avant ? "Retiré de la liste" : "Ajouté à la liste"); rafraichir(); if (FICHE) ouvrirFiche(FICHE);
         if (!avant) document.querySelectorAll('[data-add="' + CSS.escape(p.id) + '"]').forEach(function (x) { rejouer(x, "pop"); });

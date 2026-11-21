@@ -34,6 +34,9 @@ Version à lire sur le téléphone : le doc « Mogette : idées d'améliorations
   sur la page de téléchargement « applis ». iPhone : IPA non signée (Sideloadly + identifiant Apple, 7 jours), ou compte
   développeur Apple (99 €/an) pour TestFlight/App Store. Play Store : compte 25 $ + vraie clé de signature.
 
+- Petite IA (demandée le 21/11) : saisons (Noël en avant jusqu'au 24/12), goûts appris sur le téléphone, rail « Pour toi »
+  avec raisons, « Pas pour moi », demandes simples dans la recherche de l'accueil, « Ce que Mogette a appris » dans Réglages.
+
 ## Check-up du 20 novembre 2026 (fait)
 
 Vérifié : 4 tailles d'écran (iPhone SE à Pro Max), clair et sombre, hors connexion, tous les parcours
