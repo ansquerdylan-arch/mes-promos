@@ -792,8 +792,12 @@ def offre_visionneuse(c):
     it = offre_bonial(o)
     if not it:
         return None
-    if (c.get("image") or "").endswith("/main.jpg") and c.get("id"):
-        it["img"] = c["id"]  # photo : https://content-media.bonial.biz/<id>/main.jpg
+    im = c.get("image") or next((x.get("url") for x in (p.get("images") or []) if isinstance(x, dict) and x.get("url")), "")
+    m = RE_PHOTO.match(im or "")
+    if m:
+        # « …/<id>/main.jpg » (U, Intermarché, Lidl) : l'id seul, comme avant ;
+        # « …/<id>/<nom>.jpeg » (Action, Carrefour, catalogues Leclerc) : « id/nom », l'appli met l'adresse devant
+        it["img"] = (c.get("id") or m.group(1)) if m.group(2) == "main.jpg" else m.group(1) + "/" + m.group(2)
     if carte:
         it["carte"] = True
     if princ.get("min") and princ.get("max") and princ["max"] > princ["min"]:
@@ -805,6 +809,7 @@ def offre_visionneuse(c):
 
 
 RE_PAGE_IMG = re.compile(r"content-media\.bonial\.biz/([0-9a-f-]{36})/")
+RE_PHOTO = re.compile(r"^https?://content-media\.bonial\.biz/([0-9a-f-]{36})/([\w.-]+\.(?:jpe?g|png|webp))(?:\?.*)?$", re.I)
 
 
 def catalogue_complet(cid, typ, pos, log, pause=0.6):

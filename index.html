@@ -1475,7 +1475,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   function photoDe(p, grand) {
     if (p.op && p.image) return p.image;
     if (p.ph) return p.ph + (p.ph.indexOf("?") < 0 ? (grand ? "?g=640x640" : "?g=300x300") : "");  // photo du catalogue officiel (Leclerc)
-    return p.img ? "https://content-media.bonial.biz/" + p.img + "/main.jpg?impolicy=SEO-offer-normal" : "";
+    // « id » : photo …/id/main.jpg (U, Intermarché, Lidl) ; « id/nom.jpeg » : photo donnée telle quelle (Action, Carrefour)
+    return p.img ? "https://content-media.bonial.biz/" + (p.img.indexOf("/") > 0 ? p.img : p.img + "/main.jpg") + "?impolicy=SEO-offer-normal" : "";
   }
   // nom court du magasin (« Super U »), avec la ville seulement si deux magasins de la même enseigne sont choisis
   function ensCourt(id) {
