@@ -508,6 +508,19 @@ button.go { border: 0; font: inherit; text-align: left; width: 100%; cursor: poi
 .dlg { padding: 10px 16px 22px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
 dialog#settings { background: var(--shelf); }
 .dlg-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.cpt { display: grid; gap: 10px; min-width: 0; }
+.cpt-btns { display: grid; gap: 8px; }
+.cpt-btn { width: 100%; min-height: 48px; background: var(--tile); box-shadow: var(--case); font-size: 16px; }
+.cpt-btn.cpt-apple { background: var(--ink); color: var(--tile); }
+.cpt-petit { font-size: 12.5px; }
+.cpt-qui { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.cpt-qui > span:last-child { display: grid; min-width: 0; }
+.cpt-qui b, .cpt-qui small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cpt-qui small { color: var(--muted); font-size: 13px; }
+.cpt-av { position: relative; flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--label); color: var(--label-ink, #000); display: grid; place-items: center; font-weight: 800; font-size: 19px; overflow: hidden; box-shadow: inset 0 0 0 2px var(--outline); }
+.cpt-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cpt-choix { display: grid; gap: 8px; padding: 12px; border-radius: 14px; background: var(--shelf); }
+.cpt-suppr { background: var(--sticker); color: var(--sticker-ink, #fff); box-shadow: none; }
 .grp { background: var(--tile); border-radius: 20px; padding: 14px 16px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; min-width: 0; }
 .grp > b:first-child { font: 400 20px/1.1 var(--font-num); }
 dialog .field, dialog input, dialog select { max-width: 100%; min-width: 0; }
@@ -827,6 +840,10 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   <div class="dlg">
     <div class="grab" aria-hidden="true"></div>
     <div class="dlg-head"><h2 id="setTitle" style="font-size:32px">Réglages</h2><button class="btn" type="button" id="closeSettings">Fermer</button></div>
+    <div class="grp" id="compteGrp" hidden>
+      <b>Ton compte</b>
+      <div class="cpt" id="compteBox"></div>
+    </div>
     <div class="grp" id="magSection">
       <b>Mes magasins</b>
       <span class="muted">Choisis tes magasins parmi tous ceux de Vendée. Toute l'appli suit ton choix : promos, plats, agenda, alertes.</span>
@@ -923,7 +940,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
 
   // ---------- utilitaires
   function lire(k, d) { try { var v = localStorage.getItem("mespromos-" + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
-  function ecrire(k, v) { try { localStorage.setItem("mespromos-" + k, JSON.stringify(v)); } catch (e) {} if (/^(magasins|hiddenStores|watch|fav|rdv|prenom|anniv|theme|photos|periode|liste|partage|gouts)$/.test(k)) sauverReglages(); }
+  function ecrire(k, v) { try { localStorage.setItem("mespromos-" + k, JSON.stringify(v)); } catch (e) {} if (/^(magasins|hiddenStores|watch|fav|rdv|prenom|anniv|theme|photos|periode|liste|partage|gouts)$/.test(k)) { sauverReglages(); sauverCompte(); } }
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function norm(t) { return String(t || "").toLowerCase().replace(/œ/g, "oe").replace(/æ/g, "ae").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim(); }
@@ -1054,7 +1071,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     return fetch(url, { cache: "no-store" }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
       if (d.v === 2) {
         S.brut = d; S.hidden = []; S.sel = selectionInitiale();
-        return chargerCatalogues().then(function () { construireVue(); marquerNouveaux(); tout(); });
+        return chargerCatalogues().then(function () { construireVue(); marquerNouveaux(); tout(); demarrerCompte(); });
       }
       S.data = d;
       marquerNouveaux();
@@ -2960,7 +2977,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var periode = S.vue === "liste" ? 6000 : 25000;
     if (Date.now() - SE.derniere > periode) syncListe();
   }, 2000);
-  document.addEventListener("visibilitychange", function () { if (!document.hidden) syncListe(); });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) { syncListe(); if (CPT && CS.pret && Date.now() - CS.tire > 60000) tirerCompte(); } });
   window.addEventListener("online", function () { syncListe(); });
 
   function afficherSync() {
@@ -2996,6 +3013,231 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       else if (navigator.clipboard) navigator.clipboard.writeText(msg + lien).then(function () { toast("Lien copié, envoie-le par SMS ou WhatsApp"); });
     }).catch(function (e) { toast("Partage impossible : " + e.message); });
   }
+  // ---------- comptes perso (Google, Apple) : les réglages de chaque personne rangés dans son compte
+  // Firebase Authentication et Cloud Firestore appelés directement (API REST, sans la bibliothèque Firebase). La connexion
+  // se fait dans la même page, sans fenêtre à part : une fenêtre à part ne revient pas dans l'appli posée sur l'écran
+  // d'accueil d'un iPhone. Google (ou Apple) renvoie sur Mogette avec un jeton dans l'adresse (#id_token=…), que
+  // Firebase échange contre un compte ; le document comptes/<uid> de Firestore garde les réglages (règles : chacun le sien).
+  var COMPTE_CFG = { apiKey: "", projet: "", google: "", apple: "" };  // rempli quand le projet Firebase existe (voir LISEZMOI)
+  var CPT = lire("compte", null);  // { uid, nom, email, photo, via, idToken, refresh, exp }
+  var CS = { t: null, envoye: lire("compteEnvoye", ""), maj: lire("compteMaj", 0), quand: lire("compteQuand", 0), erreur: "",
+    attente: null, tire: 0, pret: false, aTirer: false, applique: false, confirme: "" };
+  function comptesActifs() { return !!(COMPTE_CFG.apiKey && COMPTE_CFG.projet && COMPTE_CFG.google) && S.mode !== "pc" && (location.protocol === "https:" || location.hostname === "localhost"); }
+  function adresseRetour() { return location.origin + location.pathname.replace(/index\.html$/, ""); }
+  function hexa(b) { return Array.prototype.map.call(new Uint8Array(b), function (x) { return ("0" + x.toString(16)).slice(-2); }).join(""); }
+  function hasard(n) { var a = new Uint8Array(n || 16); crypto.getRandomValues(a); return hexa(a.buffer); }
+  function sha256hex(t) { return crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)).then(hexa); }
+  function jwt(t) {  // contenu d'un jeton (sans le vérifier : Firebase le vérifie)
+    try { var p = String(t).split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p + "===".slice((p.length + 3) % 4))))); } catch (e) { return {}; }
+  }
+  var ERREURS_FB = { INVALID_IDP_RESPONSE: "réponse de Google ou d'Apple refusée", OPERATION_NOT_ALLOWED: "cette connexion n'est pas encore activée dans Firebase",
+    USER_DISABLED: "compte désactivé", CREDENTIAL_TOO_OLD_LOGIN_AGAIN: "reconnecte-toi d'abord", INVALID_ID_TOKEN: "reconnecte-toi",
+    TOKEN_EXPIRED: "reconnecte-toi", USER_NOT_FOUND: "compte introuvable", INVALID_REFRESH_TOKEN: "reconnecte-toi",
+    API_KEY_INVALID: "clé Firebase refusée", MISSING_OR_INVALID_NONCE: "jeton Apple refusé" };
+  function messageFB(j) { var m = String((j && j.error && j.error.message) || "erreur"); return ERREURS_FB[m.split(/[ :]/)[0]] || m.toLowerCase(); }
+  function idt(methode, corps) {
+    return fetch("https://identitytoolkit.googleapis.com/v1/" + methode + "?key=" + encodeURIComponent(COMPTE_CFG.apiKey), {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corps) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var e = new Error(messageFB(j)); e.code = String((j.error || {}).message || ""); throw e; } return j; }); });
+  }
+  function jetonValide() {
+    if (!CPT) return Promise.reject(new Error("pas connecté"));
+    if (CPT.idToken && CPT.exp - Date.now() > 300000) return Promise.resolve(CPT.idToken);
+    return fetch("https://securetoken.googleapis.com/v1/token?key=" + encodeURIComponent(COMPTE_CFG.apiKey), { method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "grant_type=refresh_token&refresh_token=" + encodeURIComponent(CPT.refresh || "") })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok) {
+            if (r.status === 400) { CPT = null; ecrire("compte", null); CS.erreur = ""; toast("Ta connexion a expiré : reconnecte-toi"); afficherCompte(); }
+            throw new Error(messageFB(j));
+          }
+          CPT.idToken = j.id_token; CPT.refresh = j.refresh_token || CPT.refresh; CPT.exp = Date.now() + (parseInt(j.expires_in, 10) || 3600) * 1000;
+          ecrire("compte", CPT);
+          return CPT.idToken;
+        });
+      });
+  }
+  function docFS(methode, corps) {
+    return jetonValide().then(function (j) {
+      return fetch("https://firestore.googleapis.com/v1/projects/" + encodeURIComponent(COMPTE_CFG.projet) + "/databases/(default)/documents/comptes/" + encodeURIComponent(CPT.uid), {
+        method: methode, headers: { "Authorization": "Bearer " + j, "Content-Type": "application/json" }, body: corps ? JSON.stringify(corps) : undefined, cache: "no-store" });
+    });
+  }
+  function erreurFS(r) { return new Error(r.status === 403 ? "accès refusé (règles Firestore ?)" : r.status === 401 ? "reconnecte-toi" : "Firestore a répondu " + r.status); }
+  function docCompte() { var d = docReglages(); delete d.maj; return d; }  // mêmes clés que la sauvegarde GitHub
+  function garderEtat() { CS.quand = Date.now(); ecrire("compteMaj", CS.maj); ecrire("compteEnvoye", CS.envoye); ecrire("compteQuand", CS.quand); }
+
+  // aller chez Google ou Apple ; ils reviennent ici avec #id_token=…&state=…
+  function seConnecter(via) {
+    if (!comptesActifs()) return;
+    if (NATIF) { toast("Pour l'instant, connecte-toi depuis Safari ou Chrome"); return; }
+    var aller = { etat: hasard(12), nonce: hasard(16), via: via, t: Date.now() };
+    ecrire("compteAller", aller);
+    try { sessionStorage.setItem("mespromos-compteAller", JSON.stringify(aller)); } catch (e) {}
+    var retour = encodeURIComponent(adresseRetour());
+    if (via === "apple") {
+      if (!COMPTE_CFG.apple) return;
+      sha256hex(aller.nonce).then(function (h) {
+        location.href = "https://appleid.apple.com/auth/authorize?client_id=" + encodeURIComponent(COMPTE_CFG.apple) + "&redirect_uri=" + retour +
+          "&response_type=code%20id_token&response_mode=fragment&nonce=" + h + "&state=" + aller.etat;
+      });
+      return;
+    }
+    location.href = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + encodeURIComponent(COMPTE_CFG.google) + "&redirect_uri=" + retour +
+      "&response_type=id_token&scope=" + encodeURIComponent("openid email profile") + "&nonce=" + aller.nonce + "&state=" + aller.etat + "&prompt=select_account";
+  }
+  function retourConnexion() {
+    var h = location.hash.slice(1);
+    if (!/(^|&)(id_token|error)=/.test(h) || !/(^|&)state=/.test(h)) return false;
+    var q = {};
+    h.split("&").forEach(function (x) { var i = x.indexOf("="); if (i > 0) try { q[decodeURIComponent(x.slice(0, i))] = decodeURIComponent(x.slice(i + 1).replace(/\+/g, " ")); } catch (e) {} });
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+    var aller = lire("compteAller", null);
+    if (!aller) try { aller = JSON.parse(sessionStorage.getItem("mespromos-compteAller") || "null"); } catch (e) {}
+    ecrire("compteAller", null); try { sessionStorage.removeItem("mespromos-compteAller"); } catch (e) {}
+    if (q.error) { if (!/cancel|denied/.test(q.error)) setTimeout(function () { toast("Connexion refusée (" + q.error + ")"); }, 300); return true; }
+    if (!comptesActifs() || !aller || aller.etat !== q.state || Date.now() - aller.t > 20 * 60000) { setTimeout(function () { toast("Connexion expirée, recommence"); }, 300); return true; }
+    var via = aller.via === "apple" ? "apple" : "google", infos = jwt(q.id_token);
+    CS.connexion = true;
+    (via === "apple" ? sha256hex(aller.nonce) : Promise.resolve(aller.nonce)).then(function (n) {
+      if (infos.nonce && infos.nonce !== n) throw new Error("jeton inattendu, recommence");
+      return idt("accounts:signInWithIdp", { requestUri: adresseRetour(), returnSecureToken: true, returnIdpCredential: true,
+        postBody: "id_token=" + encodeURIComponent(q.id_token) + "&providerId=" + (via === "apple" ? "apple.com&nonce=" + encodeURIComponent(aller.nonce) : "google.com") });
+    }).then(function (r) {
+      var autre = CPT && CPT.uid !== r.localId;
+      CPT = { uid: r.localId, nom: r.displayName || r.fullName || r.firstName || infos.name || "", email: r.email || infos.email || "", photo: r.photoUrl || infos.picture || "",
+        via: via, idToken: r.idToken, refresh: r.refreshToken, exp: Date.now() + (parseInt(r.expiresIn, 10) || 3600) * 1000 };
+      ecrire("compte", CPT);
+      if (autre || !CS.envoye) { CS.maj = 0; CS.envoye = ""; ecrire("compteMaj", 0); ecrire("compteEnvoye", ""); }
+      CS.connexion = false;
+      toast("Connecté" + (CPT.nom ? " : " + CPT.nom.split(" ")[0] : ""));
+      if (lire("compteSupprimer", false)) { ecrire("compteSupprimer", false); supprimerCompte(true); return; }
+      CS.montrer = true;
+      if (CS.pret) { tirerCompte(); ouvrirReglages("compte"); } else CS.aTirer = true;
+      afficherCompte();
+    }).catch(function (e) { CS.connexion = false; toast("Connexion impossible : " + e.message); afficherCompte(); });
+    return true;
+  }
+  // ce que dit le compte ; on garde ce qui a changé d'un seul côté, on te demande si les deux ont changé
+  function tirerCompte() {
+    if (!CPT || !comptesActifs() || CS.attente) return Promise.resolve();
+    CS.tire = Date.now();
+    return docFS("GET").then(function (r) {
+      if (r.status === 404) return pousserCompte(true);  // compte tout neuf : on y range ce téléphone
+      if (!r.ok) throw erreurFS(r);
+      return r.json().then(function (j) {
+        var f = j.fields || {}, maj = parseInt((f.maj || {}).integerValue || "0", 10), d = null;
+        try { d = JSON.parse((f.donnees || {}).stringValue || "null"); } catch (e) {}
+        if (!d || d.v !== 1) return pousserCompte(true);
+        var distant = JSON.stringify(d), local = JSON.stringify(docCompte());
+        if (distant === local) { CS.maj = maj; CS.envoye = local; garderEtat(); return; }
+        var localBouge = local !== CS.envoye, distantBouge = maj !== CS.maj;
+        if (!CS.envoye) {  // premier passage de ce compte sur ce téléphone
+          if (localNeuf()) return appliquerCompte(d, maj);
+          CS.attente = { d: d, maj: maj }; return;
+        }
+        if (distantBouge && !localBouge) return appliquerCompte(d, maj);
+        if (localBouge && !distantBouge) return pousserCompte();
+        CS.attente = { d: d, maj: maj };  // changé ici et sur un autre appareil
+        toast("Ton compte a changé sur un autre appareil : choisis dans Réglages");
+      });
+    }).then(function () { CS.erreur = ""; afficherCompte(); }, function (e) { CS.erreur = e.message || String(e); afficherCompte(); });
+  }
+  function pousserCompte(force) {
+    if (!CPT || CS.attente || CS.applique) return Promise.resolve();
+    var txt = JSON.stringify(docCompte());
+    if (!force && txt === CS.envoye) return Promise.resolve();
+    var maj = Date.now();
+    return docFS("PATCH", { fields: { donnees: { stringValue: txt }, maj: { integerValue: String(maj) } } }).then(function (r) {
+      if (!r.ok) throw erreurFS(r);
+      CS.maj = maj; CS.envoye = txt; CS.erreur = ""; garderEtat(); afficherCompte();
+    });
+  }
+  function sauverCompte() {  // appelée par ecrire() quand un réglage gardé change
+    if (!CPT || !comptesActifs() || CS.attente || CS.applique) return;
+    clearTimeout(CS.t);
+    CS.t = setTimeout(function () { pousserCompte().catch(function (e) { CS.erreur = e.message || String(e); afficherCompte(); }); }, 2500);
+  }
+  function appliquerCompte(d, maj) {
+    CS.applique = true;
+    var garderListe = !!(SYNC && SYNC.gist);  // la liste partagée vit dans son gist, pas dans le compte
+    CLES_SAUVEES.forEach(function (k) {
+      if (garderListe && (k === "liste" || k === "partage")) return;
+      if (d[k] != null) ecrire(k, d[k]); else try { localStorage.removeItem("mespromos-" + k); } catch (e) {}
+    });
+    CS.maj = maj; CS.envoye = JSON.stringify(d); CS.attente = null; garderEtat();
+    toast("Réglages de ton compte remis");
+    setTimeout(function () { location.reload(); }, 800);
+  }
+  function seDeconnecter() {
+    // ce qui n'est pas encore parti, on l'envoie d'abord ; puis ce téléphone repart de zéro (tes réglages restent dans ton compte)
+    clearTimeout(CS.t);
+    var fin = function () {
+      CPT = null; ecrire("compte", null); CS.maj = 0; CS.envoye = ""; CS.attente = null; garderEtat();
+      CLES_SAUVEES.forEach(function (k) { if (!(SYNC && SYNC.gist && (k === "liste" || k === "partage"))) try { localStorage.removeItem("mespromos-" + k); } catch (e) {} });
+      toast("Déconnecté : tes réglages restent dans ton compte");
+      setTimeout(function () { location.reload(); }, 900);
+    };
+    if (CS.attente) { fin(); return; }  // rien à envoyer : tu n'avais pas encore choisi
+    pousserCompte().then(fin, function () {
+      if (CS.confirme === "deco") { fin(); return; }
+      CS.confirme = "deco"; CS.erreur = "tes derniers changements ne sont pas encore dans ton compte (réseau ?). Touche encore « Se déconnecter » pour partir quand même.";
+      afficherCompte();
+    });
+  }
+  function supprimerCompte(deja) {
+    if (!deja && CS.confirme !== "suppr") { CS.confirme = "suppr"; afficherCompte(); return; }
+    CS.confirme = ""; clearTimeout(CS.t);
+    docFS("DELETE").then(function (r) {
+      if (!r.ok && r.status !== 404) throw erreurFS(r);
+      return jetonValide();
+    }).then(function (j) { return idt("accounts:delete", { idToken: j }); }).then(function () {
+      CPT = null; ecrire("compte", null); CS.maj = 0; CS.envoye = ""; CS.attente = null; garderEtat();
+      toast("Compte supprimé. Ce téléphone garde ses réglages.");
+      afficherCompte();
+    }).catch(function (e) {
+      if (e.code === "CREDENTIAL_TOO_OLD_LOGIN_AGAIN" || e.code === "TOKEN_EXPIRED") {  // il faut une connexion récente : on refait un tour
+        ecrire("compteSupprimer", true); toast("Reconnecte-toi pour confirmer la suppression"); setTimeout(function () { seConnecter(CPT.via); }, 900); return;
+      }
+      CS.erreur = "suppression impossible : " + e.message; afficherCompte();
+    });
+  }
+  function demarrerCompte() {  // après le chargement des promos (localNeuf() a besoin des magasins par défaut)
+    CS.pret = true;
+    if (comptesActifs() && CPT && (CS.aTirer || !CS.tire)) { CS.aTirer = false; tirerCompte(); }
+    if (CS.montrer && !$("settings").open) ouvrirReglages("compte");
+    afficherCompte();
+  }
+  function afficherCompte() {
+    var g = $("compteGrp"), box = $("compteBox"); if (!g || !box) return;
+    if (!comptesActifs()) { g.hidden = true; return; }
+    g.hidden = false;
+    var h;
+    if (!CPT) {
+      h = '<span class="muted">' + (CS.connexion ? "Connexion…" : "Connecte-toi pour retrouver tes magasins, ta liste, tes favoris et tes réglages sur tous tes appareils, même après une réinstallation. Chaque personne a les siens.") + '</span>' +
+        (NATIF ? '<span class="muted">Dans l\'appli, la connexion n\'est pas encore possible : ouvre Mogette dans Safari ou Chrome pour te connecter.</span>' :
+        '<div class="cpt-btns"><button class="btn cpt-btn" type="button" data-connexion="google"' + (CS.connexion ? " disabled" : "") + '>Continuer avec Google</button>' +
+        (COMPTE_CFG.apple ? '<button class="btn cpt-btn cpt-apple" type="button" data-connexion="apple"' + (CS.connexion ? " disabled" : "") + '>Continuer avec Apple</button>' : '') + '</div>') +
+        '<span class="muted cpt-petit">Mogette ne garde que tes réglages, dans ton compte. Tu peux le supprimer quand tu veux.</span>';
+    } else {
+      var qui = CPT.nom || CPT.email || (CPT.via === "apple" ? "Compte Apple" : "Compte Google");
+      h = '<div class="cpt-qui"><span class="cpt-av" aria-hidden="true">' + (CPT.photo ? '<img alt="" src="' + esc(CPT.photo) + '" referrerpolicy="no-referrer" onerror="this.remove()">' : '') + esc((qui.charAt(0) || "?").toUpperCase()) + '</span>' +
+        '<span><b>' + esc(qui) + '</b><small>' + esc(CPT.nom && CPT.email ? CPT.email : CPT.via === "apple" ? "Connecté avec Apple" : "Connecté avec Google") + '</small></span></div>';
+      if (CS.attente) {
+        h += '<div class="cpt-choix"><b>Ton compte a déjà des réglages</b><span class="muted">Dans ton compte : ' + esc(resumeSauvegarde(CS.attente.d)) + '. Sur ce téléphone : ' +
+          esc(resumeSauvegarde(docCompte())) + '.</span><div class="row"><button class="btn primary" type="button" data-cptreprendre="1">Reprendre mon compte</button>' +
+          '<button class="btn" type="button" data-cptgarder="1">Garder ce téléphone</button></div></div>';
+      } else {
+        h += '<span class="muted">' + (CS.erreur ? "⚠️ " + esc(CS.erreur) : CS.quand && CS.envoye ? "Tout est enregistré dans ton compte (" + esc(ilYa(CS.quand)) + ")." : "Enregistrement…") + '</span>';
+      }
+      h += '<div class="row"><button class="btn" type="button" data-deconnexion="1">' + (CS.confirme === "deco" ? "Se déconnecter quand même" : "Se déconnecter") + '</button>' +
+        (CS.confirme === "suppr" ? '<button class="btn cpt-suppr" type="button" data-supprcompte="1">Oui, supprimer mon compte</button>' :
+          '<button class="link" type="button" data-supprcompte="1">Supprimer mon compte</button>') + '</div>' +
+        (CS.confirme === "suppr" ? '<span class="muted cpt-petit">Les réglages rangés dans ton compte seront effacés. Ce téléphone garde les siens.</span>' : '');
+    }
+    box.innerHTML = h;
+  }
+  retourConnexion();
   // ouverture d'un lien d'invitation : #rejoindre=<gist>~<jeton>
   (function () {
     var m = /#rejoindre=([0-9a-f]+)~([A-Za-z0-9_]+)/.exec(location.hash);
@@ -3059,6 +3301,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   function sauverReglages() {
     // pas pendant la recherche des sauvegardes, ni tant qu'une sauvegarde trouvée attend ton choix (elle serait écrasée)
     if (!SYNC || SYNC.role !== "proprio" || !SE || SE.recherche || SE.sauvegarde) return;
+    if (CPT && comptesActifs()) return;  // connecté à un compte : c'est lui qui garde les réglages
     clearTimeout(SE.tr);
     SE.tr = setTimeout(function () {
       var d = docReglages(), txt = JSON.stringify(d);
@@ -3108,7 +3351,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
           try { var d = JSON.parse(r2.json.files[F_ALERTES].content); if (d.ntfy) { SYNC.topic = d.ntfy; SYNC.ntfy = true; } if (d.operations === false) SYNC.ops = false; ecrire("sync", SYNC); } catch (e) {}
         });
       });
-      if (gr) suite = suite.then(function () {
+      if (gr && !(CPT && comptesActifs())) suite = suite.then(function () {
         return gh("GET", "/gists/" + gr).then(function (r3) {
           try {
             var d = JSON.parse(r3.json.files[F_REGLAGES].content);
@@ -3178,6 +3421,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     afficherReglages();
     try { $("settings").showModal(); } catch (e) { $("settings").setAttribute("open", ""); }
     if (section === "gh") setTimeout(function () { $("ghSection").scrollIntoView({ block: "start" }); }, 50);
+    if (section === "compte") { CS.montrer = false; setTimeout(function () { $("compteGrp").scrollIntoView({ block: "start" }); }, 50); }
     if (section === "budget") setTimeout(function () { $("budgetIn").focus(); }, 50);
     if (section === "magasins") setTimeout(function () { $("magSection").scrollIntoView({ block: "start" }); }, 50);
   }
@@ -3357,7 +3601,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
 
   // ---------- réglages
   function afficherReglages() {
-    majPhotos();
+    majPhotos(); afficherCompte();
     if (!S.data) return;
     afficherChoixMagasins();
     $("watchList2").innerHTML = S.watch.length ? S.watch.map(function (x, i) { return '<span class="wchip">' + esc(x) + '<button type="button" data-unwatch="' + i + '" aria-label="Retirer ' + esc(x) + '">×</button></span>'; }).join("") : '<span class="muted">Aucun pour l\'instant.</span>';
@@ -3374,7 +3618,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     aj.value = S.anniv ? S.anniv.slice(3) : ""; am.value = S.anniv ? S.anniv.slice(0, 2) : "";
     afficherApplis(); afficherGouts();
     afficherGh();
-    $("setInfo").textContent = S.data.promos.length + " promos chargées · " + vivants().length + " articles dans ta liste · " + S.fav.length + " favoris. Tout reste sur ce téléphone." + controleTxt();
+    $("setInfo").textContent = S.data.promos.length + " promos chargées · " + vivants().length + " articles dans ta liste · " + S.fav.length + " favoris." + (CPT && comptesActifs() ? " Tes réglages sont aussi dans ton compte." : " Tout reste sur ce téléphone.") + controleTxt();
   }
   // contrôle du matin (maj_promos.controler) : une ligne dans Réglages > Données
   function controleTxt() {
@@ -3544,6 +3788,11 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (ds.envoyeralertes) { SE.alertesEnvoyees = ""; SE.alerteErreur = ""; syncAlertes(); toast("J'envoie tes alertes à GitHub…"); return; }
     if (ds.swap) { var g1 = changerMagasin(ds.swap); if (g1) { afficherListe(); afficherPromos(); toast("Changé : " + euro(g1) + " de moins"); } return; }
     if (ds.scanwatch) { ajouterSurveille(infosScan().terme); ouvrirScan(); return; }
+    if (ds.connexion) { seConnecter(ds.connexion); return; }
+    if (ds.cptreprendre) { if (CS.attente) appliquerCompte(CS.attente.d, CS.attente.maj); return; }
+    if (ds.cptgarder) { CS.attente = null; pousserCompte(true).catch(function (e) { CS.erreur = e.message; afficherCompte(); }); afficherCompte(); return; }
+    if (ds.deconnexion) { seDeconnecter(); return; }
+    if (ds.supprcompte) { supprimerCompte(false); return; }
     if (ds.scanliste) { var isc = infosScan(); mettre({ id: nouvelId(), nom: isc.nom || isc.terme || "Produit " + SCAN.code, enseigne: "", prix: null, rayon: "" }); sauverListe(); afficherListe(); afficherAccueil(); toast("Ajouté à la liste"); return; }
     if (ds.scanmarque) { var mq = infosScan().marque; fermerFiche(); rechercher(mq); return; }
     if (ds.retourscan) { ouvrirScan(); return; }
