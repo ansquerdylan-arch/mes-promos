@@ -877,13 +877,13 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       <div class="row"><input class="field" id="prenomIn" placeholder="Ton prénom (affiché dans la liste partagée)" aria-label="Ton prénom" style="max-width:320px"></div>
       <div class="row"><span class="muted" style="font-weight:500">Ton anniversaire</span><select class="field" id="annivJ" style="width:auto" aria-label="Jour de ton anniversaire"></select><select class="field" id="annivM" style="width:auto" aria-label="Mois de ton anniversaire"></select></div>
     </div>
-    <div class="grp" id="ghSection">
-      <b>Liste partagée et alertes</b>
-      <div id="ghBox"></div>
+    <div class="grp" id="alertesGrp" hidden>
+      <b>Alertes et notifications</b>
+      <div class="cpt" id="alertesBox"></div>
     </div>
     <div class="grp">
       <b>Ce que Mogette a appris</b>
-      <span class="muted">Mogette retient les rayons, marques et produits que tu regardes, ajoutes, mets en favori ou scannes, pour te montrer d'abord ce qui te ressemble. Ça reste sur ton téléphone (et dans ta sauvegarde GitHub si elle est active).</span>
+      <span class="muted">Mogette retient les rayons, marques et produits que tu regardes, ajoutes, mets en favori ou scannes, pour te montrer d'abord ce qui te ressemble. Ça reste sur ton téléphone, et dans ton compte si tu es connecté.</span>
       <div id="goutsBox"></div>
       <div class="row"><button class="btn" type="button" data-oubliergouts="1">Tout oublier</button></div>
     </div>
@@ -891,14 +891,6 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       <b>Mogette en appli</b>
       <span class="muted" id="applisTxt"></span>
       <div class="row" id="applisBtns"></div>
-    </div>
-    <div class="grp">
-      <b>Widget sur l'écran d'accueil</b>
-      <span class="muted">Une appli web ne peut pas faire de widget toute seule : l'appli gratuite Scriptable s'en charge. Le widget montre les catalogues en cours dans tes magasins, ce qui finit et les opérations du jour.</span>
-      <div class="step"><span>1</span><span>Installe <a href="https://apps.apple.com/app/scriptable/id1405459188" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">Scriptable</a> sur l'iPhone.</span></div>
-      <div class="step"><span>2</span><span><button class="btn" type="button" data-widget="1">Copier le script du widget</button></span></div>
-      <div class="step"><span>3</span><span>Dans Scriptable, touche <b>+</b>, colle le script et appelle-le <b>Mogette</b>.</span></div>
-      <div class="step"><span>4</span><span>Sur l'écran d'accueil, ajoute un widget <b>Scriptable</b>, touche-le et choisis le script <b>Mogette</b>.</span></div>
     </div>
     <div class="grp">
       <b>Thème</b>
@@ -940,7 +932,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
 
   // ---------- utilitaires
   function lire(k, d) { try { var v = localStorage.getItem("mespromos-" + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
-  function ecrire(k, v) { try { localStorage.setItem("mespromos-" + k, JSON.stringify(v)); } catch (e) {} if (/^(magasins|hiddenStores|watch|fav|rdv|prenom|anniv|theme|photos|periode|liste|partage|gouts)$/.test(k)) { sauverReglages(); sauverCompte(); } }
+  function ecrire(k, v) { try { localStorage.setItem("mespromos-" + k, JSON.stringify(v)); } catch (e) {} if (/^(magasins|hiddenStores|watch|fav|rdv|prenom|anniv|theme|photos|periode|liste|partage|gouts|listePartagee|alertesOps)$/.test(k)) sauverCompte(); }
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function norm(t) { return String(t || "").toLowerCase().replace(/œ/g, "oe").replace(/æ/g, "ae").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim(); }
@@ -1421,11 +1413,11 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       t.textContent = "Installe l'appli Android : télécharge le fichier, ouvre-le, et autorise l'installation depuis ton navigateur si le téléphone le demande.";
       b.innerHTML = '<a class="btn primary" href="' + URL_APPLIS + 'Mogette.apk">Télécharger pour Android</a>';
     } else if (IOS) {
-      t.textContent = "Sur iPhone, Mogette s'installe déjà comme une appli : dans Safari, Partager puis « Sur l'écran d'accueil ». Une vraie appli iPhone existe aussi (fichier .ipa) : elle s'installe avec Sideloadly depuis un ordinateur et ton identifiant Apple, à refaire tous les 7 jours sans compte développeur Apple.";
-      b.innerHTML = '<a class="btn" href="' + URL_APPLIS + 'Mogette.ipa">Fichier iPhone (.ipa)</a>';
+      t.textContent = "Sur iPhone, Mogette s'installe comme une appli : dans Safari, touche Partager puis « Sur l'écran d'accueil », et ouvre-la ensuite depuis son icône (c'est aussi ce qu'il faut pour les notifications).";
+      b.innerHTML = "";
     } else {
-      t.textContent = "Mogette existe en appli Android (fichier APK) et en appli iPhone (fichier .ipa, à installer avec Sideloadly).";
-      b.innerHTML = '<a class="btn" href="' + URL_APPLIS + 'Mogette.apk">Android (.apk)</a><a class="btn" href="' + URL_APPLIS + 'Mogette.ipa">iPhone (.ipa)</a>';
+      t.textContent = "Mogette existe en appli Android (fichier APK). Sur iPhone, elle s'installe depuis Safari : Partager puis « Sur l'écran d'accueil ».";
+      b.innerHTML = '<a class="btn" href="' + URL_APPLIS + 'Mogette.apk">Android (.apk)</a>';
     }
   }
   function afficherChoixMagasins() {
@@ -1456,8 +1448,6 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     suivreMaj(); return charger();
   }).catch(function () {
     S.mode = "static";
-    var m = location.hostname.match(/^([^.]+)\.github\.io$/), repo = location.pathname.split("/").filter(Boolean)[0];
-    if (m && repo) { $("btnMaj").href = "https://github.com/" + m[1] + "/" + repo + "/actions/workflows/maj.yml"; $("btnMaj").hidden = false; }
     if ("serviceWorker" in navigator) { try { navigator.serviceWorker.register("sw.js"); } catch (e) {} }
     return charger();
   });
@@ -1480,7 +1470,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     }
     var j = Math.floor(h / 24);
     box.innerHTML = "<b>Promos pas mises à jour depuis " + (j >= 1 ? j + " jour" + (j > 1 ? "s" : "") : Math.round(h) + " h") + "</b><span class=\"muted\">" +
-      (S.mode === "pc" ? "Touche « Mettre à jour » en haut." : "La mise à jour automatique a peut-être un souci. Touche MAJ en haut pour la relancer, ou dis-le à Claude.") + "</span>";
+      (S.mode === "pc" ? "Touche « Mettre à jour » en haut." : "La mise à jour automatique a peut-être un souci : des promos ont pu changer depuis.") + "</span>";
     box.hidden = false;
   }
   function tout() {
@@ -2171,9 +2161,9 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var html = '<div class="sec-head"><h2>Tes produits surveillés</h2>' + (S.watch.length ? '<span class="muted">' + w.length + ' en promo</span>' : '') + '</div>';
     if (S.watch.length) html += '<div class="row">' + S.watch.map(function (x, i) { return '<span class="wchip">' + esc(x) + '<button type="button" data-unwatch="' + i + '" aria-label="Retirer ' + esc(x) + '">×</button></span>'; }).join("") + '</div>';
     html += '<form class="watch-add" id="watchForm"><input id="watchTxt" placeholder="Ajoute un produit : raclette, coca…" aria-label="Produit à surveiller"><button class="btn" type="submit">Surveiller</button></form>';
-    html += (SYNC && SYNC.role === "proprio")
-      ? '<span class="muted" style="font-size:13px">🔔 Alertes actives même appli fermée' + (SYNC.ntfy ? " (notifications + calendrier)" : " (calendrier)") + '</span>'
-      : '<button class="link" type="button" data-opensettings="gh" style="text-align:left">🔔 Être prévenu même quand l\'appli est fermée</button>';
+    html += notifsActives()
+      ? '<span class="muted" style="font-size:13px">🔔 Je te préviens par notification dès qu\'ils passent en promo</span>'
+      : comptesActifs() ? '<button class="link" type="button" data-opensettings="alertes" style="text-align:left">🔔 Être prévenu même quand l\'appli est fermée</button>' : '';
     if (w.length) html += '<div class="rail">' + w.slice(0, 20).map(function (p) { return carte(p, { compact: true }); }).join("") + '</div>';
     else if (S.watch.length) html += '<p class="muted" style="margin:0">Aucun de tes produits n\'est en promo en ce moment.</p>';
     $("homeWatch").innerHTML = html;
@@ -2894,36 +2884,15 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       else toast("Code-barres illisible : reprends la photo de plus près, bien à plat");
     });
   });
-  // ---------- widget Scriptable : le script, avec tes magasins dedans
-  function copierWidget() {
-    // ClipboardItem avec une promesse : Safari garde l'autorisation du toucher pendant le téléchargement du script
-    var texte = fetch("widget-mogette.js", { cache: "no-cache" }).then(function (r) { if (!r.ok) throw 0; return r.text(); }).then(function (t) {
-      return t.replace("const MAGASINS = [];", "const MAGASINS = " + JSON.stringify(S.sel || []) + ";").replace('const PRENOM = "";', "const PRENOM = " + JSON.stringify(S.prenom || "") + ";");
-    });
-    function fini() { toast("Script copié : colle-le dans Scriptable"); }
-    function rate() { toast("Copie impossible : ouvre l'appli dans Safari et réessaie"); }
-    function simple() { texte.then(function (t) { return navigator.clipboard.writeText(t); }).then(fini, rate); }
-    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
-      navigator.clipboard.write([new ClipboardItem({ "text/plain": texte.then(function (t) { return new Blob([t], { type: "text/plain" }); }) })]).then(fini, simple);
-    } else if (navigator.clipboard) simple();
-    else rate();
-  }
-
-  // ---------- synchronisation GitHub (gists) : liste partagée + produits surveillés pour les alertes
-  var API = "https://api.github.com", F_LISTE = "liste-mes-promos.json", F_ALERTES = "alertes-mes-promos.json";
-  var SYNC = lire("sync", null);
-  var SE = { etag: null, distant: null, enCours: false, derniere: 0, erreur: "", t: null, ta: null, alertesEnvoyees: lire("alertesEnvoyees", ""), alerteErreur: "",
-    tr: null, reglagesEnvoyes: lire("reglagesEnvoyes", ""), reglagesQuand: lire("reglagesQuand", 0) };
-  var F_REGLAGES = "reglages-mes-promos.json", CLES_SAUVEES = ["magasins", "hiddenStores", "watch", "fav", "rdv", "prenom", "anniv", "theme", "photos", "periode", "liste", "partage", "gouts"];
-  function gh(methode, chemin, corps, entetes) {
-    var h = { "Accept": "application/vnd.github+json", "Authorization": "token " + SYNC.token };
-    Object.keys(entetes || {}).forEach(function (k) { h[k] = entetes[k]; });
-    if (corps) h["Content-Type"] = "application/json";
-    return fetch(API + chemin, { method: methode, headers: h, body: corps ? JSON.stringify(corps) : undefined, cache: "no-store" }).then(function (r) {
-      if (r.status === 204 || r.status === 304) return { status: r.status, headers: r.headers, json: null };
-      return r.json().catch(function () { return null; }).then(function (j) { return { status: r.status, headers: r.headers, json: j }; });
-    });
-  }
+  // ---------- liste partagée : par les comptes Mogette (Firestore), sans GitHub
+  // Chaque liste partagée est un document listes/<numéro> dont les membres sont des comptes. Le lien d'invitation ne
+  // contient que ce numéro, rien de secret : il faut être connecté, et les règles de la base vérifient chaque écriture.
+  var CLES_SAUVEES = ["magasins", "hiddenStores", "watch", "fav", "rdv", "prenom", "anniv", "theme", "photos", "periode", "liste", "partage", "gouts",
+    "listePartagee", "alertesOps"];
+  var LP = lire("listePartagee", null);  // { id } : la liste partagée de ce compte
+  var SE = { enCours: false, derniere: 0, erreur: "", t: null, noms: {}, membres: [], quitter: false };
+  // l'ancien partage passait par GitHub, avec un jeton rangé sur le téléphone : on l'efface
+  ["sync", "alertesEnvoyees", "reglagesEnvoyes", "reglagesQuand", "sauvegardeEnAttente"].forEach(function (k) { try { localStorage.removeItem("mespromos-" + k); } catch (e) {} });
   function fusion(a, b) {
     var m = {};
     (a || []).concat(b || []).forEach(function (x) { if (!x || !x.id) return; var y = m[x.id]; if (!y || (x.maj || 0) > (y.maj || 0)) m[x.id] = x; });
@@ -2937,43 +2906,60 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   function docLocal() { return { v: 1, items: S.liste, depenses: P.depenses, budget: P.budget }; }
   function appliquer(doc) {
     var avant = canon(docLocal());
-    S.liste = doc.items; P.depenses = doc.depenses; P.budget = doc.budget || P.budget;
+    S.liste = doc.items || []; P.depenses = doc.depenses || []; P.budget = doc.budget || P.budget;
     ecrire("liste", S.liste); ecrire("partage", P);
     if (canon(docLocal()) !== avant) { afficherListe(); afficherAccueil(); afficherPromos(); if (S.recettes.length) afficherPlats(); }
   }
   function aSynchroniser() {
-    if (!SYNC || !SYNC.gist) return;
-    clearTimeout(SE.t); SE.t = setTimeout(syncListe, 600);
+    if (!LP) return;
+    clearTimeout(SE.t); SE.t = setTimeout(syncListe, 800);
   }
+  function fsDocs() { return "https://firestore.googleapis.com/v1/projects/" + encodeURIComponent(COMPTE_CFG.projet) + "/databases/(default)/documents"; }
+  function fsNom(chemin) { return "projects/" + COMPTE_CFG.projet + "/databases/(default)/documents/" + chemin; }
+  function fsAppel(methode, chemin, corps) {  // « listes/abc » ou « :commit » (plusieurs écritures d'un coup)
+    return jetonValide().then(function (j) {
+      return fetch(fsDocs() + (chemin.charAt(0) === ":" ? "" : "/") + chemin, { method: methode, cache: "no-store",
+        headers: { "Authorization": "Bearer " + j, "Content-Type": "application/json" }, body: corps ? JSON.stringify(corps) : undefined });
+    }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (x) { return { status: r.status, ok: r.ok, json: x || {} }; }); });
+  }
+  function chaine(v) { return { stringValue: String(v) }; }
+  function monPrenom() { return String(lire("prenom", "") || (CPT && CPT.nom) || "").trim().split(/\s+/)[0].slice(0, 30); }
   function syncListe() {
-    if (!SYNC || !SYNC.gist || SE.enCours) return Promise.resolve();
+    if (!LP || !CPT || !comptesActifs() || SE.enCours) return Promise.resolve();
     if (!navigator.onLine) { SE.erreur = "hors ligne"; afficherSync(); return Promise.resolve(); }
     SE.enCours = true;
-    return gh("GET", "/gists/" + SYNC.gist, null, SE.etag ? { "If-None-Match": SE.etag } : null).then(function (r) {
-      if (r.status === 304 && SE.distant) return SE.distant;
-      if (r.status === 401) throw new Error("jeton GitHub refusé (expiré ?)");
-      if (r.status === 404) throw new Error("liste partagée introuvable");
-      if (r.status !== 200) throw new Error("GitHub a répondu " + r.status);
-      SE.etag = r.headers.get("ETag");
-      var f = r.json && r.json.files && r.json.files[F_LISTE], doc = {};
-      try { doc = JSON.parse((f && f.content) || "{}"); } catch (e) { doc = {}; }
-      SE.distant = doc; return doc;
-    }).then(function (dist) {
-      var fus = { v: 1, items: fusion(S.liste, dist.items), depenses: fusion(P.depenses, dist.depenses),
-        budget: ((dist.budget && dist.budget.maj) || 0) > ((P.budget && P.budget.maj) || 0) ? dist.budget : P.budget };
-      appliquer(fus);
-      if (canon(fus) === canon(dist)) return;
-      var fichiers = {}; fichiers[F_LISTE] = { content: JSON.stringify(fus) };
-      return gh("PATCH", "/gists/" + SYNC.gist, { files: fichiers }).then(function (r) {
-        if (r.status === 401) throw new Error("jeton GitHub refusé (expiré ?)");
-        if (r.status !== 200) throw new Error("envoi refusé (" + r.status + ")");
-        SE.etag = r.headers.get("ETag"); SE.distant = fus;
+    var essais = 0;
+    function tour() {
+      return fsAppel("GET", "listes/" + encodeURIComponent(LP.id)).then(function (r) {
+        if (r.status === 404 || r.status === 403) { var e = new Error("plus partagée"); e.perdue = true; throw e; }
+        if (!r.ok) throw new Error("la base a répondu " + r.status);
+        var f = r.json.fields || {}, dist = {};
+        try { dist = JSON.parse((f.donnees || {}).stringValue || "{}") || {}; } catch (e) { dist = {}; }
+        SE.membres = (((f.membres || {}).arrayValue || {}).values || []).map(function (v) { return v.stringValue; });
+        var mn = ((f.noms || {}).mapValue || {}).fields || {}; SE.noms = {};
+        Object.keys(mn).forEach(function (k) { SE.noms[k] = mn[k].stringValue; });
+        var fus = { v: 1, items: fusion(S.liste, dist.items), depenses: fusion(P.depenses, dist.depenses),
+          budget: ((dist.budget && dist.budget.maj) || 0) > ((P.budget && P.budget.maj) || 0) ? dist.budget : P.budget };
+        appliquer(fus);
+        var nom = monPrenom(), nomChange = !!nom && SE.noms[CPT.uid] !== nom;
+        if (canon(fus) === canon(dist) && !nomChange) return;
+        var champs = { donnees: chaine(JSON.stringify(fus)), maj: { integerValue: String(Date.now()) } }, masque = ["donnees", "maj"];
+        if (nom) { champs.noms = { mapValue: { fields: {} } }; champs.noms.mapValue.fields[CPT.uid] = chaine(nom); masque.push("noms.`" + CPT.uid + "`"); SE.noms[CPT.uid] = nom; }
+        return fsAppel("POST", ":commit", { writes: [{ update: { name: fsNom("listes/" + LP.id), fields: champs }, updateMask: { fieldPaths: masque },
+          currentDocument: { updateTime: r.json.updateTime } }] }).then(function (w) {
+          if (w.ok) return;
+          if ((w.status === 400 || w.status === 409) && essais++ < 2) return tour();  // changée entre-temps par un autre membre : on refait la fusion
+          throw new Error("envoi refusé (" + w.status + ")");
+        });
       });
-    }).then(function () { SE.erreur = ""; }, function (e) { SE.erreur = (e && e.message) || "connexion impossible"; })
-      .then(function () { SE.enCours = false; SE.derniere = Date.now(); afficherSync(); });
+    }
+    return tour().then(function () { SE.erreur = ""; }, function (e) {
+      if (e && e.perdue) { LP = null; ecrire("listePartagee", null); SE.erreur = ""; toast("Cette liste n'est plus partagée avec toi : elle reste sur ce téléphone"); }
+      else SE.erreur = (e && e.message) || "connexion impossible";
+    }).then(function () { SE.enCours = false; SE.derniere = Date.now(); afficherSync(); });
   }
   setInterval(function () {
-    if (document.hidden || !SYNC || !SYNC.gist) return;
+    if (document.hidden || !LP || !CPT) return;
     var periode = S.vue === "liste" ? 6000 : 25000;
     if (Date.now() - SE.derniere > periode) syncListe();
   }, 2000);
@@ -2982,37 +2968,72 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
 
   function afficherSync() {
     var el = $("syncLine"); if (!el) return;
-    if (!SYNC || !SYNC.gist) {
-      el.innerHTML = '<span class="muted">Liste sur ce téléphone seulement</span><button class="btn" type="button" data-invite="1">Partager avec quelqu\'un</button>';
+    if (!LP) {
+      el.innerHTML = comptesActifs() ? '<span class="muted">Liste sur ce téléphone seulement</span><button class="btn" type="button" data-invite="1">Partager avec quelqu\'un</button>' : '';
       return;
     }
+    if (!CPT) { el.innerHTML = '<span class="muted">Liste partagée : connecte-toi pour la retrouver</span><button class="link" type="button" data-opensettings="compte">Se connecter</button>'; return; }
+    var autres = SE.membres.filter(function (u) { return u !== CPT.uid; }).map(function (u) { return SE.noms[u] || "quelqu'un"; });
     var s = Math.round((Date.now() - SE.derniere) / 1000);
-    el.innerHTML = SE.erreur
+    el.innerHTML = (SE.erreur
       ? '<span class="ko">Liste partagée : ' + esc(SE.erreur) + '</span><button class="link" type="button" data-resync="1">Réessayer</button>'
-      : '<span class="ok">● Liste partagée</span><span class="muted">' + (SE.derniere ? "à jour" + (s > 20 ? " il y a " + (s < 90 ? s + " s" : Math.round(s / 60) + " min") : "") : "connexion…") + '</span>' +
-        (SYNC.role === "proprio" ? '<button class="link" type="button" data-invite="1">Inviter</button>' : '');
+      : '<span class="ok">● Partagée' + (autres.length ? ' avec ' + esc(autres.join(", ")) : ', en attente de tes invités') + '</span><span class="muted">' +
+        (SE.derniere ? "à jour" + (s > 20 ? " il y a " + (s < 90 ? s + " s" : Math.round(s / 60) + " min") : "") : "connexion…") + '</span>') +
+      '<button class="link" type="button" data-invite="1">Inviter</button>' +
+      '<button class="link" type="button" data-quitter="1">' + (SE.quitter ? "Quitter vraiment ?" : "Quitter") + '</button>';
   }
-  function lienInvitation() {
-    var base = location.origin + location.pathname;
-    return base + "#rejoindre=" + SYNC.gist + "~" + SYNC.token;
+  function envoyerLien() {
+    var lien = adresseRetour() + "#liste=" + LP.id, msg = "Rejoins ma liste de courses sur Mogette";
+    if (navigator.share) navigator.share({ title: "Liste de courses Mogette", text: msg, url: lien }).catch(function () {});
+    else if (navigator.clipboard) navigator.clipboard.writeText(msg + " : " + lien).then(function () { toast("Lien copié : envoie-le par SMS ou WhatsApp"); }, function () { toast(lien); });
+    else toast(lien);
   }
   function inviter() {
-    if (!SYNC || SYNC.role !== "proprio") { ouvrirReglages("gh"); toast("Connecte d'abord GitHub (une seule fois)"); return; }
-    var etape = SYNC.gist ? Promise.resolve() : (function () {
-      var fichiers = {}; fichiers[F_LISTE] = { content: JSON.stringify(docLocal()) };
-      return gh("POST", "/gists", { description: "Mogette : liste de courses partagée", public: false, files: fichiers }).then(function (r) {
-        if (r.status !== 201 || !r.json) throw new Error("création refusée (" + r.status + ")");
-        SYNC.gist = r.json.id; ecrire("sync", SYNC);
-      });
-    })();
-    etape.then(function () {
-      var lien = lienInvitation();
-      afficherSync(); syncListe();
-      var msg = "Rejoins ma liste de courses (appli Mogette) : ";
-      if (navigator.share) navigator.share({ title: "Ma liste de courses", text: msg, url: lien }).catch(function () {});
-      else if (navigator.clipboard) navigator.clipboard.writeText(msg + lien).then(function () { toast("Lien copié, envoie-le par SMS ou WhatsApp"); });
+    if (!comptesActifs()) return;
+    if (!CPT) { ouvrirReglages("compte"); toast("Connecte-toi d'abord : chaque personne de la liste a son compte"); return; }
+    if (LP) { envoyerLien(); return; }
+    var id = hasard(12), nom = monPrenom() || "?";
+    var champs = { membres: { arrayValue: { values: [chaine(CPT.uid)] } }, proprio: chaine(CPT.uid), noms: { mapValue: { fields: {} } },
+      donnees: chaine(JSON.stringify(docLocal())), maj: { integerValue: String(Date.now()) } };
+    champs.noms.mapValue.fields[CPT.uid] = chaine(nom);
+    toast("Je prépare la liste partagée…");
+    fsAppel("POST", ":commit", { writes: [{ update: { name: fsNom("listes/" + id), fields: champs }, currentDocument: { exists: false } }] }).then(function (r) {
+      if (!r.ok) throw new Error(r.status === 403 ? "accès refusé" : "la base a répondu " + r.status);
+      LP = { id: id }; ecrire("listePartagee", LP); SE.membres = [CPT.uid]; SE.noms = {}; SE.noms[CPT.uid] = nom; SE.derniere = Date.now();
+      afficherSync();
+      // le téléphone ne partage un lien qu'au moment d'un appui : on le propose au prochain « Inviter »
+      toast("Liste partagée créée : touche « Inviter » pour envoyer le lien");
     }).catch(function (e) { toast("Partage impossible : " + e.message); });
   }
+  function rejoindreListe(id) {
+    if (!comptesActifs()) return;
+    if (!CPT) { ecrire("listeAJoindre", id); ouvrirReglages("compte"); toast("Connecte-toi pour rejoindre la liste partagée"); return; }
+    ecrire("listeAJoindre", null);
+    if (LP && LP.id === id) { vue("liste"); syncListe(); return; }
+    var avant = LP ? quitterListe(true) : Promise.resolve();  // une seule liste partagée à la fois
+    avant.then(function () {
+      return fsAppel("POST", ":commit", { writes: [{ transform: { document: fsNom("listes/" + id), fieldTransforms: [{ fieldPath: "membres",
+        appendMissingElements: { values: [chaine(CPT.uid)] } }] }, currentDocument: { exists: true } }] });
+    }).then(function (r) {
+      if (!r.ok) throw new Error(r.status === 403 ? "cette liste est complète ou fermée" : "liste introuvable (lien périmé ?)");
+      LP = { id: id }; ecrire("listePartagee", LP); SE.derniere = 0;
+      toast("Tu as rejoint la liste partagée"); vue("liste");
+      return syncListe();
+    }).catch(function (e) { toast("Impossible de rejoindre : " + e.message); });
+  }
+  function quitterListe(sansDemander) {
+    if (!LP) return Promise.resolve();
+    if (!sansDemander && !SE.quitter) { SE.quitter = true; afficherSync(); setTimeout(function () { SE.quitter = false; afficherSync(); }, 4000); return Promise.resolve(); }
+    SE.quitter = false;
+    var id = LP.id, fin = function () {
+      LP = null; ecrire("listePartagee", null); SE.membres = []; SE.noms = {}; afficherSync();
+      if (!sansDemander) toast("Tu as quitté la liste partagée : elle reste sur ce téléphone");
+    };
+    if (!CPT) { fin(); return Promise.resolve(); }
+    return fsAppel("POST", ":commit", { writes: [{ update: { name: fsNom("listes/" + id), fields: {} }, updateMask: { fieldPaths: ["noms.`" + CPT.uid + "`"] },
+      updateTransforms: [{ fieldPath: "membres", removeAllFromArray: { values: [chaine(CPT.uid)] } }], currentDocument: { exists: true } }] }).then(fin, fin);
+  }
+
   // ---------- comptes perso (Google, Apple) : les réglages de chaque personne rangés dans son compte
   // Firebase Authentication et Cloud Firestore appelés directement (API REST, sans la bibliothèque Firebase). La connexion
   // se fait dans la même page, sans fenêtre à part : une fenêtre à part ne revient pas dans l'appli posée sur l'écran
@@ -3065,7 +3086,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     });
   }
   function erreurFS(r) { return new Error(r.status === 403 ? "accès refusé (règles Firestore ?)" : r.status === 401 ? "reconnecte-toi" : "Firestore a répondu " + r.status); }
-  function docCompte() { var d = docReglages(); delete d.maj; return d; }  // mêmes clés que la sauvegarde GitHub
+  function docCompte() { var d = docReglages(); delete d.maj; return d; }
   function garderEtat() { CS.quand = Date.now(); ecrire("compteMaj", CS.maj); ecrire("compteEnvoye", CS.envoye); ecrire("compteQuand", CS.quand); }
 
   // aller chez Google ou Apple ; ils reviennent ici avec #id_token=…&state=…
@@ -3114,7 +3135,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       toast("Connecté" + (CPT.nom ? " : " + CPT.nom.split(" ")[0] : ""));
       if (lire("compteSupprimer", false)) { ecrire("compteSupprimer", false); supprimerCompte(true); return; }
       CS.montrer = true;
-      if (CS.pret) { tirerCompte(); ouvrirReglages("compte"); } else CS.aTirer = true;
+      if (CS.pret) { tirerCompte(); ouvrirReglages("compte"); if (lire("listeAJoindre", null)) rejoindreListe(lire("listeAJoindre", null)); } else CS.aTirer = true;
       afficherCompte();
     }).catch(function (e) { CS.connexion = false; toast("Connexion impossible : " + e.message); afficherCompte(); });
     return true;
@@ -3161,10 +3182,9 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   }
   function appliquerCompte(d, maj) {
     CS.applique = true;
-    var garderListe = !!(SYNC && SYNC.gist);  // la liste partagée vit dans son gist, pas dans le compte
     CLES_SAUVEES.forEach(function (k) {
-      if (garderListe && (k === "liste" || k === "partage")) return;
-      if (d[k] != null) ecrire(k, d[k]); else try { localStorage.removeItem("mespromos-" + k); } catch (e) {}
+      if (d[k] != null) ecrire(k, d[k]);
+      else if (!(d.listePartagee && (k === "liste" || k === "partage"))) try { localStorage.removeItem("mespromos-" + k); } catch (e) {}  // la liste revient de la liste partagée
     });
     CS.maj = maj; CS.envoye = JSON.stringify(d); CS.attente = null; garderEtat();
     toast("Réglages de ton compte remis");
@@ -3175,10 +3195,11 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     clearTimeout(CS.t);
     var fin = function () {
       CPT = null; ecrire("compte", null); CS.maj = 0; CS.envoye = ""; CS.attente = null; garderEtat();
-      CLES_SAUVEES.forEach(function (k) { if (!(SYNC && SYNC.gist && (k === "liste" || k === "partage"))) try { localStorage.removeItem("mespromos-" + k); } catch (e) {} });
+      CLES_SAUVEES.concat(["listeAJoindre"]).forEach(function (k) { try { localStorage.removeItem("mespromos-" + k); } catch (e) {} });
       toast("Déconnecté : tes réglages restent dans ton compte");
       setTimeout(function () { location.reload(); }, 900);
     };
+    var fin0 = fin; fin = function () { (lire("notifs", null) ? desactiverNotifs(true) : Promise.resolve()).then(fin0, fin0); };
     if (CS.attente) { fin(); return; }  // rien à envoyer : tu n'avais pas encore choisi
     pousserCompte().then(fin, function () {
       if (CS.confirme === "deco") { fin(); return; }
@@ -3189,7 +3210,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   function supprimerCompte(deja) {
     if (!deja && CS.confirme !== "suppr") { CS.confirme = "suppr"; afficherCompte(); return; }
     CS.confirme = ""; clearTimeout(CS.t);
-    docFS("DELETE").then(function (r) {
+    quitterListe(true).then(function () { return lire("notifs", null) ? desactiverNotifs(true) : null; }).then(function () { return docFS("DELETE"); }).then(function (r) {
       if (!r.ok && r.status !== 404) throw erreurFS(r);
       return jetonValide();
     }).then(function (j) { return idt("accounts:delete", { idToken: j }); }).then(function () {
@@ -3207,7 +3228,11 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     CS.pret = true;
     if (comptesActifs() && CPT && (CS.aTirer || !CS.tire)) { CS.aTirer = false; tirerCompte(); }
     if (CS.montrer && !$("settings").open) ouvrirReglages("compte");
-    afficherCompte();
+    if (comptesActifs()) {
+      if (CPT) { if (LP) syncListe(); rafraichirAbonnement(); chargerCleNotifs(); }
+      var j = lire("listeAJoindre", null); if (j && !CS.montrer) rejoindreListe(j);
+    }
+    afficherCompte(); afficherSync();
   }
   function afficherCompte() {
     var g = $("compteGrp"), box = $("compteBox"); if (!g || !box) return;
@@ -3239,87 +3264,104 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     box.innerHTML = h;
   }
   retourConnexion();
-  // ouverture d'un lien d'invitation : #rejoindre=<gist>~<jeton>
+  // lien d'invitation : #liste=<numéro> ; gardé le temps de te connecter si besoin
   (function () {
-    var m = /#rejoindre=([0-9a-f]+)~([A-Za-z0-9_]+)/.exec(location.hash);
-    if (!m) return;
+    var m = /#liste=([0-9a-f]{16,64})\b/.exec(location.hash), ancien = /#rejoindre=/.test(location.hash);
+    if (!m && !ancien) return;
     try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
-    if (SYNC && SYNC.role === "proprio" && SYNC.gist === m[1]) return;
-    SYNC = { token: m[2], gist: m[1], role: "invite" };
-    ecrire("sync", SYNC);
-    setTimeout(function () { toast("Tu as rejoint la liste partagée"); vue("liste"); syncListe(); }, 300);
+    if (m) ecrire("listeAJoindre", m[1]);  // un ancien lien GitHub (#rejoindre=) ne vaut plus rien
   })();
 
-  // produits surveillés -> gist public lu chaque matin par la mise à jour automatique
-  function syncAlertes() {
-    if (!SYNC || SYNC.role !== "proprio") return;
-    clearTimeout(SE.ta);
-    SE.ta = setTimeout(function () {
-      if (!S.data) { syncAlertes(); return; }  // les favoris ont besoin des promos chargées
-      var doc = { produits: S.watch, magasins: S.sel || [], magasins_masques: S.hidden, ntfy: SYNC.ntfy ? SYNC.topic : "", operations: !!SYNC.ops, favoris: favorisAlerte() };
-      var txt = JSON.stringify(doc, null, 1);
-      if (txt === SE.alertesEnvoyees && SYNC.alertGist) return;
-      var fichiers = {}; fichiers[F_ALERTES] = { content: txt };
-      var p = SYNC.alertGist ? gh("PATCH", "/gists/" + SYNC.alertGist, { files: fichiers })
-        : gh("GET", "/gists?per_page=100").then(function (r) {
-            var g = (r.json || []).find(function (x) { return x.files && x.files[F_ALERTES]; });
-            if (g) { SYNC.alertGist = g.id; ecrire("sync", SYNC); return gh("PATCH", "/gists/" + g.id, { files: fichiers }); }
-            return gh("POST", "/gists", { description: "Mogette : produits surveillés (lu par la mise à jour automatique)", public: true, files: fichiers }).then(function (r2) {
-              if (r2.json && r2.json.id) { SYNC.alertGist = r2.json.id; ecrire("sync", SYNC); }
-              return r2;
-            });
-          });
-      p.then(function (r) {
-        if (r && (r.status === 200 || r.status === 201)) { SE.alertesEnvoyees = txt; ecrire("alertesEnvoyees", txt); SE.alerteErreur = ""; }
-        else SE.alerteErreur = r && r.status === 401 ? "jeton GitHub refusé (expiré ?)" : "GitHub a répondu " + (r ? r.status : "?");
-        afficherGh();
-      }).catch(function () { SE.alerteErreur = "connexion impossible"; afficherGh(); });
-    }, 1200);
+  // ---------- notifications Mogette : la mise à jour du matin envoie les alertes de chaque compte à ses appareils (Web Push).
+  // Chaque appareil abonné a son document comptes/<uid>/appareils/<numéro> ; la clé publique d'envoi est dans
+  // config/public (lisible par tous), la clé privée seulement côté serveur.
+  var NOTIF = { cle: lire("vapidPublic", ""), etat: "", erreur: "" };
+  function syncAlertes() {}  // produits surveillés et favoris sont dans ton compte : le serveur les y lit, rien à envoyer à part
+  function notifsPossibles() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window; }
+  function iosSansIcone() { return /iP(hone|ad|od)/.test(navigator.userAgent) && !INSTALLEE; }
+  function chargerCleNotifs() {
+    if (NOTIF.cle || !comptesActifs()) return Promise.resolve(NOTIF.cle);
+    return fetch(fsDocs() + "/config/public?key=" + encodeURIComponent(COMPTE_CFG.apiKey), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (j) { var c = (((j || {}).fields || {}).vapid || {}).stringValue || ""; if (c) { NOTIF.cle = c; ecrire("vapidPublic", c); afficherAlertes(); } return c; })
+      .catch(function () { return ""; });
   }
-  // favoris envoyés aux alertes : prévenus la veille et le dernier jour
-  function favorisAlerte() {
-    var auj = isoJ(new Date());
-    return S.fav.map(promoParId).filter(function (p) { return p && p.fin && p.fin >= auj; })
-      .map(function (p) { return { id: p.id, nom: titreOffre(p), ens: nomEns(p.enseigne), fin: p.fin, prix: p.prix }; });
+  function cleOctets(b64) {
+    var s = atob(b64.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((b64.length + 3) % 4)), a = new Uint8Array(s.length);
+    for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i);
+    return a;
   }
-  function etatAlertes() {
-    if (SE.alerteErreur) return "Pas envoyées : " + SE.alerteErreur;
-    if (!SYNC.alertGist || !SE.alertesEnvoyees) return "Pas encore envoyées à GitHub";
-    var n = S.watch.length, f = S.data ? favorisAlerte().length : 0;
-    return "● Actives : " + n + " produit" + (n > 1 ? "s" : "") + " surveillé" + (n > 1 ? "s" : "") + (f ? ", " + f + " favori" + (f > 1 ? "s" : "") : "") + ". Vérifiées chaque matin.";
+  function idAppareil() { var id = lire("appareil", ""); if (!id) { id = hasard(10); ecrire("appareil", id); } return id; }
+  function nomAppareil() { var u = navigator.userAgent; return /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" : /Mac/.test(u) ? "Mac" : /Windows/.test(u) ? "PC" : "Appareil"; }
+  function enregistrerAbonnement(sub) {
+    var j = sub.toJSON ? sub.toJSON() : sub;
+    return fsAppel("PATCH", "comptes/" + encodeURIComponent(CPT.uid) + "/appareils/" + idAppareil(), { fields: {
+      push: chaine(JSON.stringify(j)), nom: chaine(nomAppareil()), maj: { integerValue: String(Date.now()) } } }).then(function (r) {
+      if (!r.ok) throw new Error(r.status === 403 ? "accès refusé" : "la base a répondu " + r.status);
+      ecrire("notifs", { fin: j.endpoint, t: Date.now() });
+    });
+  }
+  function activerNotifs() {
+    if (!CPT) { ouvrirReglages("compte"); toast("Connecte-toi d'abord pour recevoir tes alertes"); return; }
+    NOTIF.erreur = "";
+    if (iosSansIcone()) { NOTIF.erreur = "Sur iPhone, ajoute d'abord Mogette à l'écran d'accueil (Partager > Sur l'écran d'accueil), puis ouvre-la depuis l'icône."; afficherAlertes(); return; }
+    if (!notifsPossibles()) { NOTIF.erreur = "Ce navigateur ne sait pas recevoir de notifications."; afficherAlertes(); return; }
+    if (!NOTIF.cle) { NOTIF.erreur = "Les notifications ne sont pas encore prêtes côté Mogette : réessaie demain."; afficherAlertes(); chargerCleNotifs(); return; }
+    NOTIF.etat = "…"; afficherAlertes();
+    Notification.requestPermission().then(function (p) {  // demandé tout de suite, pendant l'appui
+      if (p !== "granted") throw new Error(p === "denied" ? "Notifications refusées : autorise-les pour Mogette dans les réglages du téléphone." : "Notifications pas autorisées.");
+      return navigator.serviceWorker.ready;
+    }).then(function (reg) {
+      return reg.pushManager.getSubscription().then(function (s) { return s || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: cleOctets(NOTIF.cle) }); })
+        .then(function (sub) { return enregistrerAbonnement(sub).then(function () { return reg; }); });
+    }).then(function (reg) {
+      NOTIF.etat = "";
+      try { reg.showNotification("Mogette", { body: "C'est prêt : je te préviens ici chaque matin.", icon: "icone-192.png", tag: "mogette-essai" }); } catch (e) {}
+      afficherAlertes(); afficherAccueil();
+    }).catch(function (e) { NOTIF.etat = ""; NOTIF.erreur = (e && e.message) || String(e); afficherAlertes(); });
+  }
+  function desactiverNotifs(silence) {
+    var fin = function () { ecrire("notifs", null); NOTIF.erreur = ""; afficherAlertes(); afficherAccueil(); if (!silence) toast("Notifications coupées sur ce téléphone"); };
+    var p = notifsPossibles() ? navigator.serviceWorker.ready.then(function (reg) { return reg.pushManager.getSubscription(); })
+      .then(function (s) { return s && s.unsubscribe(); }).catch(function () {}) : Promise.resolve();
+    return p.then(function () { return CPT ? fsAppel("DELETE", "comptes/" + encodeURIComponent(CPT.uid) + "/appareils/" + idAppareil()).catch(function () {}) : null; }).then(fin, fin);
+  }
+  function rafraichirAbonnement() {  // une fois par jour : l'adresse d'envoi d'un téléphone peut changer
+    var n = lire("notifs", null);
+    if (!n || !CPT || !notifsPossibles() || Date.now() - (n.t || 0) < 86400000 || Notification.permission !== "granted") return;
+    navigator.serviceWorker.ready.then(function (reg) { return reg.pushManager.getSubscription(); })
+      .then(function (s) { if (s) return enregistrerAbonnement(s); ecrire("notifs", null); }).catch(function () {});
+  }
+  function notifsActives() { var n = lire("notifs", null); return !!(n && CPT && notifsPossibles() && Notification.permission === "granted"); }
+  function afficherAlertes() {
+    var g = $("alertesGrp"), box = $("alertesBox"); if (!g || !box) return;
+    g.hidden = !comptesActifs(); if (g.hidden) return;
+    var h = '<span class="muted">Chaque matin, Mogette regarde tes produits surveillés, tes favoris qui finissent et les opérations de tes magasins, et te prévient par une notification, même appli fermée.</span>';
+    if (!CPT) h += '<div class="row"><button class="btn" type="button" data-opensettings="compte">Se connecter pour les alertes</button></div>';
+    else if (notifsActives()) {
+      var nw = S.watch.length, nf = S.fav.length;
+      h += '<span class="ok">● Notifications activées sur ce téléphone</span><span class="muted">' + nw + ' produit' + (nw > 1 ? "s" : "") + ' surveillé' + (nw > 1 ? "s" : "") +
+        ', ' + nf + ' favori' + (nf > 1 ? "s" : "") + ' : vérifiés chaque matin vers 6 h.</span>' +
+        '<label class="opt"><span>Opérations du jour dans mes magasins<br><span class="muted" style="font-size:12.5px">Jeudis Plus, journées carte…</span></span><input type="checkbox" id="optOps"' +
+        (lire("alertesOps", true) !== false ? " checked" : "") + '></label>' +
+        '<div class="row"><button class="link" type="button" data-notifsoff="1">Couper les notifications sur ce téléphone</button></div>';
+    } else {
+      h += '<div class="row"><button class="btn primary" type="button" data-notifs="1"' + (NOTIF.etat ? " disabled" : "") + '>' + (NOTIF.etat ? "Activation…" : "Activer les notifications") + '</button></div>';
+    }
+    if (NOTIF.erreur) h += '<span class="ko">' + esc(NOTIF.erreur) + '</span>';
+    box.innerHTML = h;
   }
   function ilYa(t) {
     var s = (Date.now() - t) / 1000;
     return s < 60 ? "à l'instant" : s < 3600 ? "il y a " + Math.round(s / 60) + " min" : s < 86400 ? "il y a " + Math.round(s / 3600) + " h" : "le " + jjmm(isoJ(new Date(t)));
   }
-  // ---------- sauvegarde des réglages dans un gist privé : rien n'est perdu si l'icône est supprimée, il suffit de reconnecter GitHub
+  // ---------- réglages gardés dans le compte (voir « comptes perso ») : les mêmes clés sur tous les appareils
   function docReglages() {
     var d = { v: 1 };
     CLES_SAUVEES.forEach(function (k) { var v = lire(k, null); if (v != null) d[k] = v; });
-    if (SYNC && SYNC.gist) { delete d.liste; delete d.partage; }  // déjà dans la liste partagée
+    if (LP) { delete d.liste; delete d.partage; }  // la liste vit dans la liste partagée
     return d;
   }
-  function sauverReglages() {
-    // pas pendant la recherche des sauvegardes, ni tant qu'une sauvegarde trouvée attend ton choix (elle serait écrasée)
-    if (!SYNC || SYNC.role !== "proprio" || !SE || SE.recherche || SE.sauvegarde) return;
-    if (CPT && comptesActifs()) return;  // connecté à un compte : c'est lui qui garde les réglages
-    clearTimeout(SE.tr);
-    SE.tr = setTimeout(function () {
-      var d = docReglages(), txt = JSON.stringify(d);
-      if (txt === SE.reglagesEnvoyes && SYNC.backupGist) return;
-      d.maj = Date.now();
-      var fichiers = {}; fichiers[F_REGLAGES] = { content: JSON.stringify(d) };
-      (SYNC.backupGist ? gh("PATCH", "/gists/" + SYNC.backupGist, { files: fichiers })
-        : gh("POST", "/gists", { description: "Mogette : sauvegarde des réglages", public: false, files: fichiers }).then(function (r) {
-            if (r.json && r.json.id) { SYNC.backupGist = r.json.id; ecrire("sync", SYNC); }
-            return r;
-          }))
-        .then(function (r) {
-          if (r && (r.status === 200 || r.status === 201)) { SE.reglagesEnvoyes = txt; SE.reglagesQuand = Date.now(); ecrire("reglagesEnvoyes", txt); ecrire("reglagesQuand", SE.reglagesQuand); afficherGh(); }
-        }).catch(function () {});
-    }, 4000);
-  }
-  // à la connexion (nouveau téléphone, icône réinstallée) : retrouver la liste partagée, les alertes et les réglages déjà rangés sur GitHub
   function localNeuf() {
     var def = ((S.brut && S.brut.defaut) || []).slice().sort().join(","), sel = (S.sel || []).slice().sort().join(",");
     return !vivants().length && !S.fav.length && !S.watch.length && !(S.rdv || []).length && (!sel || sel === def);
@@ -3329,99 +3371,10 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var n = (d.magasins || []).length, a = (d.liste || []).filter(function (x) { return !x.suppr; }).length, f = (d.fav || []).length;
     return n + " magasin" + (n > 1 ? "s" : "") + (d.liste ? ", " + a + " article" + (a > 1 ? "s" : "") : "") + ", " + f + " favori" + (f > 1 ? "s" : "");
   }
-  function appliquerSauvegarde(d) {
-    SE.recherche = true;  // pas d'envoi pendant qu'on remet tout
-    CLES_SAUVEES.forEach(function (k) { if (d[k] != null) ecrire(k, d[k]); });
-    SE.sauvegarde = null; ecrire("sauvegardeEnAttente", false);
-    toast("Réglages retrouvés sur GitHub");
-    setTimeout(function () { location.reload(); }, 900);
-  }
-  function retrouverSauvegardes() {
-    var recharger = false;
-    SE.recherche = true;
-    return gh("GET", "/gists?per_page=100").then(function (r) {
-      var l = r.json || [];
-      function trouve(f) { var g = (Array.isArray(l) ? l : []).find(function (x) { return x.files && x.files[f]; }); return g ? g.id : null; }
-      var gl = trouve(F_LISTE), ga = trouve(F_ALERTES), gr = trouve(F_REGLAGES), suite = Promise.resolve();
-      if (gl && !SYNC.gist) SYNC.gist = gl;
-      if (ga) SYNC.alertGist = ga;
-      if (gr) SYNC.backupGist = gr;
-      ecrire("sync", SYNC);
-      if (ga) suite = suite.then(function () {
-        return gh("GET", "/gists/" + ga).then(function (r2) {
-          try { var d = JSON.parse(r2.json.files[F_ALERTES].content); if (d.ntfy) { SYNC.topic = d.ntfy; SYNC.ntfy = true; } if (d.operations === false) SYNC.ops = false; ecrire("sync", SYNC); } catch (e) {}
-        });
-      });
-      if (gr && !(CPT && comptesActifs())) suite = suite.then(function () {
-        return gh("GET", "/gists/" + gr).then(function (r3) {
-          try {
-            var d = JSON.parse(r3.json.files[F_REGLAGES].content);
-            if (!d || d.v !== 1) return;
-            if (localNeuf()) recharger = d;  // téléphone neuf : on remet tout
-            else if (sansMaj(d) !== JSON.stringify(docReglages())) { SE.sauvegarde = d; ecrire("sauvegardeEnAttente", true); }  // à toi de choisir
-            else ecrire("sauvegardeEnAttente", false);
-          } catch (e) {}
-        });
-      });
-      return suite;
-    }).then(function () {
-      SE.recherche = false;
-      if (recharger) { appliquerSauvegarde(recharger); return; }
-      afficherGh(); afficherSync(); if (SYNC.gist) syncListe(); syncAlertes(); sauverReglages();
-    }).catch(function () { SE.recherche = false; syncAlertes(); });
-  }
-  function testNtfy() {
-    var corps = { topic: SYNC.topic, title: "Mogette", message: "Les notifications marchent. Tu seras prévenu chaque matin si un produit surveillé passe en promo.", tags: ["shopping_cart"] };
-    fetch("https://ntfy.sh/", { method: "POST", body: JSON.stringify(corps) }).then(function (r) { toast(r.ok ? "Notification envoyée, regarde ton téléphone" : "Envoi refusé (" + r.status + ")"); }, function () { toast("Envoi impossible (hors ligne ?)"); });
-  }
-  function connecter(jeton) {
-    jeton = (jeton || "").trim();
-    if (!/^(ghp_|github_pat_|gho_)[A-Za-z0-9_]+$/.test(jeton)) { toast("Ce n'est pas un jeton GitHub (il commence par ghp_)"); return; }
-    var ancien = SYNC; SYNC = { token: jeton };
-    gh("GET", "/user").then(function (r) {
-      if (r.status !== 200) throw new Error(r.status === 401 ? "jeton refusé" : "GitHub a répondu " + r.status);
-      var portee = (r.headers.get("X-OAuth-Scopes") || "");
-      if (portee && portee.split(/,\s*/).indexOf("gist") < 0) throw new Error("coche la case « gist » en créant le jeton");
-      SYNC = { token: jeton, login: r.json.login, role: "proprio", topic: (ancien && ancien.topic) || "mespromos-" + Math.random().toString(36).slice(2, 12), ntfy: !!(ancien && ancien.ntfy), ops: ancien ? ancien.ops !== false : true, gist: ancien && ancien.role === "proprio" ? ancien.gist : null };
-      ecrire("sync", SYNC); SE.alertesEnvoyees = ""; SE.reglagesEnvoyes = ""; retrouverSauvegardes();
-      afficherGh(); afficherSync(); afficherAccueil(); toast("Connecté à GitHub : " + r.json.login);
-    }).catch(function (e) { SYNC = ancien; toast("Connexion impossible : " + e.message); });
-  }
-  function afficherGh() {
-    var box = $("ghBox"); if (!box) return;
-    var lienJeton = "https://github.com/settings/tokens/new?description=" + encodeURIComponent("Mogette") + "&scopes=gist";
-    if (SYNC && SYNC.role === "invite") {
-      box.innerHTML = '<span class="muted">Ce téléphone utilise la liste partagée de quelqu\'un d\'autre.</span><div class="row"><button class="btn" type="button" data-quitter="1">Quitter la liste partagée</button></div>';
-      return;
-    }
-    if (!SYNC || !SYNC.token) {
-      box.innerHTML = '<span class="muted">Pour partager ta liste en direct et recevoir des alertes même quand l\'appli est fermée, l\'appli range ces infos dans ton compte GitHub. À faire une seule fois :</span>' +
-        '<div class="step"><span>1</span><span><a href="' + lienJeton + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">Créer mon jeton sur GitHub</a> : la case <b>gist</b> est déjà cochée. Choisis l\'expiration <b>No expiration</b>, puis touche <b>Generate token</b> en bas et copie le code (il commence par ghp_).</span></div>' +
-        '<div class="step"><span>2</span><span>Colle-le ici :</span></div>' +
-        '<form class="watch-add" id="ghForm"><input id="ghJeton" placeholder="ghp_…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Jeton GitHub"><button class="btn primary" type="submit">Connecter</button></form>' +
-        '<span class="muted" style="font-size:12.5px">Ce jeton ne donne accès qu\'à tes « gists » (petits fichiers), pas à ton code ni à ton compte. Il reste sur ce téléphone.</span>';
-      return;
-    }
-    box.innerHTML = '<div class="opt"><span>Connecté à GitHub : <b>' + esc(SYNC.login || "") + '</b></span><button class="link" type="button" data-deconnecter="1">Déconnecter</button></div>' +
-      '<div class="opt"><span>Alertes appli fermée<br><span class="' + (SE.alerteErreur ? 'ko' : SYNC.alertGist && SE.alertesEnvoyees ? 'ok' : 'muted') + '" style="font-size:12.5px">' + esc(etatAlertes()) + '</span></span>' +
-        (SE.alerteErreur || !SE.alertesEnvoyees || !SYNC.alertGist ? '<button class="btn" type="button" data-envoyeralertes="1">Envoyer</button>' : '') + '</div>' +
-      (SE.sauvegarde
-        ? '<div class="opt"><span>Sauvegarde trouvée sur GitHub<br><span class="muted" style="font-size:12.5px">Du ' + (SE.sauvegarde.maj ? jjmm(isoJ(new Date(SE.sauvegarde.maj))) : "?") + " : " + esc(resumeSauvegarde(SE.sauvegarde)) + '. Ce téléphone a déjà ses propres réglages.</span></span></div>' +
-          '<div class="row"><button class="btn primary" type="button" data-restaurer="1">Remettre la sauvegarde</button><button class="btn" type="button" data-garder="1">Garder ce téléphone</button></div>'
-        : '<div class="opt"><span>Sauvegarde des réglages<br><span class="muted" style="font-size:12.5px">' + (SYNC.backupGist && SE.reglagesQuand ? "À jour (" + ilYa(SE.reglagesQuand) + "). Après une réinstallation, reconnecte GitHub : tout revient." : "Se fait au prochain changement de réglage.") + '</span></span></div>') +
-      '<div class="opt"><span>Liste partagée' + (SYNC.gist ? ' <span class="muted">(active)</span>' : '') + '</span><button class="btn" type="button" data-invite="1">' + (SYNC.gist ? "Inviter quelqu'un" : "Partager ma liste") + '</button></div>' +
-      '<label class="opt" for="optNtfy"><span>Notifications sur le téléphone<br><span class="muted" style="font-size:12.5px">Chaque matin, si un produit surveillé passe en promo</span></span><input type="checkbox" id="optNtfy"' + (SYNC.ntfy ? " checked" : "") + '></label>' +
-      (SYNC.ntfy ? '<div style="display:grid;gap:8px;padding-left:4px">' +
-        '<div class="step"><span>1</span><span>Installe l\'appli gratuite <b>ntfy</b> (<a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" rel="noopener" style="color:var(--accent)">iPhone</a> · <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener" style="color:var(--accent)">Android</a>).</span></div>' +
-        '<div class="step"><span>2</span><span>Dans ntfy, touche <b>+</b> et abonne-toi à : <code class="topic">' + esc(SYNC.topic) + '</code> <button class="link" type="button" data-copytopic="1">Copier</button></span></div>' +
-        '<div class="step"><span>3</span><span><button class="link" type="button" data-testntfy="1">Envoyer une notification de test</button></span></div></div>' : '') +
-      '<label class="opt" for="optOps"><span>Prévenir aussi des opérations du jour (⚡ Jeudis Plus U…)</span><input type="checkbox" id="optOps"' + (SYNC.ops ? " checked" : "") + '></label>' +
-      '<span class="muted" style="font-size:12.5px">Les produits surveillés sont aussi ajoutés au calendrier des promos, si tu y es abonné.</span>';
-  }
   function ouvrirReglages(section) {
     afficherReglages();
     try { $("settings").showModal(); } catch (e) { $("settings").setAttribute("open", ""); }
-    if (section === "gh") setTimeout(function () { $("ghSection").scrollIntoView({ block: "start" }); }, 50);
+    if (section === "alertes") setTimeout(function () { $("alertesGrp").scrollIntoView({ block: "start" }); }, 50);
     if (section === "compte") { CS.montrer = false; setTimeout(function () { $("compteGrp").scrollIntoView({ block: "start" }); }, 50); }
     if (section === "budget") setTimeout(function () { $("budgetIn").focus(); }, 50);
     if (section === "magasins") setTimeout(function () { $("magSection").scrollIntoView({ block: "start" }); }, 50);
@@ -3618,7 +3571,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     }
     aj.value = S.anniv ? S.anniv.slice(3) : ""; am.value = S.anniv ? S.anniv.slice(0, 2) : "";
     afficherApplis(); afficherGouts();
-    afficherGh();
+    afficherAlertes();
     $("setInfo").textContent = S.data.promos.length + " promos chargées · " + vivants().length + " articles dans ta liste · " + S.fav.length + " favoris." + (CPT && comptesActifs() ? " Tes réglages sont aussi dans ton compte." : " Tout reste sur ce téléphone.") + controleTxt();
   }
   // contrôle du matin (maj_promos.controler) : une ligne dans Réglages > Données
@@ -3717,7 +3670,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   $("settings").addEventListener("click", function (ev) { if (ev.target === this) this.close(); });
   $("watchForm2").addEventListener("submit", function (ev) { ev.preventDefault(); ajouterSurveille($("watchTxt2").value); $("watchTxt2").value = ""; });
   $("resetAll").addEventListener("click", function () {
-    SYNC = null; ecrire("sync", null);  // ne touche pas à la liste partagée des autres
+    quitterListe(true);  // la liste partagée des autres reste intacte
     S.liste = []; S.fav = []; S.watch = []; S.hidden = []; S.rdv = [];
     P = { budget: { montant: 0, maj: 0 }, depenses: [] }; ecrire("partage", P);
     ["liste", "fav", "watch", "hiddenStores", "rdv"].forEach(function (k) { ecrire(k, []); });
@@ -3732,7 +3685,6 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
 
   document.addEventListener("submit", function (ev) {
     if (ev.target.id === "watchForm") { ev.preventDefault(); ajouterSurveille($("watchTxt").value); }
-    if (ev.target.id === "ghForm") { ev.preventDefault(); connecter($("ghJeton").value); }
     if (ev.target.id === "payForm") {
       ev.preventDefault();
       var v = parseFloat(String($("payMontant").value).replace(",", "."));
@@ -3760,8 +3712,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
         }, reduit() ? 0 : 650);
       }
     }
-    if (ev.target.id === "optNtfy") { SYNC.ntfy = ev.target.checked; ecrire("sync", SYNC); syncAlertes(); afficherGh(); }
-    if (ev.target.id === "optOps") { SYNC.ops = ev.target.checked; ecrire("sync", SYNC); syncAlertes(); }
+    if (ev.target.id === "optOps") { ecrire("alertesOps", ev.target.checked); }
     if (ev.target.id === "budgetIn") { var v = parseFloat(String(ev.target.value).replace(",", ".")); P.budget = { montant: isNaN(v) ? 0 : v, maj: Date.now() }; sauverPartage(); afficherBudget(); }
     if (ev.target.id === "prenomIn") { S.prenom = ev.target.value.trim(); ecrire("prenom", S.prenom); }
     if (ev.target.id === "annivJ" || ev.target.id === "annivM") {
@@ -3785,11 +3736,11 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (ds.cz) { zoomer(+ds.cz); return; }
     if (ds.cmoi) { autourDeMoiCarte(); return; }
     if (ds.scan) { var sf = $("scanFile"); sf.value = ""; sf.click(); return; }
-    if (ds.widget) { copierWidget(); return; }
-    if (ds.envoyeralertes) { SE.alertesEnvoyees = ""; SE.alerteErreur = ""; syncAlertes(); toast("J'envoie tes alertes à GitHub…"); return; }
     if (ds.swap) { var g1 = changerMagasin(ds.swap); if (g1) { afficherListe(); afficherPromos(); toast("Changé : " + euro(g1) + " de moins"); } return; }
     if (ds.scanwatch) { ajouterSurveille(infosScan().terme); ouvrirScan(); return; }
     if (ds.connexion) { seConnecter(ds.connexion); return; }
+    if (ds.notifs) { activerNotifs(); return; }
+    if (ds.notifsoff) { desactiverNotifs(false); return; }
     if (ds.cptreprendre) { if (CS.attente) appliquerCompte(CS.attente.d, CS.attente.maj); return; }
     if (ds.cptgarder) { CS.attente = null; pousserCompte(true).catch(function (e) { CS.erreur = e.message; afficherCompte(); }); afficherCompte(); return; }
     if (ds.deconnexion) { seDeconnecter(); return; }
@@ -3803,8 +3754,6 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       ecrire("gouts", GOUTS); fermerFiche(); afficherAccueil(); if (S.vue === "promos") afficherPromos(); toast("Compris, je t'en montrerai moins"); return;
     }
     if (ds.oubliergouts) { GOUTS = { v: 1, f: {}, n: 0, non: {} }; ecrire("gouts", GOUTS); afficherGouts(); afficherAccueil(); toast("C'est oublié : Mogette repart de zéro"); return; }
-    if (ds.restaurer) { if (SE.sauvegarde) appliquerSauvegarde(SE.sauvegarde); return; }
-    if (ds.garder) { SE.sauvegarde = null; ecrire("sauvegardeEnAttente", false); SE.reglagesEnvoyes = ""; sauverReglages(); afficherGh(); toast("Ce téléphone devient la sauvegarde"); return; }
     if (ds.swapall) { var g2 = 0; Object.keys(MOINS).forEach(function (k) { g2 += changerMagasin(k); }); afficherListe(); afficherPromos(); toast("Tout changé : " + euro(g2) + " de moins"); return; }
     if (ds.efface) { var ch = b.parentNode.querySelector("input"); ch.value = ""; ch.dispatchEvent(new Event("input", { bubbles: true })); ch.focus(); return; }
     if (ds.v) return vue(ds.v);
@@ -3855,15 +3804,12 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       S.sel = S.sel.filter(function (x) { return x !== ds.unpick; }); appliquerSelection(); afficherChoixMagasins(); apresChoixCarte(); toast("Magasin retiré"); return;
     }
     if (ds.fam) { FAM = ds.fam; afficherChoixMagasins(); return; }
-    if (ds.resync) { SE.etag = null; syncListe(); return; }
+    if (ds.resync) { SE.derniere = 0; syncListe(); return; }
     if (ds.payopen) { payOuvert = true; afficherBudget(); setTimeout(function () { var i = $("payMontant"); if (i) i.focus(); }, 30); return; }
     if (ds.paycancel) { payOuvert = false; afficherBudget(); return; }
     if (ds.deldep) { var dp = P.depenses.find(function (x) { return x.id === ds.deldep; }); if (dp) { dp.suppr = true; dp.maj = Date.now(); sauverPartage(); afficherBudget(); } return; }
     if (ds.opensettings) { ouvrirReglages(ds.opensettings); return; }
-    if (ds.quitter) { SYNC = null; ecrire("sync", null); afficherGh(); afficherSync(); toast("Ce téléphone a quitté la liste partagée"); return; }
-    if (ds.deconnecter) { SYNC = null; ecrire("sync", null); afficherGh(); afficherSync(); afficherAccueil(); toast("GitHub déconnecté sur ce téléphone"); return; }
-    if (ds.copytopic) { (navigator.clipboard ? navigator.clipboard.writeText(SYNC.topic) : Promise.reject()).then(function () { toast("Nom copié"); }, function () { toast(SYNC.topic); }); return; }
-    if (ds.testntfy) { testNtfy(); return; }
+    if (ds.quitter) { quitterListe(false); return; }
     if (ds.editprix) {
       var cible = S.liste.find(function (x) { return x.id === ds.editprix; }); if (!cible) return;
       var inp = document.createElement("input"); inp.type = "number"; inp.inputMode = "decimal"; inp.step = "0.01"; inp.min = "0";
@@ -3883,9 +3829,6 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   });
   // démarrage du partage et des alertes
   afficherSync();
-  if (SYNC && SYNC.role === "proprio") syncAlertes();
-  if (SYNC && SYNC.gist) setTimeout(syncListe, 800);
-  if (SYNC && SYNC.role === "proprio") setTimeout(function () { if (lire("sauvegardeEnAttente", false)) retrouverSauvegardes(); else { syncAlertes(); sauverReglages(); } }, 3000);
 })();
 </script>
 </body>

@@ -48,6 +48,16 @@ Version à lire sur le téléphone : le doc « Mogette : idées d'améliorations
   avec deux serveurs de secours. Le 21/11 les trois serveurs étaient saturés (502, 504) : la mise à jour du matin
   réessaie toute seule tant que le cache n'a pas été refait avec la nouvelle requête.
 
+## 21 novembre, soirée (fait) : appli publique
+
+- Plus rien de GitHub ni du propriétaire dans l'appli : section GitHub, jeton, sauvegarde et alertes par gist, lien
+  d'invitation qui contenait le jeton, bouton MAJ, mention de Claude, tuto et script Scriptable (`widget-mogette.js`)
+  retirés ; l'ancien jeton est effacé des téléphones à l'ouverture. Fichier .ipa plus proposé (installation par Safari).
+- Comptes Google activés (projet Firebase `mogette-d4fa2`, vérifiés par `outils/verif_firebase.py`).
+- Liste partagée par les comptes : `listes/<numéro>`, lien `#liste=<numéro>` sans secret, membres vérifiés par les règles.
+- Notifications Mogette (Web Push) à la place de ntfy : `alertes.py` lit les comptes avec la clé de service, publie les
+  règles, crée les clés d'envoi, envoie à chaque téléphone abonné.
+
 ## 21 novembre, fin d'après-midi (fait)
 
 - Scan d'une boîte Lanvin pas vue en promo alors qu'elle l'était (« variétés au choix ») : la fiche du scan montre
@@ -80,12 +90,9 @@ Corrigé :
 
 ## À faire du côté de Dylan
 
-0. Créer le projet Firebase pour les comptes (10 min, sur ordinateur de préférence), puis envoyer à Claude la clé d'API
-   web, l'identifiant du projet et l'identifiant client OAuth web de Google. Étapes détaillées dans le doc.
-1. Connecter GitHub dans Mogette (Réglages > Liste partagée et alertes) : active alertes appli fermée, rappels de favoris,
-   sauvegarde. Question posée en commentaire du doc le 20/11, pas encore de réponse.
-2. Installer ntfy pour les notifications.
-3. Le widget, s'il le veut (Scriptable).
+1. Mettre la clé de service Firebase dans le secret GitHub `FIREBASE_COMPTE` (Repository secrets du dépôt mes-promos) :
+   sans elle, pas de notifications, et les règles de la base (liste partagée) ne sont pas publiées.
+2. Sur iPhone : ouvrir Mogette depuis l'icône de l'écran d'accueil, se connecter, Réglages > Activer les notifications.
 
 ## Plus tard
 
@@ -93,8 +100,9 @@ Corrigé :
 - Ordre des rayons de son magasin dans le mode magasin.
 - Mogette parle des surveillés dans la bulle de l'accueil (« Ta raclette est en promo chez Leclerc ! »).
 - Les 3 magasins sans horaires, à la main si besoin.
-- Comptes : alertes appli fermée par compte (il faudra une clé de service Firebase en secret GitHub), connexion dans les
-  applis Android/iPhone (module natif), liste partagée entre comptes.
+- Comptes dans les applis Android/iPhone (Google refuse la connexion dans une vue web intégrée : module natif ou passage
+  par le navigateur).
+- Contrôle du matin envoyé en notification au propriétaire seulement (il faudrait marquer son compte).
 
 ## À surveiller
 
