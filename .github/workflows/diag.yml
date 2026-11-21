@@ -33,8 +33,8 @@ jobs:
         env:
           URLS: ${{ github.event.inputs.urls }}
           TZ: Europe/Paris
-          FIREBASE_COMPTE: ${{ github.event.inputs.brut == 'alertes' && secrets.FIREBASE_COMPTE || '' }}
-          LONGUEURS: ${{ github.event.inputs.brut == 'secret' && format('{0}|{1}', secrets.FIREBASE_COMPTE != '', vars.FIREBASE_COMPTE != '') || '' }}
+          FIREBASE_COMPTE: ${{ github.event.inputs.brut == 'alertes' && (secrets.FIREBASE_COMPTE || secrets.FIRECOMPT) || '' }}
+          LONGUEURS: ${{ github.event.inputs.brut == 'secret' && format('{0}|{1}', (secrets.FIREBASE_COMPTE || secrets.FIRECOMPT) != '', vars.FIREBASE_COMPTE != '') || '' }}
         run: |
           if [ "${{ github.event.inputs.brut }}" = "nettoyer" ]; then
             git push -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" --delete diag-brut || true

@@ -28,7 +28,7 @@ jobs:
       - name: Alertes (notifications des comptes Mogette)
         env:
           TZ: Europe/Paris
-          FIREBASE_COMPTE: ${{ secrets.FIREBASE_COMPTE }}
+          FIREBASE_COMPTE: ${{ secrets.FIREBASE_COMPTE || secrets.FIRECOMPT }}
         run: |
           pip install -q google-auth requests pywebpush || echo "Outils des notifications non installés"
           python alertes.py
