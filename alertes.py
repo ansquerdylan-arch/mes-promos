@@ -114,6 +114,21 @@ def principal(log=print, aujourd=None, reglages=None, envoyer=ntfy):
             deja[cle] = {"date": jour, "texte": texte, "mot": mot}
             trouvees.append(texte)
 
+    # favoris : prévenir la veille et le jour même de la fin de la promo
+    rappels = []
+    lendemain = (aujourd + timedelta(days=1)).isoformat()
+    for f in reglages.get("favoris") or []:
+        fin = f.get("fin")
+        if fin not in (jour, lendemain):
+            continue
+        quand = "Dernier jour aujourd'hui" if fin == jour else "Dernier jour demain"
+        cle = "f|%s|%s|%s" % (f.get("id"), fin, quand)
+        if cle in deja:
+            continue
+        prix = (" à %s" % m.euro(f["prix"])) if isinstance(f.get("prix"), (int, float)) else ""
+        texte = "%s : %s — %s%s" % (quand, f.get("nom") or "ton favori", f.get("ens") or "", prix)
+        deja[cle] = {"date": jour, "texte": texte}
+        rappels.append(texte)
     operations = []
     if reglages.get("operations"):
         demain = (aujourd + timedelta(days=1)).isoformat()
@@ -138,6 +153,12 @@ def principal(log=print, aujourd=None, reglages=None, envoyer=ntfy):
             log("Notification envoyée : %s" % titre)
         except Exception as e:
             log("Notification non envoyée : %s" % e)
+    if sujet and rappels:
+        try:
+            envoyer(sujet, "Tes favoris finissent", "\n".join("⏰ " + t for t in rappels[:12]), ["alarm_clock"])
+            log("Notification favoris envoyée (%d)" % len(rappels))
+        except Exception as e:
+            log("Notification favoris non envoyée : %s" % e)
     if sujet and operations:
         try:
             envoyer(sujet, "Opérations dans tes magasins", "\n".join("⚡ " + o for o in operations), ["zap"])
@@ -158,8 +179,8 @@ def principal(log=print, aujourd=None, reglages=None, envoyer=ntfy):
         m.ecrire_ics(donnees.get("evenements", []), os.path.join(m.DATA, "rappels.ics"), extras=extras)
     except Exception as e:
         log("Calendrier non mis à jour : %s" % e)
-    log("Alertes : %d produit(s) trouvé(s), %d opération(s) aujourd'hui ou demain." % (len(trouvees), len(operations)))
-    return {"produits": trouvees, "operations": operations}
+    log("Alertes : %d produit(s) trouvé(s), %d favori(s) qui finissent, %d opération(s) aujourd'hui ou demain." % (len(trouvees), len(rappels), len(operations)))
+    return {"produits": trouvees, "operations": operations, "favoris": rappels}
 
 
 if __name__ == "__main__":

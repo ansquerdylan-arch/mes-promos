@@ -2497,25 +2497,141 @@ def noter_offres(offres, log, aujourd=None):
         notes, faits, trouves, max(0, len(a_faire) - faits)))
 
 
-# --------------------------------------------------------------------------- historique des prix
+# --------------------------------------------------------------------------- horaires manquants (OpenStreetMap)
+# Bonial n'a pas les horaires de certains magasins (Carrefour Proximité…). OpenStreetMap les a souvent :
+# une seule demande par semaine à l'API Overpass (données © contributeurs OpenStreetMap, licence ODbL).
+OSM_CACHE = os.path.join(DATA, "horaires_osm.json")
+OSM_API = "https://overpass-api.de/api/interpreter"
+JOURS_OSM = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+NUM_BONIAL = {"Mo": 2, "Tu": 3, "We": 4, "Th": 5, "Fr": 6, "Sa": 7, "Su": 1}  # bonial : 1 = dimanche … 7 = samedi
+
+
+def horaires_osm(txt):
+    """Comprend les formes courantes d'opening_hours (« Mo-Sa 08:30-19:30; Su 09:00-12:30 », « 24/7 »…).
+    Rend [[jour bonial, minute début, minute fin], …], ou None pour une forme inconnue (saisons, exceptions) :
+    mieux vaut pas d'horaires que des horaires faux."""
+    t = (txt or "").strip()
+    if t == "24/7":
+        return [[NUM_BONIAL[j], 0, 1440] for j in JOURS_OSM]
+    res = {}
+    for regle in [r.strip() for r in t.split(";") if r.strip()]:
+        if re.match(r"^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|easter|SH)\b", regle) and regle.endswith(("off", "closed")):
+            continue  # fermetures exceptionnelles (« Dec 25 off ») : sans effet sur la semaine type
+        m = re.match(r"^((?:Mo|Tu|We|Th|Fr|Sa|Su|PH)(?:\s*[-,]\s*(?:Mo|Tu|We|Th|Fr|Sa|Su|PH))*)\s+(.+)$", regle)
+        if not m:
+            return None
+        jours = []
+        for morceau in m.group(1).split(","):
+            morceau = morceau.strip()
+            if morceau == "PH":  # jours fériés : ignorés
+                continue
+            if "-" in morceau:
+                a, b = [x.strip() for x in morceau.split("-")]
+                if a not in JOURS_OSM or b not in JOURS_OSM:
+                    return None
+                i, k = JOURS_OSM.index(a), JOURS_OSM.index(b)
+                jours += JOURS_OSM[i:k + 1] if i <= k else JOURS_OSM[i:] + JOURS_OSM[:k + 1]
+            else:
+                jours.append(morceau)
+        if not jours:
+            continue
+        plages = m.group(2).strip()
+        if plages in ("off", "closed"):
+            for j in jours:
+                res[j] = []
+            continue
+        tranches = []
+        for pl in plages.split(","):
+            mm = re.match(r"^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$", pl.strip())
+            if not mm:
+                return None
+            d, f = int(mm.group(1)) * 60 + int(mm.group(2)), int(mm.group(3)) * 60 + int(mm.group(4))
+            if f <= d:
+                f = 1440  # ferme après minuit
+            tranches.append([d, min(f, 1440)])
+        for j in jours:
+            res[j] = tranches  # une règle plus loin remplace la précédente, comme dans OpenStreetMap
+    out = [[NUM_BONIAL[j], d, f] for j in JOURS_OSM for d, f in res.get(j, [])]
+    return out or None
+
+
+def lire_osm(log, aujourd):
+    cache = charger_json(OSM_CACHE, {})
+    if cache.get("date", "") >= (aujourd - timedelta(days=7)).isoformat() and cache.get("lieux"):
+        return cache["lieux"]
+    requete = ('[out:json][timeout:90];area["ISO3166-2"="FR-85"]->.v;'
+               'nwr(area.v)["shop"~"^(supermarket|convenience)$"]["opening_hours"];out center tags;')
+    req = urllib.request.Request(OSM_API, data=urllib.parse.urlencode({"data": requete}).encode(),
+                                 headers={"User-Agent": "Mogette/1.0 (appli de promos, github.com/ansquerdylan-arch/mes-promos)"})
+    try:
+        with urllib.request.urlopen(req, timeout=120) as r:
+            elements = json.loads(r.read().decode("utf-8")).get("elements") or []
+    except Exception as e:
+        log("   OpenStreetMap injoignable (%s) : horaires de la semaine dernière gardés" % e)
+        return cache.get("lieux") or []
+    lieux = []
+    for el in elements:
+        tags = el.get("tags") or {}
+        lat, lng = el.get("lat") or (el.get("center") or {}).get("lat"), el.get("lon") or (el.get("center") or {}).get("lon")
+        if lat and lng and tags.get("opening_hours"):
+            lieux.append({"lat": lat, "lng": lng, "nom": norm(" ".join(tags.get(k, "") for k in ("brand", "name"))), "oh": tags["opening_hours"]})
+    ecrire_json(OSM_CACHE, {"date": aujourd.isoformat(), "lieux": lieux})
+    return lieux
+
+
+def completer_horaires(magasins, log, aujourd=None):
+    """Horaires OpenStreetMap pour les magasins que Bonial donne sans horaires (même enseigne à moins de 250 m)."""
+    manquent = [m for m in magasins.values() if not m.get("horaires") and m.get("lat") and m.get("lng")]
+    if not manquent:
+        return
+    lieux = lire_osm(log, aujourd or date.today())
+    trouves = 0
+    for m in manquent:
+        mots = [w for w in norm(m.get("nom")).split() if len(w) > 2 and w not in ("express", "city", "contact", "proximite", "market")] or norm(m.get("nom")).split()[:1]
+        best = None
+        for l in lieux:
+            if not any((" %s " % w) in (" %s " % l["nom"]) for w in mots):
+                continue
+            d = distance_km((m["lat"], m["lng"]), (l["lat"], l["lng"]))
+            if d <= 0.25 and (best is None or d < best[0]):
+                best = (d, l)
+        h = horaires_osm(best[1]["oh"]) if best else None
+        if h:
+            m["horaires"] = h
+            m["horaires_src"] = "osm"
+            trouves += 1
+    log("Horaires OpenStreetMap : %d magasin(s) complété(s) sur %d sans horaires" % (trouves, len(manquent)))
+
+
 # --------------------------------------------------------------------------- historique des prix
 def mettre_historique(promos, aujourd):
     h = charger_json(HISTORIQUE, {})
     jour = aujourd.isoformat()
     limite = (aujourd - timedelta(days=400)).isoformat()
+    semaine = (aujourd - timedelta(days=6)).isoformat()
+    # un même produit peut avoir deux prix le même jour (deux magasins de l'enseigne, deux formats au même nom) :
+    # on garde le plus bas du jour, sinon la courbe ferait des allers-retours d'un jour à l'autre
+    du_jour, cles = {}, []
     for p in promos:
         if p.get("prix") is None:
             continue
         cle = p.get("chaine", p.get("enseigne")) + "|" + norm(p["nom"]) + "|" + norm(p.get("marque"))
-        lst = [x for x in h.get(cle, []) if x[0] >= limite]
+        cles.append((p, cle))
+        prix = round(float(p["prix"]), 2)  # certains sites donnent 1111.4000244 pour 1111,40 €
+        if cle not in du_jour or prix < du_jour[cle]:
+            du_jour[cle] = prix
+    for p, cle in cles:
         # infos pour l'appli : prix vus avant cette semaine
-        avant = [x for x in lst if x[0] < (aujourd - timedelta(days=6)).isoformat()]
+        avant = [x for x in h.get(cle, []) if limite <= x[0] < semaine]
         if avant:
             mini = min(avant, key=lambda x: x[1])
             p["histo"] = {"min": mini[1], "min_date": mini[0], "fois": len({x[0][:7] for x in avant}) + 1}
-        if not lst or lst[-1][1] != p["prix"] or lst[-1][0] < (aujourd - timedelta(days=6)).isoformat():
-            if not (lst and lst[-1][0] == jour):
-                lst.append([jour, p["prix"]])
+    for cle, prix in du_jour.items():
+        lst = [x for x in h.get(cle, []) if x[0] >= limite]
+        if lst and lst[-1][0] == jour:
+            lst[-1][1] = min(lst[-1][1], prix)  # deuxième passage le même jour
+        elif not lst or lst[-1][1] != prix or lst[-1][0] < semaine:
+            lst.append([jour, prix])
         h[cle] = lst[-40:]
     h = {k: v for k, v in h.items() if v and v[-1][0] >= limite}
     ecrire_json(HISTORIQUE, h)
@@ -2617,6 +2733,10 @@ def mettre_a_jour(debug=False, log=print, essai=False):
     for m in magasins.values():
         ch = chaine_de_id(m["chaine"])
         chaines[m["chaine"]] = {"nom": m["nom"], "famille": ch}
+    try:
+        completer_horaires(magasins, log, aujourd)
+    except Exception as e:
+        log("Horaires OpenStreetMap ignorés : %s" % e)
     resultat = {"v": 2, "maj": datetime.now().isoformat(timespec="seconds"), "ville": dom.get("ville", ""),
                 "departement": str(cfg.get("departement", "85")), "domicile": dom, "chaines": chaines,
                 "zones": zones, "magasins": sorted(magasins.values(), key=lambda m: (m["ville"], m["nom"])),

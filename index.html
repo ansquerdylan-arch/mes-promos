@@ -175,6 +175,38 @@ button.mag-cat.vis::after { content: "Voir le visuel"; }
 #v-promos { gap: 12px; }
 #v-promos .grid { margin-top: 2px; }
 
+/* promo « toute la gamme » : l'étiquette de la marque à la place de la photo */
+.ph-box .ph-vide.etiq { font: 400 21px/1.05 var(--font-num); color: var(--label-ink, #000); background: var(--label); padding: 8px 12px; border-radius: 10px; box-shadow: inset 0 0 0 2.5px var(--outline), 3px 3px 0 var(--outline); transform: rotate(-3deg); max-width: 72%; margin-bottom: 10%; text-align: center; overflow-wrap: anywhere; }
+.ph-box .ph-vide.etiq.long { font-size: 15px; }
+.fiche .ph-box .ph-vide.etiq { font-size: 30px; padding: 12px 18px; }
+.fiche .ph-box .ph-vide.etiq.long { font-size: 21px; }
+.b.gamme { background: var(--label); color: var(--label-ink, #000); }
+/* sans photo : une petite mogette qui pense au rayon */
+.ph-box .ph-vide.mog { position: relative; width: 46%; font-size: 0; margin-top: 14%; }
+.ph-vide.mog svg { width: 100%; height: auto; display: block; }
+.ph-vide.mog i { position: absolute; left: 50%; top: -52%; transform: translateX(-50%); font-style: normal; font-size: 22px; line-height: 1; width: 40px; height: 40px; border-radius: 50%; background: var(--tile); box-shadow: inset 0 0 0 2.5px var(--outline); display: grid; place-items: center; }
+.fiche .ph-box .ph-vide.mog { width: 30%; margin-top: 9%; }
+.fiche .ph-vide.mog i { font-size: 30px; width: 54px; height: 54px; }
+/* courbe des prix sur la fiche */
+.courbe { display: grid; gap: 4px; background: var(--shelf); border-radius: 14px; padding: 10px 12px 8px; }
+.courbe-t { font-size: 14px; color: var(--muted); line-height: 1.35; }
+.courbe-t b { color: var(--ink); font-weight: 700; }
+.courbe-g { width: 100%; height: auto; display: block; overflow: visible; touch-action: manipulation; }
+.courbe-g path { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.courbe-g circle { fill: var(--tile); stroke: var(--ink); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.courbe-g circle.now { fill: var(--sticker); }
+.courbe-g circle.cible { fill: transparent; stroke: none; cursor: pointer; }
+.courbe-g circle.vu { fill: var(--label); }
+.courbe-x { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); }
+/* liste : le même produit moins cher ailleurs */
+.li .moins { grid-column: 2 / -1; justify-self: start; margin-top: -4px; border: 0; border-radius: 9px; padding: 0 10px; min-height: 32px; background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ink); font: 600 13.5px var(--font-ui); text-align: left; }
+.li .moins b { font-weight: 800; }
+.compar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; background: var(--tile); border-radius: 18px; padding: 12px 16px; font-size: 14.5px; box-shadow: var(--case); }
+/* bouton code-barres */
+.search .scan { flex: none; width: 46px; height: 46px; border: 0; border-radius: 15px; background: var(--tile); color: var(--ink); display: grid; place-items: center; padding: 0; box-shadow: inset 0 0 0 2px var(--outline); }
+.search .scan svg { width: 24px; height: 24px; }
+.search .scan:active { transform: scale(.94); }
+
 /* tuile produit */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)); gap: 12px; }
 .p { position: relative; background: var(--tile); border-radius: 20px; padding: 7px 7px 12px; display: flex; flex-direction: column; gap: 3px; min-width: 0; cursor: pointer; }
@@ -573,8 +605,10 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
 </head>
 <body>
 <div class="sb" aria-hidden="true"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mogMini" viewBox="0 0 120 100"><g transform="rotate(-14 64 56)"><path d="M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z" fill="#fff" stroke="#000" stroke-width="5" stroke-linejoin="round"/><ellipse cx="64" cy="54" rx="4.2" ry="6"/><ellipse cx="84" cy="53" rx="4.2" ry="6"/><path d="M66 65 Q73 71 81 64" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/><circle cx="54" cy="64" r="5" fill="#ff9aa2"/><circle cx="95" cy="62" r="5" fill="#ff9aa2"/></g></symbol></svg>
+<input type="file" id="scanFile" accept="image/*" capture="environment" hidden>
 <header class="topbar">
-  <svg viewBox="0 0 120 100" aria-hidden="true" class="masc"><g transform="rotate(-14 64 56)"><path d="M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z" fill="#fff" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g class="yeux"><ellipse cx="62" cy="57" rx="4.2" ry="6"/><ellipse cx="82" cy="56" rx="4.2" ry="6"/></g><path d="M65 66 Q72 72 80 65" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/><circle cx="53" cy="65" r="5" fill="#ff9aa2"/><circle cx="93" cy="63" r="5" fill="#ff9aa2"/></g></svg>
+  <svg viewBox="0 0 120 100" aria-hidden="true" class="masc"><g transform="rotate(-14 64 56)"><path d="M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z" fill="#fff" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g class="yeux"><ellipse cx="62" cy="57" rx="4.2" ry="6"/><ellipse cx="82" cy="56" rx="4.2" ry="6"/></g><path d="M65 66 Q72 72 80 65" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/><circle cx="53" cy="65" r="5" fill="#ff9aa2"/><circle cx="93" cy="63" r="5" fill="#ff9aa2"/><g class="deco"></g></g></svg>
   <div class="tt"><h1 id="titre">Mogette</h1><p id="sub">Chargement…</p></div>
   <a class="tb-btn" id="btnMaj" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><span>MAJ</span></a>
   <button class="tb-btn" id="btnSettings" type="button" aria-label="Réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
@@ -586,8 +620,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   <!-- ACCUEIL -->
   <section id="v-accueil">
     <div class="hero">
-      <button class="bulle cherche pop" type="button" id="bulle" data-wk="all"><svg viewBox="0 0 120 100" aria-hidden="true"><g class="corps"><g transform="rotate(-14 64 56)"><path d="M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z" fill="#fff" stroke="#000" stroke-width="4" stroke-linejoin="round"/><path d="M30 46 C34 40 40 38 46 39" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" opacity=".35"/><g class="yeux"><ellipse cx="62" cy="57" rx="3.6" ry="5"/><ellipse cx="82" cy="56" rx="3.6" ry="5"/></g><path d="M65 66 Q72 72 80 65" fill="none" stroke="#000" stroke-width="3.2" stroke-linecap="round"/><circle cx="53" cy="65" r="5" fill="#ff9aa2"/><circle cx="93" cy="63" r="5" fill="#ff9aa2"/></g></g></svg><p id="bulleTxt">Je fouille les prospectus<span class="trois"><i>.</i><i>.</i><i>.</i></span></p></button>
-      <form class="search" id="homeSearch" role="search"><span class="champ"><input id="homeQ" type="search" placeholder="Chercher une promo : poulet, raclette…" aria-label="Chercher une promo" autocomplete="off" enterkeyhint="search"><button class="efface" type="button" data-efface="1" aria-label="Effacer la recherche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span></form>
+      <button class="bulle cherche pop" type="button" id="bulle" data-wk="all"><svg viewBox="0 0 120 100" aria-hidden="true"><g class="corps"><g transform="rotate(-14 64 56)"><path d="M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z" fill="#fff" stroke="#000" stroke-width="4" stroke-linejoin="round"/><path d="M30 46 C34 40 40 38 46 39" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" opacity=".35"/><g class="yeux"><ellipse cx="62" cy="57" rx="3.6" ry="5"/><ellipse cx="82" cy="56" rx="3.6" ry="5"/></g><path d="M65 66 Q72 72 80 65" fill="none" stroke="#000" stroke-width="3.2" stroke-linecap="round"/><circle cx="53" cy="65" r="5" fill="#ff9aa2"/><circle cx="93" cy="63" r="5" fill="#ff9aa2"/><g class="deco"></g></g></g></svg><p id="bulleTxt">Je fouille les prospectus<span class="trois"><i>.</i><i>.</i><i>.</i></span></p></button>
+      <form class="search" id="homeSearch" role="search"><span class="champ"><input id="homeQ" type="search" placeholder="Chercher une promo : poulet, raclette…" aria-label="Chercher une promo" autocomplete="off" enterkeyhint="search"><button class="efface" type="button" data-efface="1" aria-label="Effacer la recherche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><button class="scan" type="button" data-scan="1" aria-label="Scanner un code-barres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16M8 8.5v7M11 8.5v7M13.5 8.5v7M16.5 8.5v7"/></svg></button></form>
       <div class="stale" id="staleBox" hidden></div>
       <div id="todayBox" hidden></div>
       <div class="stats">
@@ -610,6 +644,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       <div class="rail" id="railEnd"></div>
     </div>
 
+    <div id="homeFav" class="card" hidden></div>
     <div id="homeWatch" class="card"></div>
 
     <div class="blk">
@@ -634,7 +669,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   <section id="v-promos" hidden>
     <div class="toolbar">
       <div class="search">
-        <span class="champ"><input id="q" type="search" placeholder="Rechercher : poulet, raclette, Barilla…" autocomplete="off" aria-label="Rechercher une promo" enterkeyhint="search"><button class="efface" type="button" data-efface="1" aria-label="Effacer la recherche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span>
+        <span class="champ"><input id="q" type="search" placeholder="Rechercher : poulet, raclette, Barilla…" autocomplete="off" aria-label="Rechercher une promo" enterkeyhint="search"><button class="efface" type="button" data-efface="1" aria-label="Effacer la recherche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><button class="scan" type="button" data-scan="1" aria-label="Scanner un code-barres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16M8 8.5v7M11 8.5v7M13.5 8.5v7M16.5 8.5v7"/></svg></button>
         <label class="tri" title="Trier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M3.5 16.5 7 20l3.5-3.5M17 20V4m-3.5 3.5L17 4l3.5 3.5"/></svg><select id="tri" aria-label="Trier">
           <option value="remise">Meilleure remise</option>
           <option value="prix">Prix croissant</option>
@@ -761,10 +796,19 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       <b>Budget courses</b>
       <div class="row"><input class="field" id="budgetIn" type="number" inputmode="decimal" min="0" step="5" placeholder="Ex. : 80" style="width:130px" aria-label="Budget par semaine en euros"><span class="muted">€ par semaine</span></div>
       <div class="row"><input class="field" id="prenomIn" placeholder="Ton prénom (affiché dans la liste partagée)" aria-label="Ton prénom" style="max-width:320px"></div>
+      <div class="row"><span class="muted" style="font-weight:500">Ton anniversaire</span><select class="field" id="annivJ" style="width:auto" aria-label="Jour de ton anniversaire"></select><select class="field" id="annivM" style="width:auto" aria-label="Mois de ton anniversaire"></select></div>
     </div>
     <div class="grp" id="ghSection">
       <b>Liste partagée et alertes</b>
       <div id="ghBox"></div>
+    </div>
+    <div class="grp">
+      <b>Widget sur l'écran d'accueil</b>
+      <span class="muted">Une appli web ne peut pas faire de widget toute seule : l'appli gratuite Scriptable s'en charge. Le widget montre les catalogues en cours dans tes magasins, ce qui finit et les opérations du jour.</span>
+      <div class="step"><span>1</span><span>Installe <a href="https://apps.apple.com/app/scriptable/id1405459188" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">Scriptable</a> sur l'iPhone.</span></div>
+      <div class="step"><span>2</span><span><button class="btn" type="button" data-widget="1">Copier le script du widget</button></span></div>
+      <div class="step"><span>3</span><span>Dans Scriptable, touche <b>+</b>, colle le script et appelle-le <b>Mogette</b>.</span></div>
+      <div class="step"><span>4</span><span>Sur l'écran d'accueil, ajoute un widget <b>Scriptable</b>, touche-le et choisis le script <b>Mogette</b>.</span></div>
     </div>
     <div class="grp">
       <b>Thème</b>
@@ -801,12 +845,12 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     fav: lire("fav", []), liste: lire("liste", []), watch: lire("watch", []),
     hidden: lire("hiddenStores", []), theme: lire("theme", "auto"),
     vusAvant: lire("vus3", []), nouveaux: {}, rdv: lire("rdv", []), agAll: false, prenom: lire("prenom", ""), vue: "accueil",
-    photos: lire("photos", true), periode: lire("periode", "cours")
+    photos: lire("photos", true), periode: lire("periode", "cours"), anniv: lire("anniv", "")
   };
 
   // ---------- utilitaires
   function lire(k, d) { try { var v = localStorage.getItem("mespromos-" + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
-  function ecrire(k, v) { try { localStorage.setItem("mespromos-" + k, JSON.stringify(v)); } catch (e) {} }
+  function ecrire(k, v) { try { localStorage.setItem("mespromos-" + k, JSON.stringify(v)); } catch (e) {} if (/^(magasins|hiddenStores|watch|fav|rdv|prenom|anniv|theme|photos|periode|liste|partage)$/.test(k)) sauverReglages(); }
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function norm(t) { return String(t || "").toLowerCase().replace(/œ/g, "oe").replace(/æ/g, "ae").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim(); }
@@ -819,6 +863,38 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   var tTimer, tListe;
   function reduit() { return !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); }
   function rejouer(el, cls) { if (!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+  // ---------- moments de Mogette : bonnet en décembre, lunettes noires pour le Black Friday, chapeau de fête au Nouvel an et à ton anniversaire
+  var DECOS = {
+    noel: '<path d="M74 31 C77 15 89 5 104 7 C99 13 98 21 101 30 Z" fill="#d93a2b" stroke="#000" stroke-width="4" stroke-linejoin="round"/><rect x="69" y="26" width="38" height="10" rx="5" fill="#fff" stroke="#000" stroke-width="4"/><circle cx="104" cy="8" r="6" fill="#fff" stroke="#000" stroke-width="4"/>',
+    bf: '<path d="M43 49 L53 53 M92 52 L105 47" stroke="#000" stroke-width="3.5" stroke-linecap="round"/><rect x="51" y="49" width="21" height="14" rx="6" fill="#111" stroke="#000" stroke-width="3"/><rect x="73" y="48" width="21" height="14" rx="6" fill="#111" stroke="#000" stroke-width="3"/><path d="M71 54 H74" stroke="#000" stroke-width="3"/><path d="M55 52.5 h6 M77 51.5 h6" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".8"/>',
+    fete: '<path d="M75 32 L89 3 L103 30 Z" fill="#ffd03a" stroke="#000" stroke-width="4" stroke-linejoin="round"/><circle cx="87" cy="21" r="2.8" fill="#d93a2b"/><circle cx="94" cy="26" r="2.8" fill="#d93a2b"/><circle cx="83" cy="28" r="2.8" fill="#d93a2b"/><circle cx="91" cy="14" r="2.4" fill="#d93a2b"/><circle cx="89" cy="4" r="5.5" fill="#d93a2b" stroke="#000" stroke-width="3"/>'
+  };
+  function vendrediNoir(an) { return new Date(an, 10, 1 + (4 - new Date(an, 10, 1).getDay() + 7) % 7 + 22); }  // lendemain du 4e jeudi de novembre
+  function feteDuJour(d) {
+    d = jour0(d || new Date());
+    var m = d.getMonth() + 1, j = d.getDate(), mj = ("0" + m).slice(-2) + "-" + ("0" + j).slice(-2);
+    if (S.anniv && S.anniv === mj) return "anniv";
+    if (mj === "12-31" || mj === "01-01" || mj === "01-02") return "nouvelan";
+    if (m === 12 && j <= 26) return "noel";
+    var ecart = Math.round((d - vendrediNoir(d.getFullYear())) / 86400000);
+    return ecart >= -4 && ecart <= 3 ? "bf" : "";  // du lundi au « Cyber Monday »
+  }
+  function decorer() {
+    var f = feteDuJour(), svg = DECOS[f === "anniv" || f === "nouvelan" ? "fete" : f] || "";
+    document.body.setAttribute("data-fete", f);
+    document.querySelectorAll(".deco").forEach(function (g) { g.innerHTML = svg; });
+  }
+  function salutFete() {
+    var f = feteDuJour(), p = S.prenom ? ", " + S.prenom : "", d = jour0(new Date()), n = 25 - d.getDate();
+    if (f === "anniv") return "Joyeux anniversaire" + p + " ! ";
+    if (f === "nouvelan") return (d.getMonth() === 11 ? "Dernier jour de l'année" : "Bonne année") + p + " ! ";
+    if (f === "noel") return n > 1 ? "Plus que " + n + " jours avant Noël" + p + " ! " : n === 1 ? "C'est le réveillon" + p + " ! " : n === 0 ? "Joyeux Noël" + p + " ! " : "";
+    if (f === "bf") return "C'est le Black Friday" + p + " ! J'ai sorti mes lunettes noires. ";
+    return "";
+  }
+  decorer();
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) decorer(); });
+
   // la mascotte parle : nouvelle phrase, nouvelle bulle
   function bulleDit(txt) {
     var b = $("bulle"), p = $("bulleTxt"); if (!b || !p) return;
@@ -1058,7 +1134,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
         if (evts[cle].sids.indexOf(sid) < 0) evts[cle].sids.push(sid);
       });
       ens[sid] = { nom: m.nom + " " + m.ville, court: m.nom, ville: m.ville, chaine: m.chaine, nb: mes.length, adresse: m.adresse, cp: m.cp,
-        lat: m.lat, lng: m.lng, horaires: m.horaires || [], validite: princ ? "du " + jjmm(princ.debut) + " au " + jjmm(princ.fin) : "" };
+        lat: m.lat, lng: m.lng, horaires: m.horaires || [], hsrc: m.horaires_src || "", validite: princ ? "du " + jjmm(princ.debut) + " au " + jjmm(princ.fin) : "" };
     });
     var ev = Object.keys(evts).map(function (k) { var e = evts[k]; e.nom = e.base + " " + e.villes.join(", "); return e; });
     S.data = { v: 2, maj: d.maj, ville: d.ville, enseignes: ens, promos: promos, evenements: ev };
@@ -1193,7 +1269,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   }
   function badgesHTML(p, opts) {
     opts = opts || {};
-    var j = joursRestants(p), b = "";
+    var j = joursRestants(p), b = gamme(p) ? '<span class="b gamme">Toute la gamme</span>' : "";
     if (opts.cheap) b += '<span class="b cheap">Le moins cher</span>';
     if (pasCommencee(p)) {
       var dem = new Date(); dem.setDate(dem.getDate() + 1);
@@ -1212,6 +1288,19 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (!p.ns) return "";
     return '<span class="nsm" role="img" aria-label="Nutri-Score ' + esc(p.ns) + '">' + "ABCDE".split("").map(function (l) { return '<i class="ns-' + l + (l === p.ns ? ' on' : '') + '">' + l + '</i>'; }).join("") + '</span>';
   }
+
+  // promo sur toute une marque ou tout un rayon (« Lindt », « Toute la gamme Blini », « Tous les tartinables ») : pas de produit précis
+  function gamme(p) {
+    var n = norm(p.nom), m = norm(p.marque);
+    return !!n && !p.op && ((!!m && n === m) || /^(toute la gamme|toute la marque|tous les produits|toute l offre|tous les|toutes les)( |$)/.test(n));
+  }
+  function titreOffre(p) { return norm(p.nom) === "toute la gamme" && p.marque ? p.marque : p.nom; }
+  function marqueAAfficher(p) { return p.marque && norm(p.marque) !== norm(titreOffre(p)) ? p.marque : ""; }
+  // sans photo : l'étiquette de la marque pour une promo « toute la gamme », sinon une petite mogette qui pense au rayon
+  function phVide(p) {
+    if (gamme(p)) { var t = p.marque || titreOffre(p); return '<span class="ph-vide etiq' + (t.length > 16 ? ' long' : '') + '" aria-hidden="true">' + esc(t) + '</span>'; }
+    return '<span class="ph-vide mog" aria-hidden="true"><svg viewBox="0 0 120 100"><use href="#mogMini"/></svg><i>' + (EMO[p.rayon] || "🛒") + '</i></span>';
+  }
   function carte(p, opts) {
     opts = opts || {};
     var fav = S.fav.indexOf(p.id) >= 0, dans = dansListe(p.id), photo = S.photos ? photoDe(p) : "", badges = badgesHTML(p, opts);
@@ -1219,13 +1308,13 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     return '<article class="p' + (p.op ? ' op' : '') + '" data-pid="' + esc(p.id) + '" style="--sc:' + coul(p.enseigne) + '">' +
       '<div class="ph-box' + (photo ? '' : ' vide') + '">' +
         (photo ? '<img class="ph" loading="lazy" decoding="async" alt="" src="' + esc(photo) + '"' + (p.op ? ' data-zoom="' + esc(p.image) + '"' : '') + ' onerror="this.parentNode.classList.add(\'vide\');this.remove()">' : '') +
-        '<span class="ph-vide" aria-hidden="true">' + (EMO[p.rayon] || "🛒") + '</span>' + pastille(p) + nutriMini(p) +
+        phVide(p) + pastille(p) + nutriMini(p) +
         '<button class="fav' + (fav ? ' on' : '') + '" type="button" data-fav="' + esc(p.id) + '" aria-label="Favori">' + SVG.star + '</button>' +
         '<button class="add' + (dans ? ' on' : '') + '" type="button" data-add="' + esc(p.id) + '" aria-label="' + (dans ? 'Retirer de la liste' : 'Ajouter à la liste') + '">' + (dans ? SVG.check : SVG.plus) + '</button>' +
       '</div>' +
       prixHTML(p) +
-      '<h3><button class="nom" type="button" data-fiche="' + esc(p.id) + '">' + esc(p.nom) + '</button></h3>' +
-      (p.marque ? '<div class="brand">' + esc(p.marque) + '</div>' : '') +
+      '<h3><button class="nom" type="button" data-fiche="' + esc(p.id) + '">' + esc(titreOffre(p)) + '</button></h3>' +
+      (marqueAAfficher(p) ? '<div class="brand">' + esc(marqueAAfficher(p)) + '</div>' : '') +
       (plan ? '<div class="plan">' + esc(plan) + '</div>' : '') +
       (!opts.compact && p.unite ? '<div class="unit">' + esc(p.unite) + '</div>' : '') +
       (badges ? '<div class="badges">' + badges + '</div>' : '') +
@@ -1285,6 +1374,58 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (p.gs) h += '<div class="note"><span class="gs g-' + (p.gs === "A+" ? "Ap" : esc(p.gs)) + '">' + esc(p.gs) + '</span><span><b>Green-Score ' + esc(p.gs) + '</b><small>Impact sur l\'environnement ' + (GS_TXT[p.gs] || "") + '</small></span></div>';
     return h + '<div class="src">D\'après Open Food Facts, produit trouvé : « ' + esc(p.offn || p.nom) + ' ». Vérifie que c\'est bien le même.</div></div>';
   }
+
+  // ---------- courbe des prix : historique.json (prix vus chaque jour depuis le 18/11/2026), clé « chaîne|nom|marque » comme dans maj_promos.py
+  function normPy(t) { return String(t || "").replace(/œ/g, "oe").replace(/Œ/g, "oe").replace(/æ/g, "ae").replace(/Æ/g, "ae").normalize("NFD").replace(/[^\x00-\x7f]/g, "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim(); }
+  var HISTO = null, HISTO_P = null;
+  function chargerHisto() {
+    if (HISTO) return Promise.resolve(HISTO);
+    if (!HISTO_P) HISTO_P = fetch(S.mode === "pc" ? "/historique.json" : "historique.json").then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (j) { HISTO = j || {}; return HISTO; }, function () { HISTO_P = null; return null; });
+    return HISTO_P;
+  }
+  function montrerCourbe(p) {
+    if (p.op || p.prix == null) return;
+    chargerHisto().then(function (h) {
+      var box = $("ficheCourbe");
+      if (!h || !box || FICHE !== p.id) return;
+      // un relevé 4 fois plus cher ou moins cher qu'aujourd'hui est une erreur de lecture (13,40 € lu 134 €)
+      var l = (h[(p.chaine || "") + "|" + normPy(p.nom) + "|" + normPy(p.marque)] || []).filter(function (x) { return x[1] <= p.prix * 4 && x[1] >= p.prix / 4; });
+      if (!l.length) return;
+      var auj = isoJ(new Date()), der = l[l.length - 1];
+      if (der[0] < auj && Math.abs(der[1] - p.prix) > 0.004) l.push([auj, p.prix]);
+      box.innerHTML = courbeHTML(l, p.prix);
+      box.hidden = false;
+      box.onclick = function (ev) {
+        var c = ev.target.closest("circle.cible"); if (!c) return;
+        var x = l[+c.getAttribute("data-i")];
+        box.querySelectorAll("circle.vu").forEach(function (y) { y.classList.remove("vu"); });
+        var pt = box.querySelector('circle[data-p="' + c.getAttribute("data-i") + '"]'); if (pt && !pt.classList.contains("now")) pt.classList.add("vu");
+        box.querySelector(".courbe-v").textContent = (x[0] === auj ? "Aujourd'hui" : "Le " + jjmm(x[0])) + " : " + euro(x[1]);
+      };
+    });
+  }
+  function courbeHTML(l, prix) {
+    var t0 = dIso(l[0][0]).getTime(), t1 = dIso(l[l.length - 1][0]).getTime(), auj = isoJ(new Date());
+    var tete = "Prix suivi depuis le " + jjmm(l[0][0]);
+    if (l.length < 2 || t1 === t0) return '<div class="courbe-t">' + tete + ". La courbe se dessinera au fil des semaines.</div>";
+    var mini = l.reduce(function (a, x) { return x[1] < a[1] ? x : a; }, l[0]), maxi = Math.max.apply(null, l.map(function (x) { return x[1]; })), minv = mini[1];
+    tete += " · le plus bas : <b>" + euro(minv) + "</b>" + (Math.abs(minv - prix) < 0.005 ? " (aujourd'hui)" : " le " + jjmm(mini[0]));
+    var W = 300, H = 62, m = 9, ecart = maxi - minv;
+    function X(d) { return m + (dIso(d).getTime() - t0) / (t1 - t0) * (W - 2 * m); }
+    function Y(v) { return ecart < 0.005 ? H / 2 : m + (maxi - v) / ecart * (H - 2 * m); }
+    var d = "M" + X(l[0][0]).toFixed(1) + " " + Y(l[0][1]).toFixed(1);
+    for (var i = 1; i < l.length; i++) d += " H" + X(l[i][0]).toFixed(1) + " V" + Y(l[i][1]).toFixed(1);  // le prix reste le même jusqu'au relevé suivant
+    var pts = "", cibles = "";
+    l.forEach(function (x, i) {
+      var cx = X(x[0]).toFixed(1), cy = Y(x[1]).toFixed(1), der = i === l.length - 1;
+      pts += '<circle data-p="' + i + '" cx="' + cx + '" cy="' + cy + '" r="' + (der ? 5.5 : 4) + '"' + (der ? ' class="now"' : '') + '/>';
+      cibles += '<circle class="cible" data-i="' + i + '" cx="' + cx + '" cy="' + cy + '" r="16"/>';
+    });
+    return '<div class="courbe-t">' + tete + '</div>' +
+      '<svg class="courbe-g" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Prix relevés : ' + l.map(function (x) { return jjmm(x[0]) + " " + euro(x[1]); }).join(", ") + '"><path d="' + d + '"/>' + pts + cibles + '</svg>' +
+      '<div class="courbe-x"><span>' + jjmm(l[0][0]) + '</span><span class="courbe-v" aria-live="polite">Touche un point pour voir le prix</span><span>' + (l[l.length - 1][0] === auj ? "aujourd'hui" : jjmm(l[l.length - 1][0])) + '</span></div>';
+  }
   function ouvrirFiche(id) {
     var p = promoParId(id); if (!p) return;
     $("fiche").classList.toggle("deja", FICHE === id);
@@ -1324,12 +1465,14 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       '<div class="grab" aria-hidden="true"></div>' +
       '<div class="fiche-top"><span class="ens">' + esc(nomEns(p.enseigne)) + '</span><button class="x" type="button" data-fermerfiche="1" aria-label="Fermer">✕</button></div>' +
       '<div class="ph-box' + (photo ? '' : ' vide') + '">' + (photo ? '<img class="ph' + (p.op ? ' op' : '') + '" alt="" src="' + esc(photo) + '"' + (p.op ? ' data-zoom="' + esc(p.image) + '"' : '') + ' onerror="this.parentNode.classList.add(\'vide\');this.remove()">' : '') +
-        '<span class="ph-vide" aria-hidden="true">' + (EMO[p.rayon] || "🛒") + '</span>' + pastille(p) + '</div>' +
+        phVide(p) + pastille(p) + '</div>' +
       (badges ? '<div class="badges">' + badges + '</div>' : '') +
-      '<div><h2 id="ficheNom">' + esc(p.nom) + '</h2>' + (p.marque ? '<div class="brand" style="font-size:14px;margin-top:3px">' + esc(p.marque) + '</div>' : '') + '</div>' +
+      '<div><h2 id="ficheNom">' + esc(titreOffre(p)) + '</h2>' + (marqueAAfficher(p) ? '<div class="brand" style="font-size:14px;margin-top:3px">' + esc(marqueAAfficher(p)) + '</div>' : '') + '</div>' +
       prixHTML(p) +
       (plan ? '<div class="plan" style="font-size:15px">' + esc(plan) + '</div>' : '') +
       (deja ? '<div class="hist">Déjà vu à ' + euro(h.min) + ' le ' + h.min_date.slice(8, 10) + '/' + h.min_date.slice(5, 7) + '</div>' : '') +
+      (gamme(p) && p.prix == null ? '<div class="hist">Promo sur toute la gamme' + (p.marque ? ' ' + esc(p.marque) : '') + ' : le prix dépend du produit, regarde l\'étiquette en rayon.</div>' : '') +
+      '<div class="courbe" id="ficheCourbe" hidden></div>' +
       '<div class="acts"><button class="icon big' + (dans ? ' on' : '') + '" data-add="' + esc(p.id) + '" type="button">' + (dans ? '✓ Dans ta liste' : '+ Ajouter à la liste') + '</button>' +
       '<button class="icon star' + (fav ? ' on' : '') + '" data-fav="' + esc(p.id) + '" type="button" aria-label="Favori">★</button>' +
       (navigator.share ? '<button class="icon" type="button" data-partager="' + esc(p.id) + '">Partager</button>' : '') + '</div>' +
@@ -1340,6 +1483,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     '</div>';
     var d = $("fiche");
     if (!d.open) { try { d.showModal(); } catch (er) { d.setAttribute("open", ""); } d.scrollTop = 0; }
+    montrerCourbe(p);
   }
   // ---------- catalogues complets : toutes les pages, dans l'appli
   function catInfo(cid) { return ((S.brut && S.brut.catalogues) || {})[cid] || null; }
@@ -1437,6 +1581,11 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var fin = v.filter(finitBientot).sort(function (a, b) { return (b.remise || 0) - (a.remise || 0); }).slice(0, 15);
     $("blocEnd").hidden = !fin.length;
     $("railEnd").innerHTML = fin.map(function (p) { return carte(p, { compact: true }); }).join("");
+    // favoris qui finissent aujourd'hui ou demain
+    var ff = v.filter(function (p) { var j = joursRestants(p); return S.fav.indexOf(p.id) >= 0 && j != null && j <= 1 && !pasCommencee(p); });
+    $("homeFav").hidden = !ff.length;
+    $("homeFav").innerHTML = ff.length ? '<div class="sec-head"><h2>Tes favoris finissent</h2><span class="muted">' + (ff.some(function (p) { return joursRestants(p) <= 0; }) ? "dernier jour aujourd'hui" : "dernier jour demain") + '</span></div>' +
+      '<div class="rail">' + ff.map(function (p) { return carte(p, { compact: true }); }).join("") + '</div>' : "";
 
     var plats = platsDuMoment(null);
     $("homeDish").innerHTML = plats.length ? carteRecette(plats[0].r, plats[0].promos) : '<div class="empty">Les idées de plats arrivent.</div>';
@@ -1477,7 +1626,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var hier = decale(-1), demain = decale(1), dans2 = decale(2);
     var neuves = v.filter(deLaSemaine);
     SEM_TOP = {};
-    var psst = "Psst" + (S.prenom ? ", " + S.prenom : "") + "\u00a0! ";  // espace insécable classique : la police de la bulle n'a pas l'espace fine
+    var psst = salutFete() || "Psst" + (S.prenom ? ", " + S.prenom : "") + "\u00a0! ";  // espace insécable classique : la police de la bulle n'a pas l'espace fine
     bulleDit(neuves.length
       ? psst + "J'ai trouvé " + neuves.length.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0") + " nouvelle" + (neuves.length > 1 ? "s" : "") + " promo" + (neuves.length > 1 ? "s" : "") + " depuis " + JLONG[dIso(depuis).getDay()] + "."
       : psst + "Rien de neuf depuis " + JLONG[dIso(depuis).getDay()] + " pour l'instant. Je repasse demain matin.");
@@ -1599,6 +1748,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     box.style.setProperty("--sc", coul(k));
     box.innerHTML = '<div class="mag-h"><b>' + esc(e.court || e.nom) + '</b><span>' + esc(e.ville || "") + '</span></div>' +
       '<div class="mag-st">' + (o ? '<span class="' + (o.ouvert ? "open" : "closed") + '">' + esc(o.txt) + '</span>' : '') +
+        (o && e.hsrc === "osm" ? '<span class="muted" style="font-size:12.5px">Horaires : © contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color:inherit">OpenStreetMap</a></span>' : '') +
         (e.adresse ? '<span>' + esc([e.adresse, e.cp].filter(Boolean).join(", ")) + '</span><a class="itin" href="' + itineraire(e) + '" target="_blank" rel="noopener">Itinéraire</a>' : '') + '</div>' +
       '<div class="mag-n"><button type="button" data-periode="cours"><b>' + cours + '</b><span>promos en cours</span></button><button type="button" data-periode="venir"><b>' + venir + '</b><span>à venir</span></button></div>' +
       (cats.length ? '<div class="mag-cats">' + cats.map(function (x) {
@@ -1612,7 +1762,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   }
 
   function filtrer() {
-    var mots = norm(S.q).split(" ").filter(Boolean);
+    var code = /^\d{8,14}$/.test(String(S.q).trim()) ? String(S.q).trim().replace(/^0+/, "") : "";
+    var mots = code ? [] : norm(S.q).split(" ").filter(Boolean);
     var l = visibles().filter(function (p) {
       if (S.store !== "all" && p.enseigne !== S.store) return false;
       if (S.periode === "cours" && pasCommencee(p)) return false;
@@ -1626,6 +1777,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       if (S.f["new"] && !S.nouveaux[p.id]) return false;
       if (S.f.semaine && !deLaSemaine(p)) return false;
       if (S.f.end && !finitBientot(p)) return false;
+      if (code) return codeProduit(p) === code;
       if (mots.length) {
         var t = (p._s || norm(p.nom + " " + p.marque + " " + p.rayon + " " + p.bon_plan)) + norm(nomEns(p.enseigne));
         for (var i = 0; i < mots.length; i++) {
@@ -1904,6 +2056,41 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     sauverListe();
     return n;
   }
+
+  // ---------- panier comparé : le même produit (même code-barres, ou même nom et même marque) moins cher dans un autre de tes magasins
+  var MOINS = {};
+  // code-barres : « ean » vient de l'enseigne (sûr), « off » est le produit Open Food Facts trouvé par son nom (probable)
+  function codeProduit(p) { var c = String(p.ean || p.off || "").replace(/^0+/, ""); return c.length >= 7 ? c : ""; }
+  function eanSur(p) { var c = String(p.ean || "").replace(/^0+/, ""); return c.length >= 7 ? c : ""; }
+  function prixUnite(p) {  // « 6,56 € le kg » -> { v: 6.56, u: "kg" }
+    var m = /(\d+(?:[.,]\d+)?)\s*€\s*(?:le|la|l'|\/)\s*(kg|litre|l|pièce|piece|unité|unite)\b/i.exec(p.unite || "");
+    return m ? { v: parseFloat(m[1].replace(",", ".")), u: m[2].toLowerCase().replace("litre", "l").replace("pièce", "piece").replace("unité", "unite") } : null;
+  }
+  function sigDe(p) { return p._sig != null ? p._sig : (p._sig = signature(p)); }
+  var RE_LOT = /\blot\b|\d\s*x\s*\d|\bx\s?\d|\d\s?x\b/i;
+  function moinsCherAilleurs(x) {
+    if (x.fait || !x.enseigne || x.prix == null) return null;
+    var p = promoParId(x.id); if (!p || p.prix == null || deuxieme(p) || gamme(p) || p.op) return null;
+    var code = eanSur(p), sig = sigDe(p), lot = RE_LOT.test(p.nom), up = prixUnite(p), best = null;
+    visibles().forEach(function (q) {
+      if (q.enseigne === p.enseigne || q.prix == null || q.id === p.id || deuxieme(q) || gamme(q) || q.op || pasCommencee(q) || q.carte || q.en_ligne) return;
+      if (!(code && eanSur(q) === code)) {
+        if (!sig || !norm(p.marque) || !norm(q.marque) || sigDe(q) !== sig || !marquesCompatibles(p, q)) return;
+        if ((lot || RE_LOT.test(q.nom)) && norm(q.nom) !== norm(p.nom)) return;  // un lot de 2 n'est pas un produit seul
+      }
+      var uq = prixUnite(q);
+      if (up && uq && up.u === uq.u && uq.v >= up.v) return;  // moins cher, mais plus petit : pas une vraie économie
+      if (q.prix <= p.prix - 0.05 && (!best || q.prix < best.prix)) best = q;
+    });
+    return best;
+  }
+  function changerMagasin(id) {
+    var x = S.liste.find(function (y) { return y.id === id && !y.suppr; }), q = MOINS[id];
+    if (!x || !q) return 0;
+    var gain = (x.prix || 0) - q.prix;
+    retirer(x.id); ajouter(q, true);
+    return gain;
+  }
   function afficherListe() {
     var l = vivants(), restant = l.filter(function (x) { return !x.fait; });
     $("nbList").hidden = !restant.length; $("nbList").textContent = restant.length;
@@ -1912,9 +2099,13 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     $("listSummary").innerHTML = '<div><b>' + restant.length + '</b><span>à prendre</span></div><div><b>' + (total ? euro(total) : "–") + '</b><span>total estimé</span></div><div><b>' + (eco ? euro(eco) : "–") + '</b><span>économisés</span></div>';
     afficherBudget(); afficherSync();
     if (!l.length) { $("listBody").innerHTML = '<div class="empty">Ta liste est vide. Ajoute des promos avec « + Liste », depuis un plat, ou écris un article au-dessus.</div>'; return; }
+    MOINS = {};
+    var gain = 0, nMoins = 0;
+    l.forEach(function (x) { var q = moinsCherAilleurs(x); if (q) { MOINS[x.id] = q; gain += x.prix - q.prix; nMoins++; } });
     var groupes = {};
     l.forEach(function (x) { var k = x.enseigne || "autre"; (groupes[k] = groupes[k] || []).push(x); });
-    $("listBody").innerHTML = Object.keys(groupes).map(function (k) {
+    $("listBody").innerHTML = (nMoins ? '<div class="compar"><span>' + nMoins + ' produit' + (nMoins > 1 ? 's' : '') + ' moins cher' + (nMoins > 1 ? 's' : '') + ' dans un autre de tes magasins : <b>' + euro(gain) + '</b> de moins.</span>' +
+      (nMoins > 1 ? '<button class="link" type="button" data-swapall="1">Tout changer</button>' : '') + '</div>' : '') + Object.keys(groupes).map(function (k) {
       var g = groupes[k], st = 0; g.forEach(function (x) { if (x.prix && !x.fait) st += x.prix; });
       // rangé par rayon, articles cochés en bas
       g.sort(function (a, b) { return ((a.fait ? 1 : 0) - (b.fait ? 1 : 0)) || (ORDRE_RAYONS.indexOf(a.rayon || "Autres") - ORDRE_RAYONS.indexOf(b.rayon || "Autres")) || ((a.cree || 0) - (b.cree || 0)); });
@@ -1926,7 +2117,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
         var prix = x.prix != null ? euro(x.prix) : (!x.enseigne ? '<button type="button" data-editprix="' + esc(x.id) + '" aria-label="Indiquer le prix">+ prix</button>' : "");
         if (x.prix != null && !x.enseigne) prix = '<button type="button" data-editprix="' + esc(x.id) + '" aria-label="Modifier le prix" style="border:0;padding:0;color:inherit;font:inherit">' + euro(x.prix) + '</button>';
         lignes += '<div class="li' + (x.fait ? ' done' : '') + '"><input type="checkbox" id="' + idh + '" data-done="' + esc(x.id) + '"' + (x.fait ? ' checked' : '') + '><label class="n" for="' + idh + '"><span class="t">' + esc(x.nom) + '</span>' +
-          (x.par && x.par !== S.prenom ? ' <span class="par">· ' + esc(x.par) + '</span>' : '') + '</label><span class="pr">' + prix + '</span><button class="del" type="button" data-del="' + esc(x.id) + '" aria-label="Retirer">×</button></div>';
+          (x.par && x.par !== S.prenom ? ' <span class="par">· ' + esc(x.par) + '</span>' : '') + '</label><span class="pr">' + prix + '</span><button class="del" type="button" data-del="' + esc(x.id) + '" aria-label="Retirer">×</button>' +
+          (MOINS[x.id] ? '<button class="moins" type="button" data-swap="' + esc(x.id) + '">' + euro(MOINS[x.id].prix) + ' chez <b>' + esc(ensCourt(MOINS[x.id].enseigne)) + '</b> · changer</button>' : '') + '</div>';
       });
       return '<div class="lstore" style="--sc:' + (k !== "autre" ? coul(k) : "var(--line)") + '"><h2><span>' + (k !== "autre" ? esc(nomEns(k)) : "Autres articles") + '</span><span>' + (st ? "≈ " + euro(st) : "") + '</span></h2>' + lignes + '</div>';
     }).join("");
@@ -1989,10 +2181,142 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     else hb.hidden = true;
   }
 
+
+  // ---------- code-barres : photo du code, lue par le navigateur s'il sait le faire, sinon par Mogette (EAN-13, EAN-8, UPC-A)
+  var EAN_L = ["3211", "2221", "2122", "1411", "1132", "1231", "1114", "1312", "1213", "3112"].map(function (t) { return t.split("").map(Number); });
+  var EAN_G = EAN_L.map(function (w) { return w.slice().reverse(); });
+  var EAN_PAR = ["LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG", "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL", "LGGLGL"];
+  function chiffreEAN(w, tables) {
+    var tot = w[0] + w[1] + w[2] + w[3], best = null;
+    tables.forEach(function (t, ti) {
+      t.forEach(function (pat, dgt) {
+        var e = 0;
+        for (var i = 0; i < 4; i++) { var d = w[i] * 7 / tot - pat[i]; e += d * d; }
+        if (!best || e < best.e) best = { e: e, d: dgt, t: ti };
+      });
+    });
+    return best && best.e < 0.9 ? best : null;
+  }
+  function gardeOk(runs, i, n, mod) { for (var k = 0; k < n; k++) { var r = runs[i + k] / mod; if (r < 0.4 || r > 2) return false; } return true; }
+  function calme(runs, i, fin, mod) {  // marge blanche avant et après le code (au moins 3 modules)
+    return (i === 0 || runs[i - 1] >= 3 * mod) && (fin >= runs.length || runs[fin] >= 3 * mod);
+  }
+  function decoderRuns(runs, depart) {
+    // runs : largeurs alternées des barres et des espaces ; depart = index d'une barre noire
+    var res = [], i, k, d;
+    for (i = depart; i + 59 <= runs.length; i += 2) {  // EAN-13 (et UPC-A) : 3 + 6×4 + 5 + 6×4 + 3
+      var tot = 0; for (k = 0; k < 59; k++) tot += runs[i + k];
+      var mod = tot / 95;
+      if (!calme(runs, i, i + 59, mod) || !gardeOk(runs, i, 3, mod) || !gardeOk(runs, i + 27, 5, mod) || !gardeOk(runs, i + 56, 3, mod)) continue;
+      var g = [], par = "", ok = true;
+      for (d = 0; d < 6 && ok; d++) { var c = chiffreEAN(runs.slice(i + 3 + 4 * d, i + 7 + 4 * d), [EAN_L, EAN_G]); if (!c) ok = false; else { g.push(c.d); par += c.t ? "G" : "L"; } }
+      var dr = [];
+      for (d = 0; d < 6 && ok; d++) { var c2 = chiffreEAN(runs.slice(i + 32 + 4 * d, i + 36 + 4 * d), [EAN_L]); if (!c2) ok = false; else dr.push(c2.d); }
+      var premier = EAN_PAR.indexOf(par);
+      if (!ok || premier < 0) continue;
+      var tout = [premier].concat(g, dr), s = 0;
+      for (k = 0; k < 12; k++) s += tout[k] * (k % 2 ? 3 : 1);
+      if ((10 - s % 10) % 10 === tout[12]) res.push(tout.join(""));
+    }
+    if (res.length) return res;
+    for (i = depart; i + 43 <= runs.length; i += 2) {  // EAN-8 : 3 + 4×4 + 5 + 4×4 + 3
+      var tot8 = 0; for (k = 0; k < 43; k++) tot8 += runs[i + k];
+      var mod8 = tot8 / 67;
+      if (!calme(runs, i, i + 43, mod8) || !gardeOk(runs, i, 3, mod8) || !gardeOk(runs, i + 19, 5, mod8) || !gardeOk(runs, i + 40, 3, mod8)) continue;
+      var t8 = [], ok8 = true;
+      for (d = 0; d < 4 && ok8; d++) { var c3 = chiffreEAN(runs.slice(i + 3 + 4 * d, i + 7 + 4 * d), [EAN_L]); if (!c3) ok8 = false; else t8.push(c3.d); }
+      for (d = 0; d < 4 && ok8; d++) { var c4 = chiffreEAN(runs.slice(i + 24 + 4 * d, i + 28 + 4 * d), [EAN_L]); if (!c4) ok8 = false; else t8.push(c4.d); }
+      if (ok8) { var s8 = 3 * (t8[0] + t8[2] + t8[4] + t8[6]) + t8[1] + t8[3] + t8[5]; if ((10 - s8 % 10) % 10 === t8[7]) res.push(t8.join("")); }
+    }
+    return res;
+  }
+  function decoderLigne(lum) {
+    var n = lum.length, lis = new Float32Array(n), i;
+    for (i = 0; i < n; i++) lis[i] = (lum[Math.max(0, i - 1)] + lum[i] + lum[Math.min(n - 1, i + 1)]) / 3;
+    var trouves = [];
+    // deux seuils : global (milieu entre clair et foncé) puis local (moyenne glissante, pour les photos mal éclairées)
+    [0, 1].forEach(function (mode) {
+      var seuil = new Float32Array(n);
+      if (!mode) { var mn = 255, mx = 0; for (i = 0; i < n; i++) { if (lis[i] < mn) mn = lis[i]; if (lis[i] > mx) mx = lis[i]; } if (mx - mn < 40) return; seuil.fill((mn + mx) / 2); }
+      else { var r = Math.max(8, n >> 5), pre = new Float64Array(n + 1); for (i = 0; i < n; i++) pre[i + 1] = pre[i] + lis[i]; for (i = 0; i < n; i++) { var a0 = Math.max(0, i - r), b0 = Math.min(n, i + r + 1); seuil[i] = (pre[b0] - pre[a0]) / (b0 - a0); } }
+      var runs = [], noir = lis[0] < seuil[0], l = 0, premierNoir = noir ? 0 : 1;
+      for (i = 0; i < n; i++) { var nr = lis[i] < seuil[i]; if (nr === noir) l++; else { runs.push(l); l = 1; noir = nr; } }
+      runs.push(l);
+      [runs, runs.slice().reverse()].forEach(function (rr, sens) {
+        var dep = sens ? ((runs.length - 1 - premierNoir) % 2 === 0 ? 0 : 1) : premierNoir;  // la première barre noire dans ce sens
+        trouves = trouves.concat(decoderRuns(rr, dep));
+      });
+    });
+    return trouves;
+  }
+  function decoderImage(cv) {
+    var c = cv.getContext("2d"), w = cv.width, h = cv.height, data = c.getImageData(0, 0, w, h).data, votes = {}, meilleur = null;
+    function lum(x, y) { var o = (y * w + x) * 4; return 0.299 * data[o] + 0.587 * data[o + 1] + 0.114 * data[o + 2]; }
+    function compte(l) { l.forEach(function (code) { votes[code] = (votes[code] || 0) + 1; if (!meilleur || votes[code] > votes[meilleur]) meilleur = code; }); }
+    var k, x, y, ligne;
+    for (k = 1; k < 24; k++) { y = Math.round(h * k / 24); ligne = new Float32Array(w); for (x = 0; x < w; x++) ligne[x] = lum(x, y); compte(decoderLigne(ligne)); if (meilleur && votes[meilleur] >= 3) return meilleur; }
+    for (k = 1; k < 24; k++) { x = Math.round(w * k / 24); ligne = new Float32Array(h); for (y = 0; y < h; y++) ligne[y] = lum(x, y); compte(decoderLigne(ligne)); if (meilleur && votes[meilleur] >= 3) return meilleur; }
+    return meilleur;
+  }
+  function lireCodeBarres(file) {
+    return new Promise(function (ok) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onerror = function () { URL.revokeObjectURL(url); ok(null); };
+      img.onload = function () {
+        var f = Math.min(1, 1400 / Math.max(img.naturalWidth, img.naturalHeight)), cv = document.createElement("canvas");
+        cv.width = Math.round(img.naturalWidth * f); cv.height = Math.round(img.naturalHeight * f);
+        cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+        URL.revokeObjectURL(url);
+        var natif = "BarcodeDetector" in window ? new window.BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a"] }).detect(cv).then(function (l) { return l && l[0] ? l[0].rawValue : null; }, function () { return null; }) : Promise.resolve(null);
+        natif.then(function (code) { ok(code || decoderImage(cv)); });
+      };
+      img.src = url;
+    });
+  }
+  function chercherCode(code) {
+    var cle = String(code).replace(/^0+/, "");
+    var ici = visibles().filter(function (p) { return codeProduit(p) === cle; });
+    function montrer(q, msg) { S.q = q; $("q").value = q; $("homeQ").value = ""; S.f = {}; S.rayon = "Tous"; afficherFiltres(); afficherPromos(); vue("promos"); toast(msg); }
+    if (ici.length) { montrer(code, ici.length > 1 ? ici.length + " promos pour ce produit" : "Ce produit est en promo"); return; }
+    toast("Je cherche ce produit…");
+    fetch("https://world.openfoodfacts.org/api/v2/product/" + encodeURIComponent(code) + ".json?fields=product_name,product_name_fr,brands")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        var pr = j && j.product, nom = pr && (pr.product_name_fr || pr.product_name) || "", marque = pr && String(pr.brands || "").split(",")[0].trim() || "";
+        if (!nom && !marque) { toast("Ce produit n'est pas en promo dans tes magasins"); return; }
+        var terme = marque || nom.split(/\s+/).slice(0, 2).join(" ");
+        montrer(terme, "« " + (nom || marque) + " » n'est pas en promo. Voici les promos " + terme + ".");
+      }, function () { toast("Ce produit n'est pas en promo dans tes magasins"); });
+  }
+  $("scanFile").addEventListener("change", function () {
+    var f = this.files && this.files[0]; if (!f) return;
+    toast("Je lis le code-barres…");
+    lireCodeBarres(f).then(function (code) {
+      if (code) chercherCode(code);
+      else toast("Code-barres illisible : reprends la photo de plus près, bien à plat");
+    });
+  });
+  // ---------- widget Scriptable : le script, avec tes magasins dedans
+  function copierWidget() {
+    // ClipboardItem avec une promesse : Safari garde l'autorisation du toucher pendant le téléchargement du script
+    var texte = fetch("widget-mogette.js", { cache: "no-cache" }).then(function (r) { if (!r.ok) throw 0; return r.text(); }).then(function (t) {
+      return t.replace("const MAGASINS = [];", "const MAGASINS = " + JSON.stringify(S.sel || []) + ";").replace('const PRENOM = "";', "const PRENOM = " + JSON.stringify(S.prenom || "") + ";");
+    });
+    function fini() { toast("Script copié : colle-le dans Scriptable"); }
+    function rate() { toast("Copie impossible : ouvre l'appli dans Safari et réessaie"); }
+    function simple() { texte.then(function (t) { return navigator.clipboard.writeText(t); }).then(fini, rate); }
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+      navigator.clipboard.write([new ClipboardItem({ "text/plain": texte.then(function (t) { return new Blob([t], { type: "text/plain" }); }) })]).then(fini, simple);
+    } else if (navigator.clipboard) simple();
+    else rate();
+  }
+
   // ---------- synchronisation GitHub (gists) : liste partagée + produits surveillés pour les alertes
   var API = "https://api.github.com", F_LISTE = "liste-mes-promos.json", F_ALERTES = "alertes-mes-promos.json";
   var SYNC = lire("sync", null);
-  var SE = { etag: null, distant: null, enCours: false, derniere: 0, erreur: "", t: null, ta: null, alertesEnvoyees: lire("alertesEnvoyees", "") };
+  var SE = { etag: null, distant: null, enCours: false, derniere: 0, erreur: "", t: null, ta: null, alertesEnvoyees: lire("alertesEnvoyees", ""), alerteErreur: "",
+    tr: null, reglagesEnvoyes: lire("reglagesEnvoyes", ""), reglagesQuand: lire("reglagesQuand", 0) };
+  var F_REGLAGES = "reglages-mes-promos.json", CLES_SAUVEES = ["magasins", "hiddenStores", "watch", "fav", "rdv", "prenom", "anniv", "theme", "photos", "periode", "liste", "partage"];
   function gh(methode, chemin, corps, entetes) {
     var h = { "Accept": "application/vnd.github+json", "Authorization": "token " + SYNC.token };
     Object.keys(entetes || {}).forEach(function (k) { h[k] = entetes[k]; });
@@ -2107,7 +2431,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (!SYNC || SYNC.role !== "proprio") return;
     clearTimeout(SE.ta);
     SE.ta = setTimeout(function () {
-      var doc = { produits: S.watch, magasins: S.sel || [], magasins_masques: S.hidden, ntfy: SYNC.ntfy ? SYNC.topic : "", operations: !!SYNC.ops };
+      if (!S.data) { syncAlertes(); return; }  // les favoris ont besoin des promos chargées
+      var doc = { produits: S.watch, magasins: S.sel || [], magasins_masques: S.hidden, ntfy: SYNC.ntfy ? SYNC.topic : "", operations: !!SYNC.ops, favoris: favorisAlerte() };
       var txt = JSON.stringify(doc, null, 1);
       if (txt === SE.alertesEnvoyees && SYNC.alertGist) return;
       var fichiers = {}; fichiers[F_ALERTES] = { content: txt };
@@ -2120,8 +2445,105 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
               return r2;
             });
           });
-      p.then(function (r) { if (r && (r.status === 200 || r.status === 201)) { SE.alertesEnvoyees = txt; ecrire("alertesEnvoyees", txt); } }).catch(function () {});
+      p.then(function (r) {
+        if (r && (r.status === 200 || r.status === 201)) { SE.alertesEnvoyees = txt; ecrire("alertesEnvoyees", txt); SE.alerteErreur = ""; }
+        else SE.alerteErreur = r && r.status === 401 ? "jeton GitHub refusé (expiré ?)" : "GitHub a répondu " + (r ? r.status : "?");
+        afficherGh();
+      }).catch(function () { SE.alerteErreur = "connexion impossible"; afficherGh(); });
     }, 1200);
+  }
+  // favoris envoyés aux alertes : prévenus la veille et le dernier jour
+  function favorisAlerte() {
+    var auj = isoJ(new Date());
+    return S.fav.map(promoParId).filter(function (p) { return p && p.fin && p.fin >= auj; })
+      .map(function (p) { return { id: p.id, nom: titreOffre(p), ens: nomEns(p.enseigne), fin: p.fin, prix: p.prix }; });
+  }
+  function etatAlertes() {
+    if (SE.alerteErreur) return "Pas envoyées : " + SE.alerteErreur;
+    if (!SYNC.alertGist || !SE.alertesEnvoyees) return "Pas encore envoyées à GitHub";
+    var n = S.watch.length, f = S.data ? favorisAlerte().length : 0;
+    return "● Actives : " + n + " produit" + (n > 1 ? "s" : "") + " surveillé" + (n > 1 ? "s" : "") + (f ? ", " + f + " favori" + (f > 1 ? "s" : "") : "") + ". Vérifiées chaque matin.";
+  }
+  function ilYa(t) {
+    var s = (Date.now() - t) / 1000;
+    return s < 60 ? "à l'instant" : s < 3600 ? "il y a " + Math.round(s / 60) + " min" : s < 86400 ? "il y a " + Math.round(s / 3600) + " h" : "le " + jjmm(isoJ(new Date(t)));
+  }
+  // ---------- sauvegarde des réglages dans un gist privé : rien n'est perdu si l'icône est supprimée, il suffit de reconnecter GitHub
+  function docReglages() {
+    var d = { v: 1 };
+    CLES_SAUVEES.forEach(function (k) { var v = lire(k, null); if (v != null) d[k] = v; });
+    if (SYNC && SYNC.gist) { delete d.liste; delete d.partage; }  // déjà dans la liste partagée
+    return d;
+  }
+  function sauverReglages() {
+    // pas pendant la recherche des sauvegardes, ni tant qu'une sauvegarde trouvée attend ton choix (elle serait écrasée)
+    if (!SYNC || SYNC.role !== "proprio" || !SE || SE.recherche || SE.sauvegarde) return;
+    clearTimeout(SE.tr);
+    SE.tr = setTimeout(function () {
+      var d = docReglages(), txt = JSON.stringify(d);
+      if (txt === SE.reglagesEnvoyes && SYNC.backupGist) return;
+      d.maj = Date.now();
+      var fichiers = {}; fichiers[F_REGLAGES] = { content: JSON.stringify(d) };
+      (SYNC.backupGist ? gh("PATCH", "/gists/" + SYNC.backupGist, { files: fichiers })
+        : gh("POST", "/gists", { description: "Mogette : sauvegarde des réglages", public: false, files: fichiers }).then(function (r) {
+            if (r.json && r.json.id) { SYNC.backupGist = r.json.id; ecrire("sync", SYNC); }
+            return r;
+          }))
+        .then(function (r) {
+          if (r && (r.status === 200 || r.status === 201)) { SE.reglagesEnvoyes = txt; SE.reglagesQuand = Date.now(); ecrire("reglagesEnvoyes", txt); ecrire("reglagesQuand", SE.reglagesQuand); afficherGh(); }
+        }).catch(function () {});
+    }, 4000);
+  }
+  // à la connexion (nouveau téléphone, icône réinstallée) : retrouver la liste partagée, les alertes et les réglages déjà rangés sur GitHub
+  function localNeuf() {
+    var def = ((S.brut && S.brut.defaut) || []).slice().sort().join(","), sel = (S.sel || []).slice().sort().join(",");
+    return !vivants().length && !S.fav.length && !S.watch.length && !(S.rdv || []).length && (!sel || sel === def);
+  }
+  function sansMaj(d) { var c = {}; Object.keys(d || {}).forEach(function (k) { if (k !== "maj") c[k] = d[k]; }); return JSON.stringify(c); }
+  function resumeSauvegarde(d) {
+    var n = (d.magasins || []).length, a = (d.liste || []).filter(function (x) { return !x.suppr; }).length, f = (d.fav || []).length;
+    return n + " magasin" + (n > 1 ? "s" : "") + (d.liste ? ", " + a + " article" + (a > 1 ? "s" : "") : "") + ", " + f + " favori" + (f > 1 ? "s" : "");
+  }
+  function appliquerSauvegarde(d) {
+    SE.recherche = true;  // pas d'envoi pendant qu'on remet tout
+    CLES_SAUVEES.forEach(function (k) { if (d[k] != null) ecrire(k, d[k]); });
+    SE.sauvegarde = null; ecrire("sauvegardeEnAttente", false);
+    toast("Réglages retrouvés sur GitHub");
+    setTimeout(function () { location.reload(); }, 900);
+  }
+  function retrouverSauvegardes() {
+    var recharger = false;
+    SE.recherche = true;
+    return gh("GET", "/gists?per_page=100").then(function (r) {
+      var l = r.json || [];
+      function trouve(f) { var g = (Array.isArray(l) ? l : []).find(function (x) { return x.files && x.files[f]; }); return g ? g.id : null; }
+      var gl = trouve(F_LISTE), ga = trouve(F_ALERTES), gr = trouve(F_REGLAGES), suite = Promise.resolve();
+      if (gl && !SYNC.gist) SYNC.gist = gl;
+      if (ga) SYNC.alertGist = ga;
+      if (gr) SYNC.backupGist = gr;
+      ecrire("sync", SYNC);
+      if (ga) suite = suite.then(function () {
+        return gh("GET", "/gists/" + ga).then(function (r2) {
+          try { var d = JSON.parse(r2.json.files[F_ALERTES].content); if (d.ntfy) { SYNC.topic = d.ntfy; SYNC.ntfy = true; } if (d.operations === false) SYNC.ops = false; ecrire("sync", SYNC); } catch (e) {}
+        });
+      });
+      if (gr) suite = suite.then(function () {
+        return gh("GET", "/gists/" + gr).then(function (r3) {
+          try {
+            var d = JSON.parse(r3.json.files[F_REGLAGES].content);
+            if (!d || d.v !== 1) return;
+            if (localNeuf()) recharger = d;  // téléphone neuf : on remet tout
+            else if (sansMaj(d) !== JSON.stringify(docReglages())) { SE.sauvegarde = d; ecrire("sauvegardeEnAttente", true); }  // à toi de choisir
+            else ecrire("sauvegardeEnAttente", false);
+          } catch (e) {}
+        });
+      });
+      return suite;
+    }).then(function () {
+      SE.recherche = false;
+      if (recharger) { appliquerSauvegarde(recharger); return; }
+      afficherGh(); afficherSync(); if (SYNC.gist) syncListe(); syncAlertes(); sauverReglages();
+    }).catch(function () { SE.recherche = false; syncAlertes(); });
   }
   function testNtfy() {
     var corps = { topic: SYNC.topic, title: "Mogette", message: "Les notifications marchent. Tu seras prévenu chaque matin si un produit surveillé passe en promo.", tags: ["shopping_cart"] };
@@ -2136,7 +2558,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       var portee = (r.headers.get("X-OAuth-Scopes") || "");
       if (portee && portee.split(/,\s*/).indexOf("gist") < 0) throw new Error("coche la case « gist » en créant le jeton");
       SYNC = { token: jeton, login: r.json.login, role: "proprio", topic: (ancien && ancien.topic) || "mespromos-" + Math.random().toString(36).slice(2, 12), ntfy: !!(ancien && ancien.ntfy), ops: ancien ? ancien.ops !== false : true, gist: ancien && ancien.role === "proprio" ? ancien.gist : null };
-      ecrire("sync", SYNC); SE.alertesEnvoyees = ""; syncAlertes();
+      ecrire("sync", SYNC); SE.alertesEnvoyees = ""; SE.reglagesEnvoyes = ""; retrouverSauvegardes();
       afficherGh(); afficherSync(); afficherAccueil(); toast("Connecté à GitHub : " + r.json.login);
     }).catch(function (e) { SYNC = ancien; toast("Connexion impossible : " + e.message); });
   }
@@ -2156,6 +2578,12 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       return;
     }
     box.innerHTML = '<div class="opt"><span>Connecté à GitHub : <b>' + esc(SYNC.login || "") + '</b></span><button class="link" type="button" data-deconnecter="1">Déconnecter</button></div>' +
+      '<div class="opt"><span>Alertes appli fermée<br><span class="' + (SE.alerteErreur ? 'ko' : SYNC.alertGist && SE.alertesEnvoyees ? 'ok' : 'muted') + '" style="font-size:12.5px">' + esc(etatAlertes()) + '</span></span>' +
+        (SE.alerteErreur || !SE.alertesEnvoyees || !SYNC.alertGist ? '<button class="btn" type="button" data-envoyeralertes="1">Envoyer</button>' : '') + '</div>' +
+      (SE.sauvegarde
+        ? '<div class="opt"><span>Sauvegarde trouvée sur GitHub<br><span class="muted" style="font-size:12.5px">Du ' + (SE.sauvegarde.maj ? jjmm(isoJ(new Date(SE.sauvegarde.maj))) : "?") + " : " + esc(resumeSauvegarde(SE.sauvegarde)) + '. Ce téléphone a déjà ses propres réglages.</span></span></div>' +
+          '<div class="row"><button class="btn primary" type="button" data-restaurer="1">Remettre la sauvegarde</button><button class="btn" type="button" data-garder="1">Garder ce téléphone</button></div>'
+        : '<div class="opt"><span>Sauvegarde des réglages<br><span class="muted" style="font-size:12.5px">' + (SYNC.backupGist && SE.reglagesQuand ? "À jour (" + ilYa(SE.reglagesQuand) + "). Après une réinstallation, reconnecte GitHub : tout revient." : "Se fait au prochain changement de réglage.") + '</span></span></div>') +
       '<div class="opt"><span>Liste partagée' + (SYNC.gist ? ' <span class="muted">(active)</span>' : '') + '</span><button class="btn" type="button" data-invite="1">' + (SYNC.gist ? "Inviter quelqu'un" : "Partager ma liste") + '</button></div>' +
       '<label class="opt" for="optNtfy"><span>Notifications sur le téléphone<br><span class="muted" style="font-size:12.5px">Chaque matin, si un produit surveillé passe en promo</span></span><input type="checkbox" id="optNtfy"' + (SYNC.ntfy ? " checked" : "") + '></label>' +
       (SYNC.ntfy ? '<div style="display:grid;gap:8px;padding-left:4px">' +
@@ -2354,6 +2782,15 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     $("watchList2").innerHTML = S.watch.length ? S.watch.map(function (x, i) { return '<span class="wchip">' + esc(x) + '<button type="button" data-unwatch="' + i + '" aria-label="Retirer ' + esc(x) + '">×</button></span>'; }).join("") : '<span class="muted">Aucun pour l\'instant.</span>';
     $("budgetIn").value = P.budget.montant ? P.budget.montant : "";
     $("prenomIn").value = S.prenom || "";
+    var aj = $("annivJ"), am = $("annivM");
+    if (!aj.options.length) {
+      var o = '<option value="">Jour</option>';
+      for (var i = 1; i <= 31; i++) o += '<option value="' + ("0" + i).slice(-2) + '">' + i + '</option>';
+      aj.innerHTML = o;
+      am.innerHTML = '<option value="">Mois</option>' + ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
+        .map(function (n, i) { return '<option value="' + ("0" + (i + 1)).slice(-2) + '">' + n + '</option>'; }).join("");
+    }
+    aj.value = S.anniv ? S.anniv.slice(3) : ""; am.value = S.anniv ? S.anniv.slice(0, 2) : "";
     afficherGh();
     $("setInfo").textContent = S.data.promos.length + " promos chargées · " + vivants().length + " articles dans ta liste · " + S.fav.length + " favoris. Tout reste sur ce téléphone.";
   }
@@ -2485,6 +2922,11 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (ev.target.id === "optOps") { SYNC.ops = ev.target.checked; ecrire("sync", SYNC); syncAlertes(); }
     if (ev.target.id === "budgetIn") { var v = parseFloat(String(ev.target.value).replace(",", ".")); P.budget = { montant: isNaN(v) ? 0 : v, maj: Date.now() }; sauverPartage(); afficherBudget(); }
     if (ev.target.id === "prenomIn") { S.prenom = ev.target.value.trim(); ecrire("prenom", S.prenom); }
+    if (ev.target.id === "annivJ" || ev.target.id === "annivM") {
+      var jj = $("annivJ").value, mm = $("annivM").value;
+      S.anniv = jj && mm ? mm + "-" + jj : ""; ecrire("anniv", S.anniv); decorer(); afficherAccueil();
+      if (S.anniv) toast("C'est noté, je te le souhaiterai");
+    }
     if (d.showstore) {
       var k = d.showstore, i = S.hidden.indexOf(k);
       if (ev.target.checked && i >= 0) S.hidden.splice(i, 1);
@@ -2495,6 +2937,13 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   document.addEventListener("click", function (ev) {
     var b = ev.target.closest("button"); if (!b) return;
     var ds = b.dataset;
+    if (ds.scan) { var sf = $("scanFile"); sf.value = ""; sf.click(); return; }
+    if (ds.widget) { copierWidget(); return; }
+    if (ds.envoyeralertes) { SE.alertesEnvoyees = ""; SE.alerteErreur = ""; syncAlertes(); toast("J'envoie tes alertes à GitHub…"); return; }
+    if (ds.swap) { var g1 = changerMagasin(ds.swap); if (g1) { afficherListe(); afficherPromos(); toast("Changé : " + euro(g1) + " de moins"); } return; }
+    if (ds.restaurer) { if (SE.sauvegarde) appliquerSauvegarde(SE.sauvegarde); return; }
+    if (ds.garder) { SE.sauvegarde = null; ecrire("sauvegardeEnAttente", false); SE.reglagesEnvoyes = ""; sauverReglages(); afficherGh(); toast("Ce téléphone devient la sauvegarde"); return; }
+    if (ds.swapall) { var g2 = 0; Object.keys(MOINS).forEach(function (k) { g2 += changerMagasin(k); }); afficherListe(); afficherPromos(); toast("Tout changé : " + euro(g2) + " de moins"); return; }
     if (ds.efface) { var ch = b.parentNode.querySelector("input"); ch.value = ""; ch.dispatchEvent(new Event("input", { bubbles: true })); ch.focus(); return; }
     if (ds.v) return vue(ds.v);
     if (ds["goto"]) { if (ds.preset) preset(ds.preset); return vue(ds["goto"]); }
@@ -2511,7 +2960,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (b.id === "gridMore") { afficherPlus(); return; }
     if (ds.zoom) { zoom(ds.zoom); return; }
     if (ds.unwatch != null) { S.watch.splice(+ds.unwatch, 1); ecrire("watch", S.watch); afficherAccueil(); afficherReglages(); afficherPromos(); syncAlertes(); return; }
-    if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else { S.fav.push(ds.fav); toast("Ajouté aux favoris"); } ecrire("fav", S.fav); b.classList.toggle("on"); if (FICHE) { ouvrirFiche(FICHE); document.querySelectorAll('[data-fav="' + CSS.escape(ds.fav) + '"]').forEach(function (x) { x.classList.toggle("on", S.fav.indexOf(ds.fav) >= 0); }); } document.querySelectorAll('[data-fav="' + CSS.escape(ds.fav) + '"].on').forEach(function (x) { rejouer(x, "pop"); }); return; }
+    if (ds.fav) { var i = S.fav.indexOf(ds.fav); if (i >= 0) S.fav.splice(i, 1); else { S.fav.push(ds.fav); toast("Ajouté aux favoris"); } ecrire("fav", S.fav); syncAlertes(); b.classList.toggle("on"); if (FICHE) { ouvrirFiche(FICHE); document.querySelectorAll('[data-fav="' + CSS.escape(ds.fav) + '"]').forEach(function (x) { x.classList.toggle("on", S.fav.indexOf(ds.fav) >= 0); }); } document.querySelectorAll('[data-fav="' + CSS.escape(ds.fav) + '"].on').forEach(function (x) { rejouer(x, "pop"); }); return; }
     if (ds.add) {
       var p = promoParId(ds.add);
       if (p) {
@@ -2573,6 +3022,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   afficherSync();
   if (SYNC && SYNC.role === "proprio") syncAlertes();
   if (SYNC && SYNC.gist) setTimeout(syncListe, 800);
+  if (SYNC && SYNC.role === "proprio") setTimeout(function () { if (lire("sauvegardeEnAttente", false)) retrouverSauvegardes(); else { syncAlertes(); sauverReglages(); } }, 3000);
 })();
 </script>
 </body>
