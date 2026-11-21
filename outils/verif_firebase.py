@@ -100,6 +100,14 @@ elif code in (200, 404):
 else:
     bilan.append("?    Firestore %s" % code)
 
+# 4. clé publique des notifications lisible par tous ; listes partagées fermées sans connexion
+code, txt, _ = appel("https://firestore.googleapis.com/v1/projects/%s/databases/(default)/documents/config/public" % projet)
+bilan.append("OK   clé publique des notifications lisible" if code == 200 and '"vapid"' in txt else "NON  clé publique des notifications : %s" % code)
+code, txt, _ = appel("https://firestore.googleapis.com/v1/projects/%s/databases/(default)/documents/listes/verification" % projet)
+bilan.append("OK   listes partagées fermées sans connexion" if code == 403 else "NON  listes partagées : réponse %s sans connexion" % code)
+code, txt, _ = appel("https://firestore.googleapis.com/v1/projects/%s/databases/(default)/documents/config/push" % projet)
+bilan.append("OK   clé privée des notifications fermée" if code == 403 else "NON  clé privée des notifications : réponse %s" % code)
+
 print("\n=== BILAN ===")
 for b in bilan:
     print(b)

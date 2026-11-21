@@ -3281,7 +3281,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   function iosSansIcone() { return /iP(hone|ad|od)/.test(navigator.userAgent) && !INSTALLEE; }
   function chargerCleNotifs() {
     if (NOTIF.cle || !comptesActifs()) return Promise.resolve(NOTIF.cle);
-    return fetch(fsDocs() + "/config/public?key=" + encodeURIComponent(COMPTE_CFG.apiKey), { cache: "no-store" })
+    return fetch(fsDocs() + "/config/public", { cache: "no-store" })  // lisible par tous (règles), sans clé ni connexion
       .then(function (r) { return r.ok ? r.json() : {}; })
       .then(function (j) { var c = (((j || {}).fields || {}).vapid || {}).stringValue || ""; if (c) { NOTIF.cle = c; ecrire("vapidPublic", c); afficherAlertes(); } return c; })
       .catch(function () { return ""; });
