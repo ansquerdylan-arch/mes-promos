@@ -34,6 +34,7 @@ jobs:
           URLS: ${{ github.event.inputs.urls }}
           TZ: Europe/Paris
           FIREBASE_COMPTE: ${{ github.event.inputs.brut == 'alertes' && secrets.FIREBASE_COMPTE || '' }}
+          LONGUEURS: ${{ github.event.inputs.brut == 'secret' && format('{0}|{1}', secrets.FIREBASE_COMPTE != '', vars.FIREBASE_COMPTE != '') || '' }}
         run: |
           if [ "${{ github.event.inputs.brut }}" = "nettoyer" ]; then
             git push -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" --delete diag-brut || true
@@ -46,6 +47,7 @@ jobs:
             git -c user.name="diag" -c user.email="diag@users.noreply.github.com" commit -q -m "pages brutes"
             git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag-brut
           elif [ "${{ github.event.inputs.brut }}" = "firebase" ]; then python outils/verif_firebase.py $URLS
+          elif [ "${{ github.event.inputs.brut }}" = "secret" ]; then echo "secret FIREBASE_COMPTE présent | variable FIREBASE_COMPTE présente : $LONGUEURS"
           elif [ "${{ github.event.inputs.brut }}" = "alertes" ]; then pip install -q google-auth requests pywebpush && python alertes.py
           elif [ -n "$URLS" ]; then python diag.py $URLS --routes
           elif [ "${{ github.event.inputs.brut }}" = "essai" ]; then
