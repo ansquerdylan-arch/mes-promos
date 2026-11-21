@@ -65,9 +65,18 @@ if client:
            urllib.parse.quote(retour, safe="") + "&response_type=id_token&scope=openid%20email%20profile&nonce=verif&state=verif")
     code, txt, h = appel(url, suivre=False)
     loc = h.get("Location") or h.get("location") or ""
+    # la page d'erreur de Google porte le motif en base64 dans authError (« redirect_uri_mismatch »…)
+    m2 = re.search(r"authError=([A-Za-z0-9_-]+)", loc)
+    if m2:
+        try:
+            import base64
+            brut = m2.group(1)
+            loc += " " + base64.urlsafe_b64decode(brut + "=" * (-len(brut) % 4)).decode("utf-8", "replace")
+        except Exception:
+            pass
     if "redirect_uri_mismatch" in txt or "redirect_uri_mismatch" in loc:
         bilan.append("NON  adresse de retour pas enregistrée dans le client OAuth : " + retour)
-    elif code in (301, 302, 303) and "error" not in loc:
+    elif code in (301, 302, 303) and "/error" not in loc and "authError" not in loc:
         bilan.append("OK   Google accepte l'adresse de retour " + retour)
     elif code == 200 and "error" not in txt[:3000].lower():
         bilan.append("OK   Google accepte l'adresse de retour " + retour)
@@ -77,7 +86,8 @@ if client:
     print("authorize :", code, loc[:200])
 
 # 3. Firestore : la base existe et refuse la lecture sans connexion
-code, txt, _ = appel("https://firestore.googleapis.com/v1/projects/%s/databases/(default)/documents/comptes/verification?key=%s" % (projet, cle))
+# sans clé d'API (comme l'appli, qui passe son jeton de connexion) : seules les règles de la base répondent
+code, txt, _ = appel("https://firestore.googleapis.com/v1/projects/%s/databases/(default)/documents/comptes/verification" % projet)
 print("Firestore :", code, txt[:300].replace("\n", " "))
 if code == 403 and "insufficient permissions" in txt.lower():
     bilan.append("OK   base Firestore créée, lecture refusée sans connexion (règles en place)")
