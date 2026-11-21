@@ -681,6 +681,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     </div>
     <div class="card semaine" id="weekCard" hidden></div>
     <div class="card" id="installBox" hidden></div>
+    <div class="card nouveau" id="nouveauBox" hidden></div>
 
     <div class="blk" id="blocSaison" hidden>
       <div class="sec-head"><h2 id="saisonTitre"></h2><button class="link" data-goto="promos" data-preset="saison" type="button">Tout voir</button></div>
@@ -903,8 +904,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
 <script>
 (function () {
   "use strict";
-  var COULEURS = { u: "#d7262e", leclerc: "#0066b3", intermarche: "#e2001a", lidl: "#f5c400", carrefour: "#1e5bc6", auchan: "#e2001a", aldi: "#00a0e1" };
-  var FAMILLES = [["u", "Système U"], ["leclerc", "E.Leclerc"], ["intermarche", "Intermarché"], ["lidl", "Lidl"], ["carrefour", "Carrefour"]];
+  var COULEURS = { u: "#d7262e", leclerc: "#0066b3", intermarche: "#e2001a", lidl: "#f5c400", carrefour: "#1e5bc6", action: "#0d4aa6", auchan: "#e2001a", aldi: "#00a0e1" };
+  var FAMILLES = [["u", "Système U"], ["leclerc", "E.Leclerc"], ["intermarche", "Intermarché"], ["lidl", "Lidl"], ["carrefour", "Carrefour"], ["action", "Action"]];
   function familleDe(ch) { ch = ch || ""; if (/^(superu|hyperu|uexpress|marcheu)/.test(ch)) return "u"; if (/^intermarche/.test(ch)) return "intermarche"; if (/^carrefour/.test(ch)) return "carrefour"; return ch; }
   var ALIM = ["Poisson & mer", "Volaille", "Charcuterie", "Viande", "Fromage", "Crèmerie & œufs", "Fruits & légumes", "Traiteur", "Surgelés", "Boulangerie", "Épicerie sucrée", "Épicerie salée"];
   var ORDRE_RAYONS = ALIM.concat(["Boissons", "Hygiène & beauté", "Entretien", "Animaux", "Maison & déco", "High-tech & électroménager", "Jouets & culture", "Mode & sport", "Jardin & bricolage", "Maison & loisirs", "Autres"]);
@@ -1648,6 +1649,19 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     return pris;
   }
   var PT_RANG = {};
+  // nouvelle enseigne : proposer une fois le magasin le plus proche (Action, novembre 2026)
+  function afficherNouveau() {
+    var box = $("nouveauBox"); if (!box || !S.brut) return;
+    var mags = S.brut.magasins.filter(function (m) { return m.chaine === "action"; });
+    if (lire("vuAction", false) || !mags.length || S.sel.some(function (id) { return /^action-/.test(id); })) { box.hidden = true; return; }
+    var ref = S.pos || (S.brut.domicile && S.brut.domicile.lat ? [S.brut.domicile.lat, S.brut.domicile.lng] : null);
+    if (ref) mags.sort(function (a, b) { return (a.lat ? distance(ref, [a.lat, a.lng]) : 999) - (b.lat ? distance(ref, [b.lat, b.lng]) : 999); });
+    var m = mags[0], d = ref && m.lat ? distance(ref, [m.lat, m.lng]) : null;
+    box.hidden = false;
+    box.innerHTML = '<b>Action arrive dans Mogette</b><span class="muted">' + mags.length + ' magasin' + (mags.length > 1 ? 's' : '') + ' Action en Vendée, avec leur catalogue de la semaine. Le plus proche : ' + esc(m.nom + ' ' + m.ville) +
+      (d != null ? ' (' + (d < 10 ? d.toFixed(1).replace(".", ",") : Math.round(d)) + ' km)' : '') + '.</span>' +
+      '<div class="row"><button class="btn primary" type="button" data-pick="' + esc(m.id) + '">Ajouter ce magasin</button><button class="btn" type="button" data-carte="1">Voir sur la carte</button><button class="link" type="button" data-nonaction="1">Non merci</button></div>';
+  }
   function phraseSaison(v) {
     var x = saisonsActives()[0]; if (!x) return "";
     var n = v.filter(function (p) { return !pasCommencee(p) && deSaison(p, x); }).length;
@@ -1749,6 +1763,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   // (les applis ne savent pas s'ouvrir directement sur un produit : on ouvre leur page dans l'App Store / Play Store,
   //  qui montre « Ouvrir » quand l'appli est installée, et on copie le nom du produit pour le coller dans leur recherche)
   var APPLIS = {
+    action: { ens: "Action", appli: "Action", ios: "1531860284", android: "", site: "action.com", web: null },
     u: { ens: "Système U", appli: "Mon Magasin U", ios: "479847099", android: "fr.magasinsu.app", site: "coursesu.com",
       web: function (q) { return "https://www.coursesu.com/recherche?q=" + q; } },
     leclerc: { ens: "E.Leclerc", appli: "Mon E.Leclerc", ios: "756693888", android: "com.infomil.bill", site: "e.leclerc",
@@ -1955,11 +1970,11 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (p.rayon) meta.push(["Rayon", (EMO[p.rayon] ? EMO[p.rayon] + " " : "") + p.rayon]);
     var liens = "";
     if (a && (IOS || ANDROID)) {
-      liens += '<a class="go app" href="' + (IOS ? "https://apps.apple.com/fr/app/id" + a.ios : "https://play.google.com/store/apps/details?id=" + a.android) +
+      liens += '<a class="go app" href="' + (IOS ? "https://apps.apple.com/fr/app/id" + a.ios : a.android ? "https://play.google.com/store/apps/details?id=" + a.android : "https://play.google.com/store/search?c=apps&q=" + encodeURIComponent(a.appli)) +
         '" target="_blank" rel="noopener" data-copie="' + esc(terme) + '"><span class="gi">' + ICO.app + '</span><span><b>Ouvrir l\'appli ' + esc(a.appli) + '</b>' +
         '<small>Via ' + (IOS ? "l'App Store" : "le Play Store") + ' : touche « Ouvrir ». Le nom est copié, colle-le dans la recherche de l\'appli.</small></span>' + ICO.out + '</a>';
     }
-    if (a && terme) {
+    if (a && a.web && terme) {
       liens += '<a class="go" href="' + esc(a.web(q)) + '" target="_blank" rel="noopener"><span class="gi">' + ICO.web + '</span><span><b>Voir sur ' + esc(a.site) + '</b>' +
         '<small>Recherche « ' + esc(terme) + ' ». Le prix en ligne peut différer de celui du magasin.</small></span>' + ICO.out + '</a>';
     }
@@ -2097,6 +2112,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     $("homeWatch").innerHTML = html;
 
     afficherSemaine(v);
+    afficherNouveau();
     afficherPourToi();
     var top = alim.filter(function (p) { return p.remise && !SEM_TOP[p.id]; }).sort(function (a, b) { return b.remise - a.remise; }).slice(0, 15);
     $("railTop").innerHTML = top.length ? top.map(function (p) { return carte(p, { compact: true }); }).join("") : '<div class="empty">Pas de remise chiffrée cette semaine.</div>';
@@ -3460,6 +3476,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   document.addEventListener("click", function (ev) {
     var b = ev.target.closest("button"); if (!b) return;
     var ds = b.dataset;
+    if (ds.nonaction) { ecrire("vuAction", true); $("nouveauBox").hidden = true; return; }
     if (ds.carte) { ouvrirCarte(); return; }
     if (ds.fermercarte) { var dc = $("carteDlg"); try { dc.close(); } catch (er) { dc.removeAttribute("open"); } return; }
     if (ds.cz) { zoomer(+ds.cz); return; }

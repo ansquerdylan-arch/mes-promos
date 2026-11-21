@@ -1845,6 +1845,7 @@ FAMILLES = [
     (r"Intermarche(-(?:Super|Hyper|Contact|Express))?", "intermarche", "Intermarché", "intermarche"),
     (r"Lidl", "lidl", "Lidl", "lidl"),
     (r"Carrefour(-(?:Market|City|Contact|Express|Proximite))?", "carrefour", "Carrefour", "carrefour"),
+    (r"Action", "action", "Action", "action"),
 ]
 
 

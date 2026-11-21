@@ -18,7 +18,8 @@
     "leclerc",
     "intermarche*",
     "lidl",
-    "carrefourmarket"
+    "carrefourmarket",
+    "action"
   ],
   "max_pages": 400,
   "pause": 0.6,
@@ -54,7 +55,17 @@
     "Montaigu/Intermarche/p-r3",
     "Benet/Super-U/p-r8",
     "Talmont-Saint-Hilaire/Super-U/p-r8",
-    "Aizenay/Hyper-U/p-r62"
+    "Aizenay/Hyper-U/p-r62",
+    "La-Roche-sur-Yon/Action/p-r1080",
+    "Les-Sables-Dolonne/Action/p-r1080",
+    "Olonne-sur-Mer/Action/p-r1080",
+    "Challans/Action/p-r1080",
+    "Fontenay-le-Comte/Action/p-r1080",
+    "Les-Herbiers/Action/p-r1080",
+    "Lucon/Action/p-r1080",
+    "Saint-Jean-de-Monts/Action/p-r1080",
+    "Montaigu-Vendee/Action/p-r1080",
+    "Aizenay/Action/p-r1080"
   ],
   "anticrise": {
     "superu": {
