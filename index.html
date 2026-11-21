@@ -1659,7 +1659,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var m = mags[0], d = ref && m.lat ? distance(ref, [m.lat, m.lng]) : null;
     box.hidden = false;
     box.innerHTML = '<b>Action arrive dans Mogette</b><span class="muted">' + mags.length + ' magasin' + (mags.length > 1 ? 's' : '') + ' Action en Vendée, avec leur catalogue de la semaine. Le plus proche : ' + esc(m.nom + ' ' + m.ville) +
-      (d != null ? ' (' + (d < 10 ? d.toFixed(1).replace(".", ",") : Math.round(d)) + ' km)' : '') + '.</span>' +
+      // positions bonial souvent au centre-ville : sous 1 km, « tout près » plutôt qu'un « 0,0 km » trompeur
+      (d != null ? (d < 1 ? ', tout près' : ' (' + (d < 10 ? d.toFixed(1).replace(".", ",") : Math.round(d)) + ' km)') : '') + '.</span>' +
       '<div class="row"><button class="btn primary" type="button" data-pick="' + esc(m.id) + '">Ajouter ce magasin</button><button class="btn" type="button" data-carte="1">Voir sur la carte</button><button class="link" type="button" data-nonaction="1">Non merci</button></div>';
   }
   function phraseSaison(v) {
