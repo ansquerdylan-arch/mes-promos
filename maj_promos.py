@@ -2507,7 +2507,9 @@ def noter_offres(offres, log, aujourd=None):
 # Bonial n'a pas les horaires de certains magasins (Carrefour Proximité…). OpenStreetMap les a souvent :
 # une seule demande par semaine à l'API Overpass (données © contributeurs OpenStreetMap, licence ODbL).
 OSM_CACHE = os.path.join(DATA, "horaires_osm.json")
-OSM_API = "https://overpass-api.de/api/interpreter"
+# serveur principal puis deux miroirs publics, si le premier ne répond pas ce matin-là
+OSM_API = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter",
+           "https://maps.mail.ru/osm/tools/overpass/api/interpreter"]
 JOURS_OSM = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
 NUM_BONIAL = {"Mo": 2, "Tu": 3, "We": 4, "Th": 5, "Fr": 6, "Sa": 7, "Su": 1}  # bonial : 1 = dimanche … 7 = samedi
 
@@ -2568,13 +2570,21 @@ def lire_osm(log, aujourd):
                'nwr(area.v)["shop"~"^(supermarket|convenience|variety_store)$"]["opening_hours"];out center tags;')
     if cache.get("date", "") >= (aujourd - timedelta(days=7)).isoformat() and cache.get("lieux") and cache.get("q") == requete:
         return cache["lieux"]
-    req = urllib.request.Request(OSM_API, data=urllib.parse.urlencode({"data": requete}).encode(),
-                                 headers={"User-Agent": "Mogette/1.0 (appli de promos, github.com/ansquerdylan-arch/mes-promos)"})
-    try:
-        with urllib.request.urlopen(req, timeout=120) as r:
-            elements = json.loads(r.read().decode("utf-8")).get("elements") or []
-    except Exception as e:
-        log("   OpenStreetMap injoignable (%s) : horaires de la semaine dernière gardés" % e)
+    elements, erreurs = None, []
+    for url in OSM_API:
+        req = urllib.request.Request(url, data=urllib.parse.urlencode({"data": requete}).encode(),
+                                     headers={"User-Agent": "Mogette/1.0 (appli de promos, github.com/ansquerdylan-arch/mes-promos)"})
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                elements = json.loads(r.read().decode("utf-8")).get("elements") or None
+        except Exception as e:
+            erreurs.append("%s : %s" % (urllib.parse.urlparse(url).netloc, e))
+            continue
+        if elements:
+            break
+        erreurs.append("%s : réponse vide" % urllib.parse.urlparse(url).netloc)
+    if not elements:
+        log("   OpenStreetMap injoignable (%s) : horaires de la semaine dernière gardés" % " ; ".join(erreurs))
         return cache.get("lieux") or []
     lieux = []
     for el in elements:
