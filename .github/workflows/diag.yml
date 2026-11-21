@@ -8,7 +8,7 @@ on:
         required: false
         default: ""
       brut:
-        description: "oui = pages telles quelles dans la branche diag-brut ; essai = mise à jour complète dans diag-brut ; nettoyer = supprimer diag-brut et les branches essai-*"
+        description: "oui = pages telles quelles dans la branche diag-brut ; essai = mise à jour complète dans diag-brut ; nettoyer = supprimer diag-brut et les branches essai-* ; firebase = vérifier les comptes (urls = CLE PROJET)"
         required: false
         default: "non"
 
@@ -44,6 +44,7 @@ jobs:
             cd brut && git init -q -b diag-brut && git add -A
             git -c user.name="diag" -c user.email="diag@users.noreply.github.com" commit -q -m "pages brutes"
             git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag-brut
+          elif [ "${{ github.event.inputs.brut }}" = "firebase" ]; then python outils/verif_firebase.py $URLS
           elif [ -n "$URLS" ]; then python diag.py $URLS --routes
           elif [ "${{ github.event.inputs.brut }}" = "essai" ]; then
             mkdir -p essai && cp promos.json historique.json essai/ && cp -r offres pages essai/ 2>/dev/null; cp notes.json ocr.json leclerc.json essai/ 2>/dev/null || true
