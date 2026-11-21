@@ -240,6 +240,80 @@ MARQUES_SUCREES = ["lindt", "lindor", "lanvin", "cote d or", "milka", "ferrero",
                    "revillon", "toblerone", "after eight", "guylian", "leonidas", "jeff de bruges", "neuhaus", "godiva", "galler",
                    "valrhona", "poulain", "menier", "celebrations", "quality street", "maltesers", "kit kat", "galak", "daim",
                    "haribo", "trolli", "carambar", "lutti", "la mere de famille", "michel et augustin", "st michel", "saint michel", "lu"]
+# familles de produits reconnues au nom, à la marque ou au descriptif : « chocolat » doit aussi trouver « Assortiment »
+# de Lanvin, « Lindt » ou « Les papillotes » de Révillon (recherche de l'appli, produits surveillés). Les mots vont dans
+# le champ « fam » de l'offre, jamais dans son nom. « rayons » : seulement dans ces rayons ; « sauf » : jamais si présent.
+FAMILLES_PROD = [
+    {"mots": "chocolat chocolats",
+     "re": r"chocolats?|chocolatee?s?|cacao|pralines?|ballotins?|papillotes?|moulages?|orangettes|mendiants|lindt|lindor|lanvin|"
+           r"ferrero|kinder|milka|cote d or|mon cheri|raffaello|after eight|toblerone|guylian|leonidas|jeff de bruges|neuhaus|"
+           r"godiva|revillon|abtey|cemoi|suchard|poulain|menier|galak|kit ?kat|twix|bounty|snickers|m m s|maltesers|"
+           r"celebrations|quality street|valrhona|cluizel",
+     "sauf": r"levres?|baume|cosmeti|savon|gel douche|parfum|bougie|shampo|creme (mains|corps|visage)|jouet|peluche|tasse|mug"},
+    {"mots": "bonbon bonbons confiserie",
+     "re": r"bonbons?|confiseries?|haribo|lutti|carambar|trolli|krema|tetes brulees|chupa chups|mentos|tic tac|dragibus|"
+           r"tagada|sucettes?|guimauves?|marshmallows?|reglisses?|nounours|dragees|calissons?|nougats?|pates de fruits"},
+    {"mots": "cafe",
+     "re": r"cafes?|nescafe|carte noire|jacques vabre|lavazza|malongo|senseo|tassimo|dolce gusto|nespresso|segafredo|"
+           r"ricore|expresso|espresso|arabica|robusta",
+     "detail": False, "rayons": {"Boissons", "Épicerie sucrée", "Épicerie salée", "High-tech & électroménager"}},
+    {"mots": "biere bieres",
+     "re": r"bieres?|heineken|kronenbourg|1664|leffe|grimbergen|desperados|affligem|pelforth|carlsberg|hoegaarden|chouffe|"
+           r"goudale|corona|tourtel|karmeliet|paulaner|guinness|jupiler|stella artois|chti|ch ti|meteor|ipa|blonde d abbaye|"
+           r"biere d abbaye",
+     "sauf": r"whisky|rhum|vodka|gin|liqueur|cognac|armagnac|calvados"},
+    {"mots": "soda sodas",
+     "re": r"sodas?|coca cola|coca|pepsi|orangina|oasis|schweppes|fanta|sprite|7 ?up|ice tea|fuze tea|tropico|canada dry|"
+           r"red bull|monster energy|dr pepper|limonades?|cola|tonic|boisson gazeuse|boissons gazeuses"},
+    {"mots": "eau eaux",
+     "re": r"eaux? minerales?|eau de source|eaux? gazeuses?|eau petillante|cristaline|evian|vittel|volvic|badoit|perrier|"
+           r"san pellegrino|s pellegrino|contrex|hepar|courmayeur|st yorre|saint yorre|vichy celestins|rozana|salvetat|"
+           r"abatilles|wattwiller|quezac|mont roucous|plancoet",
+     "rayons": {"Boissons"}},
+    {"mots": "lessive",
+     "re": r"lessives?|ariel|skip|omo|x tra|xtra|bonux|mir laine|dash|capsules? de lessive|pastilles? de lessive|pods",
+     "rayons": {"Entretien"}},
+    {"mots": "biscuit biscuits gateau gateaux",
+     "re": r"biscuits?|gateaux?|cookies?|lu|bn|petit ecolier|belvita|oreo|st michel|saint michel|pepito|mikado|figolu|pims|"
+           r"savane|petits? beurres?|sables?|madeleines?|brownies?|speculoos|delacre|gavottes|crepes dentelle|petit brun|"
+           r"palets? bretons?|galettes? bretonnes?|financiers?|cakes?|quatre quarts|4 quarts",
+     "rayons": {"Épicerie sucrée", "Boulangerie"}},
+    {"mots": "couches bebe",
+     "re": r"couches?|pampers|huggies|lotus baby|love and green|joone|culottes? d apprentissage|change bebe",
+     "sauf": r"peinture|vernis|lasure|enduit|sous couche", "detail": False, "rayons": {"Hygiène & beauté"}},
+    {"mots": "yaourt yaourts",
+     "re": r"yaourts?|yogourts?|yoghourts?|activia|yoplait|skyr|perle de lait|gervais|petits filous|actimel|siggi|"
+           r"danone|veloute fruix|brasse|fromage frais aux fruits",
+     "rayons": {"Crèmerie & œufs"}},
+    {"mots": "vin vins",
+     "re": r"vins?|aoc|aop|igp|cotes? du|cotes? de|chateau|domaine|bordeaux|bourgogne|beaujolais|muscadet|saint emilion|"
+           r"medoc|graves|sauternes|chablis|sancerre|chinon|bourgueil|saumur|anjou|vouvray|languedoc|corbieres|minervois|"
+           r"cahors|madiran|gaillac|jurancon|alsace|riesling|gewurztraminer|pinot|merlot|cabernet|chardonnay|sauvignon|"
+           r"syrah|grenache|cuvee|millesime|grand cru|premier cru|crozes hermitage|gigondas|vacqueyras|"
+           r"chateauneuf du pape|lirac|tavel|fitou|bandol|pays d oc|val de loire|ventoux|luberon|rose|rouge|blanc",
+     "sauf": r"bieres?|whisky|rhum|vodka|gin|jus|sirop|nectar|soda|cola|eau|champagne|cremant|mousseux|liqueur|cidre|"
+             r"pastis|porto|aperitif|calvados|cognac|armagnac|limonade|the|cafe",
+     "rayons": {"Boissons"}},
+]
+_FAMILLES_PROD = [(f["mots"], re.compile(r"(?<![a-z0-9])(?:%s)(?![a-z0-9])" % f["re"]),
+                   re.compile(r"(?<![a-z0-9])(?:%s)" % f["sauf"]) if f.get("sauf") else None, f.get("rayons"),
+                   f.get("detail", True)) for f in FAMILLES_PROD]
+
+
+def familles_produit(nom, marque="", detail="", rayon_=""):
+    """Mots de famille à ajouter au texte cherché (« chocolat chocolats »), vides si rien ne colle."""
+    court = " " + norm("%s %s" % (nom or "", marque or "")) + " "
+    long_ = court + norm(detail or "") + " "
+    mots = []
+    for m_, rx, sauf, rayons, avec_detail in _FAMILLES_PROD:
+        if rayons and rayon_ not in rayons:
+            continue
+        t = long_ if avec_detail else court
+        if rx.search(t) and not (sauf and sauf.search(t)):
+            mots.append(m_)
+    return " ".join(mots)
+
+
 RE_FRAIS_GLACE = re.compile(r"\b(glace|glaces|creme glacee|cremes glacees|cone|cones|batonnet|batonnets|yaourt|yaourts|mousse|mousses|liegeois|dessert lacte|desserts lactes)\b")
 BOISSONS_SECHES = {"cafe", "cafe grains", "capsules cafe", "capsules espresso", "capsules compatibles", "dosettes", "infusion",
                    "tisane", "tisanes", "the noir", "the vert", "the rouge", "the menthe", "the a la menthe", "the earl grey",
@@ -2011,6 +2085,22 @@ def construire_offres(brutes, aujourd):
         r = max(c, key=c.get)
         if r not in RAYONS_ALIMENTAIRES and r != "Boissons" and c[r] >= 20 and c[r] >= 0.6 * sum(c.values()):
             e["rayon"] = r
+    # familles (« chocolat » pour un « Assortiment » Lanvin…) : texte cherché par l'appli et les alertes
+    for e in sortie:
+        if e.get("op"):
+            continue
+        fam = familles_produit(e["nom"], e["marque"], e.get("detail"), e["rayon"])
+        if e["rayon"] in ("Autres", "Jardin & bricolage", "Épicerie salée", "Épicerie sucrée"):
+            # une boisson rangée ailleurs (« Toute la gamme Bud, Corona » dans un catalogue jardin, un Coca en épicerie) :
+            # une bière, ou un soda / une eau vendus au volume ; pas un objet ni un bonbon « goût soda »
+            fam2 = familles_produit(e["nom"], e["marque"], e.get("detail"), "Boissons")
+            nn = norm(e["nom"] + " " + (e.get("marque") or ""))
+            if (re.search(r"\bbiere\b", fam2) or (re.search(r"\b(soda|eau)\b", fam2) and _liquide(e["nom"], e.get("detail"), e.get("unite")))) \
+                    and not re.search(r"\b(verres?|chopes?|tireuse|machine|distributeur|gourde|bonbons?|confiserie|sucettes?|"
+                                      r"chewing|gommes?|glaces?|sorbets?|gateaux?|biscuits?|chips|bougie|savon|gel douche)\b", nn):
+                e["rayon"], fam = "Boissons", fam2
+        if fam:
+            e["fam"] = fam
     return sortie
 
 
@@ -2660,6 +2750,68 @@ def completer_horaires(magasins, log, aujourd=None):
     log("Horaires manquants : %d magasin(s) complété(s) sur %d (même adresse chez Bonial ou OpenStreetMap)" % (trouves, len(manquent)))
 
 
+# --------------------------------------------------------------------------- contrôle du jour
+CONTROLE = os.path.join(DATA, "controle.json")
+
+
+def controler(cats, offres, chaines, aujourd, log):
+    """Contrôle de chaque matin, pour ne pas perdre des promos sans le voir :
+    1. une enseigne qui a beaucoup moins de promos que d'habitude (moins de 40 % de la médiane des 14 derniers jours) ;
+    2. un catalogue de 4 pages ou plus, commencé depuis plus d'un jour, lu sans aucun article (sauf catalogues
+       « dynamiques », parfois de simples bannières, et cartes traiteur, sans promos).
+    -> {"date", "chaines": {chaine: [catalogues lus, promos]}, "alertes": [texte]}, gardé aussi dans controle.json."""
+    jour = aujourd.isoformat()
+    par_cat, n, nc = {}, {}, {}
+    for o in offres:
+        par_cat[o["cat"]] = par_cat.get(o["cat"], 0) + 1
+        ch = o.get("chaine") or (cats.get(o["cat"]) or {}).get("chaine") or "?"
+        n[ch] = n.get(ch, 0) + 1
+    for cid, c in cats.items():
+        n.setdefault(c["chaine"], 0)
+        if par_cat.get(cid):
+            nc[c["chaine"]] = nc.get(c["chaine"], 0) + 1
+    nom = lambda ch: (chaines.get(ch) or {}).get("nom") or ch
+    mem = charger_json(CONTROLE, {})
+    jours = mem.get("jours") or {}
+    debut = (aujourd - timedelta(days=14)).isoformat()
+    passe = [v for j, v in sorted(jours.items()) if debut <= j < jour]
+    alertes, en_baisse = [], set()
+    for ch in sorted(set(n) | {c for v in passe for c in v}):
+        vus = sorted(v[ch][1] for v in passe if ch in v)
+        if len(vus) < 3:
+            continue
+        med, auj = vus[len(vus) // 2], n.get(ch, 0)
+        if med >= 40 and auj < 0.4 * med:
+            en_baisse.add(ch)
+            alertes.append("%s : %s aujourd'hui, d'habitude environ %d" % (
+                nom(ch), "aucune promo" if not auj else "%d promo%s" % (auj, "s" if auj > 1 else ""), med))
+    hier = (aujourd - timedelta(days=1)).isoformat()
+    vides = []
+    for cid, c in sorted(cats.items(), key=lambda x: (x[1].get("debut", ""), x[0])):
+        if c.get("type") == "DYNAMIC" or par_cat.get(cid) or (c.get("pages") or 0) < 4 or c.get("debut", "") > hier:
+            continue
+        if c["chaine"] in en_baisse or re.search(r"traiteur|carte des fetes|menus?\b|guide", norm(c.get("titre") or "")):
+            continue  # enseigne déjà signalée en entier ; cartes traiteur : pas de promos
+        vides.append("Catalogue « %s » de %s (%d pages, depuis le %s) : aucun article lu" % (
+            (c.get("titre") or "sans titre").strip(), nom(c["chaine"]), c.get("pages") or 0, jj_mm(c["debut"])))
+    alertes += vides[:6]
+    if len(vides) > 6:
+        alertes.append("… et %d autre%s catalogue%s sans article" % (len(vides) - 6, "s" if len(vides) > 7 else "", "s" if len(vides) > 7 else ""))
+    jours[jour] = {ch: [nc.get(ch, 0), k] for ch, k in n.items()}
+    jours = {j: v for j, v in jours.items() if j >= (aujourd - timedelta(days=30)).isoformat()}
+    res = {"date": jour, "chaines": jours[jour], "alertes": alertes, "baisse": sorted(en_baisse)}
+    ecrire_json(CONTROLE, {"jours": jours, "dernier": res})
+    if alertes:
+        log("CONTRÔLE : %d point%s à regarder" % (len(alertes), "s" if len(alertes) > 1 else ""))
+        for a in alertes:
+            log("   ! " + a)
+            if os.environ.get("GITHUB_ACTIONS"):
+                print("::warning title=Contrôle des promos::" + a)
+    else:
+        log("CONTRÔLE : rien d'anormal (%d enseignes, %d promos)" % (len(n), sum(n.values())))
+    return res
+
+
 # --------------------------------------------------------------------------- historique des prix
 CODES = os.path.join(DATA, "codes.json")
 
@@ -2827,6 +2979,10 @@ def mettre_a_jour(debug=False, log=print, essai=False):
                 "zones": zones, "magasins": sorted(magasins.values(), key=lambda m: (m["ville"], m["nom"])),
                 "catalogues": cats, "offres": offres, "defaut": defaut}
 
+    try:
+        resultat["controle"] = controler(cats, offres, chaines, aujourd, log)
+    except Exception as e:
+        log("Contrôle non fait : %s" % e)
     if not offres:
         log("Aucune promo trouvée (connexion internet ? site changé ?). Les promos actuelles sont gardées.")
         return ancien

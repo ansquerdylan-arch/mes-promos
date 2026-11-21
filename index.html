@@ -1130,7 +1130,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       if (!q.fin) q.fin = c.fin || "";
       if (q.h) { q.histo = { min: q.h[0], min_date: q.h[1], fois: q.h[2] }; delete q.h; }
       q._n = " " + norm(q.nom + " " + q.marque) + " ";
-      q._s = q._n + norm(q.rayon + " " + q.bon_plan + " " + q.detail) + " ";
+      // fam : famille reconnue à la marque par la mise à jour (« chocolat » pour un « Assortiment » Lanvin)
+      q._s = q._n + norm(q.rayon + " " + q.bon_plan + " " + q.detail + " " + (q.fam || "")) + " ";
       return q;
     });
   }
@@ -1448,7 +1449,18 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   function afficherFraicheur() {
     var d = S.data, dt = d && d.maj ? new Date(d.maj) : null, box = $("staleBox");
     var h = dt ? (new Date() - dt) / 3600000 : 0;
-    if (!dt || h < 36) { box.hidden = true; return; }
+    if (!dt || h < 36) {
+      // contrôle du matin : une enseigne de tes magasins avec beaucoup moins de promos que d'habitude
+      var c = (S.brut && S.brut.controle) || {}, mags = (S.brut && S.brut.magasins) || [], vus = {};
+      var manque = (c.baisse || []).filter(function (ch) {
+        return !vus[ch] && (vus[ch] = 1) && (S.sel || []).some(function (id) { var m = mags.find(function (x) { return x.id === id; }); return m && m.chaine === ch; });
+      });
+      if (!manque.length) { box.hidden = true; return; }
+      box.innerHTML = "<b>Moins de promos que d'habitude chez " + esc(manque.map(nomChaine).join(", ")) + "</b><span class=\"muted\">" +
+        "La mise à jour de ce matin en a trouvé beaucoup moins que les autres jours : il en manque peut-être. Mogette réessaie à la prochaine mise à jour.</span>";
+      box.hidden = false;
+      return;
+    }
     var j = Math.floor(h / 24);
     box.innerHTML = "<b>Promos pas mises à jour depuis " + (j >= 1 ? j + " jour" + (j > 1 ? "s" : "") : Math.round(h) + " h") + "</b><span class=\"muted\">" +
       (S.mode === "pc" ? "Touche « Mettre à jour » en haut." : "La mise à jour automatique a peut-être un souci. Touche MAJ en haut pour la relancer, ou dis-le à Claude.") + "</span>";
@@ -1546,7 +1558,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   function feteMeres(an) { var d = dimanche(an, 4, -1); return d.getTime() === decale(paques(an), 49).getTime() ? dimanche(an, 5, 1) : d; }  // sauf Pentecôte
   var SAISONS = [
     { id: "noel", titre: "Spécial Noël", pour: "pour Noël", emo: "🎄", poids: 3, rayons: ["Jouets & culture"], quand: function (an) { return [new Date(an, 10, 12), new Date(an, 11, 24)]; },
-      mots: "noel|foie gras|chocolats|ballotin|ballotins|pralines|truffe|truffes|papillote|papillotes|champagne|cremant|saumon fume|huitre|huitres|chapon|chapons|dinde|marrons|chataignes|buche|buches|calendrier de l avent|pain d epices|clementine|clementines|escargot|escargots|boudin blanc|boudins blancs|magret|blini|blinis|tarama|langouste|homard|saint jacques|noix de saint jacques|crevette|crevettes|nougat|panettone|marrons glaces|coffret|cadeau|cadeaux|jouet|jouets|peluche|poupee|lego|playmobil|jeu de societe|sapin|guirlande|guirlandes|boules de noel|decoration|chocolat chaud|whisky|cognac|liqueur|porto|vin chaud" },
+      mots: "noel|foie gras|chocolats|ballotin|ballotins|pralines|truffe|truffes|papillote|papillotes|lanvin|lindt|lindor|ferrero rocher|mon cheri|raffaello|after eight|guylian|leonidas|jeff de bruges|neuhaus|godiva|revillon|abtey|celebrations|quality street|moulage|moulages|champagne|cremant|saumon fume|huitre|huitres|chapon|chapons|dinde|marrons|chataignes|buche|buches|calendrier de l avent|pain d epices|clementine|clementines|escargot|escargots|boudin blanc|boudins blancs|magret|blini|blinis|tarama|langouste|homard|saint jacques|noix de saint jacques|crevette|crevettes|nougat|panettone|marrons glaces|coffret|cadeau|cadeaux|jouet|jouets|peluche|poupee|lego|playmobil|jeu de societe|sapin|guirlande|guirlandes|boules de noel|decoration|chocolat chaud|whisky|cognac|liqueur|porto|vin chaud" },
     { id: "nouvelan", titre: "Réveillon du Nouvel an", pour: "pour le réveillon", emo: "🥂", poids: 3, quand: function (an) { return [new Date(an, 11, 26), new Date(an, 11, 31)]; },
       mots: "champagne|cremant|mousseux|foie gras|huitre|huitres|saumon fume|blini|blinis|tarama|caviar|homard|langouste|crevette|crevettes|saint jacques|cotillon|cotillons|toast|toasts|verrine|verrines|petits fours" },
     { id: "galette", titre: "Galette des rois", pour: "pour la galette des rois", emo: "👑", poids: 2, quand: function (an) { return [new Date(an, 0, 1), new Date(an, 0, 31)]; },
@@ -1904,7 +1916,38 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     // pour « me prévenir » : le nom du produit dans les catalogues, sans le poids (les alertes cherchent ces mots dans les promos)
     var terme = String((e && e.n) || nom).replace(/\b\d+([.,]\d+)?\s*(x\s*\d+([.,]\d+)?\s*)?(g|gr|kg|ml|cl|l)\b/gi, "").replace(/\s+/g, " ").trim();
     if (terme.length < 4) terme = marque;
+    if (sc.terme) terme = sc.terme;
     return { cle: cle, off: off, e: e, nom: nom, marque: marque, terme: terme };
+  }
+  // Bonial ne donne pas les codes-barres de la plupart des enseignes, et une promo « variétés au choix » ou « toute la gamme »
+  // couvre plusieurs codes : sans code exact, on cherche la même marque et le même produit (« L'Escargot » Lanvin)
+  var SCAN_VIDES = { les: 1, des: 1, aux: 1, avec: 1, pour: 1, sans: 1, lot: 1, boite: 1, sachet: 1, pack: 1, format: 1, offre: 1,
+    edition: 1, limitee: 1, nouveau: 1, nouvelle: 1, gout: 1, saveur: 1, saveurs: 1, the: 1, and: 1, piece: 1, pieces: 1, varietes: 1,
+    variete: 1, choix: 1, gamme: 1, toute: 1, tous: 1, toutes: 1, produits: 1, bio: 1, maison: 1, france: 1, reflets: 1, marque: 1 };
+  function motsScan(t) {
+    return norm(t).split(" ").filter(function (w) { return w.length > 2 && !SCAN_VIDES[w] && !/\d/.test(w); }).map(racine);
+  }
+  // mots de goût ou de couleur : ils ne suffisent pas à dire que c'est le même produit (« lait » de « L'Escargot au lait »)
+  var SCAN_GENERIQUES = {};
+  ("chocolat chocolats lait noir noire blanc blanche nature fruit fruits vanille fraise framboise citron orange caramel beurre " +
+   "sel sucre sucres original originale classique extra fin fins fine mini maxi grand grande petit petite doux douce intense " +
+   "leger legere allege allegee").split(" ").forEach(function (w) { SCAN_GENERIQUES[racine(w)] = 1; });
+  function promosProbables(i) {
+    var mq = motsScan(i.marque), mots = motsScan(i.nom).filter(function (w) { return mq.indexOf(w) < 0; });
+    var forts = mots.filter(function (w) { return !SCAN_GENERIQUES[w]; });
+    if (forts.length) mots = forts;
+    if (!mq.length && mots.length < 2) return [];
+    return visibles().filter(function (p) {
+      if (p.op || pasCommencee(p) || codeProduit(p) === i.cle) return false;
+      var pm = motsScan(p.marque + " " + p.nom), texte = motsScan(p.nom + " " + (p.detail || ""));
+      var communs = mots.filter(function (w) { return texte.indexOf(w) >= 0; }).length;
+      if (mq.length) {
+        if (!mq.some(function (w) { return pm.indexOf(w) >= 0; })) return false;
+        // même marque : le même produit (« Escargot »), ou toute la gamme sans restriction (« gamme des calendriers » en est une)
+        return communs >= 1 || (gamme(p) && !/\bgamme (des?|d) /.test(norm(p.detail || "")));
+      }
+      return communs >= 2;
+    }).sort(function (a, b) { return (a.prix == null ? 1e9 : a.prix) - (b.prix == null ? 1e9 : b.prix); }).slice(0, 8);
   }
   function ouvrirScan() {
     if (!SCAN) return;
@@ -1913,6 +1956,9 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     FICHE = id; RETOUR = null;
     var ici = visibles().filter(function (p) { return codeProduit(p) === i.cle && !pasCommencee(p); })
       .sort(function (a, b) { return (a.prix == null ? 1e9 : a.prix) - (b.prix == null ? 1e9 : b.prix); });
+    var proba = ici.length ? [] : promosProbables(i);
+    // alerte : « L'Escargot Lanvin » (nom de la promo + marque) trouve les prochaines promos, le long nom d'Open Food Facts non
+    if (proba.length && !i.e) { SCAN.terme = (titreOffre(proba[0]) + (norm(titreOffre(proba[0])).indexOf(norm(proba[0].marque)) < 0 ? " " + proba[0].marque : "")).trim(); i = infosScan(); }
     // promos passées : chaque produit des catalogues lié à ce code-barres, jour par jour
     var vus = [];
     (i.e ? i.e.k : []).forEach(function (k) { (SCAN.h[k] || []).forEach(function (x) { vus.push({ d: x[0], prix: x[1], ch: k.split("|")[0] }); }); });
@@ -1942,6 +1988,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
         '<div class="muted" style="font-size:13px;margin-top:4px">Code-barres ' + esc(SCAN.code) + (ns ? ' · Nutri-Score ' + ns : '') + '</div></div>' +
       '<h3 class="scan-t">En promo maintenant</h3>' +
       (ici.length ? '<div class="rail">' + ici.map(function (p) { return carte(p, { compact: true }); }).join("") + '</div>'
+        : proba.length ? '<p class="scan-p"><b>Sûrement en promo</b> : même marque et même produit, souvent en « variétés au choix ». Vérifie la variété en rayon.</p>' +
+          '<div class="rail">' + proba.map(function (p) { return carte(p, { compact: true }); }).join("") + '</div>'
         : '<p class="muted scan-p">Pas en promo en ce moment dans tes magasins.</p>') +
       '<h3 class="scan-t">Ses promos passées</h3>' + histo +
       '<div class="acts">' + (i.terme ? '<button class="icon big' + (surv ? ' on' : '') + '" type="button" data-scanwatch="1"' + (surv ? ' disabled' : '') + '>' +
@@ -3326,7 +3374,15 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     aj.value = S.anniv ? S.anniv.slice(3) : ""; am.value = S.anniv ? S.anniv.slice(0, 2) : "";
     afficherApplis(); afficherGouts();
     afficherGh();
-    $("setInfo").textContent = S.data.promos.length + " promos chargées · " + vivants().length + " articles dans ta liste · " + S.fav.length + " favoris. Tout reste sur ce téléphone.";
+    $("setInfo").textContent = S.data.promos.length + " promos chargées · " + vivants().length + " articles dans ta liste · " + S.fav.length + " favoris. Tout reste sur ce téléphone." + controleTxt();
+  }
+  // contrôle du matin (maj_promos.controler) : une ligne dans Réglages > Données
+  function controleTxt() {
+    var c = S.brut && S.brut.controle; if (!c || !c.date) return "";
+    var n = 0, k = 0; Object.keys(c.chaines || {}).forEach(function (ch) { k++; n += (c.chaines[ch] || [0, 0])[1]; });
+    var quand = "Contrôle du " + jjmm(c.date) + " : ";
+    if (!(c.alertes || []).length) return " " + quand + "rien d'anormal (" + k + " enseignes, " + n.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0") + " promos).";
+    return " " + quand + c.alertes.join(" ; ") + ".";
   }
   function ajouterSurveille(v) {
     v = (v || "").trim(); if (!v) return;

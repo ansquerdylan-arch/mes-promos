@@ -56,7 +56,8 @@ def lire_reglages():
 
 
 def correspond(p, mot):
-    return (" " + m.norm(mot)) in (" " + m.norm((p.get("nom") or "") + " " + (p.get("marque") or "")) + " ")
+    # « fam » : famille reconnue à la marque (« chocolat » pour un « Assortiment » Lanvin, « bière » pour Leffe)
+    return (" " + m.norm(mot)) in (" " + m.norm((p.get("nom") or "") + " " + (p.get("marque") or "") + " " + (p.get("fam") or "")) + " ")
 
 
 def ntfy(sujet, titre, message, tags=None):
@@ -165,6 +166,16 @@ def principal(log=print, aujourd=None, reglages=None, envoyer=ntfy):
             log("Notification opérations envoyée (%d)" % len(operations))
         except Exception as e:
             log("Notification opérations non envoyée : %s" % e)
+
+    # contrôle du matin (maj_promos.controler) : une enseigne ou un catalogue qui manque, une fois par jour
+    controle = (m.charger_json(m.CONTROLE, {}) or {}).get("dernier") or {}
+    if sujet and controle.get("date") == jour and controle.get("alertes") and ("c|" + jour) not in deja:
+        try:
+            envoyer(sujet, "Mogette : des promos manquent peut-être", "\n".join("⚠️ " + a for a in controle["alertes"][:8]), ["warning"])
+            deja["c|" + jour] = {"date": jour, "texte": "contrôle : %d point(s)" % len(controle["alertes"])}
+            log("Notification contrôle envoyée (%d point(s))" % len(controle["alertes"]))
+        except Exception as e:
+            log("Notification contrôle non envoyée : %s" % e)
 
     # mémoire des 60 derniers jours + rappels calendrier des 14 derniers jours
     limite = (aujourd - timedelta(days=60)).isoformat()
