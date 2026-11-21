@@ -41,6 +41,9 @@ Version à lire sur le téléphone : le doc « Mogette : idées d'améliorations
   `FAMILLES`, couleur, appli et site dans la page. 14 magasins en Vendée, catalogue de la semaine « La semaine d'Action »
   (environ 140 articles). Carte « Nouveau : Action » à l'accueil, une seule fois, qui propose le plus proche. Rayons :
   mots-clés et marques d'Action (FERM, Werckmann, Dickie Toys, Trolli…), de 47 articles dans « Autres » à 1.
+  Photos (Dylan, 21/11 : « il a pas d'image ») : bonial les donne en `…/<id>/<nom>.jpeg` et la mise à jour ne gardait que
+  `…/<id>/main.jpg`. Corrigé (`RE_PHOTO`, `photoDe()`), ce qui donne aussi leurs photos à Carrefour, Carrefour Market,
+  Carrefour Proximité et aux catalogues Leclerc de bonial. Pas besoin du site d'Action pour les photos.
   Horaires : Bonial n'en donne aucun ; Action est un `variety_store` sur OpenStreetMap, ajouté à la requête Overpass,
   avec deux serveurs de secours. Le 21/11 les trois serveurs étaient saturés (502, 504) : la mise à jour du matin
   réessaie toute seule tant que le cache n'a pas été refait avec la nouvelle requête.
