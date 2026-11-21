@@ -25,11 +25,13 @@ jobs:
         env:
           TZ: Europe/Paris
         run: python maj_promos.py
-      - name: Alertes (produits surveillés, opérations du jour)
+      - name: Alertes (notifications des comptes Mogette)
         env:
           TZ: Europe/Paris
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python alertes.py
+          FIREBASE_COMPTE: ${{ secrets.FIREBASE_COMPTE }}
+        run: |
+          pip install -q google-auth requests pywebpush || echo "Outils des notifications non installés"
+          python alertes.py
       - name: Enregistrer si ça a changé
         run: |
           git config user.name "maj-promos"

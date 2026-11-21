@@ -1,10 +1,10 @@
 rules_version = '2';
-// Règles de la base Firestore de Mogette, à coller dans la console Firebase :
-// Firestore Database > Règles > (tout remplacer) > Publier.
-// Chaque personne ne lit, n'écrit et ne supprime que son propre document comptes/<son identifiant>,
-// qui ne contient que ses réglages (texte JSON, moins de 800 Ko) et la date du dernier enregistrement.
+// Règles de la base Firestore de Mogette. La mise à jour du matin les publie elle-même (alertes.py, avec la clé de
+// service FIREBASE_COMPTE) : modifier ce fichier suffit.
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Réglages de chaque personne : elle seule les lit, les écrit ou les supprime.
     match /comptes/{uid} {
       allow read, delete: if request.auth != null && request.auth.uid == uid;
       allow create, update: if request.auth != null && request.auth.uid == uid
@@ -12,6 +12,52 @@ service cloud.firestore {
         && request.resource.data.donnees is string
         && request.resource.data.donnees.size() < 800000
         && request.resource.data.maj is int;
+
+      // Téléphones abonnés aux notifications de ce compte (adresse d'envoi Web Push).
+      match /appareils/{appareil} {
+        allow read, delete: if request.auth != null && request.auth.uid == uid;
+        allow create, update: if request.auth != null && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['push', 'nom', 'maj'])
+          && request.resource.data.push is string && request.resource.data.push.size() < 4000
+          && request.resource.data.nom is string && request.resource.data.nom.size() < 40
+          && request.resource.data.maj is int;
+      }
+    }
+
+    // Listes de courses partagées : seuls les membres (des comptes) la lisent et la modifient.
+    // Qui a le lien (le numéro de la liste) peut s'y ajouter lui-même, 10 personnes au plus.
+    match /listes/{liste} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.membres;
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['membres', 'proprio', 'noms', 'donnees', 'maj'])
+        && request.resource.data.membres == [request.auth.uid]
+        && request.resource.data.proprio == request.auth.uid
+        && request.resource.data.donnees is string && request.resource.data.donnees.size() < 800000;
+      allow update: if request.auth != null && (
+        // un membre modifie la liste ou son prénom, sans toucher aux membres
+        (request.auth.uid in resource.data.membres
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['donnees', 'maj', 'noms'])
+          && request.resource.data.donnees is string && request.resource.data.donnees.size() < 800000)
+        // quelqu'un qui a le lien s'ajoute lui-même
+        || (!(request.auth.uid in resource.data.membres)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['membres'])
+          && request.resource.data.membres.hasAll(resource.data.membres)
+          && request.resource.data.membres.size() == resource.data.membres.size() + 1
+          && request.auth.uid in request.resource.data.membres
+          && resource.data.membres.size() < 10)
+        // un membre s'en va
+        || (request.auth.uid in resource.data.membres
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['membres', 'noms'])
+          && !(request.auth.uid in request.resource.data.membres)
+          && request.resource.data.membres.hasAll(resource.data.membres.removeAll([request.auth.uid]))
+          && request.resource.data.membres.size() == resource.data.membres.size() - 1)
+      );
+      allow delete: if request.auth != null && request.auth.uid == resource.data.proprio;
+    }
+
+    // Clé publique d'envoi des notifications (la clé privée reste dans config/push, fermé à tous).
+    match /config/public {
+      allow read: if true;
     }
   }
 }
