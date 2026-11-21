@@ -3018,7 +3018,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   // se fait dans la même page, sans fenêtre à part : une fenêtre à part ne revient pas dans l'appli posée sur l'écran
   // d'accueil d'un iPhone. Google (ou Apple) renvoie sur Mogette avec un jeton dans l'adresse (#id_token=…), que
   // Firebase échange contre un compte ; le document comptes/<uid> de Firestore garde les réglages (règles : chacun le sien).
-  var COMPTE_CFG = { apiKey: "", projet: "", google: "", apple: "" };  // rempli quand le projet Firebase existe (voir LISEZMOI)
+  var COMPTE_CFG = { apiKey: "AIzaSyCE4FJ0zgKuDhUxMLlvNkfB_Y2_H9hmbyo", projet: "mogette-d4fa2",
+    google: "407831124115-o01cl3sgu2mb14kfhkeuohfiemgc3v9f.apps.googleusercontent.com", apple: "" };  // rempli quand le projet Firebase existe (voir LISEZMOI)
   var CPT = lire("compte", null);  // { uid, nom, email, photo, via, idToken, refresh, exp }
   var CS = { t: null, envoye: lire("compteEnvoye", ""), maj: lire("compteMaj", 0), quand: lire("compteQuand", 0), erreur: "",
     attente: null, tire: 0, pret: false, aTirer: false, applique: false, confirme: "" };
