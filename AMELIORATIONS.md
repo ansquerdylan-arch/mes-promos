@@ -4,6 +4,27 @@ Liste tenue à jour avec Claude, pour reprendre le fil d'une conversation à l'a
 Version à lire sur le téléphone : le doc « Mogette : idées d'améliorations »
 (https://claude.ai/artifact/BE13MizFVK85Lfxk3hrMzK).
 
+## Ajouts du 21 novembre 2026 (fait)
+
+- Promos « toute la gamme » : `gamme()` ; étiquette de la marque à la place de la photo, badge « Toute la gamme ».
+- Horaires manquants : 15 sur 18 complétés par `completer_horaires()` (même magasin listé sous un autre nom chez Bonial,
+  même adresse ; sinon OpenStreetMap, même enseigne à 250 m, ou 1 km si aucun autre magasin de l'enseigne n'est plus près ;
+  pas de devinette quand plusieurs magasins sont placés au même point). Restent : Chavagnes-en-Paillers,
+  La Chaize-le-Vicomte, La Roche-sur-Yon rue Serpentine.
+- Courbe des prix sur la fiche (`montrerCourbe()`, historique.json chargé à la demande). `mettre_historique()` garde le
+  prix le plus bas du jour par clé « chaîne|nom|marque », arrondi au centime ; historique remis à un point par produit
+  le 21/11 (les 4 premiers jours mélangeaient des produits de même nom).
+- Favoris qui finissent : carte à l'accueil ; `favoris` dans le gist d'alertes, `alertes.py` prévient la veille et le jour même.
+  État des alertes visible dans Réglages (bouton « Envoyer » si besoin), envoi automatique à l'ouverture.
+- Sauvegarde des réglages : gist privé `reglages-mes-promos.json` ; à la connexion GitHub, un téléphone neuf reprend tout,
+  un téléphone déjà rempli demande (« Remettre la sauvegarde » / « Garder ce téléphone ») avant d'écraser.
+- Panier comparé (`moinsCherAilleurs()`) : code-barres de l'enseigne (`ean`, pas `off` qui est deviné par le nom) ou même
+  nom + même marque, pas de lot contre un produit seul, prix au kilo/litre vérifié.
+- Code-barres : photo, BarcodeDetector si présent, sinon décodeur maison EAN-13/EAN-8/UPC-A ; sinon nom via Open Food Facts.
+- Moments de Mogette (`feteDuJour()`) : bonnet en décembre, lunettes noires semaine du Black Friday, chapeau au Nouvel an et à
+  l'anniversaire (réglage). Sans photo : mini-mogette + emoji du rayon.
+- Widget Scriptable : `widget-mogette.js` ; Réglages > « Copier le script du widget » y met les magasins.
+
 ## Check-up du 20 novembre 2026 (fait)
 
 Vérifié : 4 tailles d'écran (iPhone SE à Pro Max), clair et sombre, hors connexion, tous les parcours
@@ -21,25 +42,19 @@ Corrigé :
 - Plus de demande `/api/etat` sur GitHub Pages (404 à chaque ouverture) ; la version PC la garde.
 - GitHub Actions : `actions/checkout@v5` et `actions/setup-python@v6` (Node 24) ; `datetime.utcnow()` remplacé.
 
-## Priorités
+## À faire du côté de Dylan
 
-1. **Alertes appli fermée** : `alertes.py` écrit « Pas de produits surveillés enregistrés ». Vérifier sur l'iPhone
-   le jeton GitHub dans les réglages de Mogette et qu'au moins un produit est surveillé.
-2. **Horaires** : 18 Carrefour Proximité sans horaires.
-3. **Promos sur une marque entière** (« Toute la gamme Blini », « Carrefour Bio ») : les montrer comme une
-   étiquette de marque plutôt qu'une fiche produit vide.
+1. Connecter GitHub dans Mogette (Réglages > Liste partagée et alertes) : active alertes appli fermée, rappels de favoris,
+   sauvegarde. Question posée en commentaire du doc le 20/11, pas encore de réponse.
+2. Installer ntfy pour les notifications.
+3. Le widget, s'il le veut (Scriptable).
 
 ## Plus tard
 
-- Courbe de prix sur la fiche : `historique.json` note le prix de chaque produit chaque jour depuis le 18/11/2026.
-- Rappel la veille de la fin d'une promo mise en favori.
-- Panier comparé : total de la liste par enseigne pour les produits en promo à plusieurs endroits.
-- Plus de moments mascotte (Noël, Black Friday, anniversaire de Dylan).
-- Sans photo : une petite Mogette par rayon au lieu de l'emoji.
-- Réglages (magasins, prénom) sauvegardés avec la liste partagée, pour tout retrouver si l'icône est supprimée.
-- Scanner un code-barres en magasin (champ `ean` déjà présent pour une partie des promos ; il faudra une
-  bibliothèque de lecture, Safari ne le fait pas seul).
-- Widget d'écran d'accueil via l'appli Scriptable, qui lirait `promos.json`.
+- Alerte de prix : « préviens-moi si la raclette passe sous 4 € » sur un produit surveillé.
+- Ordre des rayons de son magasin dans le mode magasin.
+- Mogette parle des surveillés dans la bulle de l'accueil (« Ta raclette est en promo chez Leclerc ! »).
+- Les 3 magasins sans horaires, à la main si besoin.
 
 ## À surveiller
 

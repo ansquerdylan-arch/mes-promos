@@ -2579,28 +2579,63 @@ def lire_osm(log, aujourd):
     return lieux
 
 
+# enseignes de proximité d'un même groupe : un « Carrefour Proximité » s'appelle souvent « Carrefour Contact » ou « 8 à Huit » sur la carte
+FAMILLES_OSM = {"carrefour": ["carrefour", "8 a huit", "proxi"]}
+
+
+def mots_famille(nom):
+    n = norm(nom)
+    for cle, mots in FAMILLES_OSM.items():
+        if cle in n.split():
+            return mots
+    return [w for w in n.split() if len(w) > 2 and w not in ("express", "city", "contact", "proximite", "market")][:1] or n.split()[:1]
+
+
+def meme_adresse(a, b):
+    """« 7 Quai de Franqueville » et « 7 quai de Franqueville » : même numéro et au moins un mot de rue en commun."""
+    na, nb = norm(a), norm(b)
+    num = lambda t: (re.findall(r"\b\d+\b", t) or [""])[0]
+    mots = lambda t: {w for w in t.split() if len(w) > 3 and not w.isdigit()}
+    return num(na) == num(nb) and bool(mots(na) & mots(nb))
+
+
 def completer_horaires(magasins, log, aujourd=None):
-    """Horaires OpenStreetMap pour les magasins que Bonial donne sans horaires (même enseigne à moins de 250 m)."""
+    """Horaires OpenStreetMap pour les magasins que Bonial donne sans horaires : même enseigne à moins de 250 m,
+    ou jusqu'à 1 km si aucun autre magasin de l'enseigne n'est plus près (les positions Bonial sont parfois approximatives)."""
     manquent = [m for m in magasins.values() if not m.get("horaires") and m.get("lat") and m.get("lng")]
     if not manquent:
         return
     lieux = lire_osm(log, aujourd or date.today())
     trouves = 0
     for m in manquent:
-        mots = [w for w in norm(m.get("nom")).split() if len(w) > 2 and w not in ("express", "city", "contact", "proximite", "market")] or norm(m.get("nom")).split()[:1]
-        best = None
+        mots = mots_famille(m.get("nom"))
+        meme = [x for x in magasins.values() if x.get("lat") and x.get("lng") and mots_famille(x.get("nom")) == mots]
+        voisins = [x for x in meme if x is not m and distance_km((m["lat"], m["lng"]), (x["lat"], x["lng"])) < 0.03]
+        # même magasin listé sous deux noms (« Carrefour Contact » et « Carrefour Proximité », même adresse) : ses horaires Bonial
+        jumeau = [x for x in voisins if x.get("horaires") and not x.get("horaires_src") and meme_adresse(m.get("adresse"), x.get("adresse"))]
+        if jumeau:
+            m["horaires"] = jumeau[0]["horaires"]
+            trouves += 1
+            continue
+        if any(not meme_adresse(m.get("adresse"), x.get("adresse")) for x in voisins):
+            continue  # plusieurs magasins placés au même point (centre-ville) : position pas fiable, on ne devine pas
+        cands = []
         for l in lieux:
-            if not any((" %s " % w) in (" %s " % l["nom"]) for w in mots):
-                continue
-            d = distance_km((m["lat"], m["lng"]), (l["lat"], l["lng"]))
-            if d <= 0.25 and (best is None or d < best[0]):
-                best = (d, l)
-        h = horaires_osm(best[1]["oh"]) if best else None
+            if any((" %s " % w) in (" %s " % l["nom"]) for w in mots):
+                d = distance_km((m["lat"], m["lng"]), (l["lat"], l["lng"]))
+                if d <= 1.0:
+                    cands.append((d, l))
+        choix = None
+        for d, l in sorted(cands, key=lambda x: x[0]):
+            if d <= 0.25 or min(distance_km((x["lat"], x["lng"]), (l["lat"], l["lng"])) for x in meme) >= d - 0.03:
+                choix = l
+                break
+        h = horaires_osm(choix["oh"]) if choix else None
         if h:
             m["horaires"] = h
             m["horaires_src"] = "osm"
             trouves += 1
-    log("Horaires OpenStreetMap : %d magasin(s) complété(s) sur %d sans horaires" % (trouves, len(manquent)))
+    log("Horaires manquants : %d magasin(s) complété(s) sur %d (même adresse chez Bonial ou OpenStreetMap)" % (trouves, len(manquent)))
 
 
 # --------------------------------------------------------------------------- historique des prix
