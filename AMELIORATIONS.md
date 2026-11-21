@@ -21,6 +21,8 @@ Version à lire sur le téléphone : le doc « Mogette : idées d'améliorations
 - Panier comparé (`moinsCherAilleurs()`) : code-barres de l'enseigne (`ean`, pas `off` qui est deviné par le nom) ou même
   nom + même marque, pas de lot contre un produit seul, prix au kilo/litre vérifié.
 - Code-barres : photo, BarcodeDetector si présent, sinon décodeur maison EAN-13/EAN-8/UPC-A ; sinon nom via Open Food Facts.
+- Fiche de l'article scanné (demandée par Dylan le 21/11) : produit d'Open Food Facts, promos du moment, promos passées
+  (courbe + liste, via `codes.json` tenu par `mettre_codes()`), bouton « Alerte promo » (ajoute aux surveillés).
 - Moments de Mogette (`feteDuJour()`) : bonnet en décembre, lunettes noires semaine du Black Friday, chapeau au Nouvel an et à
   l'anniversaire (réglage). Sans photo : mini-mogette + emoji du rayon.
 - Widget Scriptable : `widget-mogette.js` ; Réglages > « Copier le script du widget » y met les magasins.

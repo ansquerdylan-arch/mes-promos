@@ -202,6 +202,14 @@ button.mag-cat.vis::after { content: "Voir le visuel"; }
 .li .moins { grid-column: 2 / -1; justify-self: start; margin-top: -4px; border: 0; border-radius: 9px; padding: 0 10px; min-height: 32px; background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ink); font: 600 13.5px var(--font-ui); text-align: left; }
 .li .moins b { font-weight: 800; }
 .compar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; background: var(--tile); border-radius: 18px; padding: 12px 16px; font-size: 14.5px; box-shadow: var(--case); }
+/* fiche d'un article scanné */
+.scan-t { font: 400 20px/1.1 var(--font-num); margin: 16px 0 6px; }
+.scan-p { margin: 0; font-size: 14.5px; line-height: 1.4; }
+.vus { display: grid; gap: 2px; margin-top: 8px; }
+.vus div { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; padding: 6px 0; border-bottom: 1px solid var(--hair); }
+.vus div:last-child { border-bottom: 0; }
+.fiche-top .retour { padding: 10px 0; margin: -8px 0; }
+.acts button[disabled] { opacity: 1; }
 /* bouton code-barres */
 .search .scan { flex: none; width: 46px; height: 46px; border: 0; border-radius: 15px; background: var(--tile); color: var(--ink); display: grid; place-items: center; padding: 0; box-shadow: inset 0 0 0 2px var(--outline); }
 .search .scan svg { width: 24px; height: 24px; }
@@ -1396,18 +1404,22 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       if (der[0] < auj && Math.abs(der[1] - p.prix) > 0.004) l.push([auj, p.prix]);
       box.innerHTML = courbeHTML(l, p.prix);
       box.hidden = false;
-      box.onclick = function (ev) {
-        var c = ev.target.closest("circle.cible"); if (!c) return;
-        var x = l[+c.getAttribute("data-i")];
-        box.querySelectorAll("circle.vu").forEach(function (y) { y.classList.remove("vu"); });
-        var pt = box.querySelector('circle[data-p="' + c.getAttribute("data-i") + '"]'); if (pt && !pt.classList.contains("now")) pt.classList.add("vu");
-        box.querySelector(".courbe-v").textContent = (x[0] === auj ? "Aujourd'hui" : "Le " + jjmm(x[0])) + " : " + euro(x[1]);
-      };
+      brancherCourbe(box, l);
     });
   }
-  function courbeHTML(l, prix) {
+  function brancherCourbe(box, l) {  // toucher un point affiche sa date et son prix
+    var auj = isoJ(new Date());
+    box.onclick = function (ev) {
+      var c = ev.target.closest("circle.cible"); if (!c) return;
+      var x = l[+c.getAttribute("data-i")];
+      box.querySelectorAll("circle.vu").forEach(function (y) { y.classList.remove("vu"); });
+      var pt = box.querySelector('circle[data-p="' + c.getAttribute("data-i") + '"]'); if (pt && !pt.classList.contains("now")) pt.classList.add("vu");
+      box.querySelector(".courbe-v").textContent = (x[0] === auj ? "Aujourd'hui" : "Le " + jjmm(x[0])) + " : " + euro(x[1]);
+    };
+  }
+  function courbeHTML(l, prix, debut) {
     var t0 = dIso(l[0][0]).getTime(), t1 = dIso(l[l.length - 1][0]).getTime(), auj = isoJ(new Date());
-    var tete = "Prix suivi depuis le " + jjmm(l[0][0]);
+    var tete = (debut || "Prix suivi depuis le ") + jjmm(l[0][0]);
     if (l.length < 2 || t1 === t0) return '<div class="courbe-t">' + tete + ". La courbe se dessinera au fil des semaines.</div>";
     var mini = l.reduce(function (a, x) { return x[1] < a[1] ? x : a; }, l[0]), maxi = Math.max.apply(null, l.map(function (x) { return x[1]; })), minv = mini[1];
     tete += " · le plus bas : <b>" + euro(minv) + "</b>" + (Math.abs(minv - prix) < 0.005 ? " (aujourd'hui)" : " le " + jjmm(mini[0]));
@@ -1426,8 +1438,94 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       '<svg class="courbe-g" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Prix relevés : ' + l.map(function (x) { return jjmm(x[0]) + " " + euro(x[1]); }).join(", ") + '"><path d="' + d + '"/>' + pts + cibles + '</svg>' +
       '<div class="courbe-x"><span>' + jjmm(l[0][0]) + '</span><span class="courbe-v" aria-live="polite">Touche un point pour voir le prix</span><span>' + (l[l.length - 1][0] === auj ? "aujourd'hui" : jjmm(l[l.length - 1][0])) + '</span></div>';
   }
+  // ---------- fiche d'un article scanné : le produit (Open Food Facts), ses promos du moment, ses promos passées
+  var CODES = null, CODES_P = null, SCAN = null, RETOUR = null;
+  function chargerCodes() {  // codes.json : code-barres -> produits vus en promo (clés de l'historique)
+    if (CODES) return Promise.resolve(CODES);
+    if (!CODES_P) CODES_P = fetch(S.mode === "pc" ? "/codes.json" : "codes.json").then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (j) { CODES = j || {}; return CODES; }, function () { CODES_P = null; return {}; });
+    return CODES_P;
+  }
+  function infosOFF(code) {  // nom, marque, photo… d'Open Food Facts ; 7 s au plus (en magasin, le réseau traîne)
+    var attente = new Promise(function (ok) { setTimeout(function () { ok(null); }, 7000); });
+    var req = fetch("https://world.openfoodfacts.org/api/v2/product/" + encodeURIComponent(code) + ".json?fields=product_name,product_name_fr,brands,quantity,image_front_small_url,image_front_url,nutriscore_grade")
+      .then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { return j && j.product ? j.product : null; }, function () { return null; });
+    return Promise.race([req, attente]);
+  }
+  function rechercher(q) { S.q = q; $("q").value = q; $("homeQ").value = ""; S.f = {}; S.rayon = "Tous"; afficherFiltres(); afficherPromos(); vue("promos"); }
+  function chercherCode(code) {
+    toast("Je cherche ce produit…");
+    Promise.all([infosOFF(code), chargerCodes(), chargerHisto()]).then(function (r) {
+      SCAN = { code: String(code), off: r[0], codes: r[1] || {}, h: r[2] || {} };
+      ouvrirScan();
+    });
+  }
+  function nomChaine(ch) {  // « uexpress » -> « U Express », d'après les magasins de toute la Vendée
+    var m = ((S.brut && S.brut.magasins) || []).find(function (x) { return x.chaine === ch; });
+    return m ? m.nom : ch;
+  }
+  function infosScan() {
+    var sc = SCAN, cle = sc.code.replace(/^0+/, ""), off = sc.off || {}, e = sc.codes[cle] || null;
+    var nom = String(off.product_name_fr || off.product_name || (e && e.n) || "").trim();
+    var marque = String(off.brands || (e && e.m) || "").split(",")[0].trim();
+    // pour « me prévenir » : le nom du produit dans les catalogues, sans le poids (les alertes cherchent ces mots dans les promos)
+    var terme = String((e && e.n) || nom).replace(/\b\d+([.,]\d+)?\s*(x\s*\d+([.,]\d+)?\s*)?(g|gr|kg|ml|cl|l)\b/gi, "").replace(/\s+/g, " ").trim();
+    if (terme.length < 4) terme = marque;
+    return { cle: cle, off: off, e: e, nom: nom, marque: marque, terme: terme };
+  }
+  function ouvrirScan() {
+    if (!SCAN) return;
+    var id = "scan:" + SCAN.code, i = infosScan(), off = i.off;
+    $("fiche").classList.toggle("deja", FICHE === id);
+    FICHE = id; RETOUR = null;
+    var ici = visibles().filter(function (p) { return codeProduit(p) === i.cle && !pasCommencee(p); })
+      .sort(function (a, b) { return (a.prix == null ? 1e9 : a.prix) - (b.prix == null ? 1e9 : b.prix); });
+    // promos passées : chaque produit des catalogues lié à ce code-barres, jour par jour
+    var vus = [];
+    (i.e ? i.e.k : []).forEach(function (k) { (SCAN.h[k] || []).forEach(function (x) { vus.push({ d: x[0], prix: x[1], ch: k.split("|")[0] }); }); });
+    var parJour = {}, auj = isoJ(new Date()), mini = ici.filter(function (p) { return p.prix != null; })[0];
+    vus.forEach(function (x) { if (parJour[x.d] == null || x.prix < parJour[x.d]) parJour[x.d] = x.prix; });
+    if (mini && parJour[auj] == null) parJour[auj] = mini.prix;
+    var serie = Object.keys(parJour).sort().map(function (d) { return [d, parJour[d]]; });
+    vus.sort(function (a, b) { return a.d < b.d ? 1 : a.d > b.d ? -1 : a.prix - b.prix; });
+    var lignes = [], deja = {};
+    vus.forEach(function (x) { var k = x.d + x.ch; if (!deja[k] && lignes.length < 6) { deja[k] = 1; lignes.push(x); } });
+    var histo;
+    if (!serie.length) histo = '<p class="muted scan-p">Pas vu en promo depuis le début du suivi, le 18 novembre.</p>';
+    else if (serie.length === 1) histo = '<p class="scan-p">Vu en promo le ' + jjmm(serie[0][0]) + ' à <b>' + euro(serie[0][1]) + '</b>.</p>';
+    else histo = '<div class="courbe" id="scanCourbe">' + courbeHTML(serie, mini ? mini.prix : NaN, "Vu en promo depuis le ") + '</div>';
+    if (lignes.length) histo += '<div class="vus">' + lignes.map(function (x) {
+      return '<div><span>' + jjmm(x.d) + ' · ' + esc(nomChaine(x.ch)) + '</span><b>' + euro(x.prix) + '</b></div>';
+    }).join("") + '</div>' + (i.e && !i.e.s ? '<p class="muted scan-p" style="font-size:12.5px">Relié par le nom du produit : vérifie que c\'est bien le même format.</p>' : '');
+    var photo = off.image_front_small_url || off.image_front_url || "", ns = /^[a-e]$/.test(off.nutriscore_grade || "") ? off.nutriscore_grade.toUpperCase() : "";
+    var surv = !!i.terme && S.watch.map(norm).indexOf(norm(i.terme)) >= 0;
+    $("ficheCorps").innerHTML = '<div class="fiche-in" style="--sc:#34495a;--sc-ink:#fff">' +
+      '<div class="grab" aria-hidden="true"></div>' +
+      '<div class="fiche-top"><span class="ens">Article scanné</span><button class="x" type="button" data-fermerfiche="1" aria-label="Fermer">✕</button></div>' +
+      '<div class="ph-box' + (photo ? '' : ' vide') + '">' + (photo ? '<img class="ph" alt="" src="' + esc(photo) + '" onerror="this.parentNode.classList.add(\'vide\');this.remove()">' : '') +
+        '<span class="ph-vide mog" aria-hidden="true"><svg viewBox="0 0 120 100"><use href="#mogMini"/></svg><i>🔎</i></span></div>' +
+      '<div><h2 id="ficheNom">' + esc(i.nom || "Produit pas reconnu") + '</h2>' +
+        ((i.marque || off.quantity) ? '<div class="brand" style="font-size:14px;margin-top:3px">' + esc([i.marque, off.quantity].filter(Boolean).join(" · ")) + '</div>' : '') +
+        '<div class="muted" style="font-size:13px;margin-top:4px">Code-barres ' + esc(SCAN.code) + (ns ? ' · Nutri-Score ' + ns : '') + '</div></div>' +
+      '<h3 class="scan-t">En promo maintenant</h3>' +
+      (ici.length ? '<div class="rail">' + ici.map(function (p) { return carte(p, { compact: true }); }).join("") + '</div>'
+        : '<p class="muted scan-p">Pas en promo en ce moment dans tes magasins.</p>') +
+      '<h3 class="scan-t">Ses promos passées</h3>' + histo +
+      '<div class="acts">' + (i.terme ? '<button class="icon big' + (surv ? ' on' : '') + '" type="button" data-scanwatch="1"' + (surv ? ' disabled' : '') + '>' +
+        (surv ? "✓ Alerte activée" : "🔔 Alerte promo") + '</button>' : '') +
+        '<button class="icon" type="button" data-scanliste="1">+ Liste</button></div>' +
+      (i.marque ? '<button class="link" type="button" data-scanmarque="1">Voir toutes les promos ' + esc(i.marque) + '</button>' : '') +
+      (SCAN.off ? '<div class="go-list"><a class="go" href="https://fr.openfoodfacts.org/produit/' + encodeURIComponent(SCAN.code) + '" target="_blank" rel="noopener"><span class="gi off">' + ICO.leaf + '</span><span><b>Voir sur Open Food Facts</b>' +
+        '<small>Ingrédients, additifs, allergènes : base libre et gratuite.</small></span>' + ICO.out + '</a></div>' : '') +
+    '</div>';
+    var cb = $("scanCourbe"); if (cb) brancherCourbe(cb, serie);
+    var d = $("fiche");
+    if (!d.open) { try { d.showModal(); } catch (er) { d.setAttribute("open", ""); } d.scrollTop = 0; }
+  }
   function ouvrirFiche(id) {
+    if (String(id).indexOf("scan:") === 0) { ouvrirScan(); return; }
     var p = promoParId(id); if (!p) return;
+    RETOUR = String(FICHE || "").indexOf("scan:") === 0 ? FICHE : FICHE === id ? RETOUR : null;  // venu d'un article scanné
     $("fiche").classList.toggle("deja", FICHE === id);
     FICHE = id;
     var e = (S.data.enseignes || {})[p.enseigne] || {}, fam = familleDe(e.chaine || p.chaine), a = APPLIS[fam];
@@ -1463,7 +1561,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var lu = a && fam === "lidl";
     $("ficheCorps").innerHTML = '<div class="fiche-in" style="--sc:' + coul(p.enseigne) + ';--sc-ink:' + (lu ? "#18202c" : "#fff") + '">' +
       '<div class="grab" aria-hidden="true"></div>' +
-      '<div class="fiche-top"><span class="ens">' + esc(nomEns(p.enseigne)) + '</span><button class="x" type="button" data-fermerfiche="1" aria-label="Fermer">✕</button></div>' +
+      '<div class="fiche-top">' + (RETOUR ? '<button class="link retour" type="button" data-retourscan="1">← Article scanné</button>' : '<span class="ens">' + esc(nomEns(p.enseigne)) + '</span>') + '<button class="x" type="button" data-fermerfiche="1" aria-label="Fermer">✕</button></div>' +
       '<div class="ph-box' + (photo ? '' : ' vide') + '">' + (photo ? '<img class="ph' + (p.op ? ' op' : '') + '" alt="" src="' + esc(photo) + '"' + (p.op ? ' data-zoom="' + esc(p.image) + '"' : '') + ' onerror="this.parentNode.classList.add(\'vide\');this.remove()">' : '') +
         phVide(p) + pastille(p) + '</div>' +
       (badges ? '<div class="badges">' + badges + '</div>' : '') +
@@ -1544,6 +1642,12 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       if (t.closest("[data-fermerfiche]")) { fermerFiche(); return; }
       var cp = t.closest("a[data-copie]");
       if (cp && navigator.clipboard) { try { navigator.clipboard.writeText(cp.dataset.copie).catch(function () {}); } catch (er) {} }
+      if (String(FICHE || "").indexOf("scan:") === 0) {  // fiche d'un article scanné : toucher une de ses promos ouvre sa fiche
+        var nb2 = t.closest("button[data-fiche]");
+        if (nb2) { ouvrirFiche(nb2.dataset.fiche); return; }
+        var art2 = !t.closest("button, a, input, select, textarea, label, img[data-zoom]") && t.closest("article.p[data-pid]");
+        if (art2) ouvrirFiche(art2.dataset.pid);
+      }
       return;
     }
     var nb = t.closest("button[data-fiche]");
@@ -2273,21 +2377,6 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       img.src = url;
     });
   }
-  function chercherCode(code) {
-    var cle = String(code).replace(/^0+/, "");
-    var ici = visibles().filter(function (p) { return codeProduit(p) === cle; });
-    function montrer(q, msg) { S.q = q; $("q").value = q; $("homeQ").value = ""; S.f = {}; S.rayon = "Tous"; afficherFiltres(); afficherPromos(); vue("promos"); toast(msg); }
-    if (ici.length) { montrer(code, ici.length > 1 ? ici.length + " promos pour ce produit" : "Ce produit est en promo"); return; }
-    toast("Je cherche ce produit…");
-    fetch("https://world.openfoodfacts.org/api/v2/product/" + encodeURIComponent(code) + ".json?fields=product_name,product_name_fr,brands")
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (j) {
-        var pr = j && j.product, nom = pr && (pr.product_name_fr || pr.product_name) || "", marque = pr && String(pr.brands || "").split(",")[0].trim() || "";
-        if (!nom && !marque) { toast("Ce produit n'est pas en promo dans tes magasins"); return; }
-        var terme = marque || nom.split(/\s+/).slice(0, 2).join(" ");
-        montrer(terme, "« " + (nom || marque) + " » n'est pas en promo. Voici les promos " + terme + ".");
-      }, function () { toast("Ce produit n'est pas en promo dans tes magasins"); });
-  }
   $("scanFile").addEventListener("change", function () {
     var f = this.files && this.files[0]; if (!f) return;
     toast("Je lis le code-barres…");
@@ -2941,6 +3030,10 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (ds.widget) { copierWidget(); return; }
     if (ds.envoyeralertes) { SE.alertesEnvoyees = ""; SE.alerteErreur = ""; syncAlertes(); toast("J'envoie tes alertes à GitHub…"); return; }
     if (ds.swap) { var g1 = changerMagasin(ds.swap); if (g1) { afficherListe(); afficherPromos(); toast("Changé : " + euro(g1) + " de moins"); } return; }
+    if (ds.scanwatch) { ajouterSurveille(infosScan().terme); ouvrirScan(); return; }
+    if (ds.scanliste) { var isc = infosScan(); mettre({ id: nouvelId(), nom: isc.nom || isc.terme || "Produit " + SCAN.code, enseigne: "", prix: null, rayon: "" }); sauverListe(); afficherListe(); afficherAccueil(); toast("Ajouté à la liste"); return; }
+    if (ds.scanmarque) { var mq = infosScan().marque; fermerFiche(); rechercher(mq); return; }
+    if (ds.retourscan) { ouvrirScan(); return; }
     if (ds.restaurer) { if (SE.sauvegarde) appliquerSauvegarde(SE.sauvegarde); return; }
     if (ds.garder) { SE.sauvegarde = null; ecrire("sauvegardeEnAttente", false); SE.reglagesEnvoyes = ""; sauverReglages(); afficherGh(); toast("Ce téléphone devient la sauvegarde"); return; }
     if (ds.swapall) { var g2 = 0; Object.keys(MOINS).forEach(function (k) { g2 += changerMagasin(k); }); afficherListe(); afficherPromos(); toast("Tout changé : " + euro(g2) + " de moins"); return; }

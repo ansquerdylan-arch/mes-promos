@@ -2639,6 +2639,34 @@ def completer_horaires(magasins, log, aujourd=None):
 
 
 # --------------------------------------------------------------------------- historique des prix
+CODES = os.path.join(DATA, "codes.json")
+
+
+def mettre_codes(promos):
+    """Code-barres -> produits vus en promo (clés de l'historique) : la fiche d'un article scanné retrouve ses promos passées.
+    « ean » vient de l'enseigne (sûr, noté « s »), « off » du produit Open Food Facts trouvé par son nom (probable)."""
+    h = charger_json(HISTORIQUE, {})
+    c = charger_json(CODES, {})
+    for p in promos:
+        if p.get("prix") is None:
+            continue
+        cle = p.get("chaine", p.get("enseigne")) + "|" + norm(p["nom"]) + "|" + norm(p.get("marque"))
+        for champ in ("ean", "off"):
+            code = str(p.get(champ) or "").lstrip("0")
+            if len(code) < 7 or not code.isdigit():
+                continue
+            e = c.setdefault(code, {"n": p["nom"], "m": p.get("marque") or "", "k": []})
+            if cle not in e["k"]:
+                e["k"] = (e["k"] + [cle])[-8:]
+            if champ == "ean":
+                e["s"] = 1
+    for code in list(c):  # ce que l'historique a oublié, on l'oublie aussi
+        c[code]["k"] = [k for k in c[code]["k"] if k in h]
+        if not c[code]["k"]:
+            del c[code]
+    ecrire_json(CODES, c)
+
+
 def mettre_historique(promos, aujourd):
     h = charger_json(HISTORIQUE, {})
     jour = aujourd.isoformat()
@@ -2782,6 +2810,7 @@ def mettre_a_jour(debug=False, log=print, essai=False):
         return ancien
     try:
         mettre_historique(offres, aujourd)
+        mettre_codes(offres)
     except Exception as e:
         log("Historique non mis à jour : %s" % e)
     # vue « magasins par défaut » (calendrier de base)
