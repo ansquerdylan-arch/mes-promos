@@ -1,0 +1,101 @@
+name: Applis Android et iPhone
+
+# Fabrique les applis Mogette (coquille Capacitor qui ouvre le site) et les met sur la page
+# https://github.com/ansquerdylan-arch/mes-promos/releases/tag/applis
+# Le site se met à jour tout seul : refaire les applis n'est utile que si le dossier app/ change.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["app/**", ".github/workflows/applis.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: applis
+  cancel-in-progress: true
+
+jobs:
+  page:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Page de téléchargement
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view applis >/dev/null 2>&1 || gh release create applis --target main --title "Mogette en appli" --notes "Mogette.apk : l'appli Android (télécharge-la sur le téléphone, ouvre-la, autorise l'installation).
+          Mogette.ipa : l'appli iPhone, à installer depuis un ordinateur avec Sideloadly et ton identifiant Apple (à refaire tous les 7 jours sans compte développeur Apple).
+          Les deux ouvrent le site Mogette : les promos et les nouveautés arrivent sans réinstaller."
+
+  android:
+    needs: page
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Projet Android
+        working-directory: app
+        run: |
+          npm install --no-audit --no-fund
+          npx cap add android
+          npx capacitor-assets generate --android --iconBackgroundColor "#cfeaf7" --iconBackgroundColorDark "#0e1c26" --splashBackgroundColor "#cfeaf7" --splashBackgroundColorDark "#0e1c26"
+          # « Autour de moi » sur la carte des magasins
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#&\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />#' android/app/src/main/AndroidManifest.xml
+          # numéro de version qui monte à chaque fabrication : l'appli se met à jour par-dessus l'ancienne
+          sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"1.${{ github.run_number }}\"/" android/app/build.gradle
+          npx cap sync android
+      - name: Fichier APK
+        working-directory: app/android
+        run: |
+          # toujours la même signature (clé de débogage du dépôt) : sinon Android refuse la mise à jour
+          mkdir -p ~/.android && cp ../android-debug.keystore ~/.android/debug.keystore
+          ./gradlew assembleDebug --no-daemon --console=plain
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Mogette.apk"
+      - name: Mise en ligne
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release upload applis Mogette.apk --clobber
+
+  iphone:
+    needs: page
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Projet iPhone
+        working-directory: app
+        run: |
+          npm install --no-audit --no-fund
+          npx cap add ios
+          npx capacitor-assets generate --ios --iconBackgroundColor "#cfeaf7" --splashBackgroundColor "#cfeaf7" --splashBackgroundColorDark "#0e1c26"
+          P=ios/App/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Mogette lit les codes-barres que tu prends en photo.'" $P
+          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Mogette peut lire un code-barres sur une photo.'" $P
+          /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string 'Mogette montre les magasins autour de toi.'" $P
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Mogette" $P || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string Mogette" $P
+          npx cap sync ios
+      - name: Fichier IPA (non signé, Sideloadly le signe)
+        working-directory: app/ios/App
+        run: |
+          if [ -d App.xcworkspace ]; then CIBLE="-workspace App.xcworkspace"; else CIBLE="-project App.xcodeproj"; fi
+          xcodebuild $CIBLE -scheme App -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            MARKETING_VERSION=1.${{ github.run_number }} CURRENT_PROJECT_VERSION=${{ github.run_number }} build | tail -n 30
+          mkdir -p Payload && cp -R build/Build/Products/Release-iphoneos/App.app Payload/
+          zip -qry "$GITHUB_WORKSPACE/Mogette.ipa" Payload
+      - name: Mise en ligne
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release upload applis Mogette.ipa --clobber

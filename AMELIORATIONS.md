@@ -27,6 +27,13 @@ Version à lire sur le téléphone : le doc « Mogette : idées d'améliorations
   l'anniversaire (réglage). Sans photo : mini-mogette + emoji du rayon.
 - Widget Scriptable : `widget-mogette.js` ; Réglages > « Copier le script du widget » y met les magasins.
 
+## Version finale, 21 novembre 2026 (fait)
+
+- Carte des magasins pour les choisir (tuiles OpenStreetMap, regroupement, « Autour de moi »).
+- Applis : dossier `app/` (Capacitor, coquille qui ouvre le site) + workflow `applis.yml` -> `Mogette.apk` et `Mogette.ipa`
+  sur la page de téléchargement « applis ». iPhone : IPA non signée (Sideloadly + identifiant Apple, 7 jours), ou compte
+  développeur Apple (99 €/an) pour TestFlight/App Store. Play Store : compte 25 $ + vraie clé de signature.
+
 ## Check-up du 20 novembre 2026 (fait)
 
 Vérifié : 4 tailles d'écran (iPhone SE à Pro Max), clair et sombre, hors connexion, tous les parcours

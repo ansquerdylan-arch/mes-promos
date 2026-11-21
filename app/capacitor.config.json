@@ -1,0 +1,16 @@
+{
+  "appId": "io.github.ansquerdylanarch.mogette",
+  "appName": "Mogette",
+  "webDir": "www",
+  "server": {
+    "url": "https://ansquerdylan-arch.github.io/mes-promos/",
+    "errorPath": "erreur.html"
+  },
+  "backgroundColor": "#cfeaf7",
+  "android": {
+    "adjustMarginsForEdgeToEdge": "force"
+  },
+  "ios": {
+    "contentInset": "never"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "mogette-appli",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Mogette en appli Android et iPhone : une coquille Capacitor qui ouvre le site, mis à jour chaque matin",
+  "dependencies": {
+    "@capacitor/android": "latest",
+    "@capacitor/cli": "latest",
+    "@capacitor/core": "latest",
+    "@capacitor/ios": "latest"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "latest"
+  }
+}

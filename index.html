@@ -202,6 +202,31 @@ button.mag-cat.vis::after { content: "Voir le visuel"; }
 .li .moins { grid-column: 2 / -1; justify-self: start; margin-top: -4px; border: 0; border-radius: 9px; padding: 0 10px; min-height: 32px; background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ink); font: 600 13.5px var(--font-ui); text-align: left; }
 .li .moins b { font-weight: 800; }
 .compar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; background: var(--tile); border-radius: 18px; padding: 12px 16px; font-size: 14.5px; box-shadow: var(--case); }
+/* carte des magasins */
+.carte-ouvrir { display: inline-flex; align-items: center; gap: 8px; justify-self: start; }
+.carte-ouvrir svg { width: 20px; height: 20px; }
+dialog.carte-dlg { width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; background: var(--shelf); color: var(--ink); display: none; }
+dialog.carte-dlg[open] { display: flex; flex-direction: column; }
+.carte-tete { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: calc(10px + env(safe-area-inset-top)) 16px 10px; }
+.carte-tete h2 { font: 400 24px/1.1 var(--font-num); margin: 0; }
+.carte { position: relative; flex: 1; min-height: 0; overflow: hidden; margin: 0 12px; border-radius: 18px; background: #e6eef2; box-shadow: var(--case); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.carte-monde { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.carte .tuile { position: absolute; width: 256px; height: 256px; max-width: none; user-select: none; -webkit-user-drag: none; pointer-events: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #carteTuiles { filter: invert(1) hue-rotate(180deg) brightness(.85) contrast(.9); } }
+:root[data-theme="dark"] #carteTuiles { filter: invert(1) hue-rotate(180deg) brightness(.85) contrast(.9); }
+.mq { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; padding: 0; border: 0; border-radius: 50%; background: #fff; color: #000; font: 400 14px/1 var(--font-num);
+  box-shadow: inset 0 0 0 4px var(--sc, #8a93a6), 0 0 0 2px #000, 2px 2px 0 2px #000; display: grid; place-items: center; cursor: pointer; }
+.mq.on { background: var(--label); }
+.mq.vu { transform: scale(1.25); z-index: 2; }
+.mq.moi { width: 18px; height: 18px; margin: -9px 0 0 -9px; background: #2f7de1; box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(47,125,225,.35); pointer-events: none; }
+.mq::after { content: ""; position: absolute; inset: -9px; }
+.carte-btns { position: absolute; right: 10px; top: 10px; display: grid; gap: 8px; }
+.carte-btns button { width: 44px; height: 44px; border: 0; border-radius: 13px; background: var(--tile); color: var(--ink); font: 700 24px/1 var(--font-ui); display: grid; place-items: center; box-shadow: inset 0 0 0 2.5px var(--outline), 3px 3px 0 var(--outline); }
+.carte-btns svg { width: 22px; height: 22px; }
+.carte-attr { position: absolute; right: 6px; bottom: 6px; font-size: 11px; padding: 2px 6px; border-radius: 6px; background: rgba(255,255,255,.85); color: #222; }
+.carte-fiche { padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); display: grid; gap: 8px; max-height: 40dvh; overflow: auto; }
+.carte-fiche .muted { font-size: 14px; }
+
 /* fiche d'un article scanné */
 .scan-t { font: 400 20px/1.1 var(--font-num); margin: 16px 0 6px; }
 .scan-p { margin: 0; font-size: 14.5px; line-height: 1.4; }
@@ -615,6 +640,15 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
 <div class="sb" aria-hidden="true"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mogMini" viewBox="0 0 120 100"><g transform="rotate(-14 64 56)"><path d="M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z" fill="#fff" stroke="#000" stroke-width="5" stroke-linejoin="round"/><ellipse cx="64" cy="54" rx="4.2" ry="6"/><ellipse cx="84" cy="53" rx="4.2" ry="6"/><path d="M66 65 Q73 71 81 64" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/><circle cx="54" cy="64" r="5" fill="#ff9aa2"/><circle cx="95" cy="62" r="5" fill="#ff9aa2"/></g></symbol></svg>
 <input type="file" id="scanFile" accept="image/*" capture="environment" hidden>
+<dialog id="carteDlg" class="carte-dlg" aria-labelledby="carteTitre">
+  <div class="carte-tete"><h2 id="carteTitre">Tes magasins sur la carte</h2><button class="btn" type="button" data-fermercarte="1">Fermer</button></div>
+  <div id="carte" class="carte" role="application" aria-label="Carte des magasins de Vendée : glisse pour te déplacer, pince pour zoomer">
+    <div id="carteMonde" class="carte-monde"><div id="carteTuiles"></div><div id="carteMq"></div></div>
+    <div class="carte-btns"><button type="button" data-cz="1" aria-label="Zoomer">+</button><button type="button" data-cz="-1" aria-label="Dézoomer">−</button><button type="button" data-cmoi="1" aria-label="Autour de moi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button></div>
+    <a class="carte-attr" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© contributeurs OpenStreetMap</a>
+  </div>
+  <div id="carteFiche" class="carte-fiche" aria-live="polite"></div>
+</dialog>
 <header class="topbar">
   <svg viewBox="0 0 120 100" aria-hidden="true" class="masc"><g transform="rotate(-14 64 56)"><path d="M14 58 C12 42 30 28 48 30 C58 31 62 38 68 38 C74 38 80 28 94 28 C108 28 116 42 114 56 C112 72 90 82 66 82 C40 82 16 74 14 58 Z" fill="#fff" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g class="yeux"><ellipse cx="62" cy="57" rx="4.2" ry="6"/><ellipse cx="82" cy="56" rx="4.2" ry="6"/></g><path d="M65 66 Q72 72 80 65" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/><circle cx="53" cy="65" r="5" fill="#ff9aa2"/><circle cx="93" cy="63" r="5" fill="#ff9aa2"/><g class="deco"></g></g></svg>
   <div class="tt"><h1 id="titre">Mogette</h1><p id="sub">Chargement…</p></div>
@@ -777,6 +811,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     <div class="grp" id="magSection">
       <b>Mes magasins</b>
       <span class="muted">Choisis tes magasins parmi tous ceux de Vendée. Toute l'appli suit ton choix : promos, plats, agenda, alertes.</span>
+      <button class="btn carte-ouvrir" type="button" data-carte="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5V4l-6 2.5L9 4Z"/><path d="M9 4v13M15 6.5v13"/></svg>Choisir sur la carte</button>
       <div id="selStores"></div>
       <b style="font-size:15px;margin-top:4px">Ajouter un magasin</b>
       <div class="watch-add"><span class="champ"><input id="storeQ" type="search" placeholder="Ville, code postal ou enseigne" aria-label="Chercher un magasin" autocomplete="off"><button class="efface" type="button" data-efface="1" aria-label="Effacer la recherche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><button class="btn" type="button" id="btnPres">Autour de moi</button></div>
@@ -809,6 +844,11 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     <div class="grp" id="ghSection">
       <b>Liste partagée et alertes</b>
       <div id="ghBox"></div>
+    </div>
+    <div class="grp" id="applisGrp">
+      <b>Mogette en appli</b>
+      <span class="muted" id="applisTxt"></span>
+      <div class="row" id="applisBtns"></div>
     </div>
     <div class="grp">
       <b>Widget sur l'écran d'accueil</b>
@@ -950,12 +990,13 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   var UA = navigator.userAgent || "";
   var ANDROID = /Android/i.test(UA), IOS = /iPhone|iPad|iPod/i.test(UA) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   var INSTALLEE = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  var NATIF = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());  // appli iPhone ou Android (Capacitor)
   var invite = null;
   window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); invite = e; afficherInstall(); });
   window.addEventListener("appinstalled", function () { INSTALLEE = true; afficherInstall(); toast("Appli installée"); });
   function afficherInstall() {
     var box = $("installBox");
-    if (INSTALLEE || lire("installVu", false) || location.protocol !== "https:") { box.hidden = true; return; }
+    if (INSTALLEE || NATIF || lire("installVu", false) || location.protocol !== "https:") { box.hidden = true; return; }
     var txt = "";
     if (invite) txt = '<b>Installe Mogette sur ton téléphone</b><span class="muted">Une icône sur l\'écran d\'accueil, l\'appli s\'ouvre en plein écran et marche même sans réseau en magasin.</span><div class="row"><button class="btn primary" type="button" id="btnInstall">Installer l\'appli</button><button class="link" type="button" id="hideInstall">Plus tard</button></div>';
     else if (ANDROID) txt = '<b>Installe Mogette</b><span class="muted">Dans Chrome : touche ⋮ en haut à droite, puis <b>Ajouter à l\'écran d\'accueil</b> (ou <b>Installer l\'appli</b>).</span><div><button class="link" type="button" id="hideInstall">C\'est fait</button></div>';
@@ -1188,6 +1229,161 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       '<button class="icon" type="button" data-' + (choisi ? "unpick" : "pick") + '="' + esc(m.id) + '">' + (choisi ? "Retirer" : "+ Ajouter") + '</button>' +
       '<span class="sub">' + esc([m.adresse, m.cp].filter(Boolean).join(", ")) + (dist != null ? ' · ' + (dist < 10 ? dist.toFixed(1).replace(".", ",") : Math.round(dist)) + ' km' : '') +
       (o ? ' · <span class="' + (o.ouvert ? "open" : "closed") + '">' + esc(o.txt) + '</span>' : '') + '</span></div>';
+  }
+  // ---------- carte des magasins : tuiles OpenStreetMap, glisser, pincer, toucher un magasin pour le choisir
+  var CT = { z: 9, x: 0, y: 0, tuiles: {}, groupes: [], vu: -1, moi: null };  // x, y : coin haut-gauche de la vue, en pixels du monde au zoom z
+  function monde(lat, lng, z) { var n = 256 * Math.pow(2, z), s = Math.sin(lat * Math.PI / 180); return [(lng + 180) / 360 * n, (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * n]; }
+  function magasinsCarte() { return ((S.brut && S.brut.magasins) || []).filter(function (m) { return m.lat && m.lng; }); }
+  function cadrer(pts) {  // zoom et centre pour voir tous ces points
+    var el = $("carte"), w = el.clientWidth || 360, h = el.clientHeight || 500;
+    if (!pts.length) pts = [[46.67, -1.43]];
+    var la = pts.map(function (p) { return p[0]; }), lo = pts.map(function (p) { return p[1]; });
+    var z = 15;
+    for (; z > 7; z--) {
+      var a = monde(Math.max.apply(null, la), Math.min.apply(null, lo), z), b = monde(Math.min.apply(null, la), Math.max.apply(null, lo), z);
+      if (b[0] - a[0] < w - 80 && b[1] - a[1] < h - 80) break;
+    }
+    var c = monde((Math.max.apply(null, la) + Math.min.apply(null, la)) / 2, (Math.max.apply(null, lo) + Math.min.apply(null, lo)) / 2, z);
+    CT.z = z; CT.x = c[0] - w / 2; CT.y = c[1] - h / 2;
+  }
+  function placerMonde(echelle, ox, oy) {
+    var t = "translate(" + (-CT.x) + "px," + (-CT.y) + "px)";
+    if (echelle) t = "translate(" + ox + "px," + oy + "px) scale(" + echelle + ") translate(" + (-ox) + "px," + (-oy) + "px) " + t;
+    $("carteMonde").style.transform = t;
+  }
+  function tuiles() {
+    var el = $("carte"), w = el.clientWidth, h = el.clientHeight, z = CT.z, n = Math.pow(2, z), garde = {};
+    for (var ty = Math.floor(CT.y / 256) - 1; ty <= Math.floor((CT.y + h) / 256) + 1; ty++) {
+      if (ty < 0 || ty >= n) continue;
+      for (var tx = Math.floor(CT.x / 256) - 1; tx <= Math.floor((CT.x + w) / 256) + 1; tx++) {
+        var k = z + "/" + tx + "/" + ty; garde[k] = 1;
+        if (CT.tuiles[k]) continue;
+        var im = new Image(); im.alt = ""; im.draggable = false; im.className = "tuile";
+        im.style.left = tx * 256 + "px"; im.style.top = ty * 256 + "px";
+        im.src = "https://tile.openstreetmap.org/" + z + "/" + (((tx % n) + n) % n) + "/" + ty + ".png";
+        $("carteTuiles").appendChild(im); CT.tuiles[k] = im;
+      }
+    }
+    Object.keys(CT.tuiles).forEach(function (k) { if (!garde[k]) { CT.tuiles[k].remove(); delete CT.tuiles[k]; } });
+  }
+  function marqueurs() {  // les magasins proches à l'écran se regroupent en une pastille avec leur nombre
+    var g = [];
+    magasinsCarte().forEach(function (m) {
+      var p = monde(m.lat, m.lng, CT.z), d = g.find(function (x) { return Math.abs(x.p[0] - p[0]) < 26 && Math.abs(x.p[1] - p[1]) < 26; });
+      if (d) d.l.push(m); else g.push({ p: p, l: [m] });
+    });
+    CT.groupes = g;
+    $("carteMq").innerHTML = g.map(function (x, i) {
+      var on = x.l.filter(function (m) { return S.sel.indexOf(m.id) >= 0; }).length, m0 = x.l[0];
+      return '<button class="mq' + (on ? ' on' : '') + (i === CT.vu ? ' vu' : '') + '" type="button" data-mq="' + i + '" style="left:' + x.p[0].toFixed(1) + 'px;top:' + x.p[1].toFixed(1) + 'px;--sc:' +
+        (COULEURS[familleDe(m0.chaine)] || "#8a93a6") + '" aria-label="' + esc(x.l.length > 1 ? x.l.length + " magasins" : m0.nom + " " + m0.ville) + (on ? ", choisi" : "") + '">' + (x.l.length > 1 ? x.l.length : on ? "✓" : "") + '</button>';
+    }).join("") + (CT.moi ? (function () { var p = monde(CT.moi[0], CT.moi[1], CT.z); return '<span class="mq moi" style="left:' + p[0].toFixed(1) + 'px;top:' + p[1].toFixed(1) + 'px"></span>'; })() : "");
+  }
+  function rendreCarte() { placerMonde(); tuiles(); marqueurs(); }
+  function ficheCarte() {
+    var x = CT.groupes[CT.vu];
+    $("carteFiche").innerHTML = x ? (x.l.length > 1 ? '<span class="muted">' + x.l.length + ' magasins ici</span>' : '') +
+      x.l.map(function (m) { return ligneMagasin(m, S.sel.indexOf(m.id) >= 0); }).join("")
+      : '<span class="muted">Touche un magasin pour le choisir ou le retirer. En jaune : tes magasins (' + S.sel.length + ').</span>';
+  }
+  function zoomer(dz, ox, oy) {
+    var el = $("carte"), nz = Math.max(7, Math.min(17, CT.z + dz));
+    if (ox == null) { ox = el.clientWidth / 2; oy = el.clientHeight / 2; }
+    var f = Math.pow(2, nz - CT.z);
+    CT.x = (CT.x + ox) * f - ox; CT.y = (CT.y + oy) * f - oy; CT.z = nz;
+    var vu = CT.groupes[CT.vu]; CT.vu = -1;
+    $("carteTuiles").innerHTML = ""; CT.tuiles = {};
+    rendreCarte();
+    if (vu) { CT.vu = CT.groupes.findIndex(function (g) { return g.l.indexOf(vu.l[0]) >= 0; }); marqueurs(); }
+  }
+  function ouvrirCarte() {
+    var d = $("carteDlg");
+    if (!d.open) { try { d.showModal(); } catch (er) { d.setAttribute("open", ""); } }
+    var mags = magasinsCarte(), pts = mags.filter(function (m) { return S.sel.indexOf(m.id) >= 0; }).map(function (m) { return [m.lat, m.lng]; });
+    CT.vu = -1; CT.tuiles = {}; $("carteTuiles").innerHTML = "";
+    requestAnimationFrame(function () { cadrer(pts.length ? pts : mags.map(function (m) { return [m.lat, m.lng]; })); rendreCarte(); ficheCarte(); });
+  }
+  function apresChoixCarte() { if ($("carteDlg").open) { marqueurs(); ficheCarte(); } }
+  (function () {  // glisser, pincer, molette, double-toucher
+    var el = $("carte"), pts = {}, debut = null, bouge = false, dernier = 0, raf = 0;
+    function liste() { return Object.keys(pts).map(function (k) { return pts[k]; }); }
+    function local(ev) { var r = el.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; }
+    el.addEventListener("pointerdown", function (ev) {
+      if (ev.target.closest(".carte-btns, .carte-attr")) return;
+      pts[ev.pointerId] = local(ev); try { el.setPointerCapture(ev.pointerId); } catch (e) {}
+      var l = liste();
+      debut = l.length === 2 ? { d: Math.hypot(l[0][0] - l[1][0], l[0][1] - l[1][1]), m: [(l[0][0] + l[1][0]) / 2, (l[0][1] + l[1][1]) / 2], e: 1 } : { p: l[0], x: CT.x, y: CT.y };
+      bouge = false;
+    });
+    el.addEventListener("pointermove", function (ev) {
+      if (!pts[ev.pointerId]) return;
+      pts[ev.pointerId] = local(ev);
+      var l = liste();
+      if (l.length === 2 && debut && debut.d) {
+        debut.e = Math.max(0.25, Math.min(8, Math.hypot(l[0][0] - l[1][0], l[0][1] - l[1][1]) / debut.d)); bouge = true;
+        placerMonde(debut.e, debut.m[0], debut.m[1]);
+      } else if (l.length === 1 && debut && debut.p) {
+        var dx = l[0][0] - debut.p[0], dy = l[0][1] - debut.p[1];
+        if (Math.abs(dx) + Math.abs(dy) > 6) bouge = true;
+        if (!bouge) return;
+        CT.x = debut.x - dx; CT.y = debut.y - dy; placerMonde();
+        if (!raf) raf = requestAnimationFrame(function () { raf = 0; tuiles(); });
+      }
+    });
+    function fin(ev) {
+      if (!pts[ev.pointerId]) return;
+      var l = liste(), p = pts[ev.pointerId];
+      delete pts[ev.pointerId];
+      if (l.length === 2 && debut && debut.d) {  // fin du pincement : on passe au zoom le plus proche
+        var dz = Math.round(Math.log(debut.e) / Math.LN2);
+        if (dz) zoomer(dz, debut.m[0], debut.m[1]); else placerMonde();
+        var r = liste()[0]; debut = r ? { p: r, x: CT.x, y: CT.y } : null; return;
+      }
+      debut = null;
+      if (bouge) { tuiles(); return; }
+      var mq = ev.target.closest && document.elementFromPoint(ev.clientX, ev.clientY);
+      mq = mq && mq.closest ? mq.closest(".mq[data-mq]") : null;
+      if (mq) {
+        var g = CT.groupes[+mq.getAttribute("data-mq")];
+        if (g.l.length > 1 && CT.z < 15) {  // plusieurs magasins : on s'approche
+          var pp = g.l.map(function (m) { return [m.lat, m.lng]; }), memes = pp.every(function (q) { return Math.abs(q[0] - pp[0][0]) + Math.abs(q[1] - pp[0][1]) < 0.0005; });
+          if (!memes) { cadrer(pp); CT.vu = -1; $("carteTuiles").innerHTML = ""; CT.tuiles = {}; rendreCarte(); return; }
+        }
+        CT.vu = +mq.getAttribute("data-mq"); marqueurs(); ficheCarte(); return;
+      }
+      var t = Date.now();
+      if (t - dernier < 320) { zoomer(1, p[0], p[1]); dernier = 0; return; }  // double toucher
+      dernier = t;
+    }
+    el.addEventListener("pointerup", fin);
+    el.addEventListener("pointercancel", function (ev) { delete pts[ev.pointerId]; debut = null; placerMonde(); });
+    el.addEventListener("wheel", function (ev) { ev.preventDefault(); var p = local(ev); zoomer(ev.deltaY < 0 ? 1 : -1, p[0], p[1]); }, { passive: false });
+  })();
+  function autourDeMoiCarte() {
+    if (!navigator.geolocation) { toast("Position indisponible sur ce téléphone"); return; }
+    toast("Je cherche où tu es…");
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      CT.moi = S.pos = [pos.coords.latitude, pos.coords.longitude];
+      var el = $("carte"), c; CT.z = 13; c = monde(CT.moi[0], CT.moi[1], CT.z);
+      CT.x = c[0] - el.clientWidth / 2; CT.y = c[1] - el.clientHeight / 2; CT.vu = -1;
+      $("carteTuiles").innerHTML = ""; CT.tuiles = {}; rendreCarte(); ficheCarte();
+    }, function () { toast("Position refusée : autorise la localisation pour Mogette"); }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 });
+  }
+  // ---------- Mogette en appli : l'appli Android (fichier APK) et l'iPhone
+  var URL_APPLIS = "https://github.com/ansquerdylan-arch/mes-promos/releases/download/applis/";
+  function afficherApplis() {
+    var t = $("applisTxt"), b = $("applisBtns"); if (!t) return;
+    if (NATIF) { t.textContent = "Tu utilises déjà l'appli Mogette. Elle se met à jour toute seule, comme le site."; b.innerHTML = ""; return; }
+    if (ANDROID) {
+      t.textContent = "Installe l'appli Android : télécharge le fichier, ouvre-le, et autorise l'installation depuis ton navigateur si le téléphone le demande.";
+      b.innerHTML = '<a class="btn primary" href="' + URL_APPLIS + 'Mogette.apk">Télécharger pour Android</a>';
+    } else if (IOS) {
+      t.textContent = "Sur iPhone, Mogette s'installe déjà comme une appli : dans Safari, Partager puis « Sur l'écran d'accueil ». Une vraie appli iPhone existe aussi (fichier .ipa) : elle s'installe avec Sideloadly depuis un ordinateur et ton identifiant Apple, à refaire tous les 7 jours sans compte développeur Apple.";
+      b.innerHTML = '<a class="btn" href="' + URL_APPLIS + 'Mogette.ipa">Fichier iPhone (.ipa)</a>';
+    } else {
+      t.textContent = "Mogette existe en appli Android (fichier APK) et en appli iPhone (fichier .ipa, à installer avec Sideloadly).";
+      b.innerHTML = '<a class="btn" href="' + URL_APPLIS + 'Mogette.apk">Android (.apk)</a><a class="btn" href="' + URL_APPLIS + 'Mogette.ipa">iPhone (.ipa)</a>';
+    }
   }
   function afficherChoixMagasins() {
     if (!S.brut || !$("selStores")) { if ($("magSection")) $("magSection").hidden = !S.brut; return; }
@@ -2880,6 +3076,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
         .map(function (n, i) { return '<option value="' + ("0" + (i + 1)).slice(-2) + '">' + n + '</option>'; }).join("");
     }
     aj.value = S.anniv ? S.anniv.slice(3) : ""; am.value = S.anniv ? S.anniv.slice(0, 2) : "";
+    afficherApplis();
     afficherGh();
     $("setInfo").textContent = S.data.promos.length + " promos chargées · " + vivants().length + " articles dans ta liste · " + S.fav.length + " favoris. Tout reste sur ce téléphone.";
   }
@@ -3026,6 +3223,10 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   document.addEventListener("click", function (ev) {
     var b = ev.target.closest("button"); if (!b) return;
     var ds = b.dataset;
+    if (ds.carte) { ouvrirCarte(); return; }
+    if (ds.fermercarte) { var dc = $("carteDlg"); try { dc.close(); } catch (er) { dc.removeAttribute("open"); } return; }
+    if (ds.cz) { zoomer(+ds.cz); return; }
+    if (ds.cmoi) { autourDeMoiCarte(); return; }
     if (ds.scan) { var sf = $("scanFile"); sf.value = ""; sf.click(); return; }
     if (ds.widget) { copierWidget(); return; }
     if (ds.envoyeralertes) { SE.alertesEnvoyees = ""; SE.alerteErreur = ""; syncAlertes(); toast("J'envoie tes alertes à GitHub…"); return; }
@@ -3079,10 +3280,10 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (ds.rdvdel != null) { S.rdv.splice(+ds.rdvdel, 1); ecrire("rdv", S.rdv); afficherRdv(); afficherAgenda(); return; }
     if (ds.del != null) { retirer(ds.del); sauverListe(); rafraichir(); return; }
     if (ds.invite) { inviter(); return; }
-    if (ds.pick) { if (S.sel.indexOf(ds.pick) < 0) S.sel.push(ds.pick); appliquerSelection(); afficherChoixMagasins(); toast("Magasin ajouté"); return; }
+    if (ds.pick) { if (S.sel.indexOf(ds.pick) < 0) S.sel.push(ds.pick); appliquerSelection(); afficherChoixMagasins(); apresChoixCarte(); toast("Magasin ajouté"); return; }
     if (ds.unpick) {
       if (S.sel.length <= 1) { toast("Garde au moins un magasin"); return; }
-      S.sel = S.sel.filter(function (x) { return x !== ds.unpick; }); appliquerSelection(); afficherChoixMagasins(); toast("Magasin retiré"); return;
+      S.sel = S.sel.filter(function (x) { return x !== ds.unpick; }); appliquerSelection(); afficherChoixMagasins(); apresChoixCarte(); toast("Magasin retiré"); return;
     }
     if (ds.fam) { FAM = ds.fam; afficherChoixMagasins(); return; }
     if (ds.resync) { SE.etag = null; syncListe(); return; }
