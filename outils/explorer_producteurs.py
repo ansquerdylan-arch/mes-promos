@@ -15,6 +15,27 @@ def lire(url, data=None, limite=60_000_000):
         return r.geturl(), r.headers.get("Content-Type", ""), r.read(limite)
 
 
+def atom(brut):
+    """Flux Atom OData v2 (Tourinsoft) -> liste de dictionnaires {propriété: texte}."""
+    import xml.etree.ElementTree as ET
+    ns = {"a": "http://www.w3.org/2005/Atom", "m": "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
+          "d": "http://schemas.microsoft.com/ado/2007/08/dataservices"}
+    racine = ET.fromstring(brut)
+    out = []
+    for e in racine.findall("a:entry", ns):
+        props = e.find(".//m:properties", ns)
+        if props is None:
+            continue
+        it = {}
+        for p in props:
+            cle = p.tag.split("}")[-1]
+            val = "".join(p.itertext()).strip()
+            if val:
+                it[cle] = val[:400]
+        out.append(it)
+    return out
+
+
 def court(x, n=900):
     s = json.dumps(x, ensure_ascii=False) if not isinstance(x, str) else x
     return s[:n] + ("…" if len(s) > n else "")
@@ -34,8 +55,7 @@ def tourinsoft(nom, url):
     try:
         d = json.loads(txt)
     except Exception:
-        print("(pas du JSON)")
-        return
+        d = atom(brut)
     items = d.get("value") if isinstance(d, dict) else d
     if not isinstance(items, list):
         print("clés :", list(d)[:40] if isinstance(d, dict) else type(d))
@@ -49,7 +69,7 @@ def tourinsoft(nom, url):
     print("éléments :", len(items))
     cles = collections.Counter(k for it in items for k in (it.keys() if isinstance(it, dict) else []))
     print("champs :", court(dict(cles.most_common(80)), 3000))
-    for champ in ("ObjectTypeName", "Type", "TYPE", "type", "Bordereau", "BORDEREAU", "Categorie", "CATEGORIE", "TypeName"):
+    for champ in [c for c in cles if any(m in c.lower() for m in ("type", "bordereau", "categ", "classement", "rubrique"))][:12]:
         if champ in cles:
             print("répartition", champ, ":", court(collections.Counter(str(it.get(champ)) for it in items).most_common(40), 2500))
     # éléments qui parlent de dégustation, producteurs, fermes, marchés
@@ -101,6 +121,9 @@ def osm():
         print("%-45s %4d | nom %d, horaires %d, produce %d, site %d, tél %d" % (
             cle[:45], len(l), avec("name"), avec("opening_hours"), avec("produce"), avec("website") + avec("contact:website"),
             avec("phone") + avec("contact:phone")))
+    for cle in ("amenity=vending_machine (food)", "shop=seafood", "craft=brewery", "shop=wine"):
+        for t in groupes.get(cle, [])[:5]:
+            print("  ex.", cle, ":", court(t, 400))
     for cle in ("shop=farm", "amenity=marketplace"):
         for t in groupes.get(cle, [])[:6]:
             print("  ex.", cle, ":", court(t, 500))
@@ -130,7 +153,22 @@ def agence_bio():
             for x in it.get(champ) or []:
                 c[x.get("nom") if isinstance(x, dict) else str(x)] += 1
         print("répartition", champ, ":", court(c.most_common(40), 2500))
-    vd = [it for it in items if any("direct" in json.dumps(x, ensure_ascii=False).lower() for x in (it.get("categories") or []))]
+    try:
+        _, _, brut2 = lire(url.replace("debut=0", "debut=1000"))
+        items += json.loads(brut2.decode("utf-8")).get("items") or []
+    except Exception as e:
+        print("page 2 :", e)
+    print("total reçu :", len(items))
+    for champ in ("venteAnnuaire", "annuaireActivites", "mixite", "reseau"):
+        c = collections.Counter(court(it.get(champ), 200) for it in items)
+        print("valeurs", champ, ":", court(c.most_common(25), 2500))
+    vd = [it for it in items if any("consommateur" in json.dumps(x, ensure_ascii=False).lower() for x in (it.get("categories") or []))]
+    avec = lambda f: sum(1 for it in vd if f(it))
+    print("vente aux consommateurs : %d | adresse avec position %d | site %d | tél %d | NAF 01 (agri) %d" % (
+        len(vd), avec(lambda it: any(a.get("lat") for a in it.get("adressesOperateurs") or [])),
+        avec(lambda it: it.get("siteWebs")), avec(lambda it: it.get("telephone") or it.get("telephoneCommerciale")),
+        avec(lambda it: (it.get("codeNAF") or "").startswith(("01", "03")))))
+    print("NAF des ventes aux consommateurs :", court(collections.Counter((it.get("codeNAF") or "")[:5] for it in vd).most_common(25), 1200))
     print("vente directe :", len(vd))
     for it in vd[:3]:
         print("  ex. :", court(it, 2500))
