@@ -6,6 +6,7 @@ import sys
 import urllib.parse
 import urllib.request
 
+LIM = 400
 UA = {"User-Agent": "Mogette/1.0 (appli de promos, github.com/ansquerdylan-arch/mes-promos)"}
 
 
@@ -31,7 +32,7 @@ def atom(brut):
             cle = p.tag.split("}")[-1]
             val = "".join(p.itertext()).strip()
             if val:
-                it[cle] = val[:400]
+                it[cle] = val[:LIM]
         out.append(it)
     return out
 
@@ -174,7 +175,45 @@ def agence_bio():
         print("  ex. :", court(it, 2500))
 
 
+def details():
+    """Producteurs (Vendée Expansion) et marchés de l'agenda : champs utiles en entier."""
+    global LIM
+    LIM = 40000
+    import re
+    _, _, brut = lire("https://www.data.gouv.fr/api/1/datasets/r/81fa2a94-d788-4a2f-85d0-800ba3fb5e96")
+    items = [it for it in atom(brut) if it.get("ObjectTypeName", "").startswith("Producteurs")]
+    print("\n==================== producteurs Vendée Expansion :", len(items))
+    for champ in ("DegSecteurActivite", "DegVente", "Type", "Labels", "OuvertureALAnnee", "Services", "Equipements"):
+        c = collections.Counter(v for it in items for v in (it.get(champ) or "—").split("##"))
+        print("répartition", champ, ":", court(c.most_common(60), 3000))
+    print("avec horaires (OuvertureGranule) :", sum(1 for it in items if it.get("OuvertureGranule")))
+    for it in [x for x in items if x.get("OuvertureGranule")][:6] + [x for x in items if not x.get("OuvertureGranule")][:2]:
+        print("--- ", court({k: v for k, v in it.items() if k not in ("SyndicStructureId", "ObjectTypeFix", "Published")}, 1800))
+    _, _, brut = lire("https://www.data.gouv.fr/api/1/datasets/r/5121010c-cdf4-40e9-8a49-64efd41f3fce")
+    ms = [it for it in atom(brut) if it.get("Type") == "Marché"]
+    print("\n==================== marchés de l'agenda :", len(ms))
+    import datetime as dt
+    auj = dt.date.today()
+    for it in ms:
+        occ = []
+        for g in (it.get("OuvertureGranule") or "").split("##"):
+            p = g.split("||")
+            try:
+                d1 = dt.datetime.strptime(p[0], "%d/%m/%Y").date()
+                d2 = dt.datetime.strptime(p[1], "%d/%m/%Y").date() if p[1] else d1
+            except Exception:
+                continue
+            if d2 >= auj:
+                occ.append("%s→%s %s-%s %s" % (p[0], p[1], p[2] if len(p) > 2 else "", p[3] if len(p) > 3 else "", "|".join(p[4:])))
+        print("- %s | %s | %s | %d dates à venir : %s | %s" % (it.get("SyndicObjectName"), it.get("Commune"), it.get("ThemeFma", ""),
+              len(occ), " ; ".join(occ[:4]), (it.get("DescriptifSynthetique") or "")[:120]))
+
+
 if __name__ == "__main__":
+    if sys.argv[1:] == ["details"]:
+        details()
+        osm()
+        sys.exit()
     quoi = sys.argv[1:] or ["tourinsoft", "osm", "bio"]
     if "tourinsoft" in quoi:
         tourinsoft("Activités et visites (Vendée Expansion)", "https://www.data.gouv.fr/api/1/datasets/r/81fa2a94-d788-4a2f-85d0-800ba3fb5e96")
