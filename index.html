@@ -282,11 +282,11 @@ dialog.carte-dlg[open] { display: flex; flex-direction: column; }
 .hist { font-size: 12.5px; color: var(--warn); font-weight: 650; }
 .p .ens { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); font-weight: 600; margin-top: auto; padding-top: 6px; min-width: 0; }
 .p .ens span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.badges { display: flex; flex-wrap: wrap; gap: 4px; }
+.badges { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px; }
 .p .badges { margin-top: 3px; }
 .p .badges .b:nth-child(n+3) { display: none; }
 .b { --c: var(--muted); font-size: 11.5px; font-weight: 700; border-radius: 7px; padding: 3px 7px; line-height: 1.2; color: var(--c); background: color-mix(in srgb, var(--c) 13%, transparent); }
-.b.new { --c: var(--info); } .b.end { --c: var(--warn); } .b.cheap, .b.low { --c: var(--ok); } .b.carte { --c: var(--teal); }
+.b.new { --c: var(--info); } .b.end { --c: var(--warn); } .b.cheap, .b.low { --c: var(--ok); } .b.fid { --c: var(--teal); }
 .b.soon { --c: var(--violet); } .b.web { --c: var(--muted); } .b.op { --c: var(--sticker); }
 .b.watch { background: var(--label); color: var(--label-ink); }
 /* Nutri-Score en miniature, sur la photo */
@@ -1529,7 +1529,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (S.nouveaux[p.id]) b += '<span class="b new">Nouveau</span>';
     var h = p.histo;
     if (h && p.prix != null && p.prix <= h.min - 0.005) b += '<span class="b low">Plus bas prix vu</span>';
-    if (p.carte) b += '<span class="b carte">Avec la carte</span>';
+    if (p.carte) b += '<span class="b fid">Avec la carte</span>';
     if (p.en_ligne) b += '<span class="b web">En ligne seulement</span>';
     return b;
   }
