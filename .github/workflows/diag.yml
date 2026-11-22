@@ -8,7 +8,7 @@ on:
         required: false
         default: ""
       brut:
-        description: "oui = pages telles quelles dans la branche diag-brut ; essai = mise à jour complète dans diag-brut ; nettoyer = supprimer diag-brut et les branches essai-* ; firebase = vérifier les comptes (urls = CLE PROJET) ; alertes = lancer les alertes seules (règles, clés, notifications)"
+        description: "oui = pages telles quelles dans la branche diag-brut ; essai = mise à jour complète dans diag-brut ; nettoyer = supprimer diag-brut et les branches essai-* ; firebase = vérifier les comptes (urls = CLE PROJET) ; alertes = lancer les alertes seules (règles, clés, notifications) ; producteurs = explorer les sources de producteurs (urls = tourinsoft osm bio)"
         required: false
         default: "non"
 
@@ -49,6 +49,7 @@ jobs:
           elif [ "${{ github.event.inputs.brut }}" = "firebase" ]; then python outils/verif_firebase.py $URLS
           elif [ "${{ github.event.inputs.brut }}" = "secret" ]; then echo "secret FIREBASE_COMPTE présent | variable FIREBASE_COMPTE présente : $LONGUEURS"
           elif [ "${{ github.event.inputs.brut }}" = "alertes" ]; then pip install -q google-auth requests pywebpush && python alertes.py
+          elif [ "${{ github.event.inputs.brut }}" = "producteurs" ]; then python outils/explorer_producteurs.py $URLS
           elif [ -n "$URLS" ]; then python diag.py $URLS --routes
           elif [ "${{ github.event.inputs.brut }}" = "essai" ]; then
             mkdir -p essai && cp promos.json historique.json essai/ && cp -r offres pages essai/ 2>/dev/null; cp notes.json ocr.json leclerc.json essai/ 2>/dev/null || true
