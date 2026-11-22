@@ -254,7 +254,13 @@ def coord(it, cle_la="GmapLatitude", cle_lo="GmapLongitude"):
 
 
 def adresse_vt(it):
-    return ", ".join(x for x in (it.get("Adresse1"), it.get("Adresse1Suite"), it.get("Adresse2"), it.get("Adresse3")) if x)[:120]
+    """Morceaux d'adresse sans répétition (« 3 le Fief Pacaud » et « 3, Le Fief Pacaud » : un seul)."""
+    garde = []
+    for x in (it.get("Adresse1"), it.get("Adresse1Suite"), it.get("Adresse2"), it.get("Adresse3")):
+        n = norm(x)
+        if n and not any(n in norm(g) or norm(g) in n for g in garde):
+            garde.append(x.strip())
+    return ", ".join(garde)[:120]
 
 
 def producteurs_vt(brut, communes, aujourd, journal):
@@ -347,7 +353,11 @@ def producteurs_bio(journal):
         lot = d.get("items") or []
         items += lot
         debut += 1000
-        if len(lot) < 1000 or debut >= (d.get("nbTotal") or 0):
+        try:
+            total = int(d.get("nbTotal") or 0)
+        except (TypeError, ValueError):
+            total = 0
+        if len(lot) < 1000 or debut >= total:
             break
     lieux, ecartes = [], {"pas de vente aux particuliers": 0, "certification arrêtée": 0, "commerce ou artisan": 0,
                           "sans produit": 0, "sans position en Vendée": 0}
@@ -428,17 +438,22 @@ def commune_proche(communes, la, lo):
 
 
 def lire_osm(journal):
+    """Serveur principal puis miroirs ; les serveurs Overpass sont souvent saturés le matin : un deuxième tour après une pause."""
+    import time
     erreurs = []
-    for url in OSM_API:
-        try:
-            els = json.loads(lire(url, urllib.parse.urlencode({"data": REQ_OSM}).encode(), essais=1, delai=150).decode("utf-8")).get("elements")
-        except Exception as e:
-            erreurs.append("%s : %s" % (urllib.parse.urlparse(url).netloc, e))
-            continue
-        if els:
-            return els
-        erreurs.append("%s : réponse vide" % urllib.parse.urlparse(url).netloc)
-    raise RuntimeError(" ; ".join(erreurs))
+    for tour in range(2):
+        if tour:
+            time.sleep(30)
+        for url in OSM_API:
+            try:
+                els = json.loads(lire(url, urllib.parse.urlencode({"data": REQ_OSM}).encode(), essais=1, delai=130).decode("utf-8")).get("elements")
+            except Exception as e:
+                erreurs.append("%s : %s" % (urllib.parse.urlparse(url).netloc, e))
+                continue
+            if els:
+                return els
+            erreurs.append("%s : réponse vide" % urllib.parse.urlparse(url).netloc)
+    raise RuntimeError(" ; ".join(erreurs[-3:]))
 
 
 def producteurs_osm(els, communes, journal):
