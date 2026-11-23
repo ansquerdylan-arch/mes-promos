@@ -33,6 +33,7 @@ FLUX_PRODUCTEURS = "https://www.data.gouv.fr/api/1/datasets/r/81fa2a94-d788-4a2f
 FLUX_AGENDA = "https://www.data.gouv.fr/api/1/datasets/r/5121010c-cdf4-40e9-8a49-64efd41f3fce"
 API_BIO = "https://opendata.agencebio.org/api/gouv/operateurs/?departements=85&nb=1000&debut=%d"
 API_COMMUNES = "https://geo.api.gouv.fr/departements/85/communes?fields=nom,code,centre&format=json&geometry=centre"
+VERSION = 2         # format de producteurs.json : un changement relit les sources tout de suite
 TOUS_LES = 6        # jours entre deux lectures des sources
 HORIZON = 35        # jours de marchés gardés à l'avance
 JOURS_BONIAL = [2, 3, 4, 5, 6, 7, 1]  # lundi … dimanche -> 1 = dimanche … 7 = samedi (comme les magasins)
@@ -72,6 +73,9 @@ TYPES_VT = {
     "produits du terroir (boutique)": [],
 }
 TYPES_VT = {norm(k): v for k, v in TYPES_VT.items()}
+# types qui ne disent rien de plus que la famille (les autres, « Rillettes », « Spiruline »…, vont dans « Ce qu'il produit »)
+GENERIQUES_VT = {norm(k) for k in ("Fruits / légumes", "Viande", "Elevage", "Volailles / Oeufs", "Fromage et produit laitier", "Produits apicoles",
+                                   "Vins", "Bières", "Produits du terroir (boutique)", "Poisson", "Huîtres", "Sel")}
 SECTEURS_EXCLUS = ("artisanat", "industrie", "loisirs")
 
 PETITS = {"de", "du", "des", "la", "le", "les", "et", "a", "à", "au", "aux", "en", "sur", "sous", "d", "l", "chez", "pour", "par"}
@@ -183,6 +187,39 @@ def site(u):
     if not re.match(r"^https?://", u):
         u = "https://" + u
     return u[:200]
+
+
+def mail(m):
+    m = (m or "").strip()
+    return m[:80] if re.fullmatch(r"[^@\s]+@[^@\s]+\.[a-z]{2,}", m, re.I) else ""
+
+
+def lien_type(url):
+    """Réseau d'un lien : fb, ig, yt, ou site."""
+    u = url.lower()
+    if "facebook.com" in u or "fb.me" in u:
+        return "fb"
+    if "instagram.com" in u:
+        return "ig"
+    if "youtube.com" in u or "youtu.be" in u or "vimeo.com" in u:
+        return "video"
+    return "site"
+
+
+def ajouter_lien(liens, k, url):
+    url = site(url)
+    if url and not any(u == url for _, u in liens) and not any(t == k for t, _ in liens if k in ("fb", "ig")):
+        liens.append([k, url])
+
+
+PAIEMENTS = [("carte", r"carte|cb|credit|debit"), ("chèque", r"cheques? bancaires|cheque\b|^cheques?$"), ("espèces", r"especes|cash"),
+             ("chèques-vacances", r"vacances|ancv"), ("virement", r"virement"), ("titres-restaurant", r"restaurant|ticket")]
+
+
+def paiement(textes):
+    t = " | ".join(norm(x) for x in textes)
+    l = [nom for nom, r in PAIEMENTS if re.search(r, t)]
+    return "Paiement : " + ", ".join(l) if l else ""
 
 
 def minutes(hhmm):
@@ -353,6 +390,53 @@ def producteurs_vt(brut, communes, aujourd, journal):
             e["tel"] = tel(it.get("CommTel"))
         if site(it.get("CommWeb")):
             e["web"] = site(it.get("CommWeb"))
+        oui = lambda k: norm(it.get(k)) == "oui"
+        liens = []
+        if e.get("web"):
+            ajouter_lien(liens, lien_type(e["web"]), e["web"])
+        for p in (it.get("plateformeURL") or "").split("##"):
+            nom_reseau, _, url = p.partition("||")
+            k = {"facebook": "fb", "instagram": "ig", "youtube": "video"}.get(norm(nom_reseau))
+            if k:
+                ajouter_lien(liens, k, url)
+        for v in (it.get("VideosUrl") or "").split("##"):
+            ajouter_lien(liens, "video", v)
+        savoir = []
+        visites = (["visite libre"] if oui("VisiteLibreEnPermanence") else []) + \
+            (["visite guidée"] if oui("VisiteGuideeEnPermanence") else ["visite guidée sur demande"] if oui("VisiteGuideeSurDemande") else [])
+        if visites:
+            v = " et ".join(visites)
+            savoir.append(v[:1].upper() + v[1:] + (" (gratuite)" if oui("TarifGratuit") and len(visites) == 1 else " (gratuites)" if oui("TarifGratuit") else ""))
+        if oui("DegSalleDeg"):
+            savoir.append("Dégustation sur place")
+        if oui("AccueilGroupe"):
+            savoir.append("Accueil des groupes")
+        if it.get("ModePaiement"):
+            p = paiement(it["ModePaiement"].split("##"))
+            if p:
+                savoir.append(p)
+        if oui("AnimauxAcceptes"):
+            info = re.sub(r"\s+", " ", it.get("AnimauxInfo") or "").strip().rstrip(".")
+            savoir.append("Animaux acceptés" + (" : " + info[:1].lower() + info[1:] if info else ""))
+        for lab in (it.get("Labels") or "").split("##"):
+            n = norm(lab)
+            if not n or "biolog" in n:
+                continue
+            savoir.append("Réseau Bienvenue à la ferme" if "bienvenue a la ferme" in n else "Label : " + lab.strip())
+        if savoir:
+            e["sv"] = savoir[:8]
+        if liens:
+            e["li"] = liens
+        m = mail(it.get("CommMail"))
+        if m:
+            e["mail"] = m
+        if it.get("Zone"):
+            e["zn"] = re.sub(r"\s+", " ", it["Zone"]).strip()[:80]
+        if re.match(r"^\d{4}-\d\d-\d\d", it.get("Updated") or ""):
+            e["mj"] = it["Updated"][:10]
+        detail = [t for t in types if norm(t) not in GENERIQUES_VT]
+        if detail:
+            e["pr"] = [re.sub(r"\s*/\s*", ", ", t).replace("Oeufs", "œufs") for t in detail][:8]
         lieux.append(e)
     journal("   Vendée Expansion : %d producteurs (écartés : %s)" % (len(lieux), ", ".join("%s %d" % kv for kv in ecartes.items())))
     return lieux
@@ -386,6 +470,29 @@ def marches_vt(brut, communes, aujourd, journal):
 
 
 # --------------------------------------------------------------------------- Agence Bio
+PROD_INUTILES = re.compile(r"prairie|jachere|culture inconnue|surface|non productive|commerce|parcours|fourrag|luzerne|trefle|melange|"
+                           r"semences? (de betterave|fourrag)|gel |intermediaire|paturage|renouvellement|genisse|broutard|taurillon|reforme|"
+                           r"vivant|porcelet|truie|verrat|poussin|poulette|reproduct|male|femelle|agnelle|chevrette|cheptel|bois|taillis|"
+                           r"haie|tournesol semence|plants? de pomme de terre|chanvre|lin textile|plantes textiles|culture de vente|sous couvert|"
+                           r"semence ou plant|plant conditionne")
+
+
+def produits_bio(prods):
+    """« Légumes frais plein champ », « Poules pondeuses (œufs) »… sans les prairies, les bêtes d'élevage ni les activités."""
+    out = []
+    for p in prods:
+        n = norm(p)
+        if not n or PROD_INUTILES.search(n):
+            continue
+        t = re.sub(r"\s*\((a|à) l'exclusion[^)]*\)", "", p).strip()
+        t = re.sub(r",? ?(frais|fraîches?|fraiches?)\b", "", t, flags=re.I).strip(" ,")
+        t = re.sub(r"^autres?\s+", "", t, flags=re.I)
+        t = re.sub(r"\s+pour l'alimentation humaine$", "", t, flags=re.I)
+        t = re.sub(r"\s+", " ", t)
+        if t and norm(t) not in {norm(x) for x in out}:
+            out.append(t[:1].upper() + t[1:])
+    return out[:10]
+
 def producteurs_bio(journal):
     items, debut = [], 0
     while debut < 6000:
@@ -441,6 +548,35 @@ def producteurs_bio(journal):
                       key=lambda w: 0 if ((w.get("typeSiteWeb") or {}).get("nom") or "").startswith("Site") else 1)
         if webs and site(webs[0]["url"]):
             e["web"] = site(webs[0]["url"])
+        liens = []
+        for w in webs:
+            ajouter_lien(liens, lien_type(w["url"]), w["url"])
+        certs = [c for c in it.get("certificats") or [] if norm(c.get("etatCertification")).startswith("engag")]
+        if certs and site(certs[0].get("url")):
+            liens.append(["cert", site(certs[0]["url"])])
+        if liens:
+            e["li"] = liens
+        savoir = []
+        debut = (it.get("datePremierEngagement") or (certs[0].get("dateEngagement") if certs else "") or "")[:4]
+        orga = (certs[0].get("organisme") or "").strip() if certs else ""
+        if re.fullmatch(r"(19|20)\d\d", debut):
+            savoir.append("Bio depuis " + debut + (", contrôlé par " + orga if orga else ""))
+        elif orga:
+            savoir.append("Bio, contrôlé par " + orga)
+        aussi = [x for k, x in (("venteProsDetail", "dans des magasins"), ("venteRestauCommerciale", "dans des restaurants"),
+                                ("venteRestauCollective", "dans des cantines")) if vente.get(k)]
+        if aussi:
+            savoir.append("Ses produits se trouvent aussi " + (", ".join(aussi[:-1]) + " et " + aussi[-1] if len(aussi) > 1 else aussi[0]))
+        if savoir:
+            e["sv"] = savoir
+        pr = produits_bio(prods)
+        if pr:
+            e["pr"] = pr
+        m = mail(it.get("email"))
+        if m:
+            e["mail"] = m
+        if re.match(r"^\d{4}-\d\d-\d\d", it.get("dateMaj") or ""):
+            e["mj"] = it["dateMaj"][:10]
         lieux.append(e)
     journal("   Agence Bio : %d producteurs bio en vente directe sur %d fiches (écartés : %s)" % (
         len(lieux), len(items), ", ".join("%s %d" % kv for kv in ecartes.items())))
@@ -463,6 +599,15 @@ PRODUCE_OSM = {"vegetables": "fl", "vegetable": "fl", "potatoes": "fl", "potato"
                "juice": "cidre", "apple_juice": "cidre", "oysters": "mer", "oyster": "mer", "mussels": "mer", "seafood": "mer",
                "fish": "mer", "salt": "sel", "bread": "pain", "flour": "epicerie", "cereals": "epicerie", "grain": "epicerie",
                "oil": "epicerie", "lentils": "epicerie", "spirulina": "epicerie", "flowers": "fleurs", "plants": "fleurs"}
+PRODUCE_FR = {"vegetables": "Légumes", "vegetable": "Légumes", "potatoes": "Pommes de terre", "potato": "Pommes de terre", "fruit": "Fruits",
+              "fruits": "Fruits", "apples": "Pommes", "strawberries": "Fraises", "berries": "Petits fruits", "salad": "Salades",
+              "tomatoes": "Tomates", "meat": "Viande", "beef": "Bœuf", "pork": "Porc", "veal": "Veau", "lamb": "Agneau", "sausage": "Saucisses",
+              "poultry": "Volailles", "chicken": "Poulet", "duck": "Canard", "eggs": "Œufs", "egg": "Œufs", "milk": "Lait", "cheese": "Fromage",
+              "dairy": "Produits laitiers", "yogurt": "Yaourts", "butter": "Beurre", "honey": "Miel", "wine": "Vin", "beer": "Bière",
+              "cider": "Cidre", "juice": "Jus de fruits", "apple_juice": "Jus de pomme", "oysters": "Huîtres", "oyster": "Huîtres",
+              "mussels": "Moules", "seafood": "Fruits de mer", "fish": "Poisson", "salt": "Sel", "bread": "Pain", "flour": "Farine",
+              "cereals": "Céréales", "grain": "Céréales", "oil": "Huile", "lentils": "Lentilles", "spirulina": "Spiruline",
+              "flowers": "Fleurs", "plants": "Plants"}
 CRAFT_OSM = {"beekeeper": "miel", "winery": "vin", "brewery": "biere", "distillery": "vin", "cider": "cidre", "oysters": "mer",
              "oyster": "mer", "cheese": "lait", "dairy": "lait", "salt": "sel"}
 
@@ -566,6 +711,35 @@ def producteurs_osm(els, communes, journal):
         w = site(t.get("website") or t.get("contact:website"))
         if w:
             e["web"] = w
+        liens = []
+        if w:
+            ajouter_lien(liens, lien_type(w), w)
+        for k, cle in (("fb", "contact:facebook"), ("fb", "facebook"), ("ig", "contact:instagram"), ("ig", "instagram")):
+            v = t.get(cle, "")
+            if v and not v.startswith("http"):
+                v = ("https://www.facebook.com/" if k == "fb" else "https://www.instagram.com/") + v.lstrip("@")
+            ajouter_lien(liens, k, v)
+        liens.append(["osm", "https://www.openstreetmap.org/%s/%s" % ({"n": "node", "w": "way", "r": "relation"}[oid[4]], oid[5:])])
+        e["li"] = liens
+        ds = re.sub(r"\s+", " ", t.get("description") or t.get("description:fr") or "").strip()
+        if ds and len(ds) > 12:
+            e["ds"] = ds[:300]
+        savoir = []
+        pay = paiement([k.split(":", 1)[1] for k, v in t.items() if k.startswith("payment:") and v == "yes"])
+        if pay:
+            savoir.append(pay)
+        if t.get("self_service") == "yes" or distrib:
+            savoir.append("En libre-service")
+        if (t.get("opening_hours") or "").strip() == "24/7":
+            savoir.append("Ouvert jour et nuit")
+        if savoir:
+            e["sv"] = savoir
+        pr = [PRODUCE_FR[x.strip().lower()] for k in ("produce", "product") for x in t.get(k, "").split(";") if x.strip().lower() in PRODUCE_FR]
+        if pr:
+            e["pr"] = list(dict.fromkeys(pr))[:10]
+        m = mail(t.get("email") or t.get("contact:email"))
+        if m:
+            e["mail"] = m
         lieux.append(e)
     journal("   OpenStreetMap : %d producteurs ou distributeurs, %d marchés avec leurs jours" % (len(lieux), len(marches)))
     return lieux, marches
@@ -597,9 +771,19 @@ def fusionner(lieux):
             continue
         double["c"] = ranger(double.get("c", []) + e.get("c", []))
         double["s"] = sorted(set(double["s"] + e["s"]), key=lambda s: rang.get(s, 3))
-        for k in ("tel", "web", "a", "h", "bio"):
+        for k in ("tel", "web", "a", "h", "bio", "mail", "ds", "zn"):
             if e.get(k) and not double.get(k):
                 double[k] = e[k]
+        for k in ("sv", "pr"):
+            if e.get(k):
+                double[k] = list(dict.fromkeys((double.get(k) or []) + e[k]))[:10]
+        if e.get("li"):
+            l = double.setdefault("li", [])
+            for t, u in e["li"]:
+                if not any(u == x for _, x in l) and not (t in ("fb", "ig", "cert", "osm") and any(t == y for y, _ in l)):
+                    l.append([t, u])
+        if e.get("mj") and e["mj"] > double.get("mj", ""):
+            double["mj"] = e["mj"]
     return gardes
 
 
@@ -636,7 +820,7 @@ def a_refaire(ancien, aujourd):
             return (aujourd - date.fromisoformat(iso)).days
         except (TypeError, ValueError):
             return 999
-    if not ancien or age(ancien.get("maj")) >= TOUS_LES:
+    if not ancien or age(ancien.get("maj")) >= TOUS_LES or ancien.get("v") != VERSION:
         return True
     sources = ancien.get("sources") or {}
     return any(age(sources.get(k)) > TOUS_LES + 1 for k in ("vt", "ab", "osm"))
@@ -699,13 +883,15 @@ def mettre_a_jour(log=print, aujourd=None, forcer=False, essai=False):
     if not lieux and not marches:
         log("   Aucune source n'a répondu : producteurs de la dernière fois gardés")
         return ancien
-    res = {"maj": aujourd.isoformat(), "sources": {**(ancien.get("sources") or {}), **etat}, "lieux": lieux, "marches": marches}
+    res = {"v": VERSION, "maj": aujourd.isoformat(), "sources": {**(ancien.get("sources") or {}), **etat}, "lieux": lieux, "marches": marches}
     log("   %d producteurs (%d fiches avant de réunir les doublons), %d marchés" % (len(lieux), avant, len(marches)))
     ecrire_json(FICHIER, res)
     if essai:
         from collections import Counter
         print("Familles :", Counter(f for e in lieux for f in e["c"]).most_common())
         print("Sources :", Counter("+".join(e["s"]) for e in lieux).most_common())
+        print("Avec à savoir :", sum(1 for e in lieux if e.get("sv")), "| produits détaillés :", sum(1 for e in lieux if e.get("pr")),
+              "| liens :", sum(1 for e in lieux if e.get("li")), "| mail :", sum(1 for e in lieux if e.get("mail")), "| description :", sum(1 for e in lieux if e.get("ds")))
         print("Avec horaires :", sum(1 for e in lieux if e.get("h")), "| tél :", sum(1 for e in lieux if e.get("tel")),
               "| site :", sum(1 for e in lieux if e.get("web")), "| bio :", sum(1 for e in lieux if e.get("bio")),
               "| sans famille :", sum(1 for e in lieux if not e["c"]))
