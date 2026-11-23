@@ -12,6 +12,9 @@ Version à lire sur le téléphone : le doc « Mogette : idées d'améliorations
   Données : `producteurs.py` → `producteurs.json`, relu une fois par semaine par la mise à jour du matin
   (Vendée Expansion : producteurs et agenda des marchés ; Agence Bio : bio en vente aux particuliers ; OpenStreetMap :
   fermes, brasseries, vignerons, distributeurs, marchés). Environ 500 producteurs et 65 marchés le 23/11.
+- Fiches producteurs plus riches (23/11) : « À savoir » (visites, dégustation, paiement, animaux, labels, bio depuis…,
+  où ses produits se vendent aussi), « Ce qu'on y trouve » (produits détaillés), liens (site, Facebook, Instagram,
+  vidéo, certificat bio, OpenStreetMap, e-mail). Pas de texte de présentation : les sources ouvertes n'en donnent pas.
 - Connexion Google dans les applis Android et iPhone : elle s'ouvre dans le navigateur, le site dépose le jeton dans
   `liaisons/<code>` (Firestore) et l'appli le récupère en revenant au premier plan. Bouton « Ouvrir l'appli Mogette »
   (adresse `mogette://`, dans les applis refaites le 23/11).
