@@ -209,7 +209,47 @@ def details():
               len(occ), " ; ".join(occ[:4]), (it.get("DescriptifSynthetique") or "")[:120]))
 
 
+def champs():
+    """Tous les champs des fiches producteurs (Vendée Expansion), de l'Agence Bio et d'OpenStreetMap, avec des exemples."""
+    global LIM
+    LIM = 1500
+    _, _, brut = lire("https://www.data.gouv.fr/api/1/datasets/r/81fa2a94-d788-4a2f-85d0-800ba3fb5e96")
+    items = [it for it in atom(brut) if it.get("ObjectTypeName", "").startswith("Producteurs") and "artisanat" not in (it.get("DegSecteurActivite") or "").lower()]
+    print("\n==================== champs des producteurs Vendée Expansion :", len(items))
+    cles = collections.Counter(k for it in items for k in it)
+    for k, n in sorted(cles.items(), key=lambda x: -x[1]):
+        ex = [it[k] for it in items if it.get(k)][:3]
+        if k in ("OuvertureGranule",):
+            ex = [e[:120] for e in ex]
+        print("%-34s %3d | %s" % (k, n, " ¦ ".join(e[:260].replace("\n", " ") for e in ex)))
+    print("\n==================== Agence Bio")
+    d = json.loads(lire("https://opendata.agencebio.org/api/gouv/operateurs/?departements=85&nb=1000&debut=0")[2].decode("utf-8"))
+    vd = [it for it in d.get("items") or [] if (it.get("venteAnnuaire") or {}).get("venteParticuliers")]
+    print("clés :", sorted(vd[0].keys()))
+    print("venteAnnuaire (exemples) :", court([it.get("venteAnnuaire") for it in vd[:6]], 2500))
+    print("annuaireActivites (exemple) :", court(vd[0].get("annuaireActivites"), 800))
+    print("types de sites :", court(collections.Counter(((w.get("typeSiteWeb") or {}).get("nom")) for it in vd for w in it.get("siteWebs") or []).most_common(), 800))
+    print("productions (exemples) :", court([[p.get("nom") for p in it.get("productions") or []] for it in vd[:8]], 2500))
+    print("certificats (exemple) :", court(vd[0].get("certificats"), 900))
+    for k in ("email", "mail", "dateMaj", "dateEngagement", "numeroBio", "siret", "description", "presentation"):
+        print("champ", k, ":", court([it.get(k) for it in vd[:4]], 400))
+    els = []
+    for url in ("https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"):
+        try:
+            q = ('[out:json][timeout:120];area["ISO3166-2"="FR-85"]->.v;(nwr(area.v)["shop"="farm"];'
+                 'nwr(area.v)["craft"~"^(beekeeper|winery|brewery|distillery|cider|oysters?|cheese|dairy|salt)$"];);out center tags;')
+            els = json.loads(lire(url, urllib.parse.urlencode({"data": q}).encode())[2].decode("utf-8")).get("elements") or []
+            break
+        except Exception as e:
+            print("OSM", e)
+    print("\n==================== OpenStreetMap :", len(els), "fermes et artisans")
+    print(court(collections.Counter(k for el in els for k in (el.get("tags") or {}) if not k.startswith(("addr:", "name:", "ref"))).most_common(70), 2500))
+
+
 if __name__ == "__main__":
+    if sys.argv[1:] == ["champs"]:
+        champs()
+        sys.exit()
     if sys.argv[1:] == ["details"]:
         details()
         osm()
