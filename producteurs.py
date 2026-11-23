@@ -474,7 +474,20 @@ PROD_INUTILES = re.compile(r"prairie|jachere|culture inconnue|surface|non produc
                            r"semences? (de betterave|fourrag)|gel |intermediaire|paturage|renouvellement|genisse|broutard|taurillon|reforme|"
                            r"vivant|porcelet|truie|verrat|poussin|poulette|reproduct|male|femelle|agnelle|chevrette|cheptel|bois|taillis|"
                            r"haie|tournesol semence|plants? de pomme de terre|chanvre|lin textile|plantes textiles|culture de vente|sous couvert|"
-                           r"semence ou plant|plant conditionne")
+                           r"semence ou plant|plant conditionne|^veaux?\b|^vaches?\b|^taureaux?|^boeufs?$|beliers?|^brebis|^agneaux?$|^chevres?$|"
+                           r"^boucs?$|^poules?\b|^porcs?\b|cochette|^lapins?$|triticale|^orges?|avoine|mais grain|feverole|feves seches|"
+                           r"sorgho|colza|tournesol|^soja|seigle|epeautre|pois secs|^pois proteagineux|ensilage|raisin de cuve|"
+                           r"produits alimentaires n c a|^ble (tendre|dur)|plants? de pepiniere|bordure|bande tampon|estive|alpage|"
+                           r"arbres? forestier|^ruches?$|zone de cueillette|^caprins?$|^ovins?$|^bovins?$|soja")
+# simplifications des intitulés de l'Agence Bio (texte sans accents à gauche, joli texte à droite)
+PROD_NOMS = [(r"^plantes a epices", "Plantes aromatiques et médicinales"), (r"^preparations et conserves a base de fruits", "Conserves de fruits et légumes"),
+             (r"^preparations et conserves a base de viande", "Conserves de viande"), (r"^fleurs coupees", "Fleurs coupées"),
+             (r"^legumes a feuilles", "Légumes feuilles"), (r"^legumes a racine", "Légumes racines"), (r"^legumes n c a$", "Légumes"),
+             (r"^viande bovine", "Viande de bœuf"), (r"^viandes? de volailles?", "Viande de volaille"), (r"^viandes? porcine", "Viande de porc"),
+             (r"^viandes? ovine", "Viande d'agneau"), (r"^lait de vache", "Lait de vache"), (r"^lait de chevre", "Lait de chèvre"),
+             (r"^oeufs de poule", "Œufs"), (r"^vins de raisin", "Vin"), (r"^pommes de terre", "Pommes de terre"), (r"^fruits a pepins", "Pommes et poires"),
+             (r"^fruits a noyau", "Fruits à noyau"), (r"^legumes plein champ", "Légumes de plein champ"), (r"^legumes sous abris", "Légumes sous serre")]
+PROD_NOMS = [(re.compile(r), t) for r, t in PROD_NOMS]
 
 
 def produits_bio(prods):
@@ -488,7 +501,15 @@ def produits_bio(prods):
         t = re.sub(r",? ?(frais|fraîches?|fraiches?)\b", "", t, flags=re.I).strip(" ,")
         t = re.sub(r"^autres?\s+", "", t, flags=re.I)
         t = re.sub(r"\s+pour l'alimentation humaine$", "", t, flags=re.I)
-        t = re.sub(r"\s+", " ", t)
+        t = re.sub(r"\s*n\.c\.a\.?", "", t)
+        t = re.sub(r"\s*\((hors|yc|y compris|<|>)[^)]*\)", "", t, flags=re.I)
+        t = re.sub(r",? (ou|et) r[ée]frig[ée]r[ée]e?s?|, bruts?$|, en coquille$", "", t, flags=re.I)
+        t = re.sub(r"\s*\([^)]*\bspp?\b[^)]*\)", "", t)   # « (capsicum spp.) »
+        t = re.sub(r"\s*\(\s*\)", "", t)                  # parenthèses vidées par « frais »
+        t = re.sub(r", (verts?|vertes?|secs?|seches?)$", r" \1", t, flags=re.I)
+        t = re.sub(r"\s+", " ", t).strip(" ,")
+        nt = norm(t)
+        t = next((joli for r, joli in PROD_NOMS if r.search(nt)), t)
         if t and norm(t) not in {norm(x) for x in out}:
             out.append(t[:1].upper() + t[1:])
     return out[:10]
@@ -566,7 +587,8 @@ def producteurs_bio(journal):
         aussi = [x for k, x in (("venteProsDetail", "dans des magasins"), ("venteRestauCommerciale", "dans des restaurants"),
                                 ("venteRestauCollective", "dans des cantines")) if vente.get(k)]
         if aussi:
-            savoir.append("Ses produits se trouvent aussi " + (", ".join(aussi[:-1]) + " et " + aussi[-1] if len(aussi) > 1 else aussi[0]))
+            aussi = [x.replace("dans ", "", 1) if i else x for i, x in enumerate(aussi)]  # « dans des magasins, des restaurants et des cantines »
+            savoir.append("Aussi vendu " + (", ".join(aussi[:-1]) + " et " + aussi[-1] if len(aussi) > 1 else aussi[0]))
         if savoir:
             e["sv"] = savoir
         pr = produits_bio(prods)
@@ -777,6 +799,9 @@ def fusionner(lieux):
         for k in ("sv", "pr"):
             if e.get(k):
                 double[k] = list(dict.fromkeys((double.get(k) or []) + e[k]))[:10]
+        bio_depuis = sorted(x for x in double.get("sv") or [] if x.startswith("Bio depuis"))
+        if len(bio_depuis) > 1:
+            double["sv"] = [x for x in double["sv"] if not x.startswith("Bio depuis") or x == bio_depuis[0]]
         if e.get("li"):
             l = double.setdefault("li", [])
             for t, u in e["li"]:

@@ -688,6 +688,10 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
 .seances div:first-child { box-shadow: inset 0 0 0 2px var(--outline); }
 .fiche .acts a.icon { text-decoration: none; }
 .loc-src { font-size: 12.5px; margin: 2px 2px 0; }
+.loc-zone { font-size: 13.5px; margin-top: 3px; }
+.savoir { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; font-size: 14.5px; }
+.savoir li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 8px; }
+.savoir li::before { content: ""; width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 1.5px var(--outline); }
 </style>
 </head>
 <body>
@@ -3759,6 +3763,23 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   var JOURS_C = ["Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam."];
   var MOIS_C = ["janv.", "févr.", "mars", "avril", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
   var SOURCES_LOC = { vt: "Vendée Expansion", ab: "Agence Bio", osm: "OpenStreetMap" };
+  var SVG_LOC = function (d) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>'; };
+  var LIENS_LOC = {  // icônes génériques (pas de logos de marque)
+    site: ["Site internet", ICO.web],
+    fb: ["Page Facebook", SVG_LOC('<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>')],
+    ig: ["Instagram", SVG_LOC('<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17 7h.01"/>')],
+    video: ["Vidéo", SVG_LOC('<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/>')],
+    cert: ["Certificat bio", SVG_LOC('<path d="M12 3 14 4.6l2.6-.2.8 2.5 2.1 1.5-.9 2.5.9 2.5-2.1 1.5-.8 2.5-2.6-.2L12 21l-2-1.6-2.6.2-.8-2.5-2.1-1.5.9-2.5-.9-2.5 2.1-1.5.8-2.5 2.6.2z"/><path d="m9 12 2 2 4-4"/>')],
+    osm: ["Voir sur OpenStreetMap", SVG_LOC('<path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5V4l-6 2.5L9 4Z"/><path d="M9 4v13M15 6.5v13"/>')],
+    mail: ["Écrire un e-mail", SVG_LOC('<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/>')]
+  };
+  var MOIS_L = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+  function hote(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return ""; } }
+  function lienLoc(k, url, petit) {
+    var l = LIENS_LOC[k] || LIENS_LOC.site;
+    return '<a class="go" href="' + esc(url) + '"' + (k === "mail" ? '' : ' target="_blank" rel="noopener"') + '><span class="gi">' + l[1] + '</span><span><b>' + esc(l[0]) + '</b>' +
+      '<small>' + esc(petit || hote(url)) + '</small></span>' + ICO.out + '</a>';
+  }
   function famLoc(k) { return FAM_LOC.find(function (f) { return f[0] === k; }); }
   function chargerLocal() {
     if (LOC.charge) return LOC.charge;
@@ -3902,11 +3923,18 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       }).join("") + '</div>' : '<p class="muted loc-note">Pas de date prévue dans les prochaines semaines.</p>') +
         (e.ds ? '<p class="loc-note">' + esc(e.ds) + '</p>' : '');
     } else {
+      var liens = (e.li || []).filter(function (x) { return LIENS_LOC[x[0]]; });
+      if (!liens.length && e.web) liens = [["site", e.web]];
       corps = '<div class="badges">' + e.c.map(function (k) { var f = famLoc(k); return f ? '<span class="b">' + f[1] + ' ' + esc(f[2]) + '</span>' : ''; }).join("") +
         (e.bio ? '<span class="b bio">Bio</span>' : '') + (e.dist ? '<span class="b">Distributeur</span>' : '') + (e.bq ? '<span class="b">Boutique</span>' : '') + (e.baf ? '<span class="b">Bienvenue à la ferme</span>' : '') + '</div>' +
         (o ? '<p class="loc-etat' + (o.ouvert ? ' open' : '') + '">' + esc(o.txt) + '</p>' : '') +
         (e.hn ? '<p class="loc-note">' + esc(e.hn) + '</p>' : '') +
-        (e.h && e.h.length && !(e.per && e.per[1] < isoJ(new Date())) ? semaineHTML(e.h) : '');
+        (e.h && e.h.length && !(e.per && e.per[1] < isoJ(new Date())) ? semaineHTML(e.h) : '') +
+        (e.ds ? '<p class="loc-note">' + esc(e.ds) + '</p>' : '') +
+        (e.sv && e.sv.length ? '<h3 class="scan-t">À savoir</h3><ul class="savoir">' + e.sv.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>' : '') +
+        (e.pr && e.pr.length ? '<h3 class="scan-t">Ce qu\'on y trouve</h3><div class="badges">' + e.pr.map(function (x) { return '<span class="b">' + esc(x) + '</span>'; }).join("") + '</div>' : '') +
+        ((liens.length || e.mail) ? '<h3 class="scan-t">Liens</h3><div class="go-list">' + liens.map(function (x) { return lienLoc(x[0], x[1]); }).join("") +
+          (e.mail ? lienLoc("mail", "mailto:" + e.mail, e.mail) : '') + '</div>' : '');
     }
     var meta = [];
     if (e.a || e.v) meta.push(["Adresse", [e.a, e.v].filter(Boolean).join(", ")]);
@@ -3914,13 +3942,15 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     $("ficheCorps").innerHTML = '<div class="fiche-in" style="--sc:var(--teal);--sc-ink:#fff">' +
       '<div class="grab" aria-hidden="true"></div>' +
       '<div class="fiche-top"><span class="ens">' + (marche ? (e.noel ? "Marché de Noël" : "Marché") : e.dist ? "Distributeur" : "Producteur") + '</span><button class="x" type="button" data-fermerfiche="1" aria-label="Fermer">✕</button></div>' +
-      '<div class="loc-tete"><span class="lo-e" aria-hidden="true">' + (marche ? (e.noel ? "🎄" : "🧺") : emojiLieu(e)) + '</span><h2 id="ficheNom">' + esc(e.n) + '</h2></div>' +
+      '<div class="loc-tete"><span class="lo-e" aria-hidden="true">' + (marche ? (e.noel ? "🎄" : "🧺") : emojiLieu(e)) + '</span><div><h2 id="ficheNom">' + esc(e.n) + '</h2>' +
+        (e.zn ? '<div class="brand loc-zone">' + esc(e.zn) + '</div>' : '') + '</div></div>' +
       corps +
       '<div class="acts"><a class="icon big" href="' + esc(itineraireLoc(e)) + '" target="_blank" rel="noopener">Itinéraire</a>' +
         (e.tel ? '<a class="icon" href="tel:' + esc(e.tel.replace(/ /g, "")) + '">Appeler</a>' : '') +
-        (e.web ? '<a class="icon" href="' + esc(e.web) + '" target="_blank" rel="noopener">Site</a>' : '') + '</div>' +
+        (marche && e.web ? '<a class="icon" href="' + esc(e.web) + '" target="_blank" rel="noopener">Site</a>' : '') + '</div>' +
       '<dl class="meta">' + meta.map(function (m) { return '<div><dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd></div>'; }).join("") + '</dl>' +
-      '<p class="muted loc-src">Fiche : ' + esc((e.s || []).map(function (k) { return SOURCES_LOC[k] || k; }).join(", ")) + (e.s && e.s.indexOf("osm") >= 0 ? " (© contributeurs)" : "") + '.</p>' +
+      '<p class="muted loc-src">Fiche : ' + esc((e.s || []).map(function (k) { return SOURCES_LOC[k] || k; }).join(", ")) + (e.s && e.s.indexOf("osm") >= 0 ? " (© contributeurs)" : "") +
+        (e.mj ? ", mise à jour en " + MOIS_L[+e.mj.slice(5, 7) - 1] + " " + e.mj.slice(0, 4) : "") + '.</p>' +
     '</div>';
     FICHE = null;
     var d = $("fiche");
