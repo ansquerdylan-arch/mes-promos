@@ -105,6 +105,11 @@ code, txt, _ = appel("https://firestore.googleapis.com/v1/projects/%s/databases/
 bilan.append("OK   clé publique des notifications lisible" if code == 200 and '"vapid"' in txt else "NON  clé publique des notifications : %s" % code)
 code, txt, _ = appel("https://firestore.googleapis.com/v1/projects/%s/databases/(default)/documents/listes/verification" % projet)
 bilan.append("OK   listes partagées fermées sans connexion" if code == 403 else "NON  listes partagées : réponse %s sans connexion" % code)
+# 5. connexion dans l'appli : un numéro inconnu se lit (absent, 404) mais la liste des jetons est fermée
+code, txt, _ = appel("https://firestore.googleapis.com/v1/projects/%s/databases/(default)/documents/liaisons/%s" % (projet, "0" * 40))
+bilan.append("OK   connexion de l'appli prête (règle liaisons publiée)" if code == 404 else "NON  connexion de l'appli : réponse %s (règles pas encore publiées ?)" % code)
+code, txt, _ = appel("https://firestore.googleapis.com/v1/projects/%s/databases/(default)/documents/liaisons" % projet)
+bilan.append("OK   jetons de connexion impossibles à lister" if code == 403 else "NON  jetons de connexion : liste en réponse %s" % code)
 code, txt, _ = appel("https://firestore.googleapis.com/v1/projects/%s/databases/(default)/documents/config/push" % projet)
 bilan.append("OK   clé privée des notifications fermée" if code == 403 else "NON  clé privée des notifications : réponse %s" % code)
 

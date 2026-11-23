@@ -4,6 +4,18 @@ Liste tenue à jour avec Claude, pour reprendre le fil d'une conversation à l'a
 Version à lire sur le téléphone : le doc « Mogette : idées d'améliorations »
 (https://claude.ai/artifact/BE13MizFVK85Lfxk3hrMzK).
 
+## 22 et 23 novembre 2026 (fait)
+
+- Badge « Avec la carte » : il portait la classe `carte` de la carte des magasins (écrasé, contour de BD) ; devenu `fid`.
+- Onglet « Local » (5e onglet du menu) : marchés de la semaine, marchés de Noël, producteurs du plus proche au plus
+  loin (filtres par produit, ouvert maintenant, bio, recherche), fiche (horaires, appel, site, itinéraire) et carte.
+  Données : `producteurs.py` → `producteurs.json`, relu une fois par semaine par la mise à jour du matin
+  (Vendée Expansion : producteurs et agenda des marchés ; Agence Bio : bio en vente aux particuliers ; OpenStreetMap :
+  fermes, brasseries, vignerons, distributeurs, marchés). Environ 500 producteurs et 65 marchés le 23/11.
+- Connexion Google dans les applis Android et iPhone : elle s'ouvre dans le navigateur, le site dépose le jeton dans
+  `liaisons/<code>` (Firestore) et l'appli le récupère en revenant au premier plan. Bouton « Ouvrir l'appli Mogette »
+  (adresse `mogette://`, dans les applis refaites le 23/11).
+
 ## Ajouts du 21 novembre 2026 (fait)
 
 - Promos « toute la gamme » : `gamme()` ; étiquette de la marque à la place de la photo, badge « Toute la gamme ».
@@ -100,8 +112,8 @@ Corrigé :
 - Ordre des rayons de son magasin dans le mode magasin.
 - Mogette parle des surveillés dans la bulle de l'accueil (« Ta raclette est en promo chez Leclerc ! »).
 - Les 3 magasins sans horaires, à la main si besoin.
-- Comptes dans les applis Android/iPhone (Google refuse la connexion dans une vue web intégrée : module natif ou passage
-  par le navigateur).
+- Onglet Local : « Ajouter à ma liste » depuis la fiche d'un producteur, et les producteurs dans les plats (« œufs de la
+  ferme à 4 km »).
 - Contrôle du matin envoyé en notification au propriétaire seulement (il faudrait marquer son compte).
 
 ## À surveiller
@@ -112,4 +124,5 @@ Corrigé :
 - Anti-crise E.Leclerc : 0 produit au passage du matin le 20/11, 17 l'après-midi. À revoir seulement si c'est vide
   plusieurs jours de suite (en respectant robots.txt, sans contourner de protection).
 - Taille du dépôt : environ 1 Mo d'historique par jour (30 Mo le 20/11/2026). À 500 Mo, ranger les données à part.
-- Le lien d'invitation contient le jeton GitHub : ne le donner qu'à des proches.
+- Onglet Local : les horaires viennent des sources (souvent absents ou anciens) ; la fiche le dit. Si un producteur
+  demande à ne plus apparaître, le retirer dans `producteurs.py` (liste à créer).
