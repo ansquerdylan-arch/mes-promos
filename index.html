@@ -434,7 +434,7 @@ body.shop .li .pr { font-size: 22px; }
 .mrow button { grid-row: 1 / span 2; grid-column: 2; background: var(--tile); }
 
 /* barre d'onglets flottante */
-nav.tabs { position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); bottom: calc(10px + var(--safe-bottom)); width: min(420px, calc(100% - 24px)); display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; padding: 6px; border-radius: 30px; background: var(--glass); -webkit-backdrop-filter: saturate(180%) blur(22px); backdrop-filter: saturate(180%) blur(22px); box-shadow: var(--float); }
+nav.tabs { position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); bottom: calc(10px + var(--safe-bottom)); width: min(420px, calc(100% - 24px)); display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; padding: 6px; border-radius: 30px; background: var(--glass); -webkit-backdrop-filter: saturate(180%) blur(22px); backdrop-filter: saturate(180%) blur(22px); box-shadow: var(--float); }
 nav.tabs button { border: 0; background: transparent; height: 56px; border-radius: 24px; font-size: 11.5px; font-weight: 650; color: var(--muted); display: grid; justify-items: center; align-content: center; gap: 2px; position: relative; }
 nav.tabs svg { width: 24px; height: 24px; }
 nav.tabs button[aria-selected="true"] { background: var(--label); color: var(--label-ink); }
@@ -611,7 +611,7 @@ nav.tabs button:active svg { transform: scale(.85); }
 @keyframes saute { 30% { transform: translateY(-8px) rotate(-8deg); } 65% { transform: translateY(0) scale(1.08, .9); } }
 @keyframes non { 0% { transform: scale(.5); opacity: 0; } 25% { transform: scale(1.05); opacity: 1; } 40% { transform: rotate(-12deg); } 55% { transform: rotate(10deg); } 70% { transform: rotate(-6deg); } 85% { transform: rotate(3deg); } 100% { transform: none; } }
 /* la pastille jaune glisse d'un onglet à l'autre, l'icône choisie fait un petit bond */
-.tab-pill { position: absolute; z-index: 0; top: 6px; left: 6px; height: 56px; width: calc((100% - 18px) / 4); border-radius: 24px; background: var(--label); box-shadow: inset 0 0 0 2px var(--outline); transform: translateX(calc(var(--i, 0) * (100% + 2px))); transition: transform .42s cubic-bezier(.3, 1.3, .5, 1); pointer-events: none; }
+.tab-pill { position: absolute; z-index: 0; top: 6px; left: 6px; height: 56px; width: calc((100% - 20px) / 5); border-radius: 24px; background: var(--label); box-shadow: inset 0 0 0 2px var(--outline); transform: translateX(calc(var(--i, 0) * (100% + 2px))); transition: transform .42s cubic-bezier(.3, 1.3, .5, 1); pointer-events: none; }
 nav.tabs button { z-index: 1; }
 nav.tabs button[aria-selected="true"] { background: transparent; box-shadow: none; color: var(--label-ink); }
 nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3, 1.6, .5, 1); }
@@ -653,6 +653,41 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   .topbar h1 { font-size: 40px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+/* ===== onglet Local : producteurs, distributeurs et marchés du coin ===== */
+.loc-cherche .loc-titre { font: 700 23px/1.05 var(--font-num); }
+.loc-ou { margin: 0; font-size: 13.5px; }
+.loc-ou button { border: 0; background: none; padding: 0; font: inherit; font-weight: 700; }
+.mk { display: grid; align-content: start; gap: 5px; min-height: 132px; text-align: left; border: 0; border-radius: 18px; padding: 12px; background: var(--tile); color: var(--ink); box-shadow: var(--case); scroll-snap-align: start; font: inherit; cursor: pointer; }
+.mk-j { justify-self: start; font-size: 12.5px; font-weight: 750; border-radius: 8px; padding: 2px 8px; background: var(--shelf); box-shadow: inset 0 0 0 1.5px var(--outline); }
+.mk-j.auj { background: var(--label); color: var(--label-ink); }
+.mk-h { font-size: 13px; color: var(--muted); font-weight: 650; font-variant-numeric: tabular-nums; }
+.mk-n { font-size: 15px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.mk-v { font-size: 12.5px; color: var(--muted); margin-top: auto; }
+.lo { display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; text-align: left; border: 0; border-radius: 18px; padding: 12px; background: var(--tile); color: var(--ink); box-shadow: var(--case); font: inherit; cursor: pointer; }
+.lo-e { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-size: 24px; line-height: 1; background: var(--shelf); box-shadow: inset 0 0 0 2px var(--outline); }
+.lo-t { display: grid; gap: 2px; min-width: 0; }
+.lo-t b { font-size: 15.5px; line-height: 1.2; }
+.lo-p { font-size: 13px; }
+.lo-m { font-size: 12.5px; color: var(--muted); }
+.lo-m .open, .loc-etat.open { color: var(--ok); font-weight: 650; }
+.lo-m .closed { color: var(--sticker); font-weight: 650; }
+.lo-b { display: grid; gap: 4px; justify-items: end; align-self: start; }
+.b.bio { --c: var(--ok); }
+.mk, .lo { transition: transform .14s cubic-bezier(.3, .7, .4, 1), box-shadow .14s cubic-bezier(.3, .7, .4, 1); }
+.mk:active, .lo:active { transform: translate(2px, 2px); box-shadow: inset 0 0 0 2.5px var(--outline), 1px 1px 0 var(--outline); }
+.carte-fiche .lo { box-shadow: inset 0 0 0 2px var(--outline); background: var(--shelf); }
+.carte-fiche .lo .lo-e { background: var(--tile); }
+.mq.loc { font-size: 15px; }
+.loc-tete { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 12px; align-items: center; }
+.loc-tete .lo-e { width: 60px; height: 60px; font-size: 32px; }
+.loc-etat { font-size: 15px; font-weight: 650; margin: 0; }
+.loc-note { margin: 0; font-size: 14.5px; }
+.semaine .auj dt, .semaine .auj dd { color: var(--ink); font-weight: 750; }
+.seances { display: grid; gap: 6px; }
+.seances div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 12px; border-radius: 12px; background: var(--shelf); font-size: 14.5px; }
+.seances div:first-child { box-shadow: inset 0 0 0 2px var(--outline); }
+.fiche .acts a.icon { text-decoration: none; }
+.loc-src { font-size: 12.5px; margin: 2px 2px 0; }
 </style>
 </head>
 <body>
@@ -804,6 +839,19 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   </section>
 
   <!-- LISTE -->
+  <section id="v-local" hidden>
+    <form class="card loc-cherche" id="locForm" role="search">
+      <label for="locQ" class="loc-titre">Acheter en direct</label>
+      <input id="locQ" class="field" type="search" placeholder="Miel, œufs, huîtres, une commune…" autocomplete="off" enterkeyhint="search">
+      <div class="chips" id="locFiltres"></div>
+      <div class="chips" id="locFams"></div>
+      <p class="muted loc-ou" id="locOu"></p>
+    </form>
+    <div class="blk" id="locMarches"></div>
+    <div class="blk" id="locNoel"></div>
+    <div class="blk" id="locListe"></div>
+    <p class="muted loc-src">Producteurs et marchés : Vendée Expansion, Agence Bio et © contributeurs OpenStreetMap, relus chaque semaine. Horaires donnés à titre indicatif : appelle avant de faire la route.</p>
+  </section>
   <section id="v-liste" hidden>
     <div class="syncline" id="syncLine"></div>
     <div class="summary" id="listSummary"></div>
@@ -827,6 +875,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   <button role="tab" data-v="accueil" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.8l8.5 6.7"/><path d="M5.5 9.2V20h13V9.2"/><path d="M10 20v-5.5h4V20"/></svg>Accueil</button>
   <button role="tab" data-v="promos" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Promos</button>
   <button role="tab" data-v="plats" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7"/><path d="M3 3v6a2 2 0 0 0 2 2M5 3v18M21 3c-2 1-3 3-3 6s1 3 3 3v9"/></svg>Plats</button>
+  <button role="tab" data-v="local" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.6 9.4a4 4 0 0 0-5.7 0L3.6 18.7a1.2 1.2 0 0 0 1.7 1.7l9.3-5.3a4 4 0 0 0 0-5.7Z"/><path d="m15 9 4.5-4.5M15.6 3.2c-.7 1.9-.4 3.6 1 4.8M20.8 8.4c-1.9.7-3.6.4-4.8-1M8.6 12.8l1.4 1.4M6.4 15.8l1 1"/></svg>Local</button>
   <button role="tab" data-v="liste" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>Liste<span class="nb" id="nbList" hidden></span></button>
 </nav>
 
@@ -1266,7 +1315,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       (o ? ' · <span class="' + (o.ouvert ? "open" : "closed") + '">' + esc(o.txt) + '</span>' : '') + '</span></div>';
   }
   // ---------- carte des magasins : tuiles OpenStreetMap, glisser, pincer, toucher un magasin pour le choisir
-  var CT = { z: 9, x: 0, y: 0, tuiles: {}, groupes: [], vu: -1, moi: null };  // x, y : coin haut-gauche de la vue, en pixels du monde au zoom z
+  var CT = { z: 9, x: 0, y: 0, tuiles: {}, groupes: [], vu: -1, moi: null, mode: "mag", pts: [] };  // x, y : coin haut-gauche de la vue, en pixels du monde au zoom z
   function monde(lat, lng, z) { var n = 256 * Math.pow(2, z), s = Math.sin(lat * Math.PI / 180); return [(lng + 180) / 360 * n, (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * n]; }
   function magasinsCarte() { return ((S.brut && S.brut.magasins) || []).filter(function (m) { return m.lat && m.lng; }); }
   function cadrer(pts) {  // zoom et centre pour voir tous ces points
@@ -1301,13 +1350,22 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     }
     Object.keys(CT.tuiles).forEach(function (k) { if (!garde[k]) { CT.tuiles[k].remove(); delete CT.tuiles[k]; } });
   }
+  function pointsCarte() { return CT.mode === "loc" ? CT.pts : magasinsCarte(); }
   function marqueurs() {  // les magasins proches à l'écran se regroupent en une pastille avec leur nombre
     var g = [];
-    magasinsCarte().forEach(function (m) {
+    pointsCarte().forEach(function (m) {
       var p = monde(m.lat, m.lng, CT.z), d = g.find(function (x) { return Math.abs(x.p[0] - p[0]) < 26 && Math.abs(x.p[1] - p[1]) < 26; });
       if (d) d.l.push(m); else g.push({ p: p, l: [m] });
     });
     CT.groupes = g;
+    if (CT.mode === "loc") {
+      $("carteMq").innerHTML = g.map(function (x, i) {
+        var m0 = x.l[0];
+        return '<button class="mq loc' + (i === CT.vu ? ' vu' : '') + '" type="button" data-mq="' + i + '" style="left:' + x.p[0].toFixed(1) + 'px;top:' + x.p[1].toFixed(1) + 'px;--sc:var(--teal)" aria-label="' +
+          esc(x.l.length > 1 ? x.l.length + " lieux" : m0.nom) + '">' + (x.l.length > 1 ? x.l.length : m0.marche ? (m0.e.noel ? "🎄" : "🧺") : emojiLieu(m0.e)) + '</button>';
+      }).join("") + (CT.moi ? (function () { var p = monde(CT.moi[0], CT.moi[1], CT.z); return '<span class="mq moi" style="left:' + p[0].toFixed(1) + 'px;top:' + p[1].toFixed(1) + 'px"></span>'; })() : "");
+      return;
+    }
     $("carteMq").innerHTML = g.map(function (x, i) {
       var on = x.l.filter(function (m) { return S.sel.indexOf(m.id) >= 0; }).length, m0 = x.l[0];
       return '<button class="mq' + (on ? ' on' : '') + (i === CT.vu ? ' vu' : '') + '" type="button" data-mq="' + i + '" style="left:' + x.p[0].toFixed(1) + 'px;top:' + x.p[1].toFixed(1) + 'px;--sc:' +
@@ -1317,6 +1375,14 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   function rendreCarte() { placerMonde(); tuiles(); marqueurs(); }
   function ficheCarte() {
     var x = CT.groupes[CT.vu];
+    if (CT.mode === "loc") {
+      var ref = refLoc().p;
+      $("carteFiche").innerHTML = x ? x.l.map(function (p) {
+        return p.marche ? ligneMarche({ m: p.e, s: seances(p.e, 35)[0] || { iso: isoJ(new Date()) }, km: distance(ref, [p.lat, p.lng]) })
+          : ligneLieu({ e: p.e, km: distance(ref, [p.lat, p.lng]) });
+      }).join("") : '<span class="muted">Touche une pastille pour voir le producteur ou le marché. ' + CT.pts.length + ' sur la carte.</span>';
+      return;
+    }
     $("carteFiche").innerHTML = x ? (x.l.length > 1 ? '<span class="muted">' + x.l.length + ' magasins ici</span>' : '') +
       x.l.map(function (m) { return ligneMagasin(m, S.sel.indexOf(m.id) >= 0); }).join("")
       : '<span class="muted">Touche un magasin pour le choisir ou le retirer. En jaune : tes magasins (' + S.sel.length + ').</span>';
@@ -1331,10 +1397,11 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     rendreCarte();
     if (vu) { CT.vu = CT.groupes.findIndex(function (g) { return g.l.indexOf(vu.l[0]) >= 0; }); marqueurs(); }
   }
-  function ouvrirCarte() {
+  function ouvrirCarte(cadre) {  // sans argument : les magasins ; avec des points à cadrer : producteurs ou marchés (CT.mode = "loc")
     var d = $("carteDlg");
+    if (!cadre) { CT.mode = "mag"; CT.pts = []; $("carteTitre").textContent = "Tes magasins sur la carte"; }
     if (!d.open) { try { d.showModal(); } catch (er) { d.setAttribute("open", ""); } }
-    var mags = magasinsCarte(), pts = mags.filter(function (m) { return S.sel.indexOf(m.id) >= 0; }).map(function (m) { return [m.lat, m.lng]; });
+    var mags = magasinsCarte(), pts = cadre || mags.filter(function (m) { return S.sel.indexOf(m.id) >= 0; }).map(function (m) { return [m.lat, m.lng]; });
     CT.vu = -1; CT.tuiles = {}; $("carteTuiles").innerHTML = "";
     requestAnimationFrame(function () { cadrer(pts.length ? pts : mags.map(function (m) { return [m.lat, m.lng]; })); rendreCarte(); ficheCarte(); });
   }
@@ -3602,15 +3669,237 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     }).catch(function () {});
   }
 
+  // ---------- onglet Local : producteurs, distributeurs et marchés de Vendée (producteurs.json, relu chaque semaine)
+  var LOC = { d: null, charge: null, fam: "", q: "", ouvert: false, bio: false, n: 20 };
+  var FAM_LOC = [
+    ["fl", "🥕", "Fruits & légumes", "fruit legume pomme poire fraise salade tomate patate pomme de terre carotte courge maraicher verger kiwi melon"],
+    ["viande", "🥩", "Viande", "boeuf porc veau agneau charcuterie colis rillettes"],
+    ["vo", "🥚", "Volailles & œufs", "oeuf poulet volaille canard dinde"],
+    ["lait", "🧀", "Fromage & lait", "fromage lait chevre yaourt beurre creme"],
+    ["miel", "🍯", "Miel", "miel apiculteur"],
+    ["vin", "🍷", "Vin", "vin vigneron domaine cave spiritueux"],
+    ["biere", "🍺", "Bière", "biere brasserie"],
+    ["cidre", "🍏", "Cidre & jus", "cidre jus pomme"],
+    ["mer", "🦪", "Huîtres & poisson", "huitre moule poisson ostreiculteur coquillage"],
+    ["sel", "🧂", "Sel", "sel fleur de sel saunier"],
+    ["pain", "🥖", "Pain & brioche", "pain brioche boulangerie"],
+    ["sucre", "🍪", "Douceurs", "biscuit chocolat confiture glace gateau"],
+    ["epicerie", "🌾", "Épicerie", "farine huile lentille mogette haricot safran tisane"],
+    ["fleurs", "🌷", "Fleurs & plants", "fleur plante plant"]
+  ];
+  var JOURS_C = ["Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam."];
+  var MOIS_C = ["janv.", "févr.", "mars", "avril", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+  var SOURCES_LOC = { vt: "Vendée Expansion", ab: "Agence Bio", osm: "OpenStreetMap" };
+  function famLoc(k) { return FAM_LOC.find(function (f) { return f[0] === k; }); }
+  function chargerLocal() {
+    if (LOC.charge) return LOC.charge;
+    LOC.charge = fetch((S.mode === "pc" ? "/" : "") + "producteurs.json?v=" + isoJ(new Date()), { cache: "no-cache" })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (d) { LOC.d = { lieux: d.lieux || [], marches: d.marches || [], maj: d.maj }; return LOC.d; })
+      .catch(function () { LOC.charge = null; LOC.d = { lieux: [], marches: [], absent: true }; return LOC.d; });
+    return LOC.charge;
+  }
+  function refLoc() {  // d'où se calculent les distances : ma position, sinon le milieu de mes magasins
+    if (S.pos) return { p: S.pos, txt: "de toi" };
+    var mags = ((S.brut && S.brut.magasins) || []).filter(function (m) { return m.lat && S.sel.indexOf(m.id) >= 0; });
+    if (mags.length) return { p: [mags.reduce(function (t, m) { return t + m.lat; }, 0) / mags.length, mags.reduce(function (t, m) { return t + m.lng; }, 0) / mags.length], txt: "de tes magasins" };
+    var dom = S.brut && S.brut.domicile;
+    if (dom && dom.lat) return { p: [dom.lat, dom.lng], txt: "de " + (dom.ville || "chez toi") };
+    return { p: [46.67, -1.43], txt: "du centre de la Vendée" };
+  }
+  function kmTxt(d) { return (d < 10 ? d.toFixed(1).replace(".", ",") : Math.round(d)) + " km"; }
+  function dateDe(iso) { return new Date(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)); }
+  function dateCourte(iso) { var j = +iso.slice(8, 10); return (j === 1 ? "1er" : j) + " " + MOIS_C[+iso.slice(5, 7) - 1]; }
+  function jourTxt(iso) {
+    var dem = new Date(); dem.setDate(dem.getDate() + 1);
+    if (iso === isoJ(new Date())) return "Aujourd'hui";
+    if (iso === isoJ(dem)) return "Demain";
+    var d = dateDe(iso); return JOURS_C[d.getDay()] + " " + d.getDate();
+  }
+  function heuresTxt(x) { return x.deb == null ? "" : x.fin == null ? "dès " + hm(x.deb) : hm(x.deb) + "–" + hm(x.fin); }
+  function etatLieu(e) {  // ouvert ou fermé maintenant, en tenant compte de la saison d'ouverture
+    var auj = isoJ(new Date());
+    if (e.per && e.per[0] > auj) return { ouvert: false, txt: "Ouvre le " + dateCourte(e.per[0]) };
+    if (e.per && e.per[1] < auj) return null;
+    if (!e.h || !e.h.length) return null;
+    var o = ouverture(e.h);
+    if (e.per && (dateDe(e.per[1]) - new Date()) / 864e5 < 45) o = { ouvert: o.ouvert, txt: o.txt + ", jusqu'au " + dateCourte(e.per[1]) };
+    return o;
+  }
+  function seances(m, jours) {  // prochaines dates d'un marché, celles déjà finies aujourd'hui en moins
+    var now = new Date(), auj = isoJ(now), min = now.getHours() * 60 + now.getMinutes(), lim = new Date(now), out = [];
+    lim.setDate(lim.getDate() + jours); lim = isoJ(lim);
+    (m.d || []).forEach(function (x) {  // [début, fin, minute début, minute fin]
+      for (var d = dateDe(x[0] < auj ? auj : x[0]); isoJ(d) <= x[1] && isoJ(d) <= lim; d.setDate(d.getDate() + 1)) out.push({ iso: isoJ(d), deb: x[2], fin: x[3] });
+    });
+    if (m.h) for (var i = 0; i <= jours; i++) {
+      var d = new Date(now); d.setDate(d.getDate() + i);
+      m.h.forEach(function (h) { if (h[0] === d.getDay() + 1) out.push({ iso: isoJ(d), deb: h[1], fin: h[2] }); });
+    }
+    return out.filter(function (x) { return !(x.iso === auj && x.fin != null && x.fin <= min); })
+      .sort(function (a, b) { return a.iso < b.iso ? -1 : a.iso > b.iso ? 1 : (a.deb || 0) - (b.deb || 0); });
+  }
+  function marchesProches(noel) {
+    var ref = refLoc().p, l = [];
+    LOC.d.marches.forEach(function (m) {
+      if (!!m.noel !== !!noel) return;
+      var x = seances(m, noel ? 35 : 7)[0];
+      if (x) l.push({ m: m, s: x, km: distance(ref, [m.la, m.lo]) });
+    });
+    var proches = l.filter(function (x) { return x.km <= (noel ? 40 : 25); });
+    if (!noel && proches.length < 4) proches = l.filter(function (x) { return x.km <= 45; });
+    return proches.sort(function (a, b) { return a.s.iso < b.s.iso ? -1 : a.s.iso > b.s.iso ? 1 : a.km - b.km; }).slice(0, 12);
+  }
+  function carteMarche(x) {
+    var h = heuresTxt(x.s), ville = norm(x.m.n).indexOf(norm(x.m.v)) >= 0 ? "" : x.m.v + " · ";
+    return '<button class="mk" type="button" data-marche="' + esc(x.m.id) + '"><span class="mk-j' + (x.s.iso === isoJ(new Date()) ? ' auj' : '') + '">' + esc(jourTxt(x.s.iso)) + '</span>' +
+      (h ? '<span class="mk-h">' + esc(h) + '</span>' : '') + '<b class="mk-n">' + esc(x.m.n) + '</b><span class="mk-v">' + esc(ville) + kmTxt(x.km) + '</span></button>';
+  }
+  function ligneMarche(x) {  // un marché en ligne, dans la fiche sous la carte
+    var h = heuresTxt(x.s);
+    return '<button class="lo" type="button" data-marche="' + esc(x.m.id) + '"><span class="lo-e" aria-hidden="true">' + (x.m.noel ? "🎄" : "🧺") + '</span>' +
+      '<span class="lo-t"><b>' + esc(x.m.n) + '</b><span class="lo-p">' + esc(jourTxt(x.s.iso) + (h ? ", " + h : "")) + '</span>' +
+      '<span class="lo-m">' + esc(x.m.v) + ' · ' + kmTxt(x.km) + '</span></span></button>';
+  }
+  function produitsTxt(e) { return e.c.map(function (k) { var f = famLoc(k); return f ? f[2] : ""; }).filter(Boolean).join(" · ") || "Produits de la ferme"; }
+  function emojiLieu(e) { var f = famLoc(e.c[0]); return f ? f[1] : "🧺"; }
+  function lieuxFiltres() {
+    var ref = refLoc().p, mots = norm(LOC.q).split(" ").filter(Boolean);
+    return LOC.d.lieux.map(function (e) { return { e: e, km: distance(ref, [e.la, e.lo]) }; }).filter(function (x) {
+      var e = x.e;
+      if (LOC.fam && e.c.indexOf(LOC.fam) < 0) return false;
+      if (LOC.bio && !e.bio) return false;
+      if (LOC.ouvert) { var o = etatLieu(e); if (!o || !o.ouvert) return false; }
+      if (!mots.length) return true;
+      var t = " " + norm([e.n, e.v, e.a, e.hn, e.dist ? "distributeur" : "", e.bio ? "bio" : "", e.c.map(function (k) { var f = famLoc(k); return f ? f[2] + " " + f[3] : ""; }).join(" ")].join(" "));
+      return mots.every(function (w) { return t.indexOf(" " + w) >= 0 || (w.length > 3 && t.indexOf(w) >= 0); });
+    }).sort(function (a, b) { return a.km - b.km; });
+  }
+  function ligneLieu(x) {
+    var e = x.e, o = etatLieu(e);
+    return '<button class="lo" type="button" data-lieu="' + esc(e.id) + '"><span class="lo-e" aria-hidden="true">' + emojiLieu(e) + '</span>' +
+      '<span class="lo-t"><b>' + esc(e.n) + '</b><span class="lo-p">' + esc(produitsTxt(e)) + '</span>' +
+      '<span class="lo-m">' + esc(e.v) + ' · ' + kmTxt(x.km) + (o ? ' · <span class="' + (o.ouvert ? "open" : "closed") + '">' + esc(o.txt.replace(/ \(.*\)$/, "")) + '</span>' : '') + '</span></span>' +
+      ((e.bio || e.bq || e.dist) ? '<span class="lo-b">' + (e.bio ? '<span class="b bio">Bio</span>' : '') + (e.dist ? '<span class="b">Distributeur</span>' : e.bq ? '<span class="b">Boutique</span>' : '') + '</span>' : '') +
+    '</button>';
+  }
+  function afficherLocal() {
+    if (!$("locListe")) return;
+    if (!LOC.d) { $("locListe").innerHTML = '<p class="muted">Chargement des producteurs…</p>'; chargerLocal().then(afficherLocal); return; }
+    var ref = refLoc(), presents = {};
+    LOC.d.lieux.forEach(function (e) { e.c.forEach(function (k) { presents[k] = 1; }); });
+    $("locFiltres").innerHTML = '<button class="chip" type="button" data-locmoi="1" aria-pressed="' + !!S.pos + '"><span class="e" aria-hidden="true">📍</span>Autour de moi</button>' +
+      '<button class="chip" type="button" data-locouvert="1" aria-pressed="' + LOC.ouvert + '">Ouvert maintenant</button>' +
+      '<button class="chip" type="button" data-locbio="1" aria-pressed="' + LOC.bio + '">Bio</button>';
+    $("locFams").innerHTML = '<button class="chip" type="button" data-locfam="" aria-pressed="' + !LOC.fam + '">Tout</button>' +
+      FAM_LOC.filter(function (f) { return presents[f[0]]; }).map(function (f) {
+        return '<button class="chip" type="button" data-locfam="' + f[0] + '" aria-pressed="' + (LOC.fam === f[0]) + '"><span class="e" aria-hidden="true">' + f[1] + '</span>' + esc(f[2]) + '</button>';
+      }).join("");
+    $("locOu").innerHTML = 'Du plus près au plus loin ' + esc(ref.txt) + '.' + (S.pos ? '' : ' <button class="link" type="button" data-locmoi="1">Me localiser</button>');
+    if (LOC.d.absent) {
+      $("locMarches").innerHTML = $("locNoel").innerHTML = ""; $("locMarches").hidden = $("locNoel").hidden = true;
+      $("locListe").innerHTML = '<div class="empty">Les producteurs arrivent avec la prochaine mise à jour de Mogette. Reviens demain.</div>';
+      return;
+    }
+    var cherche = LOC.q.trim() || LOC.fam;
+    var mk = cherche ? [] : marchesProches(false), noel = cherche ? [] : marchesProches(true);
+    $("locMarches").innerHTML = mk.length ? '<div class="sec-head"><h2>Marchés cette semaine</h2><button class="link" type="button" data-loccarte="marches">Sur la carte</button></div>' +
+      '<div class="rail">' + mk.map(carteMarche).join("") + '</div>' : "";
+    $("locNoel").innerHTML = noel.length ? '<div class="sec-head"><h2>Marchés de Noël</h2></div><div class="rail">' + noel.map(carteMarche).join("") + '</div>' : "";
+    $("locMarches").hidden = !mk.length; $("locNoel").hidden = !noel.length;
+    var l = lieuxFiltres(), vus = l.slice(0, LOC.n);
+    var titre = l.length ? l.length + (l.length > 1 ? " producteurs" : " producteur") : "Aucun producteur";
+    $("locListe").innerHTML = '<div class="sec-head"><h2>' + titre + '</h2>' + (l.length ? '<button class="link" type="button" data-loccarte="lieux">Sur la carte</button>' : '') + '</div>' +
+      (l.length ? vus.map(ligneLieu).join("") + (l.length > vus.length ? '<button class="btn more" type="button" data-locplus="1">Voir ' + Math.min(20, l.length - vus.length) + ' de plus</button>' : '')
+        : '<div class="empty">Rien ne correspond. Essaie un autre produit, ou enlève un filtre.</div>');
+  }
+  function semaineHTML(h) {
+    var noms = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"], auj = new Date().getDay() + 1;
+    return '<dl class="meta semaine">' + [2, 3, 4, 5, 6, 7, 1].map(function (j, i) {
+      var pl = h.filter(function (x) { return x[0] === j; }).sort(function (a, b) { return a[1] - b[1]; }).map(function (x) { return hm(x[1]) + "–" + hm(x[2]); });
+      return '<div' + (j === auj ? ' class="auj"' : '') + '><dt>' + noms[i] + '</dt><dd>' + (pl.length ? pl.join(", ") : "Fermé") + '</dd></div>';
+    }).join("") + '</dl>';
+  }
+  function itineraireLoc(e) {
+    return IOS ? "https://maps.apple.com/?daddr=" + e.la + "," + e.lo + "&q=" + encodeURIComponent(e.n)
+      : "https://www.google.com/maps/dir/?api=1&destination=" + e.la + "," + e.lo;
+  }
+  function ficheLocal(e, marche) {
+    var km = distance(refLoc().p, [e.la, e.lo]), corps = "", o = marche ? null : etatLieu(e);
+    if (marche) {
+      var l = seances(e, 35).slice(0, 8);
+      corps = (l.length ? '<h3 class="scan-t">Prochaines dates</h3><div class="seances">' + l.map(function (x) {
+        return '<div><span>' + esc(jourTxt(x.iso)) + (x.iso === isoJ(new Date()) || jourTxt(x.iso) === "Demain" ? '' : ' ' + MOIS_C[+x.iso.slice(5, 7) - 1]) + '</span><b>' + esc(heuresTxt(x) || "horaires non précisés") + '</b></div>';
+      }).join("") + '</div>' : '<p class="muted loc-note">Pas de date prévue dans les prochaines semaines.</p>') +
+        (e.ds ? '<p class="loc-note">' + esc(e.ds) + '</p>' : '');
+    } else {
+      corps = '<div class="badges">' + e.c.map(function (k) { var f = famLoc(k); return f ? '<span class="b">' + f[1] + ' ' + esc(f[2]) + '</span>' : ''; }).join("") +
+        (e.bio ? '<span class="b bio">Bio</span>' : '') + (e.dist ? '<span class="b">Distributeur</span>' : '') + (e.bq ? '<span class="b">Boutique</span>' : '') + (e.baf ? '<span class="b">Bienvenue à la ferme</span>' : '') + '</div>' +
+        (o ? '<p class="loc-etat' + (o.ouvert ? ' open' : '') + '">' + esc(o.txt) + '</p>' : '') +
+        (e.hn ? '<p class="loc-note">' + esc(e.hn) + '</p>' : '') +
+        (e.h && e.h.length && !(e.per && e.per[1] < isoJ(new Date())) ? semaineHTML(e.h) : '');
+    }
+    var meta = [];
+    if (e.a || e.v) meta.push(["Adresse", [e.a, e.v].filter(Boolean).join(", ")]);
+    meta.push(["Distance", kmTxt(km) + " " + refLoc().txt.replace(/^de /, "de ").replace(/^du /, "du ")]);
+    $("ficheCorps").innerHTML = '<div class="fiche-in" style="--sc:var(--teal);--sc-ink:#fff">' +
+      '<div class="grab" aria-hidden="true"></div>' +
+      '<div class="fiche-top"><span class="ens">' + (marche ? (e.noel ? "Marché de Noël" : "Marché") : e.dist ? "Distributeur" : "Producteur") + '</span><button class="x" type="button" data-fermerfiche="1" aria-label="Fermer">✕</button></div>' +
+      '<div class="loc-tete"><span class="lo-e" aria-hidden="true">' + (marche ? (e.noel ? "🎄" : "🧺") : emojiLieu(e)) + '</span><h2 id="ficheNom">' + esc(e.n) + '</h2></div>' +
+      corps +
+      '<div class="acts"><a class="icon big" href="' + esc(itineraireLoc(e)) + '" target="_blank" rel="noopener">Itinéraire</a>' +
+        (e.tel ? '<a class="icon" href="tel:' + esc(e.tel.replace(/ /g, "")) + '">Appeler</a>' : '') +
+        (e.web ? '<a class="icon" href="' + esc(e.web) + '" target="_blank" rel="noopener">Site</a>' : '') + '</div>' +
+      '<dl class="meta">' + meta.map(function (m) { return '<div><dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd></div>'; }).join("") + '</dl>' +
+      '<p class="muted loc-src">Fiche : ' + esc((e.s || []).map(function (k) { return SOURCES_LOC[k] || k; }).join(", ")) + (e.s && e.s.indexOf("osm") >= 0 ? " (© contributeurs)" : "") + '.</p>' +
+    '</div>';
+    FICHE = null;
+    var d = $("fiche");
+    if (!d.open) { try { d.showModal(); } catch (er) { d.setAttribute("open", ""); } }
+    d.scrollTop = 0;
+  }
+  function trouverLoc(id, marche) { return LOC.d && (marche ? LOC.d.marches : LOC.d.lieux).find(function (x) { return x.id === id; }); }
+  function carteLocal(quoi) {
+    var ref = refLoc().p, pts;
+    if (quoi === "marches") pts = LOC.d.marches.filter(function (m) { return !m.noel && seances(m, 7).length; }).map(function (m) { return { id: m.id, lat: m.la, lng: m.lo, nom: m.n, e: m, marche: 1 }; });
+    else pts = lieuxFiltres().map(function (x) { return { id: x.e.id, lat: x.e.la, lng: x.e.lo, nom: x.e.n, e: x.e }; });
+    CT.mode = "loc"; CT.pts = pts;
+    $("carteTitre").textContent = quoi === "marches" ? "Marchés de la semaine" : "Producteurs sur la carte";
+    var proches = pts.slice().sort(function (a, b) { return distance(ref, [a.lat, a.lng]) - distance(ref, [b.lat, b.lng]); }).slice(0, 8).map(function (p) { return [p.lat, p.lng]; });
+    ouvrirCarte(proches.concat([ref]));
+  }
+  $("locQ").addEventListener("input", function () { var v = this.value; clearTimeout(LOC.t); LOC.t = setTimeout(function () { LOC.q = v; LOC.n = 20; afficherLocal(); }, 150); });
+  $("locForm").addEventListener("submit", function (ev) { ev.preventDefault(); $("locQ").blur(); LOC.q = $("locQ").value; LOC.n = 20; afficherLocal(); });
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest && ev.target.closest("[data-lieu],[data-marche],[data-locfam],[data-locouvert],[data-locbio],[data-locmoi],[data-locplus],[data-loccarte]");
+    if (!b) return;
+    var ds = b.dataset;
+    if (ds.lieu) { var e = trouverLoc(ds.lieu); if (e) ficheLocal(e, false); return; }
+    if (ds.marche) { var m = trouverLoc(ds.marche, true); if (m) ficheLocal(m, true); return; }
+    if (ds.locfam != null) { LOC.fam = LOC.fam === ds.locfam ? "" : ds.locfam; LOC.n = 20; afficherLocal(); return; }
+    if (ds.locouvert) { LOC.ouvert = !LOC.ouvert; LOC.n = 20; afficherLocal(); return; }
+    if (ds.locbio) { LOC.bio = !LOC.bio; LOC.n = 20; afficherLocal(); return; }
+    if (ds.locplus) { LOC.n += 20; afficherLocal(); return; }
+    if (ds.loccarte) { carteLocal(ds.loccarte); return; }
+    if (ds.locmoi) {
+      if (S.pos) { S.pos = null; afficherLocal(); return; }
+      if (!navigator.geolocation) { toast("Position indisponible sur ce téléphone"); return; }
+      toast("Je cherche où tu es…");
+      navigator.geolocation.getCurrentPosition(function (pos) { S.pos = [pos.coords.latitude, pos.coords.longitude]; LOC.n = 20; afficherLocal(); },
+        function () { toast("Position refusée : autorise la localisation pour Mogette"); }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 });
+    }
+  });
+
   // ---------- navigation
   function vue(v) {
     var avant = S.vue;
     S.vue = v;
-    $("tabPill").style.setProperty("--i", Math.max(0, ["accueil", "promos", "plats", "liste"].indexOf(v)));
+    $("tabPill").style.setProperty("--i", Math.max(0, ["accueil", "promos", "plats", "local", "liste"].indexOf(v)));
     if (avant !== v && !reduit()) rejouer(document.querySelector(".topbar .masc"), "saute");
     if (v === "liste") syncListe();
-    ["accueil", "promos", "plats", "liste"].forEach(function (x) { $("v-" + x).hidden = x !== v; });
-    $("titre").textContent = { accueil: "Mogette", promos: "Promos", plats: "Plats", liste: "Ma liste" }[v] || "Mogette";
+    if (v === "local") afficherLocal();
+    ["accueil", "promos", "plats", "local", "liste"].forEach(function (x) { $("v-" + x).hidden = x !== v; });
+    $("titre").textContent = { accueil: "Mogette", promos: "Promos", plats: "Plats", local: "Producteurs", liste: "Ma liste" }[v] || "Mogette";
     document.querySelectorAll("nav.tabs button").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.v === v ? "true" : "false"); });
     window.scrollTo(0, 0);
   }
@@ -3625,8 +3914,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     afficherFiltres(); afficherPromos();
   }
 
-  // raccourcis de l'icône (Android) : #liste, #promos, #plats
-  if (/^#(promos|plats|liste)$/.test(location.hash)) setTimeout(function () { vue(location.hash.slice(1)); }, 0);
+  // raccourcis de l'icône (Android) : #liste, #promos, #plats, #local
+  if (/^#(promos|plats|local|liste)$/.test(location.hash)) setTimeout(function () { vue(location.hash.slice(1)); }, 0);
 
   // ---------- événements
   var tq;

@@ -98,7 +98,7 @@ def jolie(nom):
     lettres = [c for c in nom if c.isalpha()]
     if not lettres or sum(c.isupper() for c in lettres) / len(lettres) < 0.75:
         return nom
-    out, debut, avant = [], True, ""
+    out, debut, avant, apostrophe = [], True, "", False
     for m in re.split(r"([ \-'’/()])", nom):
         if not m:
             continue
@@ -106,6 +106,11 @@ def jolie(nom):
             if (m == "-" and avant == " ") or m == "(":
                 debut = True
             out.append(m)
+            apostrophe = m in "'’" and avant.lower() not in ("l", "d")
+            avant = m
+            continue
+        if avant in ("'", "’") and apostrophe:
+            out.append(m.lower())
             avant = m
             continue
         avant = m
@@ -124,6 +129,41 @@ def jolie(nom):
         art = m.group(2).capitalize()
         s = art + ("" if art.endswith("'") else " ") + m.group(1)
     return s
+
+
+METIERS = set("""ferme fermes jardin jardins gaec earl scea domaine verger vergers les la le des du de d l bio rucher ruchers miel
+potager potagers maraicher maraichers terre terres champ champs moulin pre pres val bois marais salorge saline salines cave chai
+brasserie fromagerie bergerie chevrerie et au aux atelier ateliers petit petite ptit grand grande saveurs produits plants fruits
+legumes paysan paysanne paysans cueillette cueillettes elevage volailles pepiniere essaimeuse sel herbes plantes safran spiruline
+escargots huitres ostreiculture vignoble vignes fruit legume plante herbe fleur fleurs graine graines ble pain fromage lait
+oeufs oeuf poule poules canard vache vaches chevre chevres brebis abeille abeilles api nature vert verte""".split())
+
+
+def nom_affiche(brut, source="", gerant=""):
+    """Nom lisible : forme juridique rangée (« BICHOUETTE (GAEC LA) » -> « GAEC la Bichouette », « CITRULUS (SAS) » -> « Citrulus »).
+    Pour un exploitant en nom propre de l'Agence Bio (« MIGNE Anne Bernadette Marie »), seulement le premier prénom et le nom :
+    « Anne Migne »."""
+    n = re.sub(r"\s+", " ", (brut or "").strip())
+    m = re.match(r"^(.*?)\s*\(\s*(EARL|GAEC|SCEA|SARL|SAS|SASU|EURL|EI|EIRL|SCI|SCL|SNC|SC)\b\s*(.*?)\s*\)\s*$", n, re.I)
+    if m:
+        forme, art = m.group(2).upper(), m.group(3)
+        n = (" ".join(x for x in (forme, art, m.group(1)) if x) if forme in ("GAEC", "EARL", "SCEA") else " ".join(x for x in (art, m.group(1)) if x))
+    n = re.sub(r"^(SARL|SAS|SASU|EURL|SCI|SNC|EIRL|EI)\s+", "", n, flags=re.I)
+    mots = n.split()
+    personne = (source == "ab" and 2 <= len(mots) <= 6 and all(re.fullmatch(r"[^\W\d_]+(?:-[^\W\d_]+)*", w) for w in mots)
+                and not any(norm(w) in METIERS for w in mots))
+    if personne and gerant and not set(norm(n).split()) & set(norm(gerant).split()):
+        personne = False  # le nom ne reprend pas celui du gérant : c'est un nom de ferme
+    if personne:
+        if any(c.islower() for c in n):  # « VALLÉE Justine », « Marc HIRELLE » : le nom est en capitales
+            noms = [w for w in mots if w.isupper() and len(w) > 1]
+            prenoms = [w for w in mots if w not in noms]
+            if noms and prenoms:
+                return jolie(prenoms[0]) + " " + " ".join(jolie(w) if w.isupper() else w for w in noms)
+        elif len(mots) >= 3:  # tout en capitales : NOM Prénom1 Prénom2…
+            return jolie(mots[1]) + " " + jolie(mots[0])
+    n = jolie(n)
+    return n[:1].upper() + n[1:]  # « huîtres Charneau & fils » -> « Huîtres Charneau & fils »
 
 
 def tel(t):
@@ -292,7 +332,7 @@ def producteurs_vt(brut, communes, aujourd, journal):
             continue
         h, note, periode = horaires_vt(it.get("OuvertureGranule"), aujourd)
         c = communes.get(it.get("CodeInseeCommune") or "")
-        e = {"id": "vt:" + it.get("SyndicObjectID", ""), "n": jolie(it.get("SyndicObjectName")), "c": ranger(fams),
+        e = {"id": "vt:" + it.get("SyndicObjectID", ""), "n": nom_affiche(it.get("SyndicObjectName")), "c": ranger(fams),
              "v": c["nom"] if c else jolie(it.get("Commune")), "a": jolie(adresse_vt(it)), "la": round(pos[0], 5), "lo": round(pos[1], 5),
              "s": ["vt"]}
         if boutique:
@@ -392,8 +432,7 @@ def producteurs_bio(journal):
             continue
         a, (la, lo) = pos
         nom = it.get("denominationcourante") or it.get("raisonSociale") or ""
-        nom = re.sub(r"\s*\((EI|EIRL|EARL|GAEC|SCEA)\)\s*$", "", nom.strip(), flags=re.I)
-        e = {"id": "ab:%s" % it.get("id"), "n": jolie(nom), "c": ranger(fams), "v": jolie(a.get("ville")), "a": jolie(a.get("lieu"))[:120],
+        e = {"id": "ab:%s" % it.get("id"), "n": nom_affiche(nom, "ab", it.get("gerant") if isinstance(it.get("gerant"), str) else ""), "c": ranger(fams), "v": jolie(a.get("ville")), "a": jolie(a.get("lieu"))[:120],
              "la": round(la, 5), "lo": round(lo, 5), "bio": 1, "s": ["ab"], "_insee": str(a.get("codeCommune") or "")}
         t = tel(it.get("telephoneCommerciale") or it.get("telephone"))
         if t:
@@ -443,10 +482,10 @@ def lire_osm(journal):
     erreurs = []
     for tour in range(2):
         if tour:
-            time.sleep(30)
-        for url in OSM_API:
+            time.sleep(20)
+        for url in (OSM_API if not tour else OSM_API[:1]):
             try:
-                els = json.loads(lire(url, urllib.parse.urlencode({"data": REQ_OSM}).encode(), essais=1, delai=130).decode("utf-8")).get("elements")
+                els = json.loads(lire(url, urllib.parse.urlencode({"data": REQ_OSM}).encode(), essais=1, delai=100).decode("utf-8")).get("elements")
             except Exception as e:
                 erreurs.append("%s : %s" % (urllib.parse.urlparse(url).netloc, e))
                 continue
@@ -468,10 +507,14 @@ def producteurs_osm(els, communes, journal):
         oid = "osm:%s%s" % (el.get("type", "n")[:1], el.get("id"))
         if t.get("amenity") == "marketplace":
             h = horaires_osm(t.get("opening_hours"))
-            if not h:
-                continue
-            marches.append({"id": oid, "n": nom if nom and norm(nom) != "marche" else ("Marché de " + ville if ville else "Marché"),
-                            "v": ville, "la": round(la, 5), "lo": round(lo, 5), "h": h, "s": ["osm"]})
+            if not h or t.get("shop") or len({x[0] for x in h if x[2] >= 17 * 60}) >= 4:
+                continue  # sans jours connus, ou ouvert jusqu'au soir presque tous les jours : une boutique, pas un marché
+            m = {"id": oid, "n": nom, "v": ville, "la": round(la, 5), "lo": round(lo, 5), "h": h, "s": ["osm"]}
+            if not re.search(r"march|halle|market|foire", norm(nom)):  # « Place de l'église » : c'est le lieu du marché
+                m["n"] = "Marché de " + ville if ville else "Marché"
+                if nom:
+                    m["a"] = nom
+            marches.append(m)
             continue
         texte = " ".join(t.get(k, "") for k in ("name", "description", "operator", "product", "produce", "website", "contact:website"))
         fams = [PRODUCE_OSM[p.strip().lower()] for k in ("produce", "product") for p in t.get(k, "").split(";") if p.strip().lower() in PRODUCE_OSM]
@@ -494,7 +537,7 @@ def producteurs_osm(els, communes, journal):
             if not distrib:
                 continue
             nom = "Distributeur " + {"lait": "de lait", "vo": "d'œufs", "fl": "de fruits et légumes", "viande": "de viande", "miel": "de miel"}.get((fams or [""])[0], "de produits de la ferme")
-        e = {"id": oid, "n": jolie(nom), "c": ranger(fams), "v": ville, "la": round(la, 5), "lo": round(lo, 5), "s": ["osm"]}
+        e = {"id": oid, "n": nom_affiche(nom), "c": ranger(fams), "v": ville, "la": round(la, 5), "lo": round(lo, 5), "s": ["osm"]}
         adr = " ".join(x for x in (t.get("addr:housenumber"), t.get("addr:street") or t.get("addr:place")) if x)
         if adr:
             e["a"] = adr[:120]
@@ -575,13 +618,16 @@ def communes_vendee(journal):
 
 
 def a_refaire(ancien, aujourd):
-    if not ancien or not ancien.get("maj"):
+    """Une fois par semaine ; tous les jours tant qu'une source n'a pas répondu la dernière fois."""
+    def age(iso):
+        try:
+            return (aujourd - date.fromisoformat(iso)).days
+        except (TypeError, ValueError):
+            return 999
+    if not ancien or age(ancien.get("maj")) >= TOUS_LES:
         return True
-    try:
-        derniere = date.fromisoformat(ancien["maj"])
-    except ValueError:
-        return True
-    return (aujourd - derniere).days >= TOUS_LES
+    sources = ancien.get("sources") or {}
+    return any(age(sources.get(k)) > TOUS_LES + 1 for k in ("vt", "ab", "osm"))
 
 
 def mettre_a_jour(log=print, aujourd=None, forcer=False, essai=False):

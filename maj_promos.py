@@ -2876,6 +2876,19 @@ def mettre_historique(promos, aujourd):
 
 # --------------------------------------------------------------------------- mise à jour
 def mettre_a_jour(debug=False, log=print, essai=False):
+    """Promos, puis producteurs locaux et marchés (relus une fois par semaine, voir producteurs.py)."""
+    try:
+        return _mettre_a_jour(debug=debug, log=log, essai=essai)
+    finally:
+        if not essai:
+            try:
+                import producteurs
+                producteurs.mettre_a_jour(log=log)
+            except Exception as e:  # les producteurs ne doivent jamais bloquer les promos
+                log("Producteurs locaux : pas mis à jour (%s)" % e)
+
+
+def _mettre_a_jour(debug=False, log=print, essai=False):
     os.makedirs(DATA, exist_ok=True)
     if debug:
         os.makedirs(os.path.join(DATA, "debug"), exist_ok=True)
