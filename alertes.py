@@ -236,6 +236,20 @@ def envoyer_push(abonnement, message, prive):
         raise
 
 
+def nettoyer_liaisons(fb, log):
+    """Jetons de connexion de l'appli restés là (l'appli n'est pas revenue les chercher) : effacés après une heure."""
+    from datetime import datetime, timezone
+    limite = (datetime.now(timezone.utc) - timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%S")
+    try:
+        vieux = [d for d in fb.liste("liaisons") if (d.get("createTime") or "")[:19] < limite]
+        for d in vieux:
+            fb.supprimer(d["name"])
+        if vieux:
+            log("Connexions d'appli abandonnées effacées : %d" % len(vieux))
+    except Exception as e:
+        log("Connexions d'appli non nettoyées : %s" % e)
+
+
 def principal(log=print, aujourd=None, fb=None, envoyer=envoyer_push):
     aujourd = aujourd or date.today()
     if fb is None:
@@ -252,6 +266,7 @@ def principal(log=print, aujourd=None, fb=None, envoyer=envoyer_push):
         fb.publier_regles(log)
     except Exception as e:
         log("Règles de la base non publiées : %s" % e)
+    nettoyer_liaisons(fb, log)
     prive, _ = cles_envoi(fb, log)
 
     donnees = m.charger_donnees(m.FICHIER) or {}

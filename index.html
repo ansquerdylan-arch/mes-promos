@@ -3157,9 +3157,23 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   function garderEtat() { CS.quand = Date.now(); ecrire("compteMaj", CS.maj); ecrire("compteEnvoye", CS.envoye); ecrire("compteQuand", CS.quand); }
 
   // aller chez Google ou Apple ; ils reviennent ici avec #id_token=…&state=…
+  function urlGoogle(nonce, etat) {
+    return "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + encodeURIComponent(COMPTE_CFG.google) + "&redirect_uri=" + encodeURIComponent(adresseRetour()) +
+      "&response_type=id_token&scope=" + encodeURIComponent("openid email profile") + "&nonce=" + nonce + "&state=" + etat + "&prompt=select_account";
+  }
   function seConnecter(via) {
     if (!comptesActifs()) return;
-    if (NATIF) { toast("Pour l'instant, connecte-toi depuis Safari ou Chrome"); return; }
+    if (NATIF) {
+      // Google refuse la connexion dans la vue web d'une appli : elle se fait dans Chrome (ou Safari), qui revient sur le
+      // site Mogette ; le site range le jeton dans liaisons/<code> (Firestore) et l'appli vient le chercher en revenant au premier plan.
+      if (via !== "google") return;
+      LIAISON = { code: hasard(20), nonce: hasard(16), t: Date.now() };
+      ecrire("liaison", LIAISON);
+      afficherCompte();
+      location.href = urlGoogle(LIAISON.nonce, "app." + LIAISON.code);  // adresse hors de l'appli : Capacitor l'ouvre dans le navigateur
+      surveillerLiaison();
+      return;
+    }
     var aller = { etat: hasard(12), nonce: hasard(16), via: via, t: Date.now() };
     ecrire("compteAller", aller);
     try { sessionStorage.setItem("mespromos-compteAller", JSON.stringify(aller)); } catch (e) {}
@@ -3172,8 +3186,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       });
       return;
     }
-    location.href = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + encodeURIComponent(COMPTE_CFG.google) + "&redirect_uri=" + retour +
-      "&response_type=id_token&scope=" + encodeURIComponent("openid email profile") + "&nonce=" + aller.nonce + "&state=" + aller.etat + "&prompt=select_account";
+    location.href = urlGoogle(aller.nonce, aller.etat);
   }
   function retourConnexion() {
     var h = location.hash.slice(1);
@@ -3181,17 +3194,22 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var q = {};
     h.split("&").forEach(function (x) { var i = x.indexOf("="); if (i > 0) try { q[decodeURIComponent(x.slice(0, i))] = decodeURIComponent(x.slice(i + 1).replace(/\+/g, " ")); } catch (e) {} });
     try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+    if (/^app\.[0-9a-f]{32,64}$/.test(q.state || "")) { lierAppli(q.state.slice(4), q); return true; }
     var aller = lire("compteAller", null);
     if (!aller) try { aller = JSON.parse(sessionStorage.getItem("mespromos-compteAller") || "null"); } catch (e) {}
     ecrire("compteAller", null); try { sessionStorage.removeItem("mespromos-compteAller"); } catch (e) {}
     if (q.error) { if (!/cancel|denied/.test(q.error)) setTimeout(function () { toast("Connexion refusée (" + q.error + ")"); }, 300); return true; }
     if (!comptesActifs() || !aller || aller.etat !== q.state || Date.now() - aller.t > 20 * 60000) { setTimeout(function () { toast("Connexion expirée, recommence"); }, 300); return true; }
-    var via = aller.via === "apple" ? "apple" : "google", infos = jwt(q.id_token);
-    CS.connexion = true;
-    (via === "apple" ? sha256hex(aller.nonce) : Promise.resolve(aller.nonce)).then(function (n) {
+    finirConnexion(q.id_token, aller.via === "apple" ? "apple" : "google", aller.nonce);
+    return true;
+  }
+  function finirConnexion(jeton, via, nonce) {  // jeton Google ou Apple -> compte Firebase
+    var infos = jwt(jeton);
+    CS.connexion = true; afficherCompte();
+    (via === "apple" ? sha256hex(nonce) : Promise.resolve(nonce)).then(function (n) {
       if (infos.nonce && infos.nonce !== n) throw new Error("jeton inattendu, recommence");
       return idt("accounts:signInWithIdp", { requestUri: adresseRetour(), returnSecureToken: true, returnIdpCredential: true,
-        postBody: "id_token=" + encodeURIComponent(q.id_token) + "&providerId=" + (via === "apple" ? "apple.com&nonce=" + encodeURIComponent(aller.nonce) : "google.com") });
+        postBody: "id_token=" + encodeURIComponent(jeton) + "&providerId=" + (via === "apple" ? "apple.com&nonce=" + encodeURIComponent(nonce) : "google.com") });
     }).then(function (r) {
       var autre = CPT && CPT.uid !== r.localId;
       CPT = { uid: r.localId, nom: r.displayName || r.fullName || r.firstName || infos.name || "", email: r.email || infos.email || "", photo: r.photoUrl || infos.picture || "",
@@ -3205,8 +3223,52 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       if (CS.pret) { tirerCompte(); ouvrirReglages("compte"); if (lire("listeAJoindre", null)) rejoindreListe(lire("listeAJoindre", null)); } else CS.aTirer = true;
       afficherCompte();
     }).catch(function (e) { CS.connexion = false; toast("Connexion impossible : " + e.message); afficherCompte(); });
-    return true;
   }
+  // --- connexion de l'appli Android ou iPhone, faite dans le navigateur
+  var LIAISON = lire("liaison", null);  // { code, nonce, t } : connexion en cours dans Chrome
+  function lierAppli(code, q) {  // dans Chrome : la demande vient de l'appli ; on lui laisse le jeton dans liaisons/<code>
+    if (q.error || !q.id_token) { montrerRetourAppli(false, /cancel|denied/.test(q.error || "") ? "Connexion annulée." : "Google a refusé la connexion."); return; }
+    fetch(fsDocs() + ":commit", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store",
+      body: JSON.stringify({ writes: [{ update: { name: fsNom("liaisons/" + code), fields: { jeton: { stringValue: q.id_token } } },
+        updateTransforms: [{ fieldPath: "t", setToServerValue: "REQUEST_TIME" }], currentDocument: { exists: false } }] }) })
+      .then(function (r) { if (!r.ok) throw new Error("Firestore a répondu " + r.status); montrerRetourAppli(true); })
+      .catch(function (e) { montrerRetourAppli(false, "La connexion n'a pas pu être envoyée à l'appli (" + e.message + "). Recommence depuis l'appli."); });
+  }
+  function montrerRetourAppli(ok, txt) {
+    var d = document.createElement("dialog"), lien = ANDROID ? "intent://connexion#Intent;scheme=mogette;package=io.github.ansquerdylanarch.mogette;S.browser_fallback_url=" +
+      encodeURIComponent(adresseRetour()) + ";end" : "mogette://connexion";  // ancienne appli sans l'adresse mogette:// : on reste sur le site
+    d.className = "sheet retour-appli";
+    d.innerHTML = '<div class="fiche-in"><div class="grab" aria-hidden="true"></div>' +
+      '<h2>' + (ok ? "C'est bon, retourne dans l'appli" : "Connexion pas terminée") + '</h2>' +
+      '<p>' + esc(ok ? "Ouvre l'appli Mogette : la connexion s'y termine toute seule, en quelques secondes." : txt) + '</p>' +
+      (ok ? '<a class="btn primary" href="' + lien + '">Ouvrir l\'appli Mogette</a>' : '') +
+      '<button class="btn" type="button" data-fermerretour="1">' + (ok ? "Rester sur le site" : "Fermer") + '</button></div>';
+    document.body.appendChild(d);
+    d.addEventListener("click", function (ev) { if (ev.target === d || (ev.target.closest && ev.target.closest("[data-fermerretour]"))) d.close(); });
+    try { d.showModal(); } catch (e) { d.setAttribute("open", ""); }
+  }
+  function verifierLiaison() {  // dans l'appli : la connexion faite dans Chrome est-elle arrivée ?
+    if (!LIAISON || CS.connexion || document.hidden) return;
+    if (Date.now() - LIAISON.t > 15 * 60000) { LIAISON = null; ecrire("liaison", null); afficherCompte(); return; }
+    var l = LIAISON;
+    fetch(fsDocs() + "/liaisons/" + l.code, { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        var jeton = j && ((j.fields || {}).jeton || {}).stringValue;
+        if (!jeton || LIAISON !== l) return;
+        LIAISON = null; ecrire("liaison", null);
+        fetch(fsDocs() + "/liaisons/" + l.code, { method: "DELETE" }).catch(function () {});
+        if (jwt(jeton).nonce !== l.nonce) { toast("Connexion inattendue, recommence"); afficherCompte(); return; }
+        finirConnexion(jeton, "google", l.nonce);
+      }).catch(function () {});
+  }
+  var tLiaison = null;
+  function surveillerLiaison() {
+    clearInterval(tLiaison);
+    if (!LIAISON) return;
+    tLiaison = setInterval(function () { if (!LIAISON) { clearInterval(tLiaison); return; } verifierLiaison(); }, 3000);
+  }
+  document.addEventListener("visibilitychange", function () { if (!document.hidden && LIAISON) { verifierLiaison(); surveillerLiaison(); } });
   // ce que dit le compte ; on garde ce qui a changé d'un seul côté, on te demande si les deux ont changé
   function tirerCompte() {
     if (!CPT || !comptesActifs() || CS.attente) return Promise.resolve();
@@ -3308,7 +3370,10 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var h;
     if (!CPT) {
       h = '<span class="muted">' + (CS.connexion ? "Connexion…" : "Connecte-toi pour retrouver tes magasins, ta liste, tes favoris et tes réglages sur tous tes appareils, même après une réinstallation. Chaque personne a les siens.") + '</span>' +
-        (NATIF ? '<span class="muted">Dans l\'appli, la connexion n\'est pas encore possible : ouvre Mogette dans Safari ou Chrome pour te connecter.</span>' :
+        (NATIF && LIAISON ? '<span class="muted"><b>Connexion en cours dans ton navigateur.</b> Choisis ton compte Google, puis reviens ici : ça se termine tout seul.</span>' +
+          '<div class="row"><button class="btn" type="button" data-connexion="google">Rouvrir la connexion</button><button class="link" type="button" data-liaisonstop="1">Annuler</button></div>' :
+        NATIF ? '<div class="cpt-btns"><button class="btn cpt-btn" type="button" data-connexion="google"' + (CS.connexion ? " disabled" : "") + '>Continuer avec Google</button></div>' +
+          '<span class="muted cpt-petit">La connexion s\'ouvre dans ton navigateur, puis tu reviens dans l\'appli.</span>' :
         '<div class="cpt-btns"><button class="btn cpt-btn" type="button" data-connexion="google"' + (CS.connexion ? " disabled" : "") + '>Continuer avec Google</button>' +
         (COMPTE_CFG.apple ? '<button class="btn cpt-btn cpt-apple" type="button" data-connexion="apple"' + (CS.connexion ? " disabled" : "") + '>Continuer avec Apple</button>' : '') + '</div>') +
         '<span class="muted cpt-petit">Mogette ne garde que tes réglages, dans ton compte. Tu peux le supprimer quand tu veux.</span>';
@@ -3331,6 +3396,10 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     box.innerHTML = h;
   }
   retourConnexion();
+  if (NATIF && LIAISON) surveillerLiaison();
+  document.addEventListener("click", function (ev) {
+    if (ev.target.closest && ev.target.closest("[data-liaisonstop]")) { LIAISON = null; ecrire("liaison", null); clearInterval(tLiaison); afficherCompte(); }
+  });
   // lien d'invitation : #liste=<numéro> ; gardé le temps de te connecter si besoin
   (function () {
     var m = /#liste=([0-9a-f]{16,64})\b/.exec(location.hash), ancien = /#rejoindre=/.test(location.hash);

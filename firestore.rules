@@ -55,6 +55,18 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == resource.data.proprio;
     }
 
+    // Connexion dans l'appli Android ou iPhone : Google refuse de se connecter dans l'appli, alors elle se fait dans le
+    // navigateur, qui dépose ici le jeton Google sous un numéro tiré au hasard par l'appli (impossible à deviner).
+    // L'appli le lit puis l'efface ; personne ne peut lister ces documents, et ils ne se lisent que 15 minutes.
+    match /liaisons/{code} {
+      allow get: if resource == null || resource.data.t > request.time - duration.value(15, 'm');
+      allow create: if code.size() >= 32 && code.size() <= 64
+        && request.resource.data.keys().hasOnly(['jeton', 't'])
+        && request.resource.data.jeton is string && request.resource.data.jeton.size() < 5000
+        && request.resource.data.t == request.time;
+      allow delete: if true;
+    }
+
     // Clé publique d'envoi des notifications (la clé privée reste dans config/push, fermé à tous).
     match /config/public {
       allow read: if true;

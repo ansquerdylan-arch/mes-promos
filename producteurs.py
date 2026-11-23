@@ -467,6 +467,17 @@ CRAFT_OSM = {"beekeeper": "miel", "winery": "vin", "brewery": "biere", "distille
              "oyster": "mer", "cheese": "lait", "dairy": "lait", "salt": "sel"}
 
 
+def de_ville(v):
+    """« Le Fenouiller » -> « du Fenouiller », « Les Achards » -> « des Achards », « L'Île-d'Olonne » -> « de l'Île-d'Olonne »."""
+    if v.startswith("Le "):
+        return "du " + v[3:]
+    if v.startswith("Les "):
+        return "des " + v[4:]
+    if v.startswith("L'"):
+        return "de l'" + v[2:]
+    return "de " + v
+
+
 def commune_proche(communes, la, lo):
     best, dmin = None, 99
     for c in communes.values():
@@ -510,9 +521,10 @@ def producteurs_osm(els, communes, journal):
             if not h or t.get("shop") or len({x[0] for x in h if x[2] >= 17 * 60}) >= 4:
                 continue  # sans jours connus, ou ouvert jusqu'au soir presque tous les jours : une boutique, pas un marché
             m = {"id": oid, "n": nom, "v": ville, "la": round(la, 5), "lo": round(lo, 5), "h": h, "s": ["osm"]}
-            if not re.search(r"march|halle|market|foire", norm(nom)):  # « Place de l'église » : c'est le lieu du marché
-                m["n"] = "Marché de " + ville if ville else "Marché"
-                if nom:
+            if not re.search(r"march|halle|market|foire", norm(nom)) or norm(nom) in ("marche", "le marche", "marche couvert", "marche hebdomadaire"):
+                # « Place de l'église » : c'est le lieu du marché ; « Marché » tout court : on dit lequel
+                m["n"] = "Marché " + de_ville(ville) if ville else "Marché"
+                if nom and "march" not in norm(nom):
                     m["a"] = nom
             marches.append(m)
             continue

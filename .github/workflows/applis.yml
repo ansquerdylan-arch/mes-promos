@@ -53,6 +53,23 @@ jobs:
           # et Capacitor ouvre la galerie à la place
           sed -i 's#<application#<queries>\n        <intent>\n            <action android:name="android.media.action.IMAGE_CAPTURE" />\n        </intent>\n    </queries>\n\n    &#' android/app/src/main/AndroidManifest.xml
           grep -q 'android.media.action.IMAGE_CAPTURE' android/app/src/main/AndroidManifest.xml
+          # retour dans l'appli après la connexion Google faite dans Chrome (bouton « Ouvrir l'appli Mogette », adresse mogette://)
+          python3 - <<'PY'
+          p = "android/app/src/main/AndroidManifest.xml"
+          s = open(p).read()
+          filtre = """</intent-filter>
+
+                      <intent-filter>
+                          <action android:name="android.intent.action.VIEW" />
+                          <category android:name="android.intent.category.DEFAULT" />
+                          <category android:name="android.intent.category.BROWSABLE" />
+                          <data android:scheme="mogette" />
+                      </intent-filter>"""
+          assert s.count("</intent-filter>") >= 1 and 'android:scheme="mogette"' not in s
+          s = s.replace("</intent-filter>", filtre, 1)
+          open(p, "w").write(s)
+          PY
+          grep -q 'android:scheme="mogette"' android/app/src/main/AndroidManifest.xml
           # numéro de version qui monte à chaque fabrication : l'appli se met à jour par-dessus l'ancienne
           sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"1.${{ github.run_number }}\"/" android/app/build.gradle
           # toujours la même signature (clé de débogage du dépôt) : sinon Android refuse la mise à jour par-dessus l'ancienne
@@ -80,6 +97,7 @@ jobs:
           ./gradlew assembleDebug --no-daemon --console=plain
           # contrôle : l'appareil photo est bien déclaré dans l'APK final
           grep -rl --include=AndroidManifest.xml 'android.media.action.IMAGE_CAPTURE' app/build/intermediates | head -1 | grep -q . || { echo "IMAGE_CAPTURE absent du manifeste final"; exit 1; }
+          grep -rl --include=AndroidManifest.xml 'android:scheme="mogette"' app/build/intermediates | head -1 | grep -q . || { echo "adresse mogette:// absente du manifeste final"; exit 1; }
           cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Mogette.apk"
       - name: Mise en ligne
         env:
@@ -106,6 +124,12 @@ jobs:
           /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Mogette peut lire un code-barres sur une photo.'" $P
           /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string 'Mogette montre les magasins autour de toi.'" $P
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Mogette" $P || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string Mogette" $P
+          # retour dans l'appli après la connexion Google faite dans Safari (adresse mogette://)
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes array" $P || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0 dict" $P
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLName string io.github.ansquerdylanarch.mogette" $P
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes array" $P
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string mogette" $P
           npx cap sync ios
       - name: Fichier IPA (non signé, Sideloadly le signe)
         working-directory: app/ios/App
