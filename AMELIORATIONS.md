@@ -4,6 +4,13 @@ Liste tenue à jour avec Claude, pour reprendre le fil d'une conversation à l'a
 Version à lire sur le téléphone : le doc « Mogette : idées d'améliorations »
 (https://claude.ai/artifact/BE13MizFVK85Lfxk3hrMzK).
 
+## 24 novembre 2026 (fait)
+
+- Un nouvel utilisateur part sans magasin : l'accueil, les promos et les plats lui demandent de choisir les siens
+  (« Autour de moi », sur la carte, ou par ville et enseigne). Les anciens utilisateurs qui n'avaient jamais changé les
+  magasins proposés les gardent. Plus de « Olonne-sur-Mer » par défaut : en haut, la commune de tes magasins ; les
+  distances se mesurent depuis ta position ou le milieu de tes magasins. Après une déconnexion : sans magasin aussi.
+
 ## 22 et 23 novembre 2026 (fait)
 
 - Badge « Avec la carte » : il portait la classe `carte` de la carte des magasins (écrasé, contour de BD) ; devenu `fid`.

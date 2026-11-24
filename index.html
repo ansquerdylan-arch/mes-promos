@@ -653,6 +653,16 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   .topbar h1 { font-size: 40px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+/* ===== premier lancement : pas encore de magasin ===== */
+body.sans-mag #v-accueil .stats, body.sans-mag #v-accueil .blk, body.sans-mag #weekCard, body.sans-mag #nouveauBox,
+body.sans-mag #homeFav, body.sans-mag #homeWatch, body.sans-mag #homeBudget, body.sans-mag #todayBox, body.sans-mag #staleBox,
+body.sans-mag #agendaCard { display: none !important; }
+.bienvenue { display: grid; gap: 10px; }
+.bienvenue .bv-t { font: 700 24px/1.1 var(--font-num); }
+.bienvenue .bv-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.bienvenue .link { justify-self: start; }
+#grid .bienvenue, #recipes .bienvenue { grid-column: 1 / -1; }
+
 /* ===== onglet Local : producteurs, distributeurs et marchés du coin ===== */
 .loc-cherche .loc-titre { font: 700 23px/1.05 var(--font-num); }
 .loc-ou { margin: 0; font-size: 13.5px; }
@@ -732,6 +742,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       <div class="hbudget" id="homeBudget" hidden></div>
     </div>
     <div class="card semaine" id="weekCard" hidden></div>
+    <div id="bienvenueBox"></div>
     <div class="card" id="installBox" hidden></div>
     <div class="card nouveau" id="nouveauBox" hidden></div>
 
@@ -1174,10 +1185,37 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var tout_ = Object.keys(cles); S.vusAvant.forEach(function (k) { if (!cles[k] && tout_.length < 15000) tout_.push(k); });
     ecrire("vus3", tout_);
   }
-  function selectionInitiale() {
+  function selectionInitiale() {  // un nouvel utilisateur part sans magasin et choisit les siens
     var ids = {}; (S.brut.magasins || []).forEach(function (m) { ids[m.id] = 1; });
-    var s = (lire("magasins", null) || []).filter(function (id) { return ids[id]; });
-    return s.length ? s : (S.brut.defaut || []).slice();
+    var garde = lire("magasins", null);
+    if (garde == null) {
+      // « vus3 » existe dès la première visite : c'est un ancien utilisateur qui n'avait jamais changé les magasins proposés avant
+      garde = lire("vus3", null) != null ? (S.brut.defaut || []).slice() : [];
+      ecrire("magasins", garde);
+    }
+    return garde.filter(function (id) { return ids[id]; });
+  }
+  function pointRef() {  // d'où se mesurent les distances : ta position, sinon le milieu de tes magasins
+    if (S.pos) return S.pos;
+    var mags = ((S.brut && S.brut.magasins) || []).filter(function (m) { return m.lat && S.sel.indexOf(m.id) >= 0; });
+    if (!mags.length) return null;
+    return [mags.reduce(function (t, m) { return t + m.lat; }, 0) / mags.length, mags.reduce(function (t, m) { return t + m.lng; }, 0) / mags.length];
+  }
+  function sansMagasin() { return !!S.brut && !S.sel.length; }
+  function zoneTxt() {  // en haut de l'écran : la commune de tes magasins
+    if (!S.brut) return (S.data && S.data.ville) || "";
+    var mags = {}, villes = [];
+    S.brut.magasins.forEach(function (m) { mags[m.id] = m; });
+    S.sel.forEach(function (id) { var m = mags[id]; if (m && villes.indexOf(m.ville) < 0) villes.push(m.ville); });
+    return !villes.length ? "Promos de Vendée" : villes.length === 1 ? villes[0] : villes[0] + " et alentours";
+  }
+  function bienvenueHTML(court) {
+    return '<div class="card bienvenue"><b class="bv-t">Choisis tes magasins</b>' +
+      '<span class="muted">' + (court ? "Mogette montre les promos des magasins que tu choisis." :
+        "Mogette montre les promos des magasins que tu choisis, parmi tous ceux de Vendée : Super U, Leclerc, Intermarché, Carrefour, Lidl, Action…") + '</span>' +
+      '<div class="bv-btns"><button class="btn primary" type="button" data-bienvenue="moi">📍 Autour de moi</button>' +
+      '<button class="btn" type="button" data-carte="1">Sur la carte</button></div>' +
+      '<button class="link" type="button" data-bienvenue="chercher">Chercher par ville ou par enseigne</button></div>';
   }
   function jjmm(iso) { return iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) : ""; }
   // promos.json allège les offres (champs vides retirés, dates du catalogue) : on les complète une fois
@@ -1311,7 +1349,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     return 2 * R * Math.asin(Math.sqrt(h));
   }
   function ligneMagasin(m, choisi) {
-    var o = ouverture(m.horaires), ref = S.pos || (S.brut && S.brut.domicile && S.brut.domicile.lat ? [S.brut.domicile.lat, S.brut.domicile.lng] : null);
+    var o = ouverture(m.horaires), ref = pointRef();
     var dist = ref && m.lat ? distance(ref, [m.lat, m.lng]) : null;
     return '<div class="mrow" style="--sc:' + (COULEURS[familleDe(m.chaine)] || "#8a93a6") + '"><b>' + esc(m.nom) + ' · ' + esc(m.ville) + '</b>' +
       '<button class="icon" type="button" data-' + (choisi ? "unpick" : "pick") + '="' + esc(m.id) + '">' + (choisi ? "Retirer" : "+ Ajouter") + '</button>' +
@@ -1499,7 +1537,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     $("storeFam").innerHTML = '<button class="chip" type="button" data-fam="toutes" aria-pressed="' + (FAM === "toutes") + '">Toutes <span class="n">' + S.brut.magasins.length + '</span></button>' +
       FAMILLES.filter(function (f) { return compte[f[0]]; }).map(function (f) { return '<button class="chip" type="button" data-fam="' + f[0] + '" aria-pressed="' + (FAM === f[0]) + '"><span class="dot" style="background:' + COULEURS[f[0]] + '"></span>' + f[1] + ' <span class="n">' + compte[f[0]] + '</span></button>'; }).join("");
     var mots = norm($("storeQ").value).split(" ").filter(Boolean);
-    var ref = S.pos || (S.brut.domicile && S.brut.domicile.lat ? [S.brut.domicile.lat, S.brut.domicile.lng] : null);
+    var ref = pointRef();
     var l = S.brut.magasins.filter(function (m) {
       if (S.sel.indexOf(m.id) >= 0) return false;
       if (FAM !== "toutes" && familleDe(m.chaine) !== FAM) return false;
@@ -1547,7 +1585,8 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   function tout() {
     var d = S.data, dt = d.maj ? new Date(d.maj) : null;
     afficherFraicheur();
-    $("sub").textContent = (d.ville || "") + (dt ? ", à jour le " + dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " à " + dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "") +
+    document.body.classList.toggle("sans-mag", sansMagasin());
+    $("sub").textContent = zoneTxt() + (dt ? ", à jour le " + dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " à " + dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "") +
       (S.manquants ? ". " + S.manquants + " catalogue" + (S.manquants > 1 ? "s" : "") + " non chargé" + (S.manquants > 1 ? "s" : "") + " (réseau)" : "");
     afficherAccueil(); afficherFiltres(); afficherPromos(); afficherPlats(); afficherListe(); afficherReglages(); afficherRdv(); afficherAgenda(); afficherInstall();
   }
@@ -1745,7 +1784,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var box = $("nouveauBox"); if (!box || !S.brut) return;
     var mags = S.brut.magasins.filter(function (m) { return m.chaine === "action"; });
     if (lire("vuAction", false) || !mags.length || S.sel.some(function (id) { return /^action-/.test(id); })) { box.hidden = true; return; }
-    var ref = S.pos || (S.brut.domicile && S.brut.domicile.lat ? [S.brut.domicile.lat, S.brut.domicile.lng] : null);
+    var ref = pointRef();
     if (ref) mags.sort(function (a, b) { return (a.lat ? distance(ref, [a.lat, a.lng]) : 999) - (b.lat ? distance(ref, [b.lat, b.lng]) : 999); });
     var m = mags[0], d = ref && m.lat ? distance(ref, [m.lat, m.lng]) : null;
     box.hidden = false;
@@ -2222,6 +2261,11 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   // ---------- accueil
   function afficherAccueil() {
     if (!S.data) return;
+    $("bienvenueBox").innerHTML = sansMagasin() ? bienvenueHTML(false) : "";
+    if (sansMagasin()) {
+      bulleDit("Salut" + (S.prenom ? " " + S.prenom : "") + "\u00a0! Choisis tes magasins, et je te trouve leurs promos.");
+      return;
+    }
     var v = visibles(), alim = v.filter(function (p) { return ALIM.indexOf(p.rayon) >= 0 && !pasCommencee(p); });
     $("stAlim").textContent = alim.length;
     $("stNew").textContent = S.vusAvant.length ? Object.keys(S.nouveaux).length : "–";
@@ -2485,6 +2529,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
       var mags = {}; grp.forEach(function (p) { mags[p.enseigne] = 1; });
       if (grp.length > 1 && Object.keys(mags).length > 1) cheapId = grp.reduce(function (m, p) { return !m || p.prix < m.prix ? p : m; }, null).id;
     }
+    if (sansMagasin()) { $("count").textContent = "Aucun magasin choisi"; LISTE_AFF = { l: [], n: 0 }; $("grid").innerHTML = bienvenueHTML(true); return; }
     $("count").textContent = l.length + (l.length > 1 ? " promos" : " promo") + (S.periode === "cours" ? " en cours" : S.periode === "venir" ? " à venir" : "") + ", " + (TRI_TXT[S.tri] || "") + (cheapId ? ". Le moins cher est marqué en vert." : "");
     LISTE_AFF = { l: l, cheap: cheapId, n: Math.min(PAQUET, l.length) };
     $("grid").innerHTML = l.length ? l.slice(0, LISTE_AFF.n).map(function (p) { return carte(p, { cheap: p.id === cheapId }); }).join("") : '<div class="empty">Aucune promo ne correspond. Essaie un autre mot ou enlève un filtre.</div>';
@@ -2593,6 +2638,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var tags = {}; l.forEach(function (x) { (x.r.tags || []).forEach(function (t) { tags[t] = 1; }); });
     $("platTags").innerHTML = ["Tous"].concat(Object.keys(tags).sort()).map(function (t) { return '<button class="chip" type="button" data-ptag="' + esc(t) + '" aria-pressed="' + (S.platTag === t) + '">' + esc(t) + '</button>'; }).join("");
     if (S.platTag !== "Tous") l = l.filter(function (x) { return (x.r.tags || []).indexOf(S.platTag) >= 0; });
+    if (sansMagasin()) { $("platTitle").textContent = "Les plats suivent les promos de tes magasins"; $("recipes").innerHTML = bienvenueHTML(true); afficherEnvie(); return; }
     $("platTitle").textContent = l.length + " plats faisables avec les promos";
     $("recipes").innerHTML = l.length ? l.map(function (x) { return carteRecette(x.r, x.promos); }).join("") : '<div class="empty">Aucun plat ne colle aux promos de tes magasins.</div>';
     afficherEnvie();
@@ -3329,6 +3375,7 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     var fin = function () {
       CPT = null; ecrire("compte", null); CS.maj = 0; CS.envoye = ""; CS.attente = null; garderEtat();
       CLES_SAUVEES.concat(["listeAJoindre"]).forEach(function (k) { try { localStorage.removeItem("mespromos-" + k); } catch (e) {} });
+      ecrire("magasins", []);  // repartir de zéro : sans magasin, comme un nouvel utilisateur (pas les magasins proposés autrefois)
       toast("Déconnecté : tes réglages restent dans ton compte");
       setTimeout(function () { location.reload(); }, 900);
     };
@@ -3793,8 +3840,6 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (S.pos) return { p: S.pos, txt: "de toi" };
     var mags = ((S.brut && S.brut.magasins) || []).filter(function (m) { return m.lat && S.sel.indexOf(m.id) >= 0; });
     if (mags.length) return { p: [mags.reduce(function (t, m) { return t + m.lat; }, 0) / mags.length, mags.reduce(function (t, m) { return t + m.lng; }, 0) / mags.length], txt: "de tes magasins" };
-    var dom = S.brut && S.brut.domicile;
-    if (dom && dom.lat) return { p: [dom.lat, dom.lng], txt: "de " + (dom.ville || "chez toi") };
     return { p: [46.67, -1.43], txt: "du centre de la Vendée" };
   }
   function kmTxt(d) { return (d < 10 ? d.toFixed(1).replace(".", ",") : Math.round(d)) + " km"; }
@@ -4197,6 +4242,12 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
     if (ds.paycancel) { payOuvert = false; afficherBudget(); return; }
     if (ds.deldep) { var dp = P.depenses.find(function (x) { return x.id === ds.deldep; }); if (dp) { dp.suppr = true; dp.maj = Date.now(); sauverPartage(); afficherBudget(); } return; }
     if (ds.opensettings) { ouvrirReglages(ds.opensettings); return; }
+    if (ds.bienvenue) {
+      ouvrirReglages("magasins");
+      if (ds.bienvenue === "moi") $("btnPres").click();
+      else setTimeout(function () { $("storeQ").focus(); }, 250);
+      return;
+    }
     if (ds.quitter) { quitterListe(false); return; }
     if (ds.editprix) {
       var cible = S.liste.find(function (x) { return x.id === ds.editprix; }); if (!cible) return;
