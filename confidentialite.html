@@ -25,7 +25,7 @@
 </head>
 <body>
 <main>
-  <a class="retour" href="./">← Revenir à Mogette</a>
+  <a class="retour" href="./" onclick="if (history.length > 1 &amp;&amp; document.referrer.indexOf(location.origin) === 0) { history.back(); return false; }">← Revenir à Mogette</a>
   <h1>Confidentialité et données</h1>
   <p class="chapo">Mogette est une appli gratuite, sans publicité et sans pisteur, faite par un particulier en Vendée. Voici exactement ce qu'elle garde, où, et comment tout effacer.</p>
 

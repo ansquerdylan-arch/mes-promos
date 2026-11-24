@@ -91,6 +91,8 @@ jobs:
           open(p, "w").write(s)
           PY
           npx cap sync android
+          # bouton retour d'Android : sans l'extension App, il ferme l'appli au lieu de fermer la fiche ouverte
+          grep -q 'capacitorjs.plugins.app.AppPlugin' android/app/src/main/assets/capacitor.plugins.json || { echo "extension @capacitor/app absente"; exit 1; }
       - name: Fichier APK
         working-directory: app/android
         run: |

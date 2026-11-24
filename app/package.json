@@ -5,6 +5,7 @@
   "description": "Mogette en appli Android et iPhone : une coquille Capacitor qui ouvre le site, mis à jour chaque matin",
   "dependencies": {
     "@capacitor/android": "latest",
+    "@capacitor/app": "latest",
     "@capacitor/cli": "latest",
     "@capacitor/core": "latest",
     "@capacitor/ios": "latest"

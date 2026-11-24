@@ -1006,7 +1006,7 @@ body.sans-mag #agendaCard { display: none !important; }
       // adresses sans le site ni ce qui suit ? ou # (au retour de Google, l'adresse contient un jeton de connexion)
       var net = function (t) { return String(t || "").split(base).join("").replace(/[?#][^\s)]*/g, function (x) { var f = x.match(/:\d+(:\d+)?$/); return f ? f[0] : ""; }); };
       var r = { m: msg, s: net(source).slice(0, 200), l: +ligne || 0, p: net(pile).slice(0, 1500),
-        v: ((window.MOGETTE_VUE || "") + (ouvert ? "+" + (ouvert.id || "fenetre") : "")).slice(0, 40), ver: VERSION_APPLI, ua: navigator.userAgent.slice(0, 200) };
+        v: ((window.MOGETTE_VUE || "accueil") + (ouvert ? "+" + (ouvert.id || "fenetre") : "")).slice(0, 40), ver: VERSION_APPLI, ua: navigator.userAgent.slice(0, 200) };
       if (!ERR.pret) { ERR.file.push(r); return; }
       envoyerErreur(r);
     } catch (e) {}
@@ -1128,6 +1128,9 @@ body.sans-mag #agendaCard { display: none !important; }
   var ANDROID = /Android/i.test(UA), IOS = /iPhone|iPad|iPod/i.test(UA) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   var INSTALLEE = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
   var NATIF = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());  // appli iPhone ou Android (Capacitor)
+  // dans l'appli, la page Confidentialité s'ouvre sur place (un nouvel onglet partirait dans Safari ou Chrome) ;
+  // son lien « Revenir à Mogette » fait alors un simple retour
+  if (NATIF) document.querySelectorAll('a[href="confidentialite.html"]').forEach(function (a) { a.removeAttribute("target"); });
   var invite = null;
   window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); invite = e; afficherInstall(); });
   window.addEventListener("appinstalled", function () { INSTALLEE = true; afficherInstall(); toast("Appli installée"); });
