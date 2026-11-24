@@ -67,6 +67,28 @@ service cloud.firestore {
       allow delete: if true;
     }
 
+    // Erreurs des téléphones (rapport technique anonyme) et messages « Une idée, un problème ? » : on peut seulement en
+    // déposer ; personne ne peut les lire depuis l'appli (le propriétaire les lit dans la console Firebase).
+    match /erreurs/{id} {
+      allow create: if id.size() <= 40
+        && request.resource.data.keys().hasOnly(['m', 's', 'l', 'p', 'v', 'ver', 'ua', 'app', 't'])
+        && request.resource.data.m is string && request.resource.data.m.size() <= 300
+        && request.resource.data.get('l', 0) is int
+        && request.resource.data.get('s', '').size() <= 200 && request.resource.data.get('p', '').size() <= 1500
+        && request.resource.data.get('v', '').size() <= 40 && request.resource.data.get('ver', '').size() <= 20
+        && request.resource.data.get('ua', '').size() <= 200 && request.resource.data.get('app', '').size() <= 10
+        && request.resource.data.t == request.time;
+    }
+    match /retours/{id} {
+      allow create: if id.size() <= 40
+        && request.resource.data.keys().hasOnly(['msg', 'contact', 'v', 'ver', 'ua', 'app', 't'])
+        && request.resource.data.msg is string && request.resource.data.msg.size() > 0 && request.resource.data.msg.size() <= 2000
+        && request.resource.data.get('contact', '').size() <= 120 && request.resource.data.get('v', '').size() <= 20
+        && request.resource.data.get('ver', '').size() <= 20 && request.resource.data.get('ua', '').size() <= 200
+        && request.resource.data.get('app', '').size() <= 10
+        && request.resource.data.t == request.time;
+    }
+
     // Clé publique d'envoi des notifications (la clé privée reste dans config/push, fermé à tous).
     match /config/public {
       allow read: if true;

@@ -10,6 +10,17 @@ Version à lire sur le téléphone : le doc « Mogette : idées d'améliorations
   (« Autour de moi », sur la carte, ou par ville et enseigne). Les anciens utilisateurs qui n'avaient jamais changé les
   magasins proposés les gardent. Plus de « Olonne-sur-Mer » par défaut : en haut, la commune de tes magasins ; les
   distances se mesurent depuis ta position ou le milieu de tes magasins. Après une déconnexion : sans magasin aussi.
+- Finition « sans bug » :
+  - le bouton retour d'Android ferme la fiche ou la fenêtre ouverte, puis revient à l'accueil, au lieu de quitter l'appli ;
+  - les erreurs sur les téléphones arrivent toutes seules, anonymes (collection `erreurs` de Firebase, résumé chaque
+    matin dans le journal des alertes, ou diag.yml `brut=erreurs`), effacées après 30 jours ;
+  - « Une idée, un problème ? » dans les réglages : les messages arrivent dans la collection `retours` de Firebase
+    (à lire dans la console Firebase ; le journal ne donne que leur nombre) ;
+  - réseau lent : la copie gardée s'affiche au bout de 2 secondes environ au lieu d'attendre, puis l'appli prend
+    toute seule les promos du jour dès qu'elles arrivent (et en revenant dans l'appli après 30 minutes) ;
+  - page « Confidentialité » (confidentialite.html), liée dans les réglages, avec la version de l'appli ;
+  - contrôle complet : 5 tailles d'écran (petit téléphone à tablette), clair et sombre, sans réseau, réseau lent,
+    appuis répétés et changements d'onglet rapides.
 
 ## 22 et 23 novembre 2026 (fait)
 

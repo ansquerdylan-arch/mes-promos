@@ -1,4 +1,4 @@
-// Garde l'appli et les dernières promos en mémoire pour l'ouvrir même sans réseau (en magasin).
+// Garde l'appli et les dernières promos en mémoire pour l'ouvrir même sans réseau (en magasin), et vite quand le réseau est lent.
 var CACHE = "mes-promos-v12";
 var BASE = ["./", "index.html", "recettes.json", "manifest.json", "icone-192.png", "icone-512.png", "icone-maskable-512.png",
   "polices/lilita-one-400.ttf", "polices/patrick-hand-400.woff"];
@@ -11,14 +11,27 @@ self.addEventListener("fetch", function (e) {
   if (e.request.method !== "GET") return;
   var url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
-  // Toujours essayer le réseau d'abord (promos fraîches), sinon la copie gardée.
-  // promos.json, offres/<catalogue>.json et pages/<catalogue>.json : une seule copie par fichier, quel que soit le ?v=
-  var cle = url.pathname.endsWith("promos.json") ? "promos.json" : (/\/(offres|pages)\/[\w-]+\.json$/.test(url.pathname) ? url.origin + url.pathname : e.request);
-  e.respondWith(fetch(e.request).then(function (r) {
-    if (r.ok) { var copie = r.clone(); caches.open(CACHE).then(function (c) { c.put(cle, copie); }); }
-    return r;
-  }).catch(function () {
-    return caches.match(cle);
+  // Les fichiers de données (promos.json, offres/…, pages/…, producteurs.json…) : une seule copie par fichier, quel que soit le ?v=
+  var cle = /\.json$/.test(url.pathname) ? url.origin + url.pathname : e.request;
+  if (url.searchParams.has("frais")) {  // l'appli vérifie s'il y a plus récent : réseau seulement (et copie mise à jour)
+    e.respondWith(fetch(e.request).then(function (r) {
+      if (r.ok) { var copie = r.clone(); caches.open(CACHE).then(function (c) { c.put(cle, copie); }); }
+      return r;
+    }));
+    return;
+  }
+  e.respondWith(caches.open(CACHE).then(function (c) {
+    // Réseau d'abord (promos fraîches) ; s'il traîne (campagne, fond du magasin), la copie gardée au bout de quelques
+    // secondes, pendant que le réseau continue et met la copie à jour pour la prochaine fois. Sans réseau : la copie.
+    var reseau = fetch(e.request).then(function (r) {
+      if (r.ok) c.put(cle, r.clone());
+      return r;
+    });
+    var secours = reseau.catch(function () { return c.match(cle); });
+    var patience = new Promise(function (ok) { setTimeout(ok, e.request.mode === "navigate" ? 2000 : 2500); })
+      .then(function () { return c.match(cle); })
+      .then(function (copie) { return copie || secours; });
+    return Promise.race([secours, patience]).then(function (r) { return r || reseau; });
   }));
 });
 

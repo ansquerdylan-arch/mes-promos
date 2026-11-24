@@ -250,6 +250,34 @@ def nettoyer_liaisons(fb, log):
         log("Connexions d'appli non nettoyées : %s" % e)
 
 
+def resumer_retours(fb, log, jours=1):
+    """Erreurs des téléphones et messages « Une idée, un problème ? » des dernières 24 h : résumé dans le journal.
+    Les messages eux-mêmes ne sont pas écrits dans le journal (il peut être public) : ils se lisent dans la console Firebase.
+    Les rapports d'erreur sont effacés après 30 jours."""
+    from collections import Counter
+    from datetime import datetime, timezone
+    maintenant = datetime.now(timezone.utc)
+    depuis = (maintenant - timedelta(days=jours)).strftime("%Y-%m-%dT%H:%M:%S")
+    vieux = (maintenant - timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%S")
+    try:
+        errs = fb.liste("erreurs")
+        recentes = [d for d in errs if (d.get("createTime") or "") >= depuis]
+        if recentes:
+            champ = lambda d, k: (((d.get("fields") or {}).get(k) or {}).get("stringValue") or "")
+            c = Counter("%s [%s, %s]" % (champ(d, "m")[:110], champ(d, "v") or "?", champ(d, "app") or "?") for d in recentes)
+            log("Erreurs sur les téléphones (%d j) : %d, dont %d différentes" % (jours, len(recentes), len(c)))
+            for m, n in c.most_common(8):
+                log("   %d × %s" % (n, m))
+        for d in errs:
+            if (d.get("createTime") or "") < vieux:
+                fb.supprimer(d["name"])
+        msgs = [d for d in fb.liste("retours") if (d.get("createTime") or "") >= depuis]
+        if msgs:
+            log("Messages « Une idée, un problème ? » (%d j) : %d (à lire dans la console Firebase, collection retours)" % (jours, len(msgs)))
+    except Exception as e:
+        log("Erreurs et messages non relus : %s" % e)
+
+
 def principal(log=print, aujourd=None, fb=None, envoyer=envoyer_push):
     aujourd = aujourd or date.today()
     if fb is None:
@@ -267,6 +295,7 @@ def principal(log=print, aujourd=None, fb=None, envoyer=envoyer_push):
     except Exception as e:
         log("Règles de la base non publiées : %s" % e)
     nettoyer_liaisons(fb, log)
+    resumer_retours(fb, log)
     prive, _ = cles_envoi(fb, log)
 
     donnees = m.charger_donnees(m.FICHIER) or {}

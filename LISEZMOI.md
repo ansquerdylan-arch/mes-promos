@@ -50,4 +50,6 @@ Si un matin rien n'est trouvé, les promos précédentes encore valables sont ga
 
 ## Appli publique
 
-Mogette ne montre rien du propriétaire ni de GitHub : pas de jeton, pas de lien vers le dépôt (le site est servi par GitHub Pages, d'où son adresse), pas de bouton de mise à jour. Les comptes, la liste partagée et les alertes passent par Firebase (projet `mogette-d4fa2`). Outils : `outils/verif_firebase.py` (diag.yml, `brut=firebase`) vérifie la mise en route ; `brut=alertes` lance les alertes seules ; `brut=secret` dit si le secret `FIREBASE_COMPTE` est présent, sans l'afficher.
+Mogette ne montre rien du propriétaire ni de GitHub : pas de jeton, pas de lien vers le dépôt (le site est servi par GitHub Pages, d'où son adresse), pas de bouton de mise à jour. Les comptes, la liste partagée et les alertes passent par Firebase (projet `mogette-d4fa2`). Outils : `outils/verif_firebase.py` (diag.yml, `brut=firebase`) vérifie la mise en route ; `brut=alertes` lance les alertes seules ; `brut=secret` dit si le secret `FIREBASE_COMPTE` est présent, sans l'afficher ; `brut=erreurs` résume les erreurs des téléphones (urls = nombre de jours, 7 par défaut).
+
+Erreurs et messages : les erreurs des téléphones (anonymes) vont dans la collection `erreurs` et les messages « Une idée, un problème ? » dans `retours`. Personne ne peut les lire depuis l'appli : ils se lisent dans la console Firebase. Le journal des alertes (chaque matin) donne le nombre d'erreurs et de messages, jamais le contenu des messages. Page publique : `confidentialite.html`.

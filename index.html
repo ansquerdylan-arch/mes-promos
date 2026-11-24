@@ -653,6 +653,10 @@ nav.tabs button[aria-selected="true"] svg { animation: icone .5s cubic-bezier(.3
   .topbar h1 { font-size: 40px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+#avisGrp textarea { resize: vertical; min-height: 84px; font: inherit; }
+.version { font-size: 12.5px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
 /* ===== premier lancement : pas encore de magasin ===== */
 body.sans-mag #v-accueil .stats, body.sans-mag #v-accueil .blk, body.sans-mag #weekCard, body.sans-mag #nouveauBox,
 body.sans-mag #homeFav, body.sans-mag #homeWatch, body.sans-mag #homeBudget, body.sans-mag #todayBox, body.sans-mag #staleBox,
@@ -666,7 +670,7 @@ body.sans-mag #agendaCard { display: none !important; }
 /* ===== onglet Local : producteurs, distributeurs et marchés du coin ===== */
 .loc-cherche .loc-titre { font: 700 23px/1.05 var(--font-num); }
 .loc-ou { margin: 0; font-size: 13.5px; }
-.loc-ou button { border: 0; background: none; padding: 0; font: inherit; font-weight: 700; }
+.loc-ou button { border: 0; background: none; padding: 8px 4px; margin: -8px 0; min-height: 34px; font: inherit; font-weight: 700; color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .mk { display: grid; align-content: start; gap: 5px; min-height: 132px; text-align: left; border: 0; border-radius: 18px; padding: 12px; background: var(--tile); color: var(--ink); box-shadow: var(--case); scroll-snap-align: start; font: inherit; cursor: pointer; }
 .mk-j { justify-self: start; font-size: 12.5px; font-weight: 750; border-radius: 8px; padding: 2px 8px; background: var(--shelf); box-shadow: inset 0 0 0 1.5px var(--outline); }
 .mk-j.auj { background: var(--label); color: var(--label-ink); }
@@ -964,10 +968,20 @@ body.sans-mag #agendaCard { display: none !important; }
       <b>Photos des produits</b>
       <div class="seg" id="photoSeg"><button type="button" data-photos="1">Afficher</button><button type="button" data-photos="0">Masquer (moins de données)</button></div>
     </div>
+    <div class="grp" id="avisGrp">
+      <b>Une idée, un problème ?</b>
+      <span class="muted">Un magasin qui manque, un prix faux, un bug, une envie : écris-le ici, ça arrive directement à Mogette. Pas besoin de compte.</span>
+      <label class="sr" for="avisTxt">Ton message</label>
+      <textarea id="avisTxt" class="field" rows="3" maxlength="2000" placeholder="Ex. : il manque mon magasin, la promo du café est fausse…"></textarea>
+      <label class="sr" for="avisContact">Pour te répondre (facultatif)</label>
+      <input id="avisContact" class="field" type="text" maxlength="120" autocomplete="email" placeholder="Ton e-mail, si tu veux une réponse (facultatif)">
+      <div class="row"><button class="btn primary" type="button" id="avisEnvoyer">Envoyer</button></div>
+    </div>
     <div class="grp">
       <b>Données</b>
       <span class="muted" id="setInfo"></span>
-      <div class="row"><button class="btn" type="button" id="resetAll">Tout remettre à zéro</button></div>
+      <div class="row"><button class="btn" type="button" id="resetAll">Tout remettre à zéro</button><a class="btn" href="confidentialite.html" target="_blank" rel="noopener">Confidentialité</a></div>
+      <span class="muted version" id="versionTxt"></span>
     </div>
   </div>
 </dialog>
@@ -977,6 +991,31 @@ body.sans-mag #agendaCard { display: none !important; }
 <script>
 (function () {
   "use strict";
+  // ---------- erreurs sur les téléphones : un rapport technique anonyme (message, fichier, ligne, écran, version, navigateur),
+  // déposé dans erreurs/ (Firestore, on ne peut qu'y écrire), résumé chaque matin et effacé après 30 jours. Voir confidentialite.html.
+  var VERSION_APPLI = (function () { var d = new Date(document.lastModified); return isNaN(d) ? "" : d.toISOString().slice(0, 16).replace("T", " "); })();
+  var ERR = { n: 0, vus: {}, file: [], pret: false };
+  function signalerErreur(msg, source, ligne, pile) {
+    try {
+      msg = String(msg || "").slice(0, 300);
+      if (!msg || /ResizeObserver loop|^Script error\.?$|NotAllowedError|AbortError|Load failed|NetworkError|Failed to fetch|cancelled|annulé/i.test(msg)) return;
+      var cle = msg + "|" + ligne;
+      if (ERR.vus[cle] || ERR.n >= 5) return;
+      ERR.vus[cle] = 1; ERR.n++;
+      var base = location.origin, ouvert = document.querySelector("dialog[open]");
+      // adresses sans le site ni ce qui suit ? ou # (au retour de Google, l'adresse contient un jeton de connexion)
+      var net = function (t) { return String(t || "").split(base).join("").replace(/[?#][^\s)]*/g, function (x) { var f = x.match(/:\d+(:\d+)?$/); return f ? f[0] : ""; }); };
+      var r = { m: msg, s: net(source).slice(0, 200), l: +ligne || 0, p: net(pile).slice(0, 1500),
+        v: ((window.MOGETTE_VUE || "") + (ouvert ? "+" + (ouvert.id || "fenetre") : "")).slice(0, 40), ver: VERSION_APPLI, ua: navigator.userAgent.slice(0, 200) };
+      if (!ERR.pret) { ERR.file.push(r); return; }
+      envoyerErreur(r);
+    } catch (e) {}
+  }
+  window.addEventListener("error", function (ev) { if (ev && ev.message) signalerErreur(ev.message, ev.filename, ev.lineno, ev.error && ev.error.stack); });
+  window.addEventListener("unhandledrejection", function (ev) {
+    var r = ev && ev.reason;
+    if (r && (r.message || typeof r === "string")) signalerErreur("Promesse : " + (r.message || r), "", 0, r && r.stack);
+  });
   var COULEURS = { u: "#d7262e", leclerc: "#0066b3", intermarche: "#e2001a", lidl: "#f5c400", carrefour: "#1e5bc6", action: "#0d4aa6", auchan: "#e2001a", aldi: "#00a0e1" };
   var FAMILLES = [["u", "Système U"], ["leclerc", "E.Leclerc"], ["intermarche", "Intermarché"], ["lidl", "Lidl"], ["carrefour", "Carrefour"], ["action", "Action"]];
   function familleDe(ch) { ch = ch || ""; if (/^(superu|hyperu|uexpress|marcheu)/.test(ch)) return "u"; if (/^intermarche/.test(ch)) return "intermarche"; if (/^carrefour/.test(ch)) return "carrefour"; return ch; }
@@ -1217,6 +1256,21 @@ body.sans-mag #agendaCard { display: none !important; }
       '<button class="btn" type="button" data-carte="1">Sur la carte</button></div>' +
       '<button class="link" type="button" data-bienvenue="chercher">Chercher par ville ou par enseigne</button></div>';
   }
+  // Réseau lent au démarrage : le téléphone a pu montrer sa copie gardée. Et une appli restée ouverte depuis la veille garde
+  // les promos d'hier. On vérifie donc après le démarrage, puis en revenant sur l'appli, s'il y a plus récent.
+  var DERNIERE_VERIF = 0;
+  function verifierNouveautes() {
+    if (S.mode !== "static" || !S.brut || navigator.onLine === false) return;
+    DERNIERE_VERIF = Date.now();
+    fetch("promos.json?frais=1&t=" + Date.now(), { cache: "no-store" }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
+      if (d.v !== 2 || !d.maj || d.maj === S.brut.maj) return;
+      S.brut = d; S.hidden = []; S.sel = selectionInitiale();
+      return chargerCatalogues().then(function () { construireVue(); marquerNouveaux(); tout(); toast("Promos du jour chargées"); });
+    }).catch(function () {});
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden && Date.now() - DERNIERE_VERIF > 30 * 60000) verifierNouveautes();
+  });
   function jjmm(iso) { return iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) : ""; }
   // promos.json allège les offres (champs vides retirés, dates du catalogue) : on les complète une fois
   var OFFRES = [];
@@ -1558,7 +1612,7 @@ body.sans-mag #agendaCard { display: none !important; }
   }).catch(function () {
     S.mode = "static";
     if ("serviceWorker" in navigator) { try { navigator.serviceWorker.register("sw.js"); } catch (e) {} }
-    return charger();
+    return charger().then(function () { setTimeout(verifierNouveautes, 2500); });
   });
   fetch("recettes.json").then(function (r) { return r.json(); }).then(function (r) { S.recettes = r; if (S.data) { afficherPlats(); afficherAccueil(); } }).catch(function () {});
 
@@ -3274,6 +3328,39 @@ body.sans-mag #agendaCard { display: none !important; }
       afficherCompte();
     }).catch(function (e) { CS.connexion = false; toast("Connexion impossible : " + e.message); afficherCompte(); });
   }
+  // --- erreurs et messages « Une idée, un problème ? » : dépôt anonyme dans Firestore (sans compte)
+  function deposer(collection, champs) {
+    var f = {};
+    Object.keys(champs).forEach(function (k) {
+      var v = champs[k];
+      f[k] = typeof v === "number" ? { integerValue: String(Math.round(v)) } : { stringValue: String(v) };
+    });
+    return fetch(fsDocs() + ":commit", { method: "POST", headers: { "Content-Type": "application/json" }, keepalive: true,
+      body: JSON.stringify({ writes: [{ update: { name: fsNom(collection + "/" + hasard(12)), fields: f },
+        updateTransforms: [{ fieldPath: "t", setToServerValue: "REQUEST_TIME" }], currentDocument: { exists: false } }] }) });
+  }
+  function ouSuisJe() { return NATIF ? "appli" : (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone ? "icone" : "site"; }
+  function envoyerErreur(r) {
+    if (S.mode === "pc" || !COMPTE_CFG.projet) return;
+    r.app = ouSuisJe();
+    deposer("erreurs", r).catch(function () {});
+  }
+  ERR.pret = true; ERR.file.splice(0).forEach(envoyerErreur);
+  $("avisEnvoyer").addEventListener("click", function () {
+    var txt = $("avisTxt").value.trim(), contact = $("avisContact").value.trim(), b = this;
+    if (txt.length < 3) { toast("Écris ton message d'abord"); $("avisTxt").focus(); return; }
+    if (S.mode === "pc") { toast("Depuis la version PC, écris plutôt depuis ton téléphone"); return; }
+    b.disabled = true; b.textContent = "Envoi…";
+    var champs = { msg: txt.slice(0, 2000), v: S.vue || "", ver: VERSION_APPLI, ua: navigator.userAgent.slice(0, 200), app: ouSuisJe() };
+    if (contact) champs.contact = contact.slice(0, 120);
+    deposer("retours", champs).then(function (r) {
+      if (!r.ok) throw 0;
+      $("avisTxt").value = ""; $("avisContact").value = "";
+      toast("Merci, message envoyé !");
+    }).catch(function () { toast("Pas envoyé : vérifie ta connexion et réessaie"); })
+      .then(function () { b.disabled = false; b.textContent = "Envoyer"; });
+  });
+  if ($("versionTxt")) $("versionTxt").textContent = VERSION_APPLI ? "Version du " + new Date(VERSION_APPLI.replace(" ", "T") + "Z").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) + "." : "";
   // --- connexion de l'appli Android ou iPhone, faite dans le navigateur
   var LIAISON = lire("liaison", null);  // { code, nonce, t } : connexion en cours dans Chrome
   function lierAppli(code, q) {  // dans Chrome : la demande vient de l'appli ; on lui laisse le jeton dans liaisons/<code>
@@ -4035,9 +4122,10 @@ body.sans-mag #agendaCard { display: none !important; }
   });
 
   // ---------- navigation
-  function vue(v) {
+  function vue(v, parRetour) {
     var avant = S.vue;
-    S.vue = v;
+    S.vue = v; window.MOGETTE_VUE = v;
+    if (!parRetour && avant !== v) retourOnglet(v);
     $("tabPill").style.setProperty("--i", Math.max(0, ["accueil", "promos", "plats", "local", "liste"].indexOf(v)));
     if (avant !== v && !reduit()) rejouer(document.querySelector(".topbar .masc"), "saute");
     if (v === "liste") syncListe();
@@ -4056,6 +4144,42 @@ body.sans-mag #agendaCard { display: none !important; }
     if (p === "pourtoi") { S.f.pourtoi = true; S.tri = "remise"; $("tri").value = "remise"; }
     if (p === "saison") S.f.saison = (saisonsActives()[0] || {}).id || true;
     afficherFiltres(); afficherPromos();
+  }
+
+  // ---------- bouton retour (Android, navigateur) : il ferme la fenêtre ouverte, puis ramène à l'accueil, au lieu de quitter
+  // l'appli. Chaque fenêtre ouverte et chaque onglet autre que l'accueil ajoutent une étape à l'historique du navigateur.
+  var HIST = { pile: [], ignorer: 0 };  // (RETOUR existe déjà : retour vers l'article scanné)
+  (function () {
+    if (!window.HTMLDialogElement || !history.pushState) return;
+    var montrer = HTMLDialogElement.prototype.showModal;
+    HTMLDialogElement.prototype.showModal = function () {
+      var r = montrer.apply(this, arguments), d = this;
+      if (HIST.pile.indexOf(d) >= 0) return r;
+      HIST.pile.push(d);
+      try { history.pushState({ mogette: "fenetre" }, ""); } catch (e) {}
+      d.addEventListener("close", function quand() {
+        d.removeEventListener("close", quand);
+        var i = HIST.pile.indexOf(d); if (i < 0) return;
+        HIST.pile.splice(i, 1);
+        if (d._parRetour) { d._parRetour = false; return; }  // fermée par le bouton retour : l'étape est déjà partie
+        if (history.state && history.state.mogette === "fenetre") { HIST.ignorer++; history.back(); }  // fermée par ✕ ou Échap
+      });
+      return r;
+    };
+    window.addEventListener("popstate", function () {
+      if (HIST.ignorer) { HIST.ignorer--; return; }
+      var d = HIST.pile[HIST.pile.length - 1];
+      if (d) { d._parRetour = true; d.close(); return; }
+      if (S.vue && S.vue !== "accueil") vue("accueil", true);
+    });
+  })();
+  function retourOnglet(v) {  // une seule étape « onglet » : retour depuis Promos, Plats, Local ou Liste = l'accueil
+    if (!history.pushState) return;
+    var etat = history.state && history.state.mogette;
+    try {
+      if (v !== "accueil" && etat !== "onglet" && etat !== "fenetre") history.pushState({ mogette: "onglet" }, "");
+      else if (v === "accueil" && etat === "onglet") { HIST.ignorer++; history.back(); }
+    } catch (e) {}
   }
 
   // raccourcis de l'icône (Android) : #liste, #promos, #plats, #local

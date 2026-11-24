@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mogette : confidentialité et données</title>
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="icone-192.png">
+<style>
+  :root { --fond: #f6f3ea; --carte: #fff; --encre: #14181f; --doux: #4f5866; --trait: #14181f; --jaune: #ffd23f; }
+  @media (prefers-color-scheme: dark) { :root { --fond: #0f1a22; --carte: #1c2b36; --encre: #f2f4f7; --doux: #b3bfcc; --trait: #000; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fond); color: var(--encre); font: 16.5px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 680px; margin: 0 auto; padding: 28px 18px 56px; }
+  h1 { font-size: 30px; line-height: 1.1; margin: 0 0 6px; }
+  h2 { font-size: 19px; margin: 0 0 6px; }
+  .chapo { color: var(--doux); margin: 0 0 22px; }
+  section { background: var(--carte); border-radius: 18px; padding: 16px 18px; margin: 0 0 14px; box-shadow: inset 0 0 0 2.5px var(--trait), 3px 3px 0 var(--trait); }
+  section p { margin: 0 0 8px; } section p:last-child { margin: 0; }
+  ul { margin: 6px 0 0; padding-left: 20px; } li { margin: 4px 0; }
+  a { color: inherit; font-weight: 650; }
+  .retour { display: inline-block; margin: 8px 0 18px; padding: 10px 16px; border-radius: 14px; background: var(--jaune); color: #14181f; text-decoration: none; box-shadow: inset 0 0 0 2px #000, 3px 3px 0 #000; }
+  .maj { color: var(--doux); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <a class="retour" href="./">← Revenir à Mogette</a>
+  <h1>Confidentialité et données</h1>
+  <p class="chapo">Mogette est une appli gratuite, sans publicité et sans pisteur, faite par un particulier en Vendée. Voici exactement ce qu'elle garde, où, et comment tout effacer.</p>
+
+  <section>
+    <h2>Sur ton téléphone</h2>
+    <p>Tes magasins, ta liste de courses, tes favoris, tes produits surveillés, ton prénom si tu le donnes et tes réglages restent dans ton téléphone (le stockage du navigateur ou de l'appli). Rien ne part ailleurs tant que tu n'as pas de compte.</p>
+    <p>« Tout remettre à zéro », dans les réglages, efface tout.</p>
+  </section>
+
+  <section>
+    <h2>Avec un compte</h2>
+    <p>Si tu te connectes avec Google, ces mêmes réglages sont rangés dans une base Firebase (Google) pour les retrouver sur tes autres appareils. Ton nom et ton adresse e-mail Google servent seulement à te reconnaître ; Mogette n'a jamais ton mot de passe.</p>
+    <p>« Supprimer mon compte », dans les réglages, efface le compte et tout ce qui y est rangé.</p>
+  </section>
+
+  <section>
+    <h2>Liste partagée et notifications</h2>
+    <ul>
+      <li>Une liste partagée se voit par les personnes que tu as invitées, avec leur prénom. Tu peux la quitter quand tu veux.</li>
+      <li>Si tu actives les notifications, l'adresse d'envoi de ton appareil est gardée pour te prévenir ; elle est effacée quand tu les coupes.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Quand quelque chose plante</h2>
+    <p>Si une erreur arrive dans l'appli, un rapport technique anonyme part pour qu'elle soit corrigée : le message d'erreur, l'écran ouvert, la version de Mogette et le modèle de navigateur. Pas ton nom, pas ta liste, pas ta position. Ces rapports sont effacés après 30 jours.</p>
+  </section>
+
+  <section>
+    <h2>Tes messages</h2>
+    <p>Ce que tu écris dans « Une idée, un problème ? » arrive à Mogette, avec ton contact seulement si tu le donnes, pour te répondre.</p>
+  </section>
+
+  <section>
+    <h2>Ta position</h2>
+    <p>« Autour de moi » demande ta position pour trier les magasins et les producteurs par distance. Elle sert sur le moment, dans ton téléphone, et n'est envoyée nulle part.</p>
+  </section>
+
+  <section>
+    <h2>D'où viennent les informations</h2>
+    <ul>
+      <li>Promos : catalogues publiés par les enseignes (via Bonial). Les prix peuvent varier un peu selon le magasin.</li>
+      <li>Producteurs et marchés : Vendée Expansion et Agence Bio (Licence Ouverte), © contributeurs OpenStreetMap (licence ODbL).</li>
+      <li>Notes alimentaires : Open Food Facts.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Hébergement et contact</h2>
+    <p>Le site est hébergé par GitHub Pages (GitHub, Inc.) et la base par Firebase (Google). Pour toute question, ou pour demander d'effacer quelque chose : le bouton « Une idée, un problème ? » dans les réglages de Mogette.</p>
+  </section>
+
+  <p class="maj">Mise à jour le 24 novembre 2026.</p>
+</main>
+</body>
+</html>
