@@ -21,6 +21,13 @@ Version à lire sur le téléphone : le doc « Mogette : idées d'améliorations
   - page « Confidentialité » (confidentialite.html), liée dans les réglages, avec la version de l'appli ;
   - contrôle complet : 5 tailles d'écran (petit téléphone à tablette), clair et sombre, sans réseau, réseau lent,
     appuis répétés et changements d'onglet rapides.
+- « Remonter le temps » (25 novembre) : sur la fiche d'un article, un curseur des années (1996 à aujourd'hui) montre son
+  prix estimé à l'époque, en francs avant 2002, et le temps de travail au SMIC qu'il fallait pour se l'offrir, avec une
+  petite courbe. Estimation : prix d'aujourd'hui × indice de l'année ÷ indice du dernier mois, avec l'indice des prix
+  de l'INSEE du type de produit (base 2025, COICOP 2018 : chocolat, café, beurre, lessive…). Les règles qui rangent un
+  article dans un type sont dans histoire.py (nom, puis marque, puis rayon) ; l'appli applique les mêmes, lues dans
+  histoire.json. Rien pour l'électronique et les jeux vidéo (l'INSEE compte les progrès techniques). histoire.json est
+  relu une fois par semaine par la mise à jour du matin ; diag.yml `brut=histoire`, urls=essai, le refait dans diag-brut.
 
 ## 22 et 23 novembre 2026 (fait)
 
