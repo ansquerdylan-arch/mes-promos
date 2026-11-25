@@ -2,8 +2,18 @@ name: Mise à jour des promos
 
 on:
   schedule:
-    - cron: "17 4 * * *"   # tous les jours vers 5 h / 6 h (heure de Paris)
+    - cron: "17 4 * * *"   # tous les jours vers 5 h / 6 h (heure de Paris) : tout est relu
+    # veilles de la journée (heures UTC, +1 h en hiver à Paris) : une quarantaine de pages seulement, et tout est
+    # relu s'il y a un catalogue ou une opération pas encore vus (Jeudis Plus, opérations du lendemain…)
+    - cron: "43 6 * * *"   # vers 7 h 45
+    - cron: "43 10 * * *"  # vers 11 h 45
+    - cron: "43 15 * * *"  # vers 16 h 45
+    - cron: "13 19 * * *"  # vers 20 h 15
   workflow_dispatch:        # bouton « Run workflow » pour forcer une mise à jour
+
+concurrency:
+  group: maj-promos
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -22,10 +32,12 @@ jobs:
           sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-fra > /dev/null 2>&1 || echo "Tesseract non installé : les images seront gardées sans texte"
           pip install -q pillow || true
       - name: Récupérer les promos
+        id: maj
         env:
           TZ: Europe/Paris
-        run: python maj_promos.py
+        run: python maj_promos.py ${{ github.event_name == 'schedule' && github.event.schedule != '17 4 * * *' && '--veille' || '' }}
       - name: Alertes (notifications des comptes Mogette)
+        if: steps.maj.outputs.neuf != '0'
         env:
           TZ: Europe/Paris
           FIREBASE_COMPTE: ${{ secrets.FIREBASE_COMPTE || secrets.FIRECOMPT }}

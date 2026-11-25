@@ -3064,8 +3064,70 @@ def chaine_de_id(ident):
     return ident
 
 
+# --------------------------------------------------------------------------- veille de la journée
+def veille(log=print):
+    """Du nouveau depuis la dernière mise à jour ? Relit seulement les pages de départ de chaque enseigne (une
+    quarantaine) et répond vrai s'il faut tout relire : un catalogue ou une opération pas encore vus (ex. les Jeudis
+    Plus de Super U, publiés la veille ou le matin même), ou un catalogue encore vide le matin qui a maintenant ses
+    articles (la visionneuse les ajoute parfois dans la journée)."""
+    cfg = charger_config()
+    ancien = charger_donnees(FICHIER)
+    if ancien.get("v") != 2 or not ancien.get("catalogues"):
+        return True
+    jour = date.today().isoformat()
+    connus = set(ancien["catalogues"])
+    pause = float(cfg.get("pause", 0.7))
+    neufs, lues = [], 0
+    for chemin in cfg.get("graines", []):
+        page = telecharger("https://www.bonial.fr/" + chemin, log)
+        time.sleep(pause)
+        if not page:
+            if DERNIER["code"] in (403, 429):
+                log("   ! le site freine (%s) : veille arrêtée" % DERNIER["code"])
+                break
+            continue
+        lues += 1
+        for b in brochures_bonial(infos_page(page)):
+            fin = b.get("fin")
+            fin = fin.isoformat() if isinstance(fin, date) else (fin or "")
+            if b["id"] not in connus and (not fin or fin >= jour):
+                connus.add(b["id"])
+                neufs.append("%s : « %s »" % (chemin.split("/")[1].replace("-", " "), b.get("titre") or "?"))
+    dom = cfg.get("domicile") or {}
+    pos = (dom.get("lat") or 46.67, dom.get("lng") or -1.43)
+    for cid, c in sorted(ancien["catalogues"].items()):
+        if (c.get("n") or c.get("type") in ("DYNAMIC", "LECLERC") or cid.startswith("lec") or (c.get("pages") or 0) < 4
+                or c.get("fin", "") < jour or c.get("debut", "") > jour):
+            continue
+        res = catalogue_complet(cid, c.get("type", ""), pos, log, pause)
+        if res and res[0]:
+            neufs.append("%s : « %s », %d articles maintenant (vide ce matin)" % (c["chaine"], c["titre"], len(res[0])))
+    log("Veille : %d pages relues, %s" % (lues, ("%d nouveauté(s)" % len(neufs)) if neufs else "rien de neuf"))
+    for x in neufs:
+        log("   nouveau : " + x)
+    return bool(neufs) or lues == 0
+
+
+def signaler_github(cle, valeur):
+    """Résultat pour les étapes suivantes du workflow GitHub (rien hors GitHub)."""
+    f = os.environ.get("GITHUB_OUTPUT")
+    if f:
+        with open(f, "a", encoding="utf-8") as sortie:
+            sortie.write("%s=%s\n" % (cle, valeur))
+
+
 if __name__ == "__main__":
+    if "--veille" in sys.argv:
+        try:
+            neuf = veille()
+        except Exception as e:  # dans le doute, on relit tout
+            print("Veille impossible (%s) : mise à jour complète" % e)
+            neuf = True
+        if not neuf:
+            signaler_github("neuf", "0")
+            sys.exit(0)
     r = mettre_a_jour(debug="--debug" in sys.argv, essai="--essai" in sys.argv)
+    signaler_github("neuf", "1")
     if "--essai" in sys.argv and r:
         from collections import Counter
         print("Magasins par enseigne :", dict(Counter(m["chaine"] for m in r.get("magasins", []))))
