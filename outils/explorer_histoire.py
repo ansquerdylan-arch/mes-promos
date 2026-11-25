@@ -6,6 +6,7 @@ Usage : python outils/explorer_histoire.py [flux] [series idbank...] [donnees FL
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -17,16 +18,21 @@ os.makedirs(SORTIE, exist_ok=True)
 
 def lire(url, nom=None, limite=None):
     req = urllib.request.Request(url, headers={"User-Agent": "Mogette (appli de promos, Vendee)", "Accept": "application/xml"})
-    try:
-        with urllib.request.urlopen(req, timeout=120) as r:
-            corps = r.read()
-            print("  %s -> %s (%d octets)" % (url, r.status, len(corps)))
-    except urllib.error.HTTPError as e:
-        corps = e.read()
-        print("  %s -> HTTP %s : %s" % (url, e.code, corps[:300].decode("utf-8", "replace").replace("\n", " ")))
-        return None
-    except Exception as e:  # noqa: BLE001
-        print("  %s -> échec : %s" % (url, e))
+    corps = None
+    for essai in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                corps = r.read()
+                print("  %s -> %s (%d octets)" % (url, r.status, len(corps)))
+            break
+        except urllib.error.HTTPError as e:
+            print("  %s -> HTTP %s : %s" % (url, e.code, e.read()[:300].decode("utf-8", "replace").replace("\n", " ")))
+            if e.code < 500:
+                return None
+        except Exception as e:  # noqa: BLE001
+            print("  %s -> échec (essai %d) : %s" % (url, essai + 1, e))
+        time.sleep(5 * (essai + 1))
+    if corps is None:
         return None
     if nom:
         open(os.path.join(SORTIE, nom), "wb").write(corps if limite is None else corps[:limite])
