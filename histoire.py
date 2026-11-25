@@ -390,7 +390,7 @@ def libelles():
                 for n in c:
                     if local(n.tag) == "Name" and n.get("{http://www.w3.org/XML/1998/namespace}lang") == "fr":
                         nom = (n.text or "").strip()
-                noms[c.get("id")] = re.sub(r"\s*\(ND\)$", "", re.sub(r"^[\d.]+\s*-\s*", "", nom))
+                noms[c.get("id")] = re.sub(r"\s*\((ND|SD|D|S)\)$", "", re.sub(r"^[\d.]+\s*-\s*", "", nom))
     return noms
 
 

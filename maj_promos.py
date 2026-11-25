@@ -2876,7 +2876,8 @@ def mettre_historique(promos, aujourd):
 
 # --------------------------------------------------------------------------- mise à jour
 def mettre_a_jour(debug=False, log=print, essai=False):
-    """Promos, puis producteurs locaux et marchés (relus une fois par semaine, voir producteurs.py)."""
+    """Promos, puis producteurs locaux et marchés, puis histoire des prix (relus une fois par semaine,
+    voir producteurs.py et histoire.py)."""
     try:
         return _mettre_a_jour(debug=debug, log=log, essai=essai)
     finally:
@@ -2886,6 +2887,11 @@ def mettre_a_jour(debug=False, log=print, essai=False):
                 producteurs.mettre_a_jour(log=log)
             except Exception as e:  # les producteurs ne doivent jamais bloquer les promos
                 log("Producteurs locaux : pas mis à jour (%s)" % e)
+            try:
+                import histoire
+                histoire.mettre_a_jour(log=log)
+            except Exception as e:  # l'histoire des prix non plus
+                log("Histoire des prix : pas mise à jour (%s)" % e)
 
 
 def _mettre_a_jour(debug=False, log=print, essai=False):

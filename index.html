@@ -198,6 +198,32 @@ button.mag-cat.vis::after { content: "Voir le visuel"; }
 .courbe-g circle.cible { fill: transparent; stroke: none; cursor: pointer; }
 .courbe-g circle.vu { fill: var(--label); }
 .courbe-x { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); }
+/* remonter le temps : le prix estimé de l'article, année par année (indices de l'INSEE) */
+.temps { display: grid; gap: 8px; background: var(--shelf); border-radius: 14px; padding: 12px 12px 10px; }
+.tm-tete { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.tm-tete svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tm-lecture { display: grid; gap: 2px; }
+.tm-quand { font-size: 14px; color: var(--muted); }
+.tm-quand b { color: var(--ink); font-weight: 700; }
+.tm-prix { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-height: 34px; }
+.fiche .tm-prix .px { font-size: 34px; }
+.tm-franc { font: 400 19px/1 var(--font-num); color: var(--muted); }
+.tm-auj { font-size: 14px; color: var(--muted); }
+.tm-g { width: 100%; height: auto; display: block; overflow: visible; touch-action: pan-y; cursor: ew-resize; }
+.tm-g .a { fill: var(--ink); opacity: .08; }
+.tm-g .l { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.tm-g .c { stroke: var(--muted); stroke-width: 1; opacity: .55; vector-effect: non-scaling-stroke; }
+.tm-g .auj { fill: var(--ink); stroke: var(--shelf); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.tm-g .sel { fill: var(--sticker); stroke: var(--shelf); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.tm-curseur { width: 100%; height: 30px; margin: -4px 0 -6px; accent-color: var(--sticker); cursor: pointer; }
+.tm-x { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); }
+.tm-travail { font-size: 14.5px; line-height: 1.38; }
+.tm-verdict { display: flex; gap: 7px; align-items: flex-start; font-size: 14px; font-weight: 650; line-height: 1.3; }
+.tm-verdict svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.tm-verdict.mieux svg { stroke: var(--ok); }
+.tm-verdict.pire svg { stroke: var(--warn); }
+.tm-verdict.pareil svg { stroke: var(--muted); }
+.tm-note { font-size: 12.5px; color: var(--muted); line-height: 1.38; margin: 0; }
 /* liste : le même produit moins cher ailleurs */
 .li .moins { grid-column: 2 / -1; justify-self: start; margin-top: -4px; border: 0; border-radius: 9px; padding: 0 10px; min-height: 32px; background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ink); font: 600 13.5px var(--font-ui); text-align: left; }
 .li .moins b { font-weight: 800; }
@@ -2056,6 +2082,139 @@ body.sans-mag #agendaCard { display: none !important; }
       '<svg class="courbe-g" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Prix relevés : ' + l.map(function (x) { return jjmm(x[0]) + " " + euro(x[1]); }).join(", ") + '"><path d="' + d + '"/>' + pts + cibles + '</svg>' +
       '<div class="courbe-x"><span>' + jjmm(l[0][0]) + '</span><span class="courbe-v" aria-live="polite">Touche un point pour voir le prix</span><span>' + (l[l.length - 1][0] === auj ? "aujourd'hui" : jjmm(l[l.length - 1][0])) + '</span></div>';
   }
+  // ---------- remonter le temps : histoire.json (indices des prix de l'INSEE par type de produit depuis 1996, SMIC, relus chaque semaine)
+  // Prix d'une année = prix d'aujourd'hui × indice de l'année ÷ indice du dernier mois connu. Une estimation, pas un relevé.
+  var TEMPS = null, TEMPS_P = null, FRANC = 6.55957;
+  function chargerTemps() {
+    if (TEMPS) return Promise.resolve(TEMPS);
+    if (!TEMPS_P) TEMPS_P = fetch((S.mode === "pc" ? "/" : "") + "histoire.json?v=" + isoJ(new Date()), { cache: "no-cache" })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (j) {
+        if (!j || j.v !== 1 || !j.cat || !j.regles) throw 0;
+        j._r = []; j._alim = {}; j._non = {};
+        j.regles.forEach(function (r) { try { j._r.push([new RegExp(r[0]), r[1], r[2] || ""]); } catch (er) {} });
+        (j.alim || []).forEach(function (x) { j._alim[x] = 1; });
+        (j.nonalim || []).forEach(function (x) { j._non[x] = 1; });
+        TEMPS = j; return j;
+      }, function () { TEMPS_P = null; return null; });
+    return TEMPS_P;
+  }
+  function typeTemps(p, h) {  // comme ranger() dans histoire.py : le nom, puis la marque, puis le rayon
+    var ray = p.rayon || "";
+    function va(r) { return !r[2] ? true : r[2] === "a" ? !h._non[ray] : r[2] === "n" ? !h._alim[ray] : r[2].split("|").indexOf(ray) >= 0; }
+    var textes = [[normPy(p.nom), true], [normPy(p.marque), false]];
+    for (var t = 0; t < textes.length; t++) {
+      if (!textes[t][0]) continue;
+      for (var i = 0; i < h._r.length; i++) {
+        var r = h._r[i];
+        if ((textes[t][1] || r[0].source !== ".") && va(r) && r[0].test(textes[t][0])) return r[1];
+      }
+    }
+    return Object.prototype.hasOwnProperty.call(h.rayons || {}, ray) ? h.rayons[ray] : h.defaut;
+  }
+  function francs(x) {
+    var v = x * FRANC;
+    try { return v.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "\u00a0F"; } catch (er) { return v.toFixed(2).replace(".", ",") + "\u00a0F"; }
+  }
+  function dureeTravail(min) {  // 0,4 min -> « 25 s » ; 4,3 -> « 4 min 20 s » ; 15,2 -> « 15 min » ; 95 -> « 1 h 35 »
+    var s = Math.round(min * 60);
+    var e = "\u00a0";  // espaces insécables : « 4 min 20 s » ne se coupe pas en fin de ligne
+    if (s < 60) return s + e + "s";
+    if (s < 600) { var m = Math.floor(s / 60), r = Math.round((s % 60) / 5) * 5; if (r === 60) { m++; r = 0; } return m + e + "min" + (r ? e + r + e + "s" : ""); }
+    var mn = Math.round(s / 60);
+    if (mn < 60) return mn + e + "min";
+    var hh = Math.floor(mn / 60), mm = mn % 60;
+    return hh + e + "h" + (mm ? e + (mm < 10 ? "0" : "") + mm : "");
+  }
+  function montrerTemps(p) {
+    var ref = p.avant && p.prix != null && p.avant > p.prix ? p.avant : p.prix;
+    if (p.op || ref == null || !(ref > 0)) return;
+    chargerTemps().then(function (h) {
+      var box = $("ficheTemps");
+      if (!h || !box || FICHE !== p.id) return;
+      var code = typeTemps(p, h), c = code && h.cat[code];
+      if (!c || !(c.m > 0)) return;
+      var l = [];  // [année, prix estimé, SMIC horaire brut]
+      for (var y = h.debut; y <= h.fin; y++) {
+        var idx = y === h.fin ? c.m : c.i[y - h.debut], sm = y === h.fin ? h.smic.m : (h.smic.ans || [])[y - h.debut];
+        if (idx > 0) l.push([y, ref * idx / c.m, sm > 0 ? sm : null]);
+      }
+      if (l.length < 2) return;
+      box.innerHTML = tempsHTML(l, c);
+      box.hidden = false;
+      brancherTemps(box, l, ref, ref !== p.prix);
+    });
+  }
+  var ICO_TEMPS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 7v5l3 2"/></svg>';
+  function tempsHTML(l, c) {
+    var W = 300, H = 66, m = 8, n = l.length, maxi = Math.max.apply(null, l.map(function (x) { return x[1]; })) * 1.08;
+    function X(i) { return m + i / (n - 1) * (W - 2 * m); }
+    function Y(v) { return H - 2 - v / maxi * (H - 2 - m); }  // depuis zéro : la hauteur dit vraiment de combien le prix a monté
+    var d = l.map(function (x, i) { return (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(x[1]).toFixed(1); }).join(" ");
+    var aire = d + " L" + X(n - 1).toFixed(1) + " " + (H - 2) + " L" + X(0).toFixed(1) + " " + (H - 2) + " Z";
+    var milieu = l[Math.round((n - 1) / 2)][0];
+    return '<div class="tm-tete">' + ICO_TEMPS + '<b>Remonter le temps</b></div>' +
+      '<div class="tm-lecture"><div class="tm-quand"></div><div class="tm-prix"></div><div class="tm-auj"></div></div>' +
+      '<svg class="tm-g" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Prix estimé de ' + l[0][0] + ' à aujourd\'hui : de ' + euro(l[0][1]) + ' à ' + euro(l[n - 1][1]) + '">' +
+        '<path class="a" d="' + aire + '"/><path class="l" d="' + d + '"/>' +
+        '<line class="c" x1="0" y1="2" x2="0" y2="' + (H - 2) + '"/>' +
+        '<circle class="auj" cx="' + X(n - 1).toFixed(1) + '" cy="' + Y(l[n - 1][1]).toFixed(1) + '" r="4"/>' +
+        '<circle class="sel" cx="0" cy="0" r="5.5"/></svg>' +
+      '<input class="tm-curseur" type="range" min="' + l[0][0] + '" max="' + l[n - 1][0] + '" step="1" value="' + l[0][0] + '" aria-label="Année">' +
+      '<div class="tm-x"><span>' + l[0][0] + '</span><span>' + milieu + '</span><span>aujourd\'hui</span></div>' +
+      '<div class="tm-travail"></div><div class="tm-verdict" hidden></div>' +
+      '<p class="tm-note">Estimation d\'après l\'INSEE : le prix d\'aujourd\'hui suivi à rebours avec l\'évolution des prix « ' + esc(c.n) +
+        ' », et le SMIC horaire brut de chaque année. Le vrai prix de l\'époque a pu être différent (format, recette, magasin).</p>';
+  }
+  function brancherTemps(box, l, ref, horsPromo) {
+    var cur = box.querySelector(".tm-curseur"), svg = box.querySelector(".tm-g"), n = l.length, fin = l[n - 1][0];
+    var W = 300, H = 66, m = 8, maxi = Math.max.apply(null, l.map(function (x) { return x[1]; })) * 1.08;
+    var smNow = l[n - 1][2];
+    function afficher(y) {
+      var i = Math.max(0, Math.min(n - 1, y - l[0][0])), x = l[i], auj = x[0] === fin;
+      var cx = m + i / (n - 1) * (W - 2 * m), cy = H - 2 - x[1] / maxi * (H - 2 - m);
+      var ligne = svg.querySelector(".c"), pt = svg.querySelector(".sel");
+      ligne.setAttribute("x1", cx.toFixed(1)); ligne.setAttribute("x2", cx.toFixed(1));
+      pt.setAttribute("cx", cx.toFixed(1)); pt.setAttribute("cy", cy.toFixed(1));
+      pt.style.display = auj ? "none" : "";
+      box.querySelector(".tm-quand").innerHTML = auj ? "<b>Aujourd'hui</b>" : "En <b>" + x[0] + "</b>, environ";
+      box.querySelector(".tm-prix").innerHTML = px(auj ? ref : x[1]) + (!auj && x[0] <= 2001 ? '<span class="tm-franc">soit ' + francs(x[1]) + '</span>' : '');
+      box.querySelector(".tm-auj").textContent = auj ? "Glisse le curseur pour remonter le temps." : "pour " + euro(ref) + " aujourd'hui" + (horsPromo ? ", hors promo" : "");
+      var trav = box.querySelector(".tm-travail"), verd = box.querySelector(".tm-verdict");
+      if (x[2] && smNow) {
+        var avant = x[1] / x[2] * 60, now = ref / smNow * 60;
+        trav.textContent = auj ? dureeTravail(now) + " de travail au SMIC pour se l'offrir." :
+          "Il fallait " + dureeTravail(avant) + " de travail au SMIC pour se l'offrir, contre " + dureeTravail(now) + " aujourd'hui.";
+        if (auj) { verd.hidden = true; }
+        else {
+          var r = now / avant, pc = Math.round(Math.abs(1 - r) * 100);
+          var sorte = pc < 3 ? "pareil" : r < 1 ? "mieux" : "pire";
+          verd.className = "tm-verdict " + sorte;
+          verd.innerHTML = (sorte === "mieux" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>' :
+            sorte === "pire" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>' :
+            '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>') + '<span></span>';
+          verd.querySelector("span").textContent = sorte === "mieux" ? "Plus abordable aujourd'hui : " + pc + "\u00a0% de temps de travail en moins." :
+            sorte === "pire" ? "Moins abordable aujourd'hui : " + pc + "\u00a0% de temps de travail en plus." : "À peu près le même temps de travail qu'aujourd'hui.";
+          verd.hidden = false;
+        }
+      } else { trav.textContent = ""; verd.hidden = true; }
+      cur.setAttribute("aria-valuetext", auj ? "Aujourd'hui : " + euro(ref) : x[0] + " : environ " + euro(x[1]));
+    }
+    cur.addEventListener("input", function () { afficher(+cur.value); });
+    // toucher ou glisser sur la courbe choisit l'année la plus proche
+    function depuisPointeur(ev) {
+      var b = svg.getBoundingClientRect(); if (!b.width) return;
+      var t = (ev.clientX - b.left) / b.width * W, i = Math.round((t - m) / (W - 2 * m) * (n - 1));
+      i = Math.max(0, Math.min(n - 1, i));
+      cur.value = l[i][0]; afficher(l[i][0]);
+    }
+    var appui = false;
+    svg.addEventListener("pointerdown", function (ev) { appui = true; try { svg.setPointerCapture(ev.pointerId); } catch (er) {} depuisPointeur(ev); });
+    svg.addEventListener("pointermove", function (ev) { if (appui) depuisPointeur(ev); });
+    svg.addEventListener("pointerup", function () { appui = false; });
+    svg.addEventListener("pointercancel", function () { appui = false; });
+    afficher(l[0][0]);
+  }
   // ---------- fiche d'un article scanné : le produit (Open Food Facts), ses promos du moment, ses promos passées
   var CODES = null, CODES_P = null, SCAN = null, RETOUR = null;
   function chargerCodes() {  // codes.json : code-barres -> produits vus en promo (clés de l'historique)
@@ -2231,6 +2390,7 @@ body.sans-mag #agendaCard { display: none !important; }
       '<button class="icon star' + (fav ? ' on' : '') + '" data-fav="' + esc(p.id) + '" type="button" aria-label="Favori">★</button>' +
       (navigator.share ? '<button class="icon" type="button" data-partager="' + esc(p.id) + '">Partager</button>' : '') + '</div>' +
       '<button class="link paspour" type="button" data-paspourmoi="' + esc(p.id) + '">Pas pour moi : en montrer moins</button>' +
+      '<section class="temps" id="ficheTemps" hidden aria-label="Remonter le temps"></section>' +
       (meta.length ? '<dl class="meta">' + meta.map(function (m) { return '<div><dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd></div>'; }).join("") + '</dl>' : '') +
       (p.detail ? '<div class="det">' + esc(p.detail) + '</div>' : '') +
       notesHTML(p) +
@@ -2239,6 +2399,7 @@ body.sans-mag #agendaCard { display: none !important; }
     var d = $("fiche");
     if (!d.open) { try { d.showModal(); } catch (er) { d.setAttribute("open", ""); } d.scrollTop = 0; }
     montrerCourbe(p);
+    montrerTemps(p);
   }
   // ---------- catalogues complets : toutes les pages, dans l'appli
   function catInfo(cid) { return ((S.brut && S.brut.catalogues) || {})[cid] || null; }

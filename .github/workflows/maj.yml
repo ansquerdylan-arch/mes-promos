@@ -46,4 +46,5 @@ jobs:
           git add codes.json 2>/dev/null || true
           git add controle.json 2>/dev/null || true
           git add producteurs.json 2>/dev/null || true
+          git add histoire.json 2>/dev/null || true
           git diff --cached --quiet || (git commit -m "Promos du $(TZ=Europe/Paris date +%d/%m)" && git pull --rebase -q && git push)
