@@ -21,6 +21,11 @@ Version à lire sur le téléphone : le doc « Mogette : idées d'améliorations
   - page « Confidentialité » (confidentialite.html), liée dans les réglages, avec la version de l'appli ;
   - contrôle complet : 5 tailles d'écran (petit téléphone à tablette), clair et sombre, sans réseau, réseau lent,
     appuis répétés et changements d'onglet rapides.
+- Veilles dans la journée (25 novembre) : en plus de la mise à jour complète du matin, maj.yml relit vers 7 h 45,
+  11 h 45, 16 h 45 et 20 h 15 les pages de départ de chaque enseigne (`python maj_promos.py --veille`). S'il y a un
+  catalogue ou une opération pas encore vus (Jeudis Plus de Super U, publiés la veille ou le matin même ; nouvelle
+  semaine d'Action ; catalogue Carrefour du jour…), ou un catalogue vide le matin qui a maintenant ses articles, tout est
+  relu, enregistré et les notifications partent ; sinon rien n'est enregistré. Essai : diag.yml `brut=veille`.
 - « Remonter le temps » (25 novembre) : sur la fiche d'un article, un curseur des années (1996 à aujourd'hui) montre son
   prix estimé à l'époque, en francs avant 2002, et le temps de travail au SMIC qu'il fallait pour se l'offrir, avec une
   petite courbe. Estimation : prix d'aujourd'hui × indice de l'année ÷ indice du dernier mois, avec l'indice des prix
