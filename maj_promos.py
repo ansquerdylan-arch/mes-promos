@@ -3105,7 +3105,7 @@ def veille(log=print):
     log("Veille : %d pages relues, %s" % (lues, ("%d nouveauté(s)" % len(neufs)) if neufs else "rien de neuf"))
     for x in neufs:
         log("   nouveau : " + x)
-    return bool(neufs) or lues == 0
+    return bool(neufs)  # site injoignable ou qui freine : on attend la prochaine veille plutôt que d'insister
 
 
 def signaler_github(cle, valeur):
