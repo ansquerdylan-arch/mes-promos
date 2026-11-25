@@ -51,7 +51,7 @@ jobs:
           elif [ "${{ github.event.inputs.brut }}" = "alertes" ]; then pip install -q google-auth requests pywebpush && python alertes.py
           elif [ "${{ github.event.inputs.brut }}" = "erreurs" ]; then pip install -q google-auth requests pywebpush && python outils/erreurs.py $URLS
           elif [ "${{ github.event.inputs.brut }}" = "histoire" ]; then
-            python outils/explorer_histoire.py $URLS
+            if [ "$URLS" = "essai" ]; then mkdir -p explo && PROMOS_DATA=explo python histoire.py --essai; else python outils/explorer_histoire.py $URLS; fi
             mkdir -p explo && cd explo && git init -q -b diag-brut && git add -A
             git -c user.name="diag" -c user.email="diag@users.noreply.github.com" commit -q -m "exploration histoire" --allow-empty
             git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag-brut
