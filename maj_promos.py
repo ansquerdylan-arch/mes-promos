@@ -3087,12 +3087,17 @@ def veille(log=print):
                 break
             continue
         lues += 1
-        for b in brochures_bonial(infos_page(page)):
-            fin = b.get("fin")
-            fin = fin.isoformat() if isinstance(fin, date) else (fin or "")
-            if b["id"] not in connus and (not fin or fin >= jour):
+        pi = infos_page(page)
+        if not str(((pi.get("city") or {}).get("primaryZipCode")) or "").startswith(str(cfg.get("departement", "85"))):
+            continue
+        for b in brochures_bonial(pi):
+            d1, d2 = [x.isoformat() if isinstance(x, date) else (x or "") for x in (b.get("debut"), b.get("fin"))]
+            # mêmes règles que la mise à jour complète : catalogues en cours ou à venir, de moins de 4 mois
+            if not d1 or not d2 or d2 < jour or (date.fromisoformat(d2) - date.fromisoformat(d1)).days > 120:
+                continue
+            if b["id"] not in connus:
                 connus.add(b["id"])
-                neufs.append("%s : « %s »" % (chemin.split("/")[1].replace("-", " "), b.get("titre") or "?"))
+                neufs.append("%s : « %s » (%s, du %s au %s)" % (chemin.split("/")[1].replace("-", " "), b.get("titre") or "?", b["id"], d1, d2))
     dom = cfg.get("domicile") or {}
     pos = (dom.get("lat") or 46.67, dom.get("lng") or -1.43)
     for cid, c in sorted(ancien["catalogues"].items()):
