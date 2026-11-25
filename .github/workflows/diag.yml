@@ -50,6 +50,11 @@ jobs:
           elif [ "${{ github.event.inputs.brut }}" = "secret" ]; then echo "secret FIREBASE_COMPTE présent | variable FIREBASE_COMPTE présente : $LONGUEURS"
           elif [ "${{ github.event.inputs.brut }}" = "alertes" ]; then pip install -q google-auth requests pywebpush && python alertes.py
           elif [ "${{ github.event.inputs.brut }}" = "erreurs" ]; then pip install -q google-auth requests pywebpush && python outils/erreurs.py $URLS
+          elif [ "${{ github.event.inputs.brut }}" = "ocr" ]; then
+            sudo apt-get update -qq > /dev/null 2>&1 || true
+            sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-fra > /dev/null 2>&1 || true
+            pip install -q pillow || true
+            python outils/ocr_catalogue.py $URLS
           elif [ "${{ github.event.inputs.brut }}" = "veille" ]; then python -c "import maj_promos; print('Tout relire :', maj_promos.veille())"
           elif [ "${{ github.event.inputs.brut }}" = "histoire" ]; then
             if [ "$URLS" = "essai" ]; then mkdir -p explo && PROMOS_DATA=explo python histoire.py --essai; else python outils/explorer_histoire.py $URLS; fi
