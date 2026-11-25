@@ -8,7 +8,7 @@ on:
         required: false
         default: ""
       brut:
-        description: "oui = pages telles quelles dans la branche diag-brut ; essai = mise à jour complète dans diag-brut ; nettoyer = supprimer diag-brut et les branches essai-* ; firebase = vérifier les comptes (urls = CLE PROJET) ; alertes = lancer les alertes seules (règles, clés, notifications) ; erreurs = erreurs des téléphones des 7 derniers jours (urls = nombre de jours) ; producteurs = explorer les sources de producteurs (urls = tourinsoft osm bio, ou essai = fichier producteurs.json dans diag-brut)"
+        description: "oui = pages telles quelles dans la branche diag-brut ; essai = mise à jour complète dans diag-brut ; nettoyer = supprimer diag-brut et les branches essai-* ; firebase = vérifier les comptes (urls = CLE PROJET) ; alertes = lancer les alertes seules (règles, clés, notifications) ; erreurs = erreurs des téléphones des 7 derniers jours (urls = nombre de jours) ; producteurs = explorer les sources de producteurs (urls = tourinsoft osm bio, ou essai = fichier producteurs.json dans diag-brut ; histoire = explorer les séries INSEE, urls = flux | structure ID | series IDBANK… | donnees FLUX CLE)"
         required: false
         default: "non"
 
@@ -50,6 +50,11 @@ jobs:
           elif [ "${{ github.event.inputs.brut }}" = "secret" ]; then echo "secret FIREBASE_COMPTE présent | variable FIREBASE_COMPTE présente : $LONGUEURS"
           elif [ "${{ github.event.inputs.brut }}" = "alertes" ]; then pip install -q google-auth requests pywebpush && python alertes.py
           elif [ "${{ github.event.inputs.brut }}" = "erreurs" ]; then pip install -q google-auth requests pywebpush && python outils/erreurs.py $URLS
+          elif [ "${{ github.event.inputs.brut }}" = "histoire" ]; then
+            python outils/explorer_histoire.py $URLS
+            mkdir -p explo && cd explo && git init -q -b diag-brut && git add -A
+            git -c user.name="diag" -c user.email="diag@users.noreply.github.com" commit -q -m "exploration histoire" --allow-empty
+            git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag-brut
           elif [ "${{ github.event.inputs.brut }}" = "producteurs" ] && [ "$URLS" = "essai" ]; then
             mkdir -p essai && PROMOS_DATA=essai python producteurs.py --essai
             cd essai && git init -q -b diag-brut && git add -A
