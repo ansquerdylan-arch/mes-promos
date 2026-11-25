@@ -20,10 +20,12 @@ for cid in sys.argv[2:]:
     pages = d.get("contents") or []
     print("== %s : %d pages" % (cid, len(pages)))
     for i, pg in enumerate(pages, 1):
-        m = next((M.RE_PAGE_IMG.search(im.get("url") or "") for im in pg.get("images") or [] if M.RE_PAGE_IMG.search(im.get("url") or "")), None)
-        if not m:
+        ims = [im for im in pg.get("images") or [] if im.get("url")]
+        if i == 1:
+            print("   exemple d'images de page :", [(im.get("url"), im.get("width") or im.get("size")) for im in ims][:4])
+        if not ims:
             continue
-        url = "https://content-media.bonial.biz/%s/zoomlarge_page_%d.jpg" % (m.group(1), i)
+        url = max(ims, key=lambda im: (im.get("width") or 0) * (im.get("height") or 0))["url"]
         data = M.telecharger(url, print, binaire=True)
         if not data:
             continue
