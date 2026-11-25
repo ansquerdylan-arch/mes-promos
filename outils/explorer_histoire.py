@@ -125,6 +125,27 @@ def donnees(base, ident, cle, nom):
     print("   %d séries en tout" % n)
 
 
+def cles(base, ident, cle):
+    """Séries d'un regroupement sans leurs valeurs : combien, et quelles modalités pour chaque dimension."""
+    import collections
+    print("Clés", ident, cle)
+    corps = lire(base + "/data/%s/%s?detail=serieskeysonly" % (ident, cle), "cles_%s.xml" % ident)
+    if not corps:
+        return
+    racine = ET.fromstring(corps)
+    lot = [s.attrib for s in racine.iter() if local(s.tag) == "Series"]
+    print("   %d séries" % len(lot))
+    compte = collections.defaultdict(collections.Counter)
+    for a in lot:
+        for k, v in a.items():
+            if k not in ("IDBANK", "TITLE_FR", "TITLE_EN", "LAST_UPDATE"):
+                compte[k][v] += 1
+    for k, c in compte.items():
+        print("   %s : %s" % (k, ", ".join("%s×%d" % kv for kv in c.most_common(25))))
+    for a in lot[:15]:
+        print("   ex. %s" % {k: v for k, v in a.items() if k in ("IDBANK", "TITLE_FR", "COICOP2018", "REF_AREA", "FORME-VENTE", "PRIX_CONSO")})
+
+
 args = sys.argv[1:] or ["flux"]
 base = BASES[0]
 i = 0
@@ -139,6 +160,8 @@ while i < len(args):
         while i + 1 < len(args) and re.fullmatch(r"\d{9}", args[i + 1]):
             ids.append(args[i + 1]); i += 1
         series(base, ids)
+    elif a == "cles":
+        cles(base, args[i + 1], args[i + 2]); i += 2
     elif a == "donnees":
         donnees(base, args[i + 1], args[i + 2], "donnees_%s.xml" % args[i + 1]); i += 2
     elif a.startswith("base="):
