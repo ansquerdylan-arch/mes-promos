@@ -8,7 +8,7 @@ REFRESH-INTERVAL;VALUE=DURATION:PT12H
 X-PUBLISHED-TTL:PT12H
 BEGIN:VEVENT
 UID:leclerc-518956227-jouets-de-noel-2026-10-20@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261020
 DTEND;VALUE=DATE:20261021
 SUMMARY:E.Leclerc Olonne-sur-Mer : Jouets de Noël
@@ -21,7 +21,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:lidl-402389141-des-etoiles-plein-les-yeux-ca-vaut-le-coup-2026-10-29@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261029
 DTEND;VALUE=DATE:20261030
 SUMMARY:Lidl Olonne-sur-Mer : Des étoiles plein les yeux\, ça vaut le coup.
@@ -34,32 +34,32 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:leclerc-518956227-offres-de-la-semaine-e-leclerc-2026-11-01@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261101
 DTEND;VALUE=DATE:20261102
-SUMMARY:⚡ E.Leclerc Olonne-sur-Mer : Offres de la semaine E.Leclerc (La Carte 34 % en Ticket E.Leclerc (jusqu'au 26/11) · Téléviseurs Hisense 30 % en Ticket E.Leclerc (jusqu'au 27/11) · Porc Jambon entier 2\,87 € (jusqu'au 28/11) · Porc épaule entière avec os 2\,38 € (jusqu'au 28/11)…)
-DESCRIPTION:Du 01/11 au 06/12. Ouvre l'appli Mogette pour le détail.
+SUMMARY:⚡ E.Leclerc Olonne-sur-Mer : Offres de la semaine E.Leclerc (Téléviseurs Hisense 30 % en Ticket E.Leclerc (jusqu'au 27/11) · Porc Jambon entier 2\,87 € (jusqu'au 28/11) · Porc épaule entière avec os 2\,38 € (jusqu'au 28/11) · Porc foie\, pieds\, tête et cœur 1\,27 € (jusqu'au 28/11)…)
+DESCRIPTION:Du 01/11 au 13/12. Ouvre l'appli Mogette pour le détail.
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:⚡ E.Leclerc Olonne-sur-Mer : Offres de la semaine E.Leclerc (La Carte 34 % en Ticket E.Leclerc (jusqu'au 26/11) · Téléviseurs Hisense 30 % en Ticket E.Leclerc (jusqu'au 27/11) · Porc Jambon entier 2\,87 € (jusqu'au 28/11) · Porc épaule entière avec os 2\,38 € (jusqu'au 28/11)…)
+DESCRIPTION:⚡ E.Leclerc Olonne-sur-Mer : Offres de la semaine E.Leclerc (Téléviseurs Hisense 30 % en Ticket E.Leclerc (jusqu'au 27/11) · Porc Jambon entier 2\,87 € (jusqu'au 28/11) · Porc épaule entière avec os 2\,38 € (jusqu'au 28/11) · Porc foie\, pieds\, tête et cœur 1\,27 € (jusqu'au 28/11)…)
 TRIGGER;RELATED=START:PT9H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:fin-leclerc-518956227-offres-de-la-semaine-e-leclerc-2026-11-01@mes-promos
-DTSTAMP:20261126T053540Z
-DTSTART;VALUE=DATE:20261206
-DTEND;VALUE=DATE:20261207
-SUMMARY:Dernier jour : ⚡ E.Leclerc Olonne-sur-Mer : Offres de la semaine E.Leclerc (La Carte 34 % en Ticket E.Leclerc (jusqu'au 26/11) · Téléviseurs Hisense 30 % en Ticket E.Leclerc (jusqu'au 27/11) · Porc Jambon entier 2\,87 € (jusqu'au 28/11) · Porc épaule entière avec os 2\,38 € (jusqu'au 28/11)…)
+DTSTAMP:20261127T053401Z
+DTSTART;VALUE=DATE:20261213
+DTEND;VALUE=DATE:20261214
+SUMMARY:Dernier jour : ⚡ E.Leclerc Olonne-sur-Mer : Offres de la semaine E.Leclerc (Téléviseurs Hisense 30 % en Ticket E.Leclerc (jusqu'au 27/11) · Porc Jambon entier 2\,87 € (jusqu'au 28/11) · Porc épaule entière avec os 2\,38 € (jusqu'au 28/11) · Porc foie\, pieds\, tête et cœur 1\,27 € (jusqu'au 28/11)…)
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Dernier jour : ⚡ E.Leclerc Olonne-sur-Mer : Offres de la semaine E.Leclerc (La Carte 34 % en Ticket E.Leclerc (jusqu'au 26/11) · Téléviseurs Hisense 30 % en Ticket E.Leclerc (jusqu'au 27/11) · Porc Jambon entier 2\,87 € (jusqu'au 28/11) · Porc épaule entière avec os 2\,38 € (jusqu'au 28/11)…)
+DESCRIPTION:Dernier jour : ⚡ E.Leclerc Olonne-sur-Mer : Offres de la semaine E.Leclerc (Téléviseurs Hisense 30 % en Ticket E.Leclerc (jusqu'au 27/11) · Porc Jambon entier 2\,87 € (jusqu'au 28/11) · Porc épaule entière avec os 2\,38 € (jusqu'au 28/11) · Porc foie\, pieds\, tête et cœur 1\,27 € (jusqu'au 28/11)…)
 TRIGGER;RELATED=START:PT9H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:carrefourmarket-247116603-les-nouveautes-2026-11-03@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261103
 DTEND;VALUE=DATE:20261104
 SUMMARY:Carrefour Market Les Sables-d'Olonne : Les Nouveautés
@@ -72,7 +72,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:leclerc-518956227-bijoux-d-hiver-2026-11-03@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261103
 DTEND;VALUE=DATE:20261104
 SUMMARY:E.Leclerc Olonne-sur-Mer : Bijoux d'hiver
@@ -85,7 +85,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:superu-513574913-illumination-s-minions-2026-11-03@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261103
 DTEND;VALUE=DATE:20261104
 SUMMARY:Super U Olonne-sur-Mer : ILLUMINATION'S minions
@@ -98,7 +98,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:leclerc-518956227-noel-sera-culturel-2026-11-10@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261110
 DTEND;VALUE=DATE:20261111
 SUMMARY:E.Leclerc Olonne-sur-Mer : Noël Sera Culturel
@@ -111,7 +111,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:carrefourmarket-247116603-carrefourmarket-6147-2026-11-17@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261117
 DTEND;VALUE=DATE:20261118
 SUMMARY:Carrefour Market Les Sables-d'Olonne : CarrefourMarket_6147
@@ -124,7 +124,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:leclerc-518956227-encore-plus-de-bons-plans-2026-11-17@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261117
 DTEND;VALUE=DATE:20261118
 SUMMARY:E.Leclerc Olonne-sur-Mer : Encore Plus De Bons Plans
@@ -137,7 +137,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:intermarche-10000056367-intermarche-2026-11-17@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261117
 DTEND;VALUE=DATE:20261118
 SUMMARY:Intermarché Longeville-sur-Mer : Intermarché
@@ -150,7 +150,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:superu-513574913-super-u-2026-11-17@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261117
 DTEND;VALUE=DATE:20261118
 SUMMARY:Super U Olonne-sur-Mer : Super U
@@ -163,7 +163,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:superu-513574913-les-inratables-2026-11-17@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261117
 DTEND;VALUE=DATE:20261118
 SUMMARY:⚡ Super U Olonne-sur-Mer : Les inratables
@@ -176,7 +176,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:fin-superu-513574913-les-inratables-2026-11-17@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261129
 DTEND;VALUE=DATE:20261130
 SUMMARY:Dernier jour : ⚡ Super U Olonne-sur-Mer : Les inratables
@@ -188,7 +188,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:superu-513574913-les-prix-bas-de-la-semaine-u-2026-11-17@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261117
 DTEND;VALUE=DATE:20261118
 SUMMARY:⚡ Super U Olonne-sur-Mer : Les prix bas de la semaine U
@@ -201,7 +201,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:fin-superu-513574913-les-prix-bas-de-la-semaine-u-2026-11-17@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261129
 DTEND;VALUE=DATE:20261130
 SUMMARY:Dernier jour : ⚡ Super U Olonne-sur-Mer : Les prix bas de la semaine U
@@ -213,7 +213,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:lidl-402389141-tout-schuss-2026-11-19@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261119
 DTEND;VALUE=DATE:20261120
 SUMMARY:Lidl Olonne-sur-Mer : Tout schuss !
@@ -225,33 +225,8 @@ TRIGGER;RELATED=START:PT9H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:leclerc-518956227-black-friday-a-prix-e-leclerc-2026-11-20@mes-promos
-DTSTAMP:20261126T053540Z
-DTSTART;VALUE=DATE:20261120
-DTEND;VALUE=DATE:20261121
-SUMMARY:⚡ E.Leclerc Olonne-sur-Mer : Black Friday À Prix E.Leclerc
-DESCRIPTION:Du 20/11 au 29/11. Ouvre l'appli Mogette pour le détail.
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:⚡ E.Leclerc Olonne-sur-Mer : Black Friday À Prix E.Leclerc
-TRIGGER;RELATED=START:PT9H
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
-UID:fin-leclerc-518956227-black-friday-a-prix-e-leclerc-2026-11-20@mes-promos
-DTSTAMP:20261126T053540Z
-DTSTART;VALUE=DATE:20261129
-DTEND;VALUE=DATE:20261130
-SUMMARY:Dernier jour : ⚡ E.Leclerc Olonne-sur-Mer : Black Friday À Prix E.Leclerc
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Dernier jour : ⚡ E.Leclerc Olonne-sur-Mer : Black Friday À Prix E.Leclerc
-TRIGGER;RELATED=START:PT9H
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
 UID:leclerc-518956227-black-friday-beaute-2026-11-20@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261120
 DTEND;VALUE=DATE:20261121
 SUMMARY:⚡ E.Leclerc Olonne-sur-Mer : Black Friday beauté
@@ -264,7 +239,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:fin-leclerc-518956227-black-friday-beaute-2026-11-20@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261129
 DTEND;VALUE=DATE:20261130
 SUMMARY:Dernier jour : ⚡ E.Leclerc Olonne-sur-Mer : Black Friday beauté
@@ -275,33 +250,33 @@ TRIGGER;RELATED=START:PT9H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:lidl-402389141-lidl-black-week-2026-11-23@mes-promos
-DTSTAMP:20261126T053540Z
-DTSTART;VALUE=DATE:20261123
-DTEND;VALUE=DATE:20261124
-SUMMARY:⚡ Lidl Olonne-sur-Mer : Lidl Black Week
-DESCRIPTION:Du 23/11 au 26/11. Ouvre l'appli Mogette pour le détail.
+UID:leclerc-518956227-black-friday-a-prix-e-leclerc-2026-11-20@mes-promos
+DTSTAMP:20261127T053401Z
+DTSTART;VALUE=DATE:20261120
+DTEND;VALUE=DATE:20261121
+SUMMARY:⚡ E.Leclerc Olonne-sur-Mer : Black Friday À Prix E.Leclerc
+DESCRIPTION:Du 20/11 au 29/11. Ouvre l'appli Mogette pour le détail.
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:⚡ Lidl Olonne-sur-Mer : Lidl Black Week
+DESCRIPTION:⚡ E.Leclerc Olonne-sur-Mer : Black Friday À Prix E.Leclerc
 TRIGGER;RELATED=START:PT9H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:fin-lidl-402389141-lidl-black-week-2026-11-23@mes-promos
-DTSTAMP:20261126T053540Z
-DTSTART;VALUE=DATE:20261126
-DTEND;VALUE=DATE:20261127
-SUMMARY:Dernier jour : ⚡ Lidl Olonne-sur-Mer : Lidl Black Week
+UID:fin-leclerc-518956227-black-friday-a-prix-e-leclerc-2026-11-20@mes-promos
+DTSTAMP:20261127T053401Z
+DTSTART;VALUE=DATE:20261129
+DTEND;VALUE=DATE:20261130
+SUMMARY:Dernier jour : ⚡ E.Leclerc Olonne-sur-Mer : Black Friday À Prix E.Leclerc
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Dernier jour : ⚡ Lidl Olonne-sur-Mer : Lidl Black Week
+DESCRIPTION:Dernier jour : ⚡ E.Leclerc Olonne-sur-Mer : Black Friday À Prix E.Leclerc
 TRIGGER;RELATED=START:PT9H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:carrefourmarket-247116603-carrefour-market-2026-11-24@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261124
 DTEND;VALUE=DATE:20261125
 SUMMARY:Carrefour Market Les Sables-d'Olonne : Carrefour market
@@ -313,21 +288,8 @@ TRIGGER;RELATED=START:PT9H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:leclerc-518956227-aux-petits-soins-2026-11-24@mes-promos
-DTSTAMP:20261126T053540Z
-DTSTART;VALUE=DATE:20261124
-DTEND;VALUE=DATE:20261125
-SUMMARY:E.Leclerc Olonne-sur-Mer : Aux petits soins !
-DESCRIPTION:Du 24/11 au 05/12. Ouvre l'appli Mogette pour le détail.
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:E.Leclerc Olonne-sur-Mer : Aux petits soins !
-TRIGGER;RELATED=START:PT9H
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
 UID:leclerc-518956227-carte-traiteur-special-fetes-2026-11-24@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261124
 DTEND;VALUE=DATE:20261125
 SUMMARY:⚡ E.Leclerc Olonne-sur-Mer : Carte Traiteur Spécial Fêtes
@@ -340,7 +302,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:fin-leclerc-518956227-carte-traiteur-special-fetes-2026-11-24@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20270103
 DTEND;VALUE=DATE:20270104
 SUMMARY:Dernier jour : ⚡ E.Leclerc Olonne-sur-Mer : Carte Traiteur Spécial Fêtes
@@ -351,8 +313,21 @@ TRIGGER;RELATED=START:PT9H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
+UID:leclerc-518956227-aux-petits-soins-2026-11-24@mes-promos
+DTSTAMP:20261127T053401Z
+DTSTART;VALUE=DATE:20261124
+DTEND;VALUE=DATE:20261125
+SUMMARY:E.Leclerc Olonne-sur-Mer : Aux petits soins !
+DESCRIPTION:Du 24/11 au 05/12. Ouvre l'appli Mogette pour le détail.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:E.Leclerc Olonne-sur-Mer : Aux petits soins !
+TRIGGER;RELATED=START:PT9H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
 UID:intermarche-10000056367-il-etait-une-fois-noel-2026-11-24@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261124
 DTEND;VALUE=DATE:20261125
 SUMMARY:Intermarché Longeville-sur-Mer : Il était une fois Noël.
@@ -364,21 +339,8 @@ TRIGGER;RELATED=START:PT9H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:superu-513574913-super-u-2026-11-24@mes-promos
-DTSTAMP:20261126T053540Z
-DTSTART;VALUE=DATE:20261124
-DTEND;VALUE=DATE:20261125
-SUMMARY:Super U Olonne-sur-Mer : Super U
-DESCRIPTION:Du 24/11 au 06/12. Ouvre l'appli Mogette pour le détail.
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Super U Olonne-sur-Mer : Super U
-TRIGGER;RELATED=START:PT9H
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
 UID:superu-513574913-u-traiteur-2026-11-24@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261124
 DTEND;VALUE=DATE:20261125
 SUMMARY:Super U Olonne-sur-Mer : U traiteur
@@ -390,8 +352,21 @@ TRIGGER;RELATED=START:PT9H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
+UID:superu-513574913-super-u-2026-11-24@mes-promos
+DTSTAMP:20261127T053401Z
+DTSTART;VALUE=DATE:20261124
+DTEND;VALUE=DATE:20261125
+SUMMARY:Super U Olonne-sur-Mer : Super U
+DESCRIPTION:Du 24/11 au 06/12. Ouvre l'appli Mogette pour le détail.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Super U Olonne-sur-Mer : Super U
+TRIGGER;RELATED=START:PT9H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
 UID:action-540561247-la-semaine-d-action-2026-11-25@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261125
 DTEND;VALUE=DATE:20261126
 SUMMARY:Action Olonne-sur-Mer : La Semaine D'Action
@@ -404,7 +379,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:lidl-402389141-lidl-black-week-2026-11-26@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261126
 DTEND;VALUE=DATE:20261127
 SUMMARY:⚡ Lidl Olonne-sur-Mer : Lidl Black Week
@@ -417,7 +392,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:fin-lidl-402389141-lidl-black-week-2026-11-26@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261202
 DTEND;VALUE=DATE:20261203
 SUMMARY:Dernier jour : ⚡ Lidl Olonne-sur-Mer : Lidl Black Week
@@ -429,7 +404,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:intermarche-10000056367-les-menus-de-fetes-a-partir-de-10-par-personne-2026-11-27@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261127
 DTEND;VALUE=DATE:20261128
 SUMMARY:Intermarché Longeville-sur-Mer : Les menus de fêtes À partir de 10€ par personne
@@ -441,8 +416,33 @@ TRIGGER;RELATED=START:PT9H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
+UID:superu-513574913-super-u-2026-11-27@mes-promos
+DTSTAMP:20261127T053401Z
+DTSTART;VALUE=DATE:20261127
+DTEND;VALUE=DATE:20261128
+SUMMARY:⚡ Super U Olonne-sur-Mer : Super U
+DESCRIPTION:Du 27/11 au 29/11. Ouvre l'appli Mogette pour le détail.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:⚡ Super U Olonne-sur-Mer : Super U
+TRIGGER;RELATED=START:PT9H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:fin-superu-513574913-super-u-2026-11-27@mes-promos
+DTSTAMP:20261127T053401Z
+DTSTART;VALUE=DATE:20261129
+DTEND;VALUE=DATE:20261130
+SUMMARY:Dernier jour : ⚡ Super U Olonne-sur-Mer : Super U
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Dernier jour : ⚡ Super U Olonne-sur-Mer : Super U
+TRIGGER;RELATED=START:PT9H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
 UID:carrefourmarket-247116603-carrefour-market-2026-12-01@mes-promos
-DTSTAMP:20261126T053540Z
+DTSTAMP:20261127T053401Z
 DTSTART;VALUE=DATE:20261201
 DTEND;VALUE=DATE:20261202
 SUMMARY:Carrefour Market Les Sables-d'Olonne : Carrefour market
@@ -450,6 +450,19 @@ DESCRIPTION:Du 01/12 au 13/12. Ouvre l'appli Mogette pour le détail.
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:Carrefour Market Les Sables-d'Olonne : Carrefour market
+TRIGGER;RELATED=START:PT9H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:carrefourmarket-247116603-les-nouveautes-2026-12-02@mes-promos
+DTSTAMP:20261127T053401Z
+DTSTART;VALUE=DATE:20261202
+DTEND;VALUE=DATE:20261203
+SUMMARY:Carrefour Market Les Sables-d'Olonne : Les Nouveautés
+DESCRIPTION:Du 02/12 au 04/01. Ouvre l'appli Mogette pour le détail.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Carrefour Market Les Sables-d'Olonne : Les Nouveautés
 TRIGGER;RELATED=START:PT9H
 END:VALARM
 END:VEVENT
